@@ -1,0 +1,58 @@
+# Edvara Design System
+
+This design system is built with Vite, React, TypeScript, Tailwind CSS, and shadcn/ui to provide a consistent and accessible user interface.
+
+## Core Principles
+
+- **Simplicity**: Components should be easy to use and understand
+- **Flexibility**: Customizable for different contexts and needs
+- **Accessibility**: Follows WCAG guidelines and best practices
+- **Scalability**: Components can be composed to create complex interfaces
+
+## Theme & Design Tokens
+
+The design system supports both light and dark themes through CSS variables, which can be found in `src/styles/globals.css`. These include:
+
+- **Colors**: Primary, secondary, accent, muted, destructive, success, etc.
+- **Typography**: Font families, sizes, weights, line heights
+- **Spacing**: Consistent spacing scale
+- **Border radius**: Consistent rounding
+- **Shadows**: Various levels of elevation
+
+## Component Structure
+
+Components are organized into the following categories:
+
+- **UI**: Basic building blocks (Button, Input, Card, etc.)
+- **Layout**: Container, Grid, Flex
+- **Theme**: Theme-related components (ThemeSwitcher)
+
+## How to Use
+
+Import components directly from their respective locations:
+
+```tsx
+import { Button } from "@/components/ui/button";
+import { Container } from "@/components/layout/container";
+import { ThemeSwitcher } from "@/components/theme/theme-switcher";
+```
+
+## Creating Custom Components
+
+When creating custom components, follow these guidelines:
+
+1. Use TypeScript for type safety
+2. Implement proper accessibility attributes
+3. Use the `cn` utility for class name management
+4. Support dark mode through CSS variables
+5. Allow for component composition through props
+
+See the example in `src/components/custom/data-card.tsx` for reference.
+
+## Best Practices
+
+- Maintain consistent naming conventions
+- Document props and component usage
+- Test for accessibility compliance
+- Keep components focused and single-purpose
+- Use composition over inheritance
