@@ -16,6 +16,7 @@ This document defines the specific rules and guidelines for the Edvara Frontend 
   - Custom CSS should be avoided unless absolutely necessary
   - Follow the project's theme configuration in `/old-data/theme.css`
   - Use the animation utilities from `/old-data/tailwind-animate.css`
+  - When design allways have dark and white mode
 
 - **CSS Organization**
   - Global styles should be placed in `src/styles/globals.css`
