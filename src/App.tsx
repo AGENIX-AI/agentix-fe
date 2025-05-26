@@ -7,12 +7,14 @@ import Signup from "./pages/auth/signup/Signup";
 import Dashboard from "./pages/dashboard/Dashboard";
 import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
+import Instructor from "./pages/instructor/Instructor";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";
 
 // Context
 import { AuthProvider } from "./contexts/AuthContext";
+import Student from "./pages/student/student";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
             <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/instructor" element={<Instructor />} />
+            <Route path="/student" element={<Student />} />
             {/* Add more protected routes here */}
           </Route>
 

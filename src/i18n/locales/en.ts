@@ -11,6 +11,8 @@ const enTranslation = {
   nav_login: "Login",
   nav_signup: "Sign Up",
   nav_logout: "Logout",
+  nav_instructor: "Instructor",
+  nav_student: "Student",
 
   // Home page
   home_title: "Transform Your Learning Experience",
@@ -107,6 +109,28 @@ const enTranslation = {
   user_email: "Email",
   user_id: "Account ID",
   loading_data: "Loading your data...",
+
+  // Instructor Page
+  instructor_welcome: "Welcome to the instructor dashboard. Here you can manage your courses and students.",
+  instructor_page_title: "Instructor Dashboard",
+  instructor_content: "As an instructor, you have access to create and manage courses, track student progress, and provide feedback.",
+  instructor_courses: "Your Courses",
+  instructor_courses_description: "View and manage the courses you are teaching.",
+  instructor_students: "Your Students",
+  instructor_students_description: "View and manage the students enrolled in your courses.",
+
+  // Student Page
+  student_welcome: "Welcome to the student dashboard. Here you can access your courses and track your progress.",
+  student_page_title: "Student Dashboard",
+  student_content: "As a student, you have access to your enrolled courses, assignments, and learning materials.",
+  student_courses: "Your Courses",
+  student_courses_description: "View and access the courses you are enrolled in.",
+  student_progress: "Your Progress",
+  student_progress_description: "Track your learning progress and achievements.",
+  student_assignments: "Your Assignments",
+  student_profile: "Your Profile",
+  student_profile_title: "Student Profile",
+  student_no_assignments: "You have no pending assignments.",
 
   // Language
   language: "Language",

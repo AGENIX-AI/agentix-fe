@@ -10,6 +10,12 @@ interface User {
   email: string;
   phone: string;
   role: string;
+  metadata: {
+    avatar_url: string;
+    email: string;
+    full_name: string;
+    picture: string;
+  };
 }
 
 interface Session {

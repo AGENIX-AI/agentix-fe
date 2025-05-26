@@ -40,6 +40,12 @@ const Dashboard = () => {
             <Flex gap="md" align="center">
               <LanguageSwitcher />
               <ThemeSwitcher />
+              <Button variant="secondary" onClick={() => navigate("/instructor")}>
+                {t("nav_instructor")}
+              </Button>
+              <Button variant="secondary" onClick={() => navigate("/student")}>
+                {t("nav_student")}
+              </Button>
               <Button variant="outline" onClick={handleLogout}>
                 {t("nav_logout")}
               </Button>

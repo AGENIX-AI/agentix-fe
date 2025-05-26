@@ -11,6 +11,8 @@ const viTranslation = {
   "nav_login": "Đăng nhập",
   "nav_signup": "Đăng ký",
   "nav_logout": "Đăng xuất",
+  "nav_instructor": "Giảng viên",
+  "nav_student": "Học viên",
   
   // Home page
   "home_title": "Thay đổi trải nghiệm học tập của bạn",
@@ -102,6 +104,28 @@ const viTranslation = {
   "user_email": "Email",
   "user_id": "Mã tài khoản",
   "loading_data": "Đang tải dữ liệu của bạn...",
+  
+  // Instructor Page
+  "instructor_welcome": "Chào mừng đến với bảng điều khiển giảng viên. Tại đây bạn có thể quản lý khóa học và học viên của mình.",
+  "instructor_page_title": "Bảng Điều Khiển Giảng Viên",
+  "instructor_content": "Với tư cách là giảng viên, bạn có quyền tạo và quản lý khóa học, theo dõi tiến độ học viên và cung cấp phản hồi.",
+  "instructor_courses": "Khóa Học Của Bạn",
+  "instructor_courses_description": "Xem và quản lý các khóa học mà bạn đang giảng dạy.",
+  "instructor_students": "Học Viên Của Bạn",
+  "instructor_students_description": "Xem và quản lý các học viên đã đăng ký khóa học của bạn.",
+  
+  // Student Page
+  "student_welcome": "Chào mừng đến với bảng điều khiển học viên. Tại đây bạn có thể truy cập khóa học và theo dõi tiến độ của mình.",
+  "student_page_title": "Bảng Điều Khiển Học Viên",
+  "student_content": "Với tư cách là học viên, bạn có quyền truy cập vào các khóa học đã đăng ký, bài tập và tài liệu học tập.",
+  "student_courses": "Khóa Học Của Bạn",
+  "student_courses_description": "Xem và truy cập các khóa học mà bạn đã đăng ký.",
+  "student_progress": "Tiến Độ Của Bạn",
+  "student_progress_description": "Theo dõi tiến độ học tập và thành tích của bạn.",
+  "student_assignments": "Bài Tập Của Bạn",
+  "student_profile": "Hồ Sơ Của Bạn",
+  "student_profile_title": "Hồ Sơ Học Viên",
+  "student_no_assignments": "Bạn không có bài tập đang chờ.",
   
   // Language
   "language": "Ngôn ngữ",

@@ -1,0 +1,189 @@
+import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
+import { UserAvatar } from "./user-avatar";
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuSeparator,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import {
+  BookIcon,
+  HardDriveIcon,
+  HomeIcon,
+  LogOutIcon,
+  MoonIcon,
+  MoreVerticalIcon,
+  SettingsIcon,
+  SunIcon,
+} from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { useTheme } from "next-themes";
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+
+export function UserMenu({
+  showUserName,
+  className,
+}: {
+  showUserName?: boolean;
+  className?: string;
+}) {
+  const { t } = useTranslation();
+  const { userInfo } = useAuth();
+  const { setTheme: setCurrentTheme, theme: currentTheme } = useTheme();
+  const [theme, setTheme] = useState<string>(currentTheme ?? "system");
+
+  const colorModeOptions = [
+    {
+      value: "system",
+      label: "System",
+      icon: HardDriveIcon,
+    },
+    {
+      value: "light",
+      label: "Light",
+      icon: SunIcon,
+    },
+    {
+      value: "dark",
+      label: "Dark",
+      icon: MoonIcon,
+    },
+  ];
+
+  useEffect(() => {
+    console.log("Fetch version");
+  }, []);
+
+  const onLogout = () => {
+    console.log("Logout");
+  };
+
+  if (!userInfo) {
+    return null;
+  }
+
+  const { full_name, email, avatar_url } = userInfo.metadata || {
+    full_name: "",
+    email: "",
+    avatar_url: "",
+  };
+
+  return (
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
+        <button
+          type="button"
+          className={cn(
+            "flex cursor-pointer w-full items-center justify-between gap-2 rounded-lg outline-hidden focus-visible:ring-2 focus-visible:ring-primary md:w-[100%+1rem] md:px-2 md:py-1.5 md:hover:bg-primary/5",
+            className
+          )}
+          aria-label="User menu"
+        >
+          <span className="flex items-center gap-2">
+            <UserAvatar name={full_name ?? ""} avatarUrl={avatar_url} />
+            {showUserName && (
+              <span className="text-left leading-tight">
+                <span className="font-medium text-sm">{full_name}</span>
+                <span className="block text-xs opacity-70 truncate max-w-[150px]">
+                  {email}
+                </span>
+                <span className="text-[9px] block font-normal text-xs truncate">
+                  {/* v.{version}.{lastBuildDate} */}
+                </span>
+              </span>
+            )}
+          </span>
+
+          {showUserName && <MoreVerticalIcon className="size-4" />}
+        </button>
+      </DropdownMenuTrigger>
+
+      <DropdownMenuContent align="end" className="w-72 p-3 ml-2">
+        <DropdownMenuLabel className="text-sm">
+          {full_name}
+          <span className="block font-normal text-xs truncate">{email}</span>
+          <span className="text-[9px] block font-normal text-xs truncate">
+            {/* v.{version}.{lastBuildDate} */}
+          </span>
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        {/* Color mode selection */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="text-xs py-2">
+            <SunIcon className="mr-2 size-5" />
+            <span className="text-xs ml-2">
+              {t("app.userMenu.colorMode", "Color Mode")}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="w-56 p-2">
+              <DropdownMenuRadioGroup
+                value={theme}
+                onValueChange={(value) => {
+                  setTheme(value);
+                  setCurrentTheme(value);
+                }}
+              >
+                {colorModeOptions.map((option) => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                    className="text-xs py-2"
+                  >
+                    <option.icon className="mr-2 size-5 opacity-50" />
+                    <span className="text-xs mr-2">{option.label}</span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild className="text-xs py-2">
+          <Link to="/settings/general">
+            <SettingsIcon className="mr-2 size-5" />
+            <span className="text-xs">
+              {t("app.userMenu.accountSettings", "Account Settings")}
+            </span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="text-xs py-2">
+          <a href="https://supastarter.dev/docs/nextjs">
+            <BookIcon className="mr-2 size-5" />
+            <span className="text-xs">
+              {t("app.userMenu.documentation", "Documentation")}
+            </span>
+          </a>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="text-xs py-2">
+          <Link to="/">
+            <HomeIcon className="mr-2 size-5" />
+            <span className="text-xs">{t("app.userMenu.home", "Home")}</span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem onClick={onLogout} className="text-xs py-2">
+          <LogOutIcon className="mr-2 size-5" />
+          <span className="text-xs">{t("app.userMenu.logout", "Logout")}</span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
