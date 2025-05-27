@@ -16,6 +16,7 @@ import {
 } from "./dropdown-menu";
 import {
   BookIcon,
+  GlobeIcon,
   HardDriveIcon,
   HomeIcon,
   LogOutIcon,
@@ -38,10 +39,11 @@ export function UserMenu({
   showUserName?: boolean;
   className?: string;
 }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { userInfo } = useAuth();
   const { setTheme: setCurrentTheme, theme: currentTheme } = useTheme();
   const [theme, setTheme] = useState<string>(currentTheme ?? "system");
+  const [language, setLanguage] = useState<string>(i18n.language);
 
   const colorModeOptions = [
     {
@@ -58,6 +60,17 @@ export function UserMenu({
       value: "dark",
       label: "Dark",
       icon: MoonIcon,
+    },
+  ];
+
+  const languageOptions = [
+    {
+      value: "en",
+      label: t("language_en", "English"),
+    },
+    {
+      value: "vi",
+      label: t("language_vi", "Vietnamese"),
     },
   ];
 
@@ -85,7 +98,7 @@ export function UserMenu({
         <button
           type="button"
           className={cn(
-            "flex cursor-pointer w-full items-center justify-between gap-2 rounded-lg outline-hidden focus-visible:ring-2 focus-visible:ring-primary md:w-[100%+1rem] md:px-2 md:py-1.5 md:hover:bg-primary/5",
+            "flex cursor-pointer w-full items-center justify-between gap-2 outline-hidden focus-visible:ring-2 focus-visible:ring-primary md:w-[100%+1rem] md:px-2 md:py-1.5",
             className
           )}
           aria-label="User menu"
@@ -122,14 +135,14 @@ export function UserMenu({
 
         {/* Color mode selection */}
         <DropdownMenuSub>
-          <DropdownMenuSubTrigger className="text-xs py-2">
+          <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
             <SunIcon className="mr-2 size-5" />
             <span className="text-xs ml-2">
               {t("app.userMenu.colorMode", "Color Mode")}
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="w-56 p-2">
+            <DropdownMenuSubContent className="w-56 ml-4">
               <DropdownMenuRadioGroup
                 value={theme}
                 onValueChange={(value) => {
@@ -152,9 +165,40 @@ export function UserMenu({
           </DropdownMenuPortal>
         </DropdownMenuSub>
 
+        {/* Language selection */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
+            <GlobeIcon className="mr-2 size-5" />
+            <span className="text-xs ml-2">
+              {t("app.userMenu.language", "Language")}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="w-56 ml-4">
+              <DropdownMenuRadioGroup
+                value={language}
+                onValueChange={(value) => {
+                  setLanguage(value);
+                  i18n.changeLanguage(value);
+                }}
+              >
+                {languageOptions.map((option) => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                    className="text-xs py-2"
+                  >
+                    <span className="text-xs mr-2">{option.label}</span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild className="text-xs py-2">
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
           <Link to="/settings/general">
             <SettingsIcon className="mr-2 size-5" />
             <span className="text-xs">
@@ -163,7 +207,7 @@ export function UserMenu({
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="text-xs py-2">
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
           <a href="https://supastarter.dev/docs/nextjs">
             <BookIcon className="mr-2 size-5" />
             <span className="text-xs">
@@ -172,14 +216,17 @@ export function UserMenu({
           </a>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="text-xs py-2">
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
           <Link to="/">
             <HomeIcon className="mr-2 size-5" />
             <span className="text-xs">{t("app.userMenu.home", "Home")}</span>
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem onClick={onLogout} className="text-xs py-2">
+        <DropdownMenuItem
+          onClick={onLogout}
+          className="text-xs py-2 cursor-pointer"
+        >
           <LogOutIcon className="mr-2 size-5" />
           <span className="text-xs">{t("app.userMenu.logout", "Logout")}</span>
         </DropdownMenuItem>

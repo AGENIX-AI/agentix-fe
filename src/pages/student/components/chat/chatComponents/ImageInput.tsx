@@ -1,0 +1,31 @@
+"use client";
+import { Small } from "@/components/ui/typography";
+import { ImageIcon } from "lucide-react";
+
+interface ImageInputProps {
+  onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  disabled?: boolean;
+}
+
+export function ImageInput({
+  onFileChange,
+  disabled = false,
+}: ImageInputProps) {
+  return (
+    <label
+      htmlFor="file-upload"
+      className="cursor-pointer p-2 text-gray-500 hover:text-gray-700"
+    >
+      <input
+        id="file-upload"
+        type="file"
+        className="hidden"
+        accept="image/*"
+        onChange={onFileChange}
+        disabled={disabled}
+      />
+      <ImageIcon className="size-4" />
+      <Small className="sr-only">Upload image</Small>
+    </label>
+  );
+}

@@ -130,7 +130,22 @@ const viTranslation = {
   // Language
   "language": "Ngôn ngữ",
   "language_en": "Tiếng Anh",
-  "language_vi": "Tiếng Việt"
+  "language_vi": "Tiếng Việt",
+
+  // Instructor Finder
+  "findInstructor": "Tìm Giảng Viên",
+  "searchByName": "Tìm theo tên",
+  "search": "Tìm kiếm",
+  "loadingInstructors": "Đang tải danh sách giảng viên",
+  "errorLoadingInstructors": "Lỗi khi tải danh sách giảng viên",
+  "noInstructorsFound": "Không tìm thấy giảng viên nào",
+  "noDescriptionAvailable": "Không có mô tả",
+  "selectInstructor": "Chọn Giảng Viên",
+  "foundInstructors": "Tìm thấy {{count}} giảng viên",
+  "page": "Trang",
+  "of": "của",
+  "previous": "Trước",
+  "next": "Tiếp"
 };
 
 export default viTranslation;

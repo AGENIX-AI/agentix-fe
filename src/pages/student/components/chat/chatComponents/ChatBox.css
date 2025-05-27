@@ -1,0 +1,53 @@
+/* Custom styles for chat message content */
+.chat-message-content p {
+  margin-bottom: 0.7rem;
+}
+
+.chat-message-content p:last-child {
+  margin-bottom: 0;
+} 
+
+/* Scrolling container styles */
+.chat-scroll-container {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+  contain: strict;
+}
+
+.chat-scroll-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* KaTeX styling */
+.katex-enabled .katex {
+  display: inline-block;
+  font-size: 1.1em;
+  line-height: 1.2;
+  text-indent: 0;
+  text-rendering: auto;
+}
+
+.katex-enabled .katex-mathml {
+  position: absolute;
+  clip: rect(1px, 1px, 1px, 1px);
+  padding: 0;
+  border: 0;
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+}
+
+/* Fix for sqrt symbol */
+.katex-enabled .sqrt {
+  display: inline-block;
+}
+
+.katex-enabled .vlist-t2 {
+  margin-top: 0.25rem;
+}
+
+/* Make sure inline math is properly aligned with text */
+.katex-enabled .base {
+  display: inline-flex;
+  align-items: baseline;
+} 

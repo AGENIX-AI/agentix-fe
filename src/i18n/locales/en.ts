@@ -136,6 +136,21 @@ const enTranslation = {
   language: "Language",
   language_en: "English",
   language_vi: "Vietnamese",
+
+  // Instructor Finder
+  findInstructor: "Find Instructor",
+  searchByName: "Search by name",
+  search: "Search",
+  loadingInstructors: "Loading instructors",
+  errorLoadingInstructors: "Error loading instructors",
+  noInstructorsFound: "No instructors found",
+  noDescriptionAvailable: "No description available",
+  selectInstructor: "Select Instructor",
+  foundInstructors: "Found {{count}} instructor(s)",
+  page: "Page",
+  of: "of",
+  previous: "Previous",
+  next: "Next",
 };
 
 export default enTranslation;

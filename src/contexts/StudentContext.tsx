@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from "react";
 // import { getConversationById } from "@repo/api/src/external";
-// import { getAssistantById } from "@repo/api/src/external/assisstants";
+import { getAssistantById } from "@/api/assistants";
 
 interface Personality {
   instruction_style: number;
@@ -13,7 +13,7 @@ interface Personality {
   mood_style: number;
 }
 
-interface CharacterInfo {
+interface AssistantInfo {
   id: string;
   name: string;
   image: string;
@@ -50,9 +50,10 @@ interface ConversationInfo {
 interface AppPageContextType {
   isHistoryVisible: boolean;
   toggleHistory: () => void;
-  characterId: string | null;
-  setCharacterId: (id: string | null) => void;
-  characterInfo: CharacterInfo | null;
+  assistantId: string | null;
+  setAssistantId: (id: string | null) => void;
+  assistantInfo: AssistantInfo | null;
+  setAssistantInfo: (info: AssistantInfo | null) => void;
   conversationId: string | null;
   setConversationId: (id: string | null) => void;
   conversationInfo: ConversationInfo | null;
@@ -60,6 +61,10 @@ interface AppPageContextType {
   toggleTasks: () => void;
   rightPanel: string;
   setRightPanel: (panel: string) => void;
+  chatPanel: string;
+  setChatPanel: (panel: string) => void;
+  instructorId: string | null;
+  setInstructorId: (id: string | null) => void;
   isMessageLoading: boolean;
   setIsMessageLoading: (loading: boolean) => void;
 }
@@ -87,11 +92,11 @@ export function StudentContextProvider({
 }) {
   const savedState = getFromLocalStorage("edvara-app-state");
   const [isHistoryVisible, setIsHistoryVisible] = useState(true);
-  const [characterId, setCharacterId] = useState<string | null>(
-    savedState?.characterId || null
+  const [assistantId, setAssistantId] = useState<string | null>(
+    savedState?.assistantId || null
   );
-  const [characterInfo, setCharacterInfo] = useState<CharacterInfo | null>(
-    savedState?.characterInfo || null
+  const [assistantInfo, setAssistantInfo] = useState<AssistantInfo | null>(
+    savedState?.assistantInfo || null
   );
   const [conversationId, setConversationId] = useState<string | null>(
     savedState?.conversationId || null
@@ -100,7 +105,13 @@ export function StudentContextProvider({
     useState<ConversationInfo | null>(savedState?.conversationInfo || null);
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [rightPanel, setRightPanel] = useState(
-    savedState?.rightPanel || "empty"
+    savedState?.rightPanel || "following_posts"
+  );
+  const [chatPanel, setChatPanel] = useState(
+    savedState?.chatPanel || "findInstructor"
+  );
+  const [instructorId, setInstructorId] = useState<string | null>(
+    savedState?.instructorId || null
   );
   const [isMessageLoading, setIsMessageLoading] = useState(false);
 
@@ -114,27 +125,26 @@ export function StudentContextProvider({
 
   // Fetch character data when characterId changes
   useEffect(() => {
-    if (!characterId) {
-      setCharacterInfo(null);
+    if (!assistantId) {
+      setAssistantInfo(null);
       return;
     }
 
-    const fetchCharacterData = async () => {
-      // try {
-      //   const response = await getAssistantById(characterId);
+    const fetchAssistantData = async () => {
+      try {
+        const response = await getAssistantById(assistantId);
 
-      //   if (response.success && response.assistant) {
-      //     const assistant = response.assistant;
-      //     setCharacterInfo(assistant as CharacterInfo);
-      //   }
-      // } catch (error) {
-      //   console.error("Error fetching character data:", error);
-      // }
-      console.log("fetchCharacterData");
+        if (response.success && response.assistant) {
+          const assistant = response.assistant;
+          setAssistantInfo(assistant as AssistantInfo);
+        }
+      } catch (error) {
+        console.error("Error fetching assistant data:", error);
+      }
     };
 
-    fetchCharacterData();
-  }, [characterId]);
+    fetchAssistantData();
+  }, [assistantId]);
 
   // Fetch conversation data when conversationId changes
   useEffect(() => {
@@ -170,22 +180,23 @@ export function StudentContextProvider({
 
   useEffect(() => {
     const stateToSave = {
-      characterId,
+      assistantId,
       conversationId,
       rightPanel,
     };
     console.log("state:", stateToSave);
     saveToLocalStorage("edvara-app-state", stateToSave);
-  }, [characterId, conversationId, rightPanel]);
+  }, [assistantId, conversationId, rightPanel]);
 
   return (
     <StudentContext.Provider
       value={{
         isHistoryVisible,
         toggleHistory,
-        characterId,
-        setCharacterId,
-        characterInfo,
+        assistantId,
+        setAssistantId,
+        assistantInfo,
+        setAssistantInfo,
         conversationId,
         setConversationId,
         conversationInfo,
@@ -193,6 +204,10 @@ export function StudentContextProvider({
         toggleTasks,
         rightPanel,
         setRightPanel,
+        chatPanel,
+        setChatPanel,
+        instructorId,
+        setInstructorId,
         isMessageLoading,
         setIsMessageLoading,
       }}

@@ -73,6 +73,57 @@ const H4 = forwardRef<HTMLHeadingElement, TypographyProps>(
 );
 H4.displayName = "H4";
 
+const H5 = forwardRef<HTMLHeadingElement, TypographyProps>(
+  ({ className, as: Component = "h5", ...props }, ref) => {
+    return (
+      // @ts-ignore
+      <Component
+        ref={ref}
+        className={cn(
+          "scroll-m-20 text-lg font-semibold tracking-tight",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+H5.displayName = "H5";
+
+const H6 = forwardRef<HTMLHeadingElement, TypographyProps>(
+  ({ className, as: Component = "h6", ...props }, ref) => {
+    return (
+      // @ts-ignore
+      <Component
+        ref={ref}
+        className={cn(
+          "scroll-m-20 text-base font-semibold tracking-tight",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+H6.displayName = "H6";
+
+const H7 = forwardRef<HTMLHeadingElement, TypographyProps>(
+  ({ className, as: Component = "h6", ...props }, ref) => {
+    return (
+      // @ts-ignore
+      <Component
+        ref={ref}
+        className={cn(
+          "scroll-m-20 text-sm font-semibold tracking-tight",
+          className
+        )}
+        {...props}
+      />
+    );
+  }
+);
+H7.displayName = "H7";
+
 const P = forwardRef<HTMLParagraphElement, TypographyProps>(
   ({ className, as: Component = "p", ...props }, ref) => {
     return (
@@ -196,6 +247,9 @@ export {
   H2,
   H3,
   H4,
+  H5,
+  H6,
+  H7,
   P,
   Lead,
   Large,

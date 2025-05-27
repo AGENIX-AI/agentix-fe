@@ -1,12 +1,15 @@
 import Dashboard from "@/pages/dashboard/Dashboard";
+import { ProfileInfo } from "./instructorProfile/ProfileInfo";
+import { useStudent } from "@/contexts/StudentContext";
+import { FollowingPosts } from "./followingPosts/FollowingPosts";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
-  const rightPanel: string = "profile_info";
+  const { rightPanel } = useStudent();
 
   switch (rightPanel) {
     case "profile_info":
-      return <div className="overflow-hidden">ProfileInfo</div>;
+      return <ProfileInfo />;
     case "assistantTopics":
       return <div>AssistantTopics</div>;
     case "tasks":
@@ -15,6 +18,8 @@ export default function RightPanel({}) {
       return <div>AgentCapabilityStatement</div>;
     case "dashboard":
       return <Dashboard />;
+    case "following_posts":
+      return <FollowingPosts />;
 
     case "empty":
       return (

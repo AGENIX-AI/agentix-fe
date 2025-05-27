@@ -1,7 +1,7 @@
 export interface LastMessage {
+  time: string;
   content: string;
-  sender_email: string;
-  timestamp: number;
+  sender: string;
 }
 
 export interface ConversationDetails {
@@ -19,8 +19,17 @@ export interface ConversationDetails {
 
 export interface ConversationListItem {
   id: string;
+  conversation_name: string;
+  conversation_description: string;
+  last_message?: LastMessage;
+  assistants: {
+    id: string;
+    name: string;
+    tagline: string;
+    image: string;
+  };
   name: string;
-  image: string;
   tagline: string;
-  conversation: ConversationDetails | null;
+  image: string;
+  conversation?: ConversationDetails;
 }
