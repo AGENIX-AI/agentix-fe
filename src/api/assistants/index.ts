@@ -3,6 +3,19 @@
 import Cookies from "js-cookie";
 
 // Assistant interface based on the sample response
+export interface PersonalityStyle {
+  id: string;
+  voice: string;
+  created_at: string;
+  mood_style: number;
+  assistant_id: string;
+  formality_style: number;
+  instruction_style: number;
+  assertiveness_style: number;
+  communication_style: number;
+  response_length_style: number;
+}
+
 export interface Assistant {
   id: string;
   name: string;
@@ -16,6 +29,7 @@ export interface Assistant {
   updated_at: string;
   description: string;
   role: string;
+  personality: PersonalityStyle;
 }
 
 export interface GetAssistantResponse {
@@ -55,11 +69,14 @@ export const getAssistantById = async (
   const headers = getAuthHeaders();
 
   try {
-    const response = await fetch(`${baseUrl}/assistants/get_by_id/${assistantId}`, {
-      method: "GET",
-      credentials: "include",
-      headers,
-    });
+    const response = await fetch(
+      `${baseUrl}/assistants/get_by_id/${assistantId}?have_personality=True`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
 
     if (!response.ok) {
       throw new Error(`Failed to fetch assistant: ${response.statusText}`);
@@ -68,13 +85,13 @@ export const getAssistantById = async (
     const assistantData = await response.json();
     return {
       success: true,
-      assistant: assistantData
+      assistant: assistantData,
     };
   } catch (error) {
     console.error("Error fetching assistant:", error);
     return {
       success: false,
-      assistant: null
+      assistant: null,
     };
   }
 };

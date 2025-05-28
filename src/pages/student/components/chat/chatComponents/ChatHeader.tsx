@@ -1,5 +1,3 @@
-"use client";
-
 import { memo } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +59,10 @@ export function ChatHeader({
   tagline = "Powered by AI",
   agentImage,
 }: ChatHeaderProps) {
+  console.log(agentImage);
+  console.log(agentName);
+  console.log(tagline);
+
   return (
     <div className="">
       <div className="flex items-center justify-start h-full">

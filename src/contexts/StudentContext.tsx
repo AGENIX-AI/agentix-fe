@@ -1,16 +1,18 @@
-"use client";
-
 import React, { createContext, useContext, useEffect, useState } from "react";
 // import { getConversationById } from "@repo/api/src/external";
 import { getAssistantById } from "@/api/assistants";
 
 interface Personality {
+  id: string;
+  voice: string;
+  created_at: string;
+  mood_style: number;
+  assistant_id: string;
+  formality_style: number;
   instruction_style: number;
+  assertiveness_style: number;
   communication_style: number;
   response_length_style: number;
-  formality_style: number;
-  assertiveness_style: number;
-  mood_style: number;
 }
 
 interface AssistantInfo {
@@ -19,13 +21,14 @@ interface AssistantInfo {
   image: string;
   tagline: string;
   description: string;
-  capability_statement?: {
-    speciality: string;
-    capabilities: string[];
-  };
-  personality?: Personality;
+  speciality: string | null;
+  owner_id: string;
+  base_stream_name: string | null;
+  updated_at: string;
+  role: string;
   language: string;
   created_at: string;
+  personality: Personality;
 }
 
 interface LastMessage {
@@ -137,6 +140,7 @@ export function StudentContextProvider({
         if (response.success && response.assistant) {
           const assistant = response.assistant;
           setAssistantInfo(assistant as AssistantInfo);
+          setInstructorId(assistant.owner_id);
         }
       } catch (error) {
         console.error("Error fetching assistant data:", error);

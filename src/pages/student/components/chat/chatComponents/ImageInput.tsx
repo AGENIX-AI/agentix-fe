@@ -1,4 +1,3 @@
-"use client";
 import { Small } from "@/components/ui/typography";
 import { ImageIcon } from "lucide-react";
 

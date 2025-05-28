@@ -1,5 +1,3 @@
-"use client";
-
 import { memo, useState } from "react";
 import { SecondPage } from "./chat/second-page";
 import { AlignJustify, SearchIcon } from "lucide-react";
@@ -173,7 +171,7 @@ export default function LeftPanel({
           <div className="flex-1 h-full overflow-hidden">
             <div className="flex h-full overflow-hidden">
               <ModifiedResizableLayout
-                leftPane={<HistoryComponent className="h-full" />}
+                leftPane={<HistoryComponent />}
                 rightPane={<SecondPage />}
                 initialLeftWidth={30}
                 minLeftWidth={30}

@@ -70,7 +70,7 @@ export function ChatBox({
               key={index}
               message={message}
               index={index}
-              isCurrentUser={message.sender_email === email}
+              isCurrentUser={message.sender === "user"}
               currentUserName={user?.metadata.full_name || ""}
               currentUserImage={user?.metadata.avatar_url || ""}
               agentName={name}

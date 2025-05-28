@@ -1,54 +1,123 @@
-# React + TypeScript + Vite
+# Edvara Frontend Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+Edvara is a modern educational platform built with React, TypeScript, and Vite. The application features a responsive UI with theme switching capabilities, internationalization support, and a robust authentication system.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+### Authentication
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Standard password authentication
+- Simulated magic link authentication
+- Form validation and user feedback
+- Authentication method toggle
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### Internationalization (i18n)
+
+- Multi-language support (English and Vietnamese)
+- Automatic language detection
+- Language preference saved in localStorage
+- Language switcher component integrated across all pages
+
+### UI/UX
+
+- Light and dark theme support
+- Modern component library using Radix UI
+- Responsive design with Tailwind CSS
+- Consistent design patterns
+
+## Tech Stack
+
+- **Framework**: React 19
+- **Language**: TypeScript
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS
+- **UI Components**: Radix UI
+- **Form Handling**: React Hook Form with Zod validation
+- **Routing**: React Router
+- **Internationalization**: i18next with react-i18next
+- **Theme Management**: next-themes
+- **HTTP Client**: Axios
+- **Testing**: Vitest with React Testing Library
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (latest LTS version recommended)
+- npm or yarn
+
+### Installation
+
+```bash
+# Clone the repository
+git clone [repository-url]
+
+# Navigate to the project directory
+cd edvara-fe
+
+# Install dependencies
+npm install
+# or
+yarn install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Development
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+```bash
+# Start the development server
+npm run dev
+# or
+yarn dev
 ```
+
+The application will be available at `http://localhost:5173`.
+
+### Building for Production
+
+```bash
+# Build the application
+npm run build
+# or
+yarn build
+
+# Preview the production build
+npm run preview
+# or
+yarn preview
+```
+
+## Project Structure
+
+```
+edvara-fe/
+├── public/          # Static assets
+├── src/
+│   ├── assets/      # Images, fonts, etc.
+│   ├── components/  # Reusable UI components
+│   ├── hooks/       # Custom React hooks
+│   ├── lib/         # Utility functions and services
+│   ├── locales/     # Translation files
+│   ├── pages/       # Page components
+│   │   ├── student/ # Student-specific pages
+│   │   └── ...      # Other role-specific pages
+│   ├── styles/      # Global styles
+│   ├── types/       # TypeScript type definitions
+│   ├── App.tsx      # Main application component
+│   └── main.tsx     # Application entry point
+├── .eslintrc.js     # ESLint configuration
+├── package.json     # Project dependencies and scripts
+├── tsconfig.json    # TypeScript configuration
+└── vite.config.ts   # Vite configuration
+```
+
+## Contributing
+
+1. Create a feature branch from the main branch
+2. Make your changes
+3. Submit a pull request
+
+## License
+
+[License information]

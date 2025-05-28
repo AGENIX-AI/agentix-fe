@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Divider } from "../../../components/custom/ResizableLayout/Divider";
 import { Pane } from "../../../components/custom/ResizableLayout/Pane";

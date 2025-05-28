@@ -4,19 +4,6 @@ export interface LastMessage {
   sender: string;
 }
 
-export interface ConversationDetails {
-  id: string;
-  stream_name: string;
-  stream_id: string;
-  topic_name: string;
-  language: string;
-  status: number;
-  type: number;
-  created_at: string;
-  updated_at: string;
-  last_message?: LastMessage;
-}
-
 export interface ConversationListItem {
   id: string;
   conversation_name: string;
@@ -31,5 +18,4 @@ export interface ConversationListItem {
   name: string;
   tagline: string;
   image: string;
-  conversation?: ConversationDetails;
 }

@@ -1,5 +1,3 @@
-"use client";
-
 import {
   Bookmark,
   CheckCircle,
@@ -325,7 +323,7 @@ export function FollowingPosts({ showMoreData = false }: FollowingPostsProps) {
   const hasPosts = visiblePosts.length > 0;
 
   return (
-    <div className="p-2 border-l">
+    <div className="p-2">
       {hasPosts ? (
         <>
           <div className="space-y-4">

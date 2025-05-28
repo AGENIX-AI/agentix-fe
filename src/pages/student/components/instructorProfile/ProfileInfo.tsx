@@ -1,5 +1,3 @@
-"use client";
-
 import { ProfileBanner } from "./ProfileBanner";
 import { AIAssistants } from "./AIAssistants";
 import { ProfileGroups } from "./ProfileGroups";
@@ -46,7 +44,7 @@ export function ProfileInfo() {
   }, [instructorId]);
 
   return (
-    <div className="flex flex-col overflow-auto min-h-[100vh] border-l">
+    <div className="flex flex-col overflow-auto min-h-[100vh]">
       {loading ? (
         <div className="flex items-center justify-center p-8">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -66,9 +64,10 @@ export function ProfileInfo() {
           <div className="px-6">
             <ExtraSmall className="hidden">Text size reference</ExtraSmall>
             {assistants.length > 0 && <AIAssistants assistants={assistants} />}
-            <ProfileGroups />
+            <ProfileGroups instructorName={instructorData?.instructor_name} />
             <ProfilePosts
               instructorDescription={instructorData?.instructor_description}
+              instructorName={instructorData?.instructor_name}
             />
           </div>
         </>

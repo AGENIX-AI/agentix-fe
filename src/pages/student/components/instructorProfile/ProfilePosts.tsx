@@ -1,5 +1,3 @@
-"use client";
-
 import { H6, ExtraSmall } from "@/components/ui/typography";
 import { Share } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
@@ -50,14 +48,18 @@ function Post({ content }: PostProps) {
 
 interface ProfilePostsProps {
   instructorDescription?: string;
+  instructorName?: string;
 }
 
-export function ProfilePosts({ instructorDescription }: ProfilePostsProps) {
-  const hasPosts = !!instructorDescription; // Show posts section if there's a description
+export function ProfilePosts({
+  instructorDescription,
+  instructorName,
+}: ProfilePostsProps) {
+  const hasPosts = false; // Show posts section if there's a description
 
   return (
     <div className="mt-6">
-      <H6>About Instructor</H6>
+      <H6>{instructorName} Posts</H6>
 
       {hasPosts ? (
         <div className="mt-3 space-y-4">
@@ -80,7 +82,7 @@ export function ProfilePosts({ instructorDescription }: ProfilePostsProps) {
             </svg>
           </div>
           <ExtraSmall className="mt-2 text-muted-foreground">
-            No instructor description available
+            No posts available
           </ExtraSmall>
         </div>
       )}

@@ -1,223 +1,219 @@
-"use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Divider } from "./Divider";
 import { Pane } from "./Pane";
 
 export interface ResizableLayoutProps {
-	leftPane: React.ReactNode;
-	rightPane: React.ReactNode;
-	initialLeftWidth?: number;
-	minLeftWidth?: number;
-	maxLeftWidth?: number;
-	storageKey?: string;
+  leftPane: React.ReactNode;
+  rightPane: React.ReactNode;
+  initialLeftWidth?: number;
+  minLeftWidth?: number;
+  maxLeftWidth?: number;
+  storageKey?: string;
 }
 
 export function ResizableLayout({
-	leftPane,
-	rightPane,
-	initialLeftWidth = 50, // initial width percentage for left pane
-	minLeftWidth = 20, // minimum percentage width for left pane
-	maxLeftWidth = 80, // maximum percentage width for left pane
-	storageKey = "edvara-chat-layout-width", // localStorage key for persisting width
+  leftPane,
+  rightPane,
+  initialLeftWidth = 50, // initial width percentage for left pane
+  minLeftWidth = 20, // minimum percentage width for left pane
+  maxLeftWidth = 80, // maximum percentage width for left pane
+  storageKey = "edvara-chat-layout-width", // localStorage key for persisting width
 }: ResizableLayoutProps) {
-	const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
-	const [isDragging, setIsDragging] = useState(false);
-	const [isHovering, setIsHovering] = useState(false);
-	const containerRef = useRef<HTMLDivElement>(null);
-	const initializedRef = useRef(false);
-	const rafRef = useRef<number | null>(null);
-	const lastWidthRef = useRef<number>(initialLeftWidth);
+  const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
+  const [isDragging, setIsDragging] = useState(false);
+  const [isHovering, setIsHovering] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
+  const rafRef = useRef<number | null>(null);
+  const lastWidthRef = useRef<number>(initialLeftWidth);
 
-	// Load saved width from localStorage after component mounts
-	useEffect(() => {
-		if (initializedRef.current) return;
+  // Load saved width from localStorage after component mounts
+  useEffect(() => {
+    if (initializedRef.current) return;
 
-		try {
-			const savedWidth = localStorage.getItem(storageKey);
-			if (savedWidth) {
-				const parsed = Number.parseFloat(savedWidth);
-				if (
-					!isNaN(parsed) &&
-					parsed >= minLeftWidth &&
-					parsed <= maxLeftWidth
-				) {
-					setLeftWidth(parsed);
-					lastWidthRef.current = parsed;
-				}
-			}
-		} catch (error) {
-			console.error("Failed to read from localStorage:", error);
-		}
+    try {
+      const savedWidth = localStorage.getItem(storageKey);
+      if (savedWidth) {
+        const parsed = Number.parseFloat(savedWidth);
+        if (
+          !isNaN(parsed) &&
+          parsed >= minLeftWidth &&
+          parsed <= maxLeftWidth
+        ) {
+          setLeftWidth(parsed);
+          lastWidthRef.current = parsed;
+        }
+      }
+    } catch (error) {
+      console.error("Failed to read from localStorage:", error);
+    }
 
-		initializedRef.current = true;
-	}, [storageKey, minLeftWidth, maxLeftWidth]);
+    initializedRef.current = true;
+  }, [storageKey, minLeftWidth, maxLeftWidth]);
 
-	// Save width to localStorage when it changes, but debounced
-	useEffect(() => {
-		if (!initializedRef.current) return;
+  // Save width to localStorage when it changes, but debounced
+  useEffect(() => {
+    if (!initializedRef.current) return;
 
-		const timeoutId = setTimeout(() => {
-			try {
-				localStorage.setItem(storageKey, leftWidth.toString());
-			} catch (error) {
-				console.error("Failed to write to localStorage:", error);
-			}
-		}, 100);
+    const timeoutId = setTimeout(() => {
+      try {
+        localStorage.setItem(storageKey, leftWidth.toString());
+      } catch (error) {
+        console.error("Failed to write to localStorage:", error);
+      }
+    }, 100);
 
-		return () => clearTimeout(timeoutId);
-	}, [leftWidth, storageKey]);
+    return () => clearTimeout(timeoutId);
+  }, [leftWidth, storageKey]);
 
-	const handleMouseDown = useCallback((e: React.MouseEvent) => {
-		e.preventDefault();
-		setIsDragging(true);
-	}, []);
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
 
-	const handleTouchStart = useCallback((e: React.TouchEvent) => {
-		e.preventDefault();
-		setIsDragging(true);
-	}, []);
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
 
-	const handleMouseEnter = useCallback(() => {
-		setIsHovering(true);
-	}, []);
+  const handleMouseEnter = useCallback(() => {
+    setIsHovering(true);
+  }, []);
 
-	const handleMouseLeave = useCallback(() => {
-		setIsHovering(false);
-	}, []);
+  const handleMouseLeave = useCallback(() => {
+    setIsHovering(false);
+  }, []);
 
-	const updateWidth = useCallback((newWidth: number) => {
-		// Only update if the change is significant (more than 0.5%)
-		if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
+  const updateWidth = useCallback((newWidth: number) => {
+    // Only update if the change is significant (more than 0.5%)
+    if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
 
-		setLeftWidth(newWidth);
-		lastWidthRef.current = newWidth;
-	}, []);
+    setLeftWidth(newWidth);
+    lastWidthRef.current = newWidth;
+  }, []);
 
-	const handleMouseMove = useCallback(
-		(e: MouseEvent) => {
-			if (!isDragging || !containerRef.current) return;
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
 
-			// Cancel any existing animation frame
-			if (rafRef.current) {
-				cancelAnimationFrame(rafRef.current);
-			}
+      // Cancel any existing animation frame
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
 
-			// Schedule a new animation frame
-			rafRef.current = requestAnimationFrame(() => {
-				if (!containerRef.current) return;
+      // Schedule a new animation frame
+      rafRef.current = requestAnimationFrame(() => {
+        if (!containerRef.current) return;
 
-				const containerRect =
-					containerRef.current.getBoundingClientRect();
-				const containerWidth = containerRect.width;
-				const mouseX = e.clientX - containerRect.left;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        const mouseX = e.clientX - containerRect.left;
 
-				// Calculate percentage width
-				let newLeftWidth = (mouseX / containerWidth) * 100;
+        // Calculate percentage width
+        let newLeftWidth = (mouseX / containerWidth) * 100;
 
-				// Apply constraints
-				newLeftWidth = Math.max(
-					minLeftWidth,
-					Math.min(maxLeftWidth, newLeftWidth),
-				);
+        // Apply constraints
+        newLeftWidth = Math.max(
+          minLeftWidth,
+          Math.min(maxLeftWidth, newLeftWidth)
+        );
 
-				updateWidth(newLeftWidth);
-				rafRef.current = null;
-			});
-		},
-		[isDragging, minLeftWidth, maxLeftWidth, updateWidth],
-	);
+        updateWidth(newLeftWidth);
+        rafRef.current = null;
+      });
+    },
+    [isDragging, minLeftWidth, maxLeftWidth, updateWidth]
+  );
 
-	const handleMouseUp = useCallback(() => {
-		setIsDragging(false);
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
 
-		// Cancel any pending animation frame
-		if (rafRef.current) {
-			cancelAnimationFrame(rafRef.current);
-			rafRef.current = null;
-		}
-	}, []);
+    // Cancel any pending animation frame
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
+    }
+  }, []);
 
-	// Handle touch events for mobile support
-	const handleTouchMove = useCallback(
-		(e: TouchEvent) => {
-			if (!isDragging || !containerRef.current || !e.touches[0]) return;
+  // Handle touch events for mobile support
+  const handleTouchMove = useCallback(
+    (e: TouchEvent) => {
+      if (!isDragging || !containerRef.current || !e.touches[0]) return;
 
-			// Cancel any existing animation frame
-			if (rafRef.current) {
-				cancelAnimationFrame(rafRef.current);
-			}
+      // Cancel any existing animation frame
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
 
-			// Schedule a new animation frame
-			rafRef.current = requestAnimationFrame(() => {
-				if (!containerRef.current || !e.touches[0]) return;
+      // Schedule a new animation frame
+      rafRef.current = requestAnimationFrame(() => {
+        if (!containerRef.current || !e.touches[0]) return;
 
-				const containerRect =
-					containerRef.current.getBoundingClientRect();
-				const containerWidth = containerRect.width;
-				const touchX = e.touches[0].clientX - containerRect.left;
+        const containerRect = containerRef.current.getBoundingClientRect();
+        const containerWidth = containerRect.width;
+        const touchX = e.touches[0].clientX - containerRect.left;
 
-				// Calculate percentage width
-				let newLeftWidth = (touchX / containerWidth) * 100;
+        // Calculate percentage width
+        let newLeftWidth = (touchX / containerWidth) * 100;
 
-				// Apply constraints
-				newLeftWidth = Math.max(
-					minLeftWidth,
-					Math.min(maxLeftWidth, newLeftWidth),
-				);
+        // Apply constraints
+        newLeftWidth = Math.max(
+          minLeftWidth,
+          Math.min(maxLeftWidth, newLeftWidth)
+        );
 
-				updateWidth(newLeftWidth);
-				rafRef.current = null;
-			});
-		},
-		[isDragging, minLeftWidth, maxLeftWidth, updateWidth],
-	);
+        updateWidth(newLeftWidth);
+        rafRef.current = null;
+      });
+    },
+    [isDragging, minLeftWidth, maxLeftWidth, updateWidth]
+  );
 
-	useEffect(() => {
-		if (isDragging) {
-			document.addEventListener("mousemove", handleMouseMove);
-			document.addEventListener("mouseup", handleMouseUp);
-			document.addEventListener("touchmove", handleTouchMove as any);
-			document.addEventListener("touchend", handleMouseUp);
-		} else {
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
-			document.removeEventListener("touchmove", handleTouchMove as any);
-			document.removeEventListener("touchend", handleMouseUp);
-		}
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+      document.addEventListener("touchmove", handleTouchMove as any);
+      document.addEventListener("touchend", handleMouseUp);
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove as any);
+      document.removeEventListener("touchend", handleMouseUp);
+    }
 
-		return () => {
-			document.removeEventListener("mousemove", handleMouseMove);
-			document.removeEventListener("mouseup", handleMouseUp);
-			document.removeEventListener("touchmove", handleTouchMove as any);
-			document.removeEventListener("touchend", handleMouseUp);
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("touchmove", handleTouchMove as any);
+      document.removeEventListener("touchend", handleMouseUp);
 
-			// Clean up any animation frame on unmount
-			if (rafRef.current) {
-				cancelAnimationFrame(rafRef.current);
-			}
-		};
-	}, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
+      // Clean up any animation frame on unmount
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp, handleTouchMove]);
 
-	return (
-		<div
-			ref={containerRef}
-			className="flex flex-col md:flex-row w-full h-full relative "
-			style={{ cursor: isDragging ? "col-resize" : "auto" }}
-		>
-			<Pane width={`${leftWidth}%`}>{leftPane}</Pane>
+  return (
+    <div
+      ref={containerRef}
+      className="flex flex-col md:flex-row w-full h-full relative "
+      style={{ cursor: isDragging ? "col-resize" : "auto" }}
+    >
+      <Pane width={`${leftWidth}%`}>{leftPane}</Pane>
 
-			<Divider
-				leftWidth={leftWidth}
-				isDragging={isDragging}
-				isHovering={isHovering}
-				onMouseDown={handleMouseDown}
-				onTouchStart={handleTouchStart}
-				onMouseEnter={handleMouseEnter}
-				onMouseLeave={handleMouseLeave}
-			/>
+      <Divider
+        leftWidth={leftWidth}
+        isDragging={isDragging}
+        isHovering={isHovering}
+        onMouseDown={handleMouseDown}
+        onTouchStart={handleTouchStart}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      />
 
-			<Pane width={`${100 - leftWidth}%`}>{rightPane}</Pane>
-		</div>
-	);
+      <Pane width={`${100 - leftWidth}%`}>{rightPane}</Pane>
+    </div>
+  );
 }

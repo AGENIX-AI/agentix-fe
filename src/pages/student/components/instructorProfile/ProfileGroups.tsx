@@ -4,12 +4,16 @@ import { AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { H6, ExtraSmall } from "@/components/ui/typography";
 
-export function ProfileGroups() {
+export function ProfileGroups({
+  instructorName,
+}: {
+  instructorName: string | undefined;
+}) {
   const hasGroups = false; // You can set this based on your actual data
 
   return (
     <div className="mt-6">
-      <H6>Dr. Son Tran Groups</H6>
+      <H6>{instructorName} Groups</H6>
 
       {hasGroups ? (
         <div className="mt-3 space-y-6">
@@ -93,7 +97,7 @@ export function ProfileGroups() {
             </svg>
           </div>
           <ExtraSmall className="mt-2 text-muted-foreground">
-            Dr. Son Tran has not created any private groups
+            {instructorName} has not created any private groups
           </ExtraSmall>
         </div>
       )}

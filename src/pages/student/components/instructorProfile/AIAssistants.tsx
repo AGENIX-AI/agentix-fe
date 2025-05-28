@@ -1,20 +1,25 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LinkedinIcon, MessageCircle } from "lucide-react";
+import { LinkedinIcon, MessageCircle, Loader2 } from "lucide-react";
 import { H6, ExtraSmall } from "@/components/ui/typography";
 import type { InstructorAssistant } from "@/api/instructor";
 import { Button } from "@/components/ui/button";
 import { useStudent } from "@/contexts/StudentContext";
 import { createFirstConversation } from "@/api/conversations";
+import { eventBus } from "@/lib/utils/event/eventBus";
+import { useState } from "react";
 
 interface AIAssistantsProps {
   assistants: InstructorAssistant[];
 }
 
 export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
-  const { setAssistantId, setConversationId, setChatPanel } = useStudent();
+  const { setAssistantId, setConversationId, setChatPanel, setRightPanel } =
+    useStudent();
+  const [loadingAssistantId, setLoadingAssistantId] = useState<string | null>(null);
 
   const handleStartChat = async (assistant: InstructorAssistant) => {
     console.log("Starting chat with AI Assistant:", assistant);
+    setLoadingAssistantId(assistant.id);
     setAssistantId(assistant.id);
 
     try {
@@ -22,8 +27,16 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
       console.log("Conversation created with ID:", response.conversation_id);
       setConversationId(response.conversation_id);
       setChatPanel("chat");
+      setRightPanel("agentCapabilityStatement");
+      
+      // Emit reload-history event to refresh the conversation list
+      console.log("Emitting reload-history event");
+      eventBus.emit("reload-history", { assistantId: assistant.id, conversationId: response.conversation_id });
+      
     } catch (error) {
       console.error("Error creating conversation:", error);
+    } finally {
+      setLoadingAssistantId(null);
     }
   };
   return (
@@ -65,17 +78,19 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
                 <ExtraSmall className="text-muted-foreground line-clamp-1 mt-1">
                   {assistant.tagline}
                 </ExtraSmall>
-                <ExtraSmall className="text-muted-foreground">
-                  Language: {assistant.language}
-                </ExtraSmall>
               </div>
 
               <Button
                 size="sm"
                 onClick={() => handleStartChat(assistant)}
                 className="flex items-center gap-1 ml-2"
+                disabled={loadingAssistantId !== null}
               >
-                <MessageCircle className="h-4 w-4" />
+                {loadingAssistantId === assistant.id ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <MessageCircle className="h-4 w-4" />
+                )}
               </Button>
             </div>
           </div>

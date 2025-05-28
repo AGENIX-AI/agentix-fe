@@ -1,7 +1,5 @@
-"use client";
-
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Divider } from "./ResizableLayout/Divider";
+import { Separator } from "./ResizableLayout/Separator";
 import { Pane } from "./ResizableLayout/Pane";
 
 export interface ResizableLayoutWithToggleProps {
@@ -226,7 +224,7 @@ export function ResizableLayoutWithToggle({
 
       {isRightPaneVisible && (
         <>
-          <Divider
+          <Separator
             leftWidth={leftWidth}
             isDragging={isDragging}
             isHovering={isHovering}

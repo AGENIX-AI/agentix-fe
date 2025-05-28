@@ -90,7 +90,6 @@ export function ChatComponent() {
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
-  const agentResponseTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -167,27 +166,6 @@ export function ChatComponent() {
     }
   };
 
-  const handleActionMessage = async (content: string): Promise<boolean> => {
-    // Handle SwitchConversation action in plain text format
-    if (content.startsWith("Action:SwitchConversation:")) {
-      const conversationId = content.split(":")[2];
-      if (!conversationId) return false;
-
-      return await switchToConversation(conversationId);
-    }
-
-    // Handle SwitchConversation action in HTML paragraph format
-    const htmlRegex = /<p>Action:SwitchConversation:([a-zA-Z0-9]+)<\/p>/;
-    const match = content.match(htmlRegex);
-
-    if (match && match[1]) {
-      const conversationId = match[1];
-      return await switchToConversation(conversationId);
-    }
-
-    return false;
-  };
-
   useEffect(() => {
     if (!assistantId) return;
 
@@ -224,8 +202,24 @@ export function ChatComponent() {
 
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
+      // Emit event for user message
+      eventBus.emit("conversation-update", {
+        assistantId: assistantId,
+        conversationId: conversationId,
+        lastMessage: {
+          content: content,
+          time: new Date().toISOString(),
+          sender: "user",
+        },
+      });
+
       // Send message to API
+      console.log(
+        "Sending message to API with conversationId:",
+        conversationId
+      );
       const response = await sendMessage(conversationId, content);
+      console.log("Received response:", response);
 
       if (response.success) {
         // Add agent response to the chat
@@ -236,6 +230,17 @@ export function ChatComponent() {
         };
 
         setMessages((prevMessages) => [...prevMessages, agentMessage]);
+
+        // Emit event to update history
+        eventBus.emit("conversation-update", {
+          assistantId: assistantId,
+          conversationId: conversationId,
+          lastMessage: {
+            content: response.message,
+            time: new Date().toISOString(),
+            sender: "agent_response",
+          },
+        });
       }
     } catch (error) {
       console.error("Error sending message:", error);
@@ -275,6 +280,17 @@ export function ChatComponent() {
 
       setMessages((prevMessages) => [...prevMessages, userMessage]);
 
+      // Emit event for user message with image
+      eventBus.emit("conversation-update", {
+        assistantId: assistantId,
+        conversationId: conversationId,
+        lastMessage: {
+          content: content, // Using the text content without the image for history display
+          time: new Date().toISOString(),
+          sender: "user",
+        },
+      });
+
       // Send message to API
       const response = await sendMessage(conversationId, messageWithImage);
 
@@ -287,6 +303,17 @@ export function ChatComponent() {
         };
 
         setMessages((prevMessages) => [...prevMessages, agentMessage]);
+
+        // Emit event to update history
+        eventBus.emit("conversation-update", {
+          assistantId: assistantId,
+          conversationId: conversationId,
+          lastMessage: {
+            content: response.message,
+            time: new Date().toISOString(),
+            sender: "agent_response",
+          },
+        });
       }
     } catch (error) {
       console.error("Error sending message with image:", error);
@@ -324,6 +351,17 @@ export function ChatComponent() {
 
             setMessages((prevMessages) => [...prevMessages, userMessage]);
 
+            // Emit event for user file upload
+            eventBus.emit("conversation-update", {
+              assistantId: assistantId,
+              conversationId: conversationId,
+              lastMessage: {
+                content: textInput || "[Image uploaded]", // Use text input if provided, otherwise a placeholder
+                time: new Date().toISOString(),
+                sender: "user",
+              },
+            });
+
             // Set agent responding state to true to show typing indicator
             setIsAgentResponding(true);
 
@@ -342,6 +380,17 @@ export function ChatComponent() {
               };
 
               setMessages((prevMessages) => [...prevMessages, agentMessage]);
+
+              // Emit event to update history
+              eventBus.emit("conversation-update", {
+                assistantId: assistantId,
+                conversationId: conversationId,
+                lastMessage: {
+                  content: response.message,
+                  time: new Date().toISOString(),
+                  sender: "agent_response",
+                },
+              });
             }
           }
         } catch (error) {
@@ -368,13 +417,14 @@ export function ChatComponent() {
   // Render loading state
   if (isLoading) {
     return (
-      <div className="h-full w-full flex flex-col p-5 bg-background border-r">
+      <div className="h-full w-full flex flex-col p-5 bg-background">
         <ChatHeader
           isHistoryVisible={isHistoryVisible}
           toggleHistory={toggleHistory}
           disabled={true}
           agentName={assistantInfo?.name}
           tagline={assistantInfo?.tagline}
+          agentImage={assistantInfo?.image}
         />
         <div className="h-[calc(100vh-70px-2rem)] flex flex-col rounded-lg ">
           <div className="flex-1 overflow-y-auto p-6 chat-messages-container">
@@ -386,7 +436,7 @@ export function ChatComponent() {
   }
 
   return (
-    <div className="h-full w-full flex flex-col pt-5 pl-5 pr-5 bg-background border-r border-border">
+    <div className="h-full w-full flex flex-col pt-5 pl-5 pr-5 bg-background">
       <ChatHeader
         isHistoryVisible={isHistoryVisible}
         toggleHistory={toggleHistory}
