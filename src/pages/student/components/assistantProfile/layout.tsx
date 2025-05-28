@@ -1,6 +1,6 @@
-import { ConversationTasks } from "./ConversationTasks";
-import { AssistantCapabilityStatement } from "./AssistantCapabilityStatement";
-import { AssistantProfile } from "./AssistantProfile";
+import { ConversationTasks } from "./tasks";
+import { AssistantProfile } from "./profile";
+import { AssistantTopics } from "./topics";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useStudent } from "@/contexts/StudentContext";
@@ -97,7 +97,7 @@ function AssistantBanner({
   );
 }
 
-export function AssisstantConversation({ page }: { page: string }) {
+export function AssistantView({ page }: { page: string }) {
   const { assistantId, instructorId } = useStudent();
   const [assistant, setAssistant] = useState<Assistant | null>(null);
   const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
@@ -173,10 +173,10 @@ export function AssisstantConversation({ page }: { page: string }) {
           <ConversationTasks />
         </TabsContent>
         <TabsContent value="agentCapabilityStatement">
-          <AssistantCapabilityStatement />
+          <AssistantProfile />
         </TabsContent>
         <TabsContent value="assistantTopics">
-          <AssistantProfile />
+          <AssistantTopics />
         </TabsContent>
       </Tabs>
     </div>

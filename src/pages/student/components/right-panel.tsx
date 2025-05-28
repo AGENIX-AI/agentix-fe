@@ -2,7 +2,7 @@ import Dashboard from "@/pages/dashboard/Dashboard";
 import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useStudent } from "@/contexts/StudentContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
-import { AssisstantConversation } from "./assistantProfile/AssisstantConversation";
+import { AssistantView } from "./assistantProfile/layout";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -18,19 +18,19 @@ export default function RightPanel({}) {
     case "assistantTopics":
       return (
         <div>
-          <AssisstantConversation page="assistantTopics" />
+          <AssistantView page="assistantTopics" />
         </div>
       );
     case "tasks":
       return (
         <div>
-          <AssisstantConversation page="tasks" />
+          <AssistantView page="tasks" />
         </div>
       );
     case "agentCapabilityStatement":
       return (
         <div>
-          <AssisstantConversation page="agentCapabilityStatement" />
+          <AssistantView page="agentCapabilityStatement" />
         </div>
       );
     case "empty":

@@ -184,6 +184,47 @@ export const getListConversations =
   };
 
 /**
+ * Get paginated list of conversations with filtering and sorting options
+ * @param assistantId - The ID of the assistant to filter conversations by
+ * @param page - The page number to fetch (starts at 1)
+ * @param pageSize - The number of items per page
+ * @param sortBy - The field to sort by (e.g., 'created_at')
+ * @param sortOrder - The sort order (1 for ascending, -1 for descending)
+ * @returns Paginated list of conversations categorized by type
+ */
+export const getConversations = async (
+  assistantId: string,
+  page: number = 1,
+  pageSize: number = 100,
+  sortBy: string = "created_at",
+  sortOrder: number = 1
+): Promise<
+  import("@/lib/utils/types/conversation").ConversationListResponse
+> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const url = new URL(`${baseUrl}/conversations`);
+  url.searchParams.append("assistant_id", assistantId);
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", pageSize.toString());
+  url.searchParams.append("sort_by", sortBy);
+  url.searchParams.append("sort_order", sortOrder.toString());
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    credentials: "include",
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch conversations: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
  * Send a message to a conversation
  * @param conversationId - The ID of the conversation to send the message to
  * @param message - The message content to send
@@ -192,6 +233,7 @@ export const getListConversations =
 export interface SendMessageResponse {
   success: boolean;
   message: string;
+  invocation_id: string;
 }
 
 export const sendMessage = async (
@@ -201,23 +243,77 @@ export const sendMessage = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
+  const response = await fetch(`${baseUrl}/conversations/send_message`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify({
+      conversation_id: conversationId,
+      message,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to send message: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get tasks for a conversation
+ * @param conversationId - The ID of the conversation to fetch tasks for
+ * @returns Response with conversation tasks categorized by status
+ */
+export interface ConversationTasksResponse {
+  success: boolean;
+  pending_tasks: any[];
+  current_task: any[];
+  completed_tasks: any[];
+  conversation_description: string;
+  goal_title: string;
+  goal_description: string;
+}
+
+export const getConversationTasks = async (
+  conversationId: string
+): Promise<ConversationTasksResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
   const response = await fetch(
-    `${baseUrl}/conversations/send_message`,
+    `${baseUrl}/conversations/get_tasks/${conversationId}`,
     {
-      method: "POST",
+      method: "GET",
       credentials: "include",
       headers,
-      body: JSON.stringify({
-        conversation_id: conversationId,
-        message
-      })
     }
   );
 
   if (!response.ok) {
     throw new Error(
-      `Failed to send message: ${response.statusText}`
+      `Failed to fetch conversation tasks: ${response.statusText}`
     );
+  }
+
+  return await response.json();
+};
+
+export const getSpeech = async (message: string): Promise<any> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/get_speech/${message}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch speech: ${response.statusText}`);
   }
 
   return await response.json();

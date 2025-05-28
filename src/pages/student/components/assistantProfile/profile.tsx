@@ -5,7 +5,7 @@ import { Progress } from "@/components/ui/progress";
 import { Small } from "@/components/ui/typography";
 import { useStudent } from "@/contexts/StudentContext";
 
-export function AssistantCapabilityStatement() {
+export function AssistantProfile() {
   const { assistantInfo } = useStudent();
 
   if (!assistantInfo) return null;

@@ -75,6 +75,7 @@ interface Message {
   sender: "user" | "agent_response";
   content: string;
   time: number;
+  invocation_id?: string;
 }
 // Main Component
 export function ChatComponent() {
@@ -198,6 +199,7 @@ export function ChatComponent() {
         sender: "user",
         content: content,
         time: Date.now(),
+        invocation_id: "",
       };
 
       setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -227,6 +229,7 @@ export function ChatComponent() {
           sender: "agent_response",
           content: response.message,
           time: Date.now(),
+          invocation_id: response.invocation_id,
         };
 
         setMessages((prevMessages) => [...prevMessages, agentMessage]);
@@ -276,6 +279,7 @@ export function ChatComponent() {
         sender: "user",
         content: messageWithImage,
         time: Date.now(),
+        invocation_id: "",
       };
 
       setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -300,6 +304,7 @@ export function ChatComponent() {
           sender: "agent_response",
           content: response.message,
           time: Date.now(),
+          invocation_id: response.invocation_id,
         };
 
         setMessages((prevMessages) => [...prevMessages, agentMessage]);
@@ -347,6 +352,7 @@ export function ChatComponent() {
               sender: "user",
               content: messageWithImage,
               time: Date.now(),
+              invocation_id: "",
             };
 
             setMessages((prevMessages) => [...prevMessages, userMessage]);
@@ -377,6 +383,7 @@ export function ChatComponent() {
                 sender: "agent_response",
                 content: response.message,
                 time: Date.now(),
+                invocation_id: response.invocation_id,
               };
 
               setMessages((prevMessages) => [...prevMessages, agentMessage]);

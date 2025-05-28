@@ -85,13 +85,7 @@ export function UserMenu({
   if (!userInfo) {
     return null;
   }
-
-  const { full_name, email, avatar_url } = userInfo.metadata || {
-    full_name: "",
-    email: "",
-    avatar_url: "",
-  };
-
+  console.log(userInfo.metadata.avatar_url);
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -104,12 +98,17 @@ export function UserMenu({
           aria-label="User menu"
         >
           <span className="flex items-center gap-2">
-            <UserAvatar name={full_name ?? ""} avatarUrl={avatar_url} />
+            <UserAvatar
+              name={userInfo.metadata.full_name ?? ""}
+              avatarUrl={userInfo.metadata.avatar_url}
+            />
             {showUserName && (
               <span className="text-left leading-tight">
-                <span className="font-medium text-sm">{full_name}</span>
+                <span className="font-medium text-sm">
+                  {userInfo.metadata.full_name}
+                </span>
                 <span className="block text-xs opacity-70 truncate max-w-[150px]">
-                  {email}
+                  {userInfo.metadata.email}
                 </span>
                 <span className="text-[9px] block font-normal text-xs truncate">
                   {/* v.{version}.{lastBuildDate} */}
@@ -124,8 +123,10 @@ export function UserMenu({
 
       <DropdownMenuContent align="end" className="w-72 p-3 ml-2">
         <DropdownMenuLabel className="text-sm">
-          {full_name}
-          <span className="block font-normal text-xs truncate">{email}</span>
+          {userInfo.metadata.full_name}
+          <span className="block font-normal text-xs truncate">
+            {userInfo.metadata.email}
+          </span>
           <span className="text-[9px] block font-normal text-xs truncate">
             {/* v.{version}.{lastBuildDate} */}
           </span>

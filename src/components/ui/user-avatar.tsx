@@ -19,7 +19,15 @@ export const UserAvatar = forwardRef<
     [name]
   );
 
-  const avatarSrc = useMemo(() => "", [avatarUrl]);
+  const avatarSrc = useMemo(
+    () =>
+      avatarUrl
+        ? avatarUrl.startsWith("http")
+          ? avatarUrl
+          : avatarUrl
+        : undefined,
+    [avatarUrl]
+  );
 
   return (
     <Avatar ref={ref} className={className}>

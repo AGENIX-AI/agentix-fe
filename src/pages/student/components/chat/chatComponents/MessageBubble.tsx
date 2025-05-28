@@ -1,10 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { PlayIcon } from "lucide-react";
-import { useState } from "react";
+import { PlayIcon, StopCircleIcon } from "lucide-react";
+import { useRef, useState } from "react";
 import { MessageContent } from "./MessageContent";
 import { formatMessageDate, getInitials } from "./utils";
 import { cn } from "@/lib/utils";
+import { getSpeech } from "@/api/conversations";
 
 interface MessageBubbleProps {
   message: any;
@@ -26,22 +27,45 @@ export function MessageBubble({
   agentImage,
 }: MessageBubbleProps) {
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const handlePlayAudio = () => {
-    if (isPlaying) {
-      window.speechSynthesis.cancel();
+  const handlePlayAudio = async () => {
+    // If already playing, stop the audio
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
       setIsPlaying(false);
       return;
     }
 
-    const speech = new SpeechSynthesisUtterance(message.content);
-    speech.lang = "en-US";
+    try {
+      setIsLoading(true);
 
-    speech.onstart = () => setIsPlaying(true);
-    speech.onend = () => setIsPlaying(false);
-    speech.onerror = () => setIsPlaying(false);
+      // Call the API to get speech data
+      const response = await getSpeech(message.invocation_id);
 
-    window.speechSynthesis.speak(speech);
+      // Create audio from base64 data
+      const audioData = response.base64;
+      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
+      audioRef.current = audio;
+
+      // Set up event handlers
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => {
+        setIsPlaying(false);
+        console.error("Error playing audio");
+      };
+
+      // Play the audio
+      await audio.play();
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error fetching or playing audio:", error);
+      setIsPlaying(false);
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -75,13 +99,18 @@ export function MessageBubble({
             size="icon"
             className="h-6 w-6 rounded-full hover:bg-primary/20 flex-shrink-0"
             aria-label={isPlaying ? "Stop audio" : "Play audio"}
+            disabled={isLoading}
           >
-            <PlayIcon
-              className={cn(
-                "size-3 text-primary",
-                isPlaying && "text-primary/70"
-              )}
-            />
+            {isPlaying ? (
+              <StopCircleIcon className="size-3 text-primary" />
+            ) : (
+              <PlayIcon
+                className={cn(
+                  "size-3 text-primary",
+                  isLoading && "animate-pulse text-primary/70"
+                )}
+              />
+            )}
           </Button>
         )}
       </div>

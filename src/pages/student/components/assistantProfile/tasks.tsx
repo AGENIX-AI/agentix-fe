@@ -20,6 +20,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useStudent } from "@/contexts/StudentContext";
+import { getConversationTasks } from "@/api/conversations";
 
 interface ConversationTasksProps {
   className?: string;
@@ -162,7 +163,7 @@ export const ConversationTasks = memo(
       conversation_name: string;
       conversation_description: string;
     } | null>(null);
-    setTasks(null);
+    // Initialize tasks state
     // Refs to store previous task states for comparison
     // const prevTasksRef = useRef<{
     //   pending_tasks: ConversationTask[];
@@ -183,79 +184,52 @@ export const ConversationTasks = memo(
         setIsLoading(true);
       }
 
-      //   try {
-      // 	  const result = await getConversationTasks(conversationInfo.id);
-      // 	  if (result.success) {
-      // 		// Transform the API response to match our new ConversationTask interface
-      // 		const newTasks = {
-      // 		  pending_tasks: result.pending_tasks.map((task: any) => ({
-      // 			...task,
-      // 			id: task.id.toString(),
-      // 			step: task.step.toString(),
-      // 			dependencies: task.dependencies.map((dependency: any) =>
-      // 			  dependency.toString()
-      // 			),
-      // 		  })) as ConversationTask[],
-      // 		  current_task: result.current_task.map((task: any) => ({
-      // 			...task,
-      // 			id: task.id.toString(),
-      // 			step: task.step.toString(),
-      // 			dependencies: task.dependencies.map((dependency: any) =>
-      // 			  dependency.toString()
-      // 			),
-      // 		  })) as ConversationTask[],
-      // 		  completed_tasks: result.completed_tasks.map((task: any) => ({
-      // 			...task,
-      // 			id: task.id.toString(),
-      // 			step: task.step.toString(),
-      // 			dependencies: task.dependencies.map((dependency: any) =>
-      // 			  dependency.toString()
-      // 			),
-      // 		  })) as ConversationTask[],
-      // 		  goal_description: result.goal_description,
-      // 		};
+      try {
+        const result = await getConversationTasks(conversationInfo.id);
+        if (result.success) {
+          // Transform the API response to match our ConversationTask interface
+          const newTasks = {
+            pending_tasks: result.pending_tasks.map((task: any) => ({
+              ...task,
+              id: task.id.toString(),
+              step: Number(task.step),
+              dependencies: Array.isArray(task.dependencies) 
+                ? task.dependencies.map((dependency: any) => Number(dependency))
+                : [],
+            })) as ConversationTask[],
+            current_task: result.current_task.map((task: any) => ({
+              ...task,
+              id: task.id.toString(),
+              step: Number(task.step),
+              dependencies: Array.isArray(task.dependencies)
+                ? task.dependencies.map((dependency: any) => Number(dependency))
+                : [],
+            })) as ConversationTask[],
+            completed_tasks: result.completed_tasks.map((task: any) => ({
+              ...task,
+              id: task.id.toString(),
+              step: Number(task.step),
+              dependencies: Array.isArray(task.dependencies)
+                ? task.dependencies.map((dependency: any) => Number(dependency))
+                : [],
+            })) as ConversationTask[],
+            goal_description: result.goal_description,
+            conversation_name: result.goal_title || "Conversation Tasks",
+            conversation_description: result.conversation_description || "",
+          };
 
-      // 		const hasChanged =
-      // 		  !prevTasksRef.current ||
-      // 		  !tasksAreEqual(
-      // 			prevTasksRef.current.pending_tasks,
-      // 			newTasks.pending_tasks
-      // 		  ) ||
-      // 		  !tasksAreEqual(
-      // 			prevTasksRef.current.current_task,
-      // 			newTasks.current_task
-      // 		  ) ||
-      // 		  !tasksAreEqual(
-      // 			prevTasksRef.current.completed_tasks,
-      // 			newTasks.completed_tasks
-      // 		  ) ||
-      // 		  (prevTasksRef.current.goal_description === null &&
-      // 			newTasks.goal_description !== null) ||
-      // 		  (prevTasksRef.current.goal_description !== null &&
-      // 			newTasks.goal_description === null) ||
-      // 		  (prevTasksRef.current.goal_description !== null &&
-      // 			newTasks.goal_description !== null &&
-      // 			prevTasksRef.current.goal_description !==
-      // 			  newTasks.goal_description);
-
-      // 		if (hasChanged) {
-      // 		  setTasks({
-      // 			...newTasks,
-      // 			conversation_name: result.conversation_name,
-      // 			conversation_description: result.conversation_description,
-      // 		  });
-      // 		  prevTasksRef.current = JSON.parse(JSON.stringify(newTasks)); // Create a deep copy to avoid reference issues
-      // 		}
-      //     } else {
-      //       setIsLoading(true);
-      //     }
-      //   } catch (err) {
-      //     console.error("Error fetching tasks:", err);
-      //     setIsLoading(true);
-      //   } finally {
-      //     setIsLoading(false);
-      //   }
-    }, [conversationInfo?.id, tasks]);
+          setTasks(newTasks);
+        } else {
+          console.error("Failed to fetch tasks: API returned success=false");
+          setIsLoading(false);
+        }
+      } catch (err) {
+        console.error("Error fetching tasks:", err);
+        setIsLoading(false);
+      } finally {
+        setIsLoading(false);
+      }
+    }, [conversationInfo?.id]);
 
     // Initial fetch when component mounts or conversation changes
     useEffect(() => {

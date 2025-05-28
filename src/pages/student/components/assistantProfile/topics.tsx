@@ -2,6 +2,12 @@ import { useStudent } from "@/contexts/StudentContext";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { getConversationsByAssistantId } from "@/services/conversation";
+import type {
+  ConversationResponse,
+  Conversation as ConversationType,
+} from "@/services/conversation";
+import { getConversations } from "@/api/conversations";
 // Types
 interface Personality {
   id: string;
@@ -36,45 +42,16 @@ interface CharacterInfo {
   };
 }
 
-interface ConversationsByCategory {
-  general: Conversation[];
-  tutorial: Conversation[];
-  archived: Conversation[];
-}
+// Using types from conversation service
 
-interface Conversation {
-  user_id: string;
-  character_id: string;
-  conversation_name: string;
-  conversation_description: string;
-  conversation_goal: string;
-  stream_id: string;
-  stream_name: string;
-  topic_name: string;
-  language: string;
-  status: number;
-  type: number;
-  created_at: string;
-  updated_at: string;
-  id: string;
-}
-
-interface ConversationData {
-  success: boolean;
-  conversations: ConversationsByCategory;
-  total_items: number;
-  page_number: number;
-  page_size: number;
-}
-
-interface AssistantProfileProps {
+interface AssistantTopicsProps {
   className?: string;
   initialData?: CharacterInfo | null;
 }
 
 // Helper Components
 interface ConversationListProps {
-  conversationData: ConversationData | null;
+  conversationData: ConversationResponse | null;
   isLoading: boolean;
   hasError: boolean;
 }
@@ -87,11 +64,11 @@ function ConversationList({
   return (
     <div>
       {isLoading ? (
-        <div className="bg-muted/30 p-4 rounded-md text-center">
+        <div className="bg-muted/30 rounded-md text-center">
           <p className="text-xs ">Loading conversation data...</p>
         </div>
       ) : hasError ? (
-        <div className="bg-destructive/10 p-4 rounded-md text-center">
+        <div className="bg-destructive/10 rounded-md text-center">
           <p className="text-xs text-destructive">
             Failed to load conversation data
           </p>
@@ -117,7 +94,7 @@ function ConversationList({
 
 interface ConversationCategoryProps {
   category: string;
-  conversations: Conversation[];
+  conversations: ConversationType[];
 }
 
 function ConversationCategory({
@@ -140,7 +117,7 @@ function ConversationCategory({
     }
   };
 
-  const handleConversationClick = (conversation: Conversation) => {
+  const handleConversationClick = (conversation: ConversationType) => {
     setConversationId(conversation.id);
   };
 
@@ -159,13 +136,13 @@ function ConversationCategory({
   return (
     <>
       <div className="mb-5 h-full">
-        <div className="flex items-center mb-2 pl-5 pr-5">
+        <div className="flex items-center mb-2 px-6">
           <h3 className="text-base font-semibold">{getCategoryTitle()}</h3>
         </div>
 
         {conversations && conversations.length > 0 ? (
-          <div className="pl-5">
-            {conversations.map((conv: Conversation) => (
+          <div className="px-6">
+            {conversations.map((conv: ConversationType) => (
               <div
                 key={conv.id}
                 className="hover:bg-muted/10 transition-colors cursor-pointer"
@@ -199,11 +176,13 @@ function ConversationCategory({
                       <p className="text-sm font-medium">
                         {conv.conversation_name}
                       </p>
-                      {category !== "general" && (
-                        <p className="text-xs  mt-1">
-                          Goal: {conv.conversation_goal}
-                        </p>
-                      )}
+                      {category !== "general" &&
+                        conv.goals &&
+                        conv.goals.length > 0 && (
+                          <p className="text-xs  mt-1">
+                            Goal: {conv.goals[0].goal_title}
+                          </p>
+                        )}
                       <p className="text-xs  mt-1">
                         Started at: {formatDate(conv.created_at)}
                       </p>
@@ -214,7 +193,7 @@ function ConversationCategory({
             ))}
           </div>
         ) : (
-          <div className="flex items-start gap-2 pl-5 top-0 relative">
+          <div className="flex items-start gap-2 px-6 top-0 relative">
             <div className="h-10 w-10">
               <svg
                 fill="var(--accent-foreground)"
@@ -246,10 +225,10 @@ function ConversationCategory({
 }
 
 // Main Component
-export function AssistantProfile({ className }: AssistantProfileProps) {
+export function AssistantTopics({ className }: AssistantTopicsProps) {
   const { assistantInfo } = useStudent();
   const [conversationData, setConversationData] =
-    useState<ConversationData | null>(null);
+    useState<ConversationResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -261,8 +240,8 @@ export function AssistantProfile({ className }: AssistantProfileProps) {
     setHasError(false);
 
     try {
-      //   const data = await getConversationByCharacterId(assistantInfo.id);
-      setConversationData(null);
+      const data = await getConversations(assistantInfo.id);
+      setConversationData(data);
     } catch (error) {
       console.error("Error fetching conversation data:", error);
       setHasError(true);
