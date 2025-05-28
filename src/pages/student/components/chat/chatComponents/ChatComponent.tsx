@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatBox } from "./ChatBox";
 import { Small, Muted } from "@/components/ui/typography";
 import { useStudent } from "@/contexts/StudentContext";
-import { useAuth } from "@/contexts/AuthContext";
+
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { getConversationHistory, sendMessage } from "@/api/conversations";
 import { format } from "date-fns";
@@ -87,7 +87,7 @@ export function ChatComponent() {
     setConversationId,
     conversationInfo,
   } = useStudent();
-  const { user } = useAuth();
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -140,31 +140,31 @@ export function ChatComponent() {
     }
   }, [messages]);
 
-  const switchToConversation = async (
-    conversationId: string
-  ): Promise<boolean> => {
-    try {
-      setIsLoading(true);
-      // Set the conversationId in the context
-      // The AppPageProvider will automatically fetch the conversation data
-      setConversationId(conversationId);
+  // const switchToConversation = async (
+  //   conversationId: string
+  // ): Promise<boolean> => {
+  //   try {
+  //     setIsLoading(true);
+  //     // Set the conversationId in the context
+  //     // The AppPageProvider will automatically fetch the conversation data
+  //     setConversationId(conversationId);
 
-      // Wait a bit for the conversation data to be fetched
-      await new Promise((resolve) => setTimeout(resolve, 100));
+  //     // Wait a bit for the conversation data to be fetched
+  //     await new Promise((resolve) => setTimeout(resolve, 100));
 
-      if (conversationInfo) {
-        setConversationId(conversationInfo.id);
-        await fetchMessages();
-        return true;
-      }
-      return false;
-    } catch (error) {
-      // console.error("Error switching conversation:", error);
-      return false;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     if (conversationInfo) {
+  //       setConversationId(conversationInfo.id);
+  //       await fetchMessages();
+  //       return true;
+  //     }
+  //     return false;
+  //   } catch (error) {
+  //     // console.error("Error switching conversation:", error);
+  //     return false;
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   useEffect(() => {
     if (!assistantId) return;
@@ -460,7 +460,6 @@ export function ChatComponent() {
               : "Type your message here..."
           }
           className="h-full border-0 rounded-none shadow-none bg-background"
-          email={user?.email ?? ""}
           name={assistantInfo?.name ?? ""}
           avatar_url={assistantInfo?.image ?? ""}
           disabled={isAgentResponding || isUploadingFile}

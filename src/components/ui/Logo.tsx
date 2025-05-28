@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 interface LogoProps {
   className?: string;
@@ -12,6 +12,7 @@ export function Logo({ withLabel = true, className }: LogoProps) {
   const [mounted, setMounted] = useState(false);
   // Use a default initial state that matches server rendering
   const [logoSrc, setLogoSrc] = useState("/images/logo/head-logo-light.png");
+  console.log(withLabel);
 
   // Only update the logo source after component has mounted to prevent hydration mismatch
   useEffect(() => {

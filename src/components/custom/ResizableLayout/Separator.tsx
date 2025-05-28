@@ -2,22 +2,14 @@ import { cn } from "@/lib/utils";
 
 export interface SeparatorProps {
   leftWidth: number;
-  isDragging: boolean;
-  isHovering: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onTouchStart: (e: React.TouchEvent) => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
 }
 
 export function Separator({
   leftWidth,
-  isDragging,
-  isHovering,
   onMouseDown,
   onTouchStart,
-  onMouseEnter,
-  onMouseLeave,
 }: SeparatorProps) {
   return (
     <div
@@ -31,8 +23,6 @@ export function Separator({
       }}
       onMouseDown={onMouseDown}
       onTouchStart={onTouchStart}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
     >
       <div className={cn("h-full w-px bg-border transition-opacity")} />
     </div>

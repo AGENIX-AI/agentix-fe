@@ -13,7 +13,6 @@ import RightPanel from "./components/right-panel";
 //   tagline: string;
 // }
 export default function AppStartPage() {
-  const [leftPanel, setLeftPanel] = useState("main");
   const [isMiniappVisible, setIsMiniappVisible] = useState(true);
   // These will be used in future implementations
   // const [selectedCharacterInfo, setSelectedCharacterInfo] =
@@ -27,14 +26,7 @@ export default function AppStartPage() {
     <StudentContextProvider>
       <div className="flex h-screen">
         <ResizableLayoutWithToggle
-          leftPane={
-            <LeftPanel
-              selected={leftPanel}
-              onSelect={(key: string) => setLeftPanel(key)}
-              isMiniappVisible={isMiniappVisible}
-              onMiniappToggle={handleMiniappToggle}
-            />
-          }
+          leftPane={<LeftPanel onMiniappToggle={handleMiniappToggle} />}
           rightPane={<RightPanel />}
           initialLeftWidth={55}
           minLeftWidth={55}

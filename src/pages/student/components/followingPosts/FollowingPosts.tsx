@@ -69,198 +69,196 @@ interface PostProps {
   onSelectProfileInfo?: (profileInfo: ProfileInfo) => void;
   showMoreData?: boolean;
 }
-const Post = memo(
-  ({ post, onSelectProfileInfo, showMoreData = false }: PostProps) => {
-    const [showPdfPreview, setShowPdfPreview] = useState(false);
+const Post = memo(({ post, showMoreData = false }: PostProps) => {
+  const [showPdfPreview, setShowPdfPreview] = useState(false);
 
-    return (
-      <div className="p-4 border rounded-lg ">
-        <div className="flex items-center mb-3">
-          <Avatar className="h-10 w-10 mr-3 cursor-pointer">
-            <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
-            <AvatarFallback>{post.author.name.substring(0, 2)}</AvatarFallback>
-          </Avatar>
-          <div>
-            <div className="flex items-center">
-              <H7 className="font-semibold cursor-pointer hover:underline">
-                {post.author.name}
-              </H7>
-              {post.author.verified && <CheckCircle className="h-4 w-4 ml-1" />}
-            </div>
-            <div className="flex items-center text-xs text-muted-foreground">
-              <ExtraSmall>
-                {new Date(post.createdAt).toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </ExtraSmall>
-              {post.author.role && (
-                <>
-                  <ExtraSmall className="mx-1">•</ExtraSmall>
-                  <ExtraSmall className="text-xs py-0 h-4">
-                    {post.author.role}
-                  </ExtraSmall>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-
+  return (
+    <div className="p-4 border rounded-lg ">
+      <div className="flex items-center mb-3">
+        <Avatar className="h-10 w-10 mr-3 cursor-pointer">
+          <AvatarImage src={post.author.avatarUrl} alt={post.author.name} />
+          <AvatarFallback>{post.author.name.substring(0, 2)}</AvatarFallback>
+        </Avatar>
         <div>
-          <ExtraSmall>{post.content}</ExtraSmall>
-
-          {post.imageUrl && (
-            <div className="mt-3 rounded-md overflow-hidden">
-              <img
-                src={post.imageUrl}
-                alt="Post image"
-                className="w-full h-auto object-cover"
-              />
-            </div>
-          )}
-
-          {(post.videoUrl || post.video) && (
-            <div className="mt-3 rounded-md overflow-hidden">
-              {post.video && (
-                <div className="mb-2">
-                  <H7 className="font-medium">{post.video.title}</H7>
-                  <ExtraSmall className="text-muted-foreground">
-                    {post.video.subtitle}
-                  </ExtraSmall>
-                </div>
-              )}
-              <video
-                src={post.video?.sources?.[0] || post.videoUrl}
-                poster={post.video?.thumb}
-                controls
-                className="w-full h-auto rounded-md"
-                preload="metadata"
-              />
-              {post.video?.description && (
-                <ExtraSmall className="mt-2 text-muted-foreground">
-                  {post.video.description}
-                </ExtraSmall>
-              )}
-            </div>
-          )}
-
-          {(post.documentUrl || post.document) && (
-            <div className="mt-3 border rounded-md overflow-hidden">
-              <div className="p-4 bg-muted/30 flex items-start gap-3">
-                <div className="text-primary">
-                  <FileText size={24} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <H7 className="font-medium truncate">
-                    {post.document?.title || "Document"}
-                  </H7>
-                  {post.document?.description && (
-                    <ExtraSmall className="text-muted-foreground mt-1">
-                      {post.document.description}
-                    </ExtraSmall>
-                  )}
-                  <div className="flex items-center gap-2 mt-2">
-                    <button
-                      onClick={() => setShowPdfPreview(!showPdfPreview)}
-                      className="text-xs flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
-                    >
-                      {showPdfPreview ? "Hide Preview" : "View Preview"}
-                    </button>
-                    <a
-                      href={post.document?.url || post.documentUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-xs flex items-center gap-1 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md transition-colors"
-                    >
-                      <ExternalLink size={12} />
-                      Open
-                    </a>
-                    <a
-                      href={post.document?.url || post.documentUrl}
-                      download
-                      className="text-xs flex items-center gap-1 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md transition-colors"
-                    >
-                      <Download size={12} />
-                      Download
-                    </a>
-                  </div>
-                </div>
-              </div>
-              {showPdfPreview && (
-                <div className="h-[500px] border-t">
-                  <iframe
-                    src={`${post.document?.url || post.documentUrl}#toolbar=0`}
-                    className="w-full h-full"
-                    title={post.document?.title || "Document preview"}
-                  />
-                </div>
-              )}
-            </div>
-          )}
-
-          {showMoreData && post.tags && post.tags.length > 0 && (
-            <div className="flex flex-wrap gap-1 mt-3">
-              {post.tags.map((tag, index) => (
-                <ExtraSmall
-                  key={index}
-                  className="text-xs py-0 h-4 bg-muted/30 rounded-md px-2"
-                >
-                  {tag}
-                </ExtraSmall>
-              ))}
-            </div>
-          )}
-
-          <div className="flex items-center justify-between mt-4 pt-3 border-t">
-            <div className="flex items-center space-x-4">
-              <button className="flex items-center text-sm text-muted-foreground hover:text-foreground">
-                <ThumbsUp className="h-4 w-4 mr-1" />
-                <ExtraSmall>{post.likes}</ExtraSmall>
-              </button>
-              <button className="flex items-center text-sm text-muted-foreground hover:text-foreground">
-                <MessageCircle className="h-4 w-4 mr-1" />
-                <ExtraSmall>{post.comments}</ExtraSmall>
-              </button>
-            </div>
-            <div className="flex items-center space-x-2">
-              <button className="p-2 text-muted-foreground hover:text-foreground">
-                <Share className="h-4 w-4" />
-              </button>
-              <button className="p-2 text-muted-foreground hover:text-foreground">
-                <Bookmark className="h-4 w-4" />
-              </button>
-            </div>
+          <div className="flex items-center">
+            <H7 className="font-semibold cursor-pointer hover:underline">
+              {post.author.name}
+            </H7>
+            {post.author.verified && <CheckCircle className="h-4 w-4 ml-1" />}
           </div>
-
-          {post.topComment && (
-            <div className="mt-3 pt-3 border-t">
-              <div className="flex items-start">
-                <Avatar className="h-6 w-6 mr-2">
-                  <AvatarImage
-                    src={post.topComment.author.avatarUrl}
-                    alt={post.topComment.author.name}
-                  />
-                  <AvatarFallback>
-                    {post.topComment.author.name.substring(0, 2)}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <ExtraSmall className="font-medium">
-                    {post.topComment.author.name}
-                  </ExtraSmall>
-                  <ExtraSmall className="mt-1">
-                    {post.topComment.content}
-                  </ExtraSmall>
-                </div>
-              </div>
-            </div>
-          )}
+          <div className="flex items-center text-xs text-muted-foreground">
+            <ExtraSmall>
+              {new Date(post.createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </ExtraSmall>
+            {post.author.role && (
+              <>
+                <ExtraSmall className="mx-1">•</ExtraSmall>
+                <ExtraSmall className="text-xs py-0 h-4">
+                  {post.author.role}
+                </ExtraSmall>
+              </>
+            )}
+          </div>
         </div>
       </div>
-    );
-  }
-);
+
+      <div>
+        <ExtraSmall>{post.content}</ExtraSmall>
+
+        {post.imageUrl && (
+          <div className="mt-3 rounded-md overflow-hidden">
+            <img
+              src={post.imageUrl}
+              alt="Post image"
+              className="w-full h-auto object-cover"
+            />
+          </div>
+        )}
+
+        {(post.videoUrl || post.video) && (
+          <div className="mt-3 rounded-md overflow-hidden">
+            {post.video && (
+              <div className="mb-2">
+                <H7 className="font-medium">{post.video.title}</H7>
+                <ExtraSmall className="text-muted-foreground">
+                  {post.video.subtitle}
+                </ExtraSmall>
+              </div>
+            )}
+            <video
+              src={post.video?.sources?.[0] || post.videoUrl}
+              poster={post.video?.thumb}
+              controls
+              className="w-full h-auto rounded-md"
+              preload="metadata"
+            />
+            {post.video?.description && (
+              <ExtraSmall className="mt-2 text-muted-foreground">
+                {post.video.description}
+              </ExtraSmall>
+            )}
+          </div>
+        )}
+
+        {(post.documentUrl || post.document) && (
+          <div className="mt-3 border rounded-md overflow-hidden">
+            <div className="p-4 bg-muted/30 flex items-start gap-3">
+              <div className="text-primary">
+                <FileText size={24} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <H7 className="font-medium truncate">
+                  {post.document?.title || "Document"}
+                </H7>
+                {post.document?.description && (
+                  <ExtraSmall className="text-muted-foreground mt-1">
+                    {post.document.description}
+                  </ExtraSmall>
+                )}
+                <div className="flex items-center gap-2 mt-2">
+                  <button
+                    onClick={() => setShowPdfPreview(!showPdfPreview)}
+                    className="text-xs flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-md hover:bg-primary/20 transition-colors"
+                  >
+                    {showPdfPreview ? "Hide Preview" : "View Preview"}
+                  </button>
+                  <a
+                    href={post.document?.url || post.documentUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs flex items-center gap-1 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md transition-colors"
+                  >
+                    <ExternalLink size={12} />
+                    Open
+                  </a>
+                  <a
+                    href={post.document?.url || post.documentUrl}
+                    download
+                    className="text-xs flex items-center gap-1 px-2 py-1 bg-muted hover:bg-muted/80 rounded-md transition-colors"
+                  >
+                    <Download size={12} />
+                    Download
+                  </a>
+                </div>
+              </div>
+            </div>
+            {showPdfPreview && (
+              <div className="h-[500px] border-t">
+                <iframe
+                  src={`${post.document?.url || post.documentUrl}#toolbar=0`}
+                  className="w-full h-full"
+                  title={post.document?.title || "Document preview"}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {showMoreData && post.tags && post.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1 mt-3">
+            {post.tags.map((tag, index) => (
+              <ExtraSmall
+                key={index}
+                className="text-xs py-0 h-4 bg-muted/30 rounded-md px-2"
+              >
+                {tag}
+              </ExtraSmall>
+            ))}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-4 pt-3 border-t">
+          <div className="flex items-center space-x-4">
+            <button className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+              <ThumbsUp className="h-4 w-4 mr-1" />
+              <ExtraSmall>{post.likes}</ExtraSmall>
+            </button>
+            <button className="flex items-center text-sm text-muted-foreground hover:text-foreground">
+              <MessageCircle className="h-4 w-4 mr-1" />
+              <ExtraSmall>{post.comments}</ExtraSmall>
+            </button>
+          </div>
+          <div className="flex items-center space-x-2">
+            <button className="p-2 text-muted-foreground hover:text-foreground">
+              <Share className="h-4 w-4" />
+            </button>
+            <button className="p-2 text-muted-foreground hover:text-foreground">
+              <Bookmark className="h-4 w-4" />
+            </button>
+          </div>
+        </div>
+
+        {post.topComment && (
+          <div className="mt-3 pt-3 border-t">
+            <div className="flex items-start">
+              <Avatar className="h-6 w-6 mr-2">
+                <AvatarImage
+                  src={post.topComment.author.avatarUrl}
+                  alt={post.topComment.author.name}
+                />
+                <AvatarFallback>
+                  {post.topComment.author.name.substring(0, 2)}
+                </AvatarFallback>
+              </Avatar>
+              <div>
+                <ExtraSmall className="font-medium">
+                  {post.topComment.author.name}
+                </ExtraSmall>
+                <ExtraSmall className="mt-1">
+                  {post.topComment.content}
+                </ExtraSmall>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+});
 
 export function FollowingPosts({ showMoreData = false }: FollowingPostsProps) {
   const [visiblePosts, setVisiblePosts] = useState<PostType[]>([]);

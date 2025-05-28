@@ -7,8 +7,8 @@ import { useStudent } from "@/contexts/StudentContext";
 import { useEffect, useState } from "react";
 import type { Assistant } from "@/api/assistants";
 import { getAssistantById } from "@/api/assistants";
-import type { InstructorAssistant, InstructorProfile } from "@/api/instructor";
-import { getInstructorAssistants, getInstructorById } from "@/api/instructor";
+import type { InstructorProfile } from "@/api/instructor";
+import { getInstructorById } from "@/api/instructor";
 import { Loader2Icon } from "lucide-react";
 
 interface AssistantBannerProps {
@@ -101,8 +101,6 @@ export function AssisstantConversation({ page }: { page: string }) {
   const { assistantId, instructorId } = useStudent();
   const [assistant, setAssistant] = useState<Assistant | null>(null);
   const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
-  const [instructorAssistant, setInstructorAssistant] =
-    useState<InstructorAssistant | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -122,18 +120,6 @@ export function AssisstantConversation({ page }: { page: string }) {
           if (instructorId) {
             const instructorData = await getInstructorById(instructorId);
             setInstructor(instructorData);
-
-            // Fetch instructor assistants
-            const instructorAssistants = await getInstructorAssistants(
-              instructorId
-            );
-            // Find the matching assistant
-            const matchingAssistant = instructorAssistants.find(
-              (a) => a.id === assistantId
-            );
-            if (matchingAssistant) {
-              setInstructorAssistant(matchingAssistant);
-            }
           }
         } catch (error) {
           console.error("Error fetching data:", error);

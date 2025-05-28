@@ -4,18 +4,19 @@ import api from "../services/api";
 import Cookies from "js-cookie";
 import { authService } from "@/services/auth";
 
+interface Metadata {
+  avatar_url: string;
+  email: string;
+  full_name: string;
+  picture: string;
+}
 // Define types for auth response
 interface User {
   id: string;
   email: string;
   phone: string;
   role: string;
-  metadata: {
-    avatar_url: string;
-    email: string;
-    full_name: string;
-    picture: string;
-  };
+  metadata: Metadata;
 }
 
 interface Session {

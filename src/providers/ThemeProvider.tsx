@@ -54,7 +54,6 @@ export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
           },
           isDarkMode,
           toggleTheme: () => {
-            const newTheme = isDarkMode ? "light" : "dark";
             setIsDarkMode(!isDarkMode);
             document.documentElement.classList.toggle("dark", !isDarkMode);
           },

@@ -48,14 +48,8 @@ const MiniappToggleButton = memo(
 
 MiniappToggleButton.displayName = "MiniappToggleButton";
 export default function LeftPanel({
-  selected,
-  onSelect,
-  isMiniappVisible,
   onMiniappToggle,
 }: {
-  selected: string;
-  onSelect: (key: string) => void;
-  isMiniappVisible?: boolean;
   onMiniappToggle?: (isVisible: boolean) => void;
 }) {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);

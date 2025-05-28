@@ -25,7 +25,7 @@ function MessageContentComponent({
   const { cleanedContent, imageUrls } = processMessageContent(
     remainingContent || content
   );
-
+  console.log(imageUrls);
   // Reference to the content div
   const contentRef = useRef<HTMLDivElement>(null);
 
@@ -74,7 +74,7 @@ function MessageContentComponent({
       const loadAndRenderKaTeX = async () => {
         try {
           // Dynamically import KaTeX
-          const katex = await import("katex");
+          // const katex = await import("katex");
           const { default: renderMathInElement } = await import(
             "katex/contrib/auto-render"
           );
@@ -128,7 +128,7 @@ function MessageContentComponent({
       {isImageViewerOpen && (
         <ImageViewer
           key={`image-viewer-${messageIndex}`}
-          imageUrls={imageUrls}
+          // imageUrls={imageUrls}
           currentImageUrl={currentImageUrl}
           onClose={() => setIsImageViewerOpen(false)}
         />

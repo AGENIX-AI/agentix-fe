@@ -1,22 +1,17 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { FullImageModal } from "./FullImageModal";
 
 interface ImageViewerProps {
-  imageUrls: string[];
   currentImageUrl: string;
   onClose: () => void;
 }
 
-export function ImageViewer({
-  imageUrls,
-  currentImageUrl,
-  onClose,
-}: ImageViewerProps) {
-  const [scale, setScale] = useState(1);
+export function ImageViewer({ currentImageUrl, onClose }: ImageViewerProps) {
+  // const [scale, setScale] = useState(1);
 
   // Reset scale when a new image is shown
   useEffect(() => {
-    setScale(1);
+    // setScale(1);
   }, [currentImageUrl]);
 
   return (

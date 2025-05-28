@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, useRef, memo } from "react";
+import { useEffect, useState, useCallback, memo } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -20,7 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useStudent } from "@/contexts/StudentContext";
-import { cn } from "@/lib/utils";
 
 interface ConversationTasksProps {
   className?: string;
@@ -43,32 +42,12 @@ interface ConversationTask {
 }
 
 // Helper function to check if tasks have changed
-function tasksAreEqual(
-  tasksA: ConversationTask[] | undefined,
-  tasksB: ConversationTask[] | undefined
-): boolean {
-  if (!tasksA && !tasksB) return true;
-  if (!tasksA || !tasksB) return false;
-  if (tasksA.length !== tasksB.length) return false;
-
-  return tasksA.every((taskA, index) => {
-    const taskB = tasksB[index];
-    return (
-      taskA.id === taskB.id &&
-      taskA.status === taskB.status &&
-      taskA.user_task === taskB.user_task &&
-      taskA.agent_task === taskB.agent_task &&
-      taskA.step === taskB.step
-    );
-  });
-}
 
 // Memoized TaskCard component to prevent re-renders when props don't change
 const TaskCard = memo(
   function TaskCard({
     task,
     status,
-    totalTasks,
   }: {
     task: ConversationTask;
     status: "current" | "pending" | "completed";
@@ -169,41 +148,6 @@ const TaskCard = memo(
 );
 
 // Memoized TaskSection component to prevent re-renders
-const TaskSection = memo(function TaskSection({
-  title,
-  tasks,
-  status,
-  badgeClass,
-  totalTasks,
-}: {
-  title: string;
-  tasks: ConversationTask[];
-  status: "current" | "pending" | "completed";
-  badgeClass: string;
-  totalTasks: number;
-}) {
-  if (tasks.length === 0) return null;
-
-  return (
-    <div className="mb-8">
-      <div className="flex items-center gap-2 mb-3">
-        <Small className={cn("px-3 py-1 rounded-md", badgeClass)}>
-          {title}
-        </Small>
-      </div>
-      <div className="space-y-4">
-        {tasks.map((task) => (
-          <TaskCard
-            key={task.id}
-            task={task}
-            status={status}
-            totalTasks={totalTasks}
-          />
-        ))}
-      </div>
-    </div>
-  );
-});
 
 // Main component with optimizations
 export const ConversationTasks = memo(
@@ -218,16 +162,16 @@ export const ConversationTasks = memo(
       conversation_name: string;
       conversation_description: string;
     } | null>(null);
-
+    setTasks(null);
     // Refs to store previous task states for comparison
-    const prevTasksRef = useRef<{
-      pending_tasks: ConversationTask[];
-      current_task: ConversationTask[];
-      completed_tasks: ConversationTask[];
-      goal_description: string | null;
-      conversation_name: string;
-      conversation_description: string;
-    } | null>(null);
+    // const prevTasksRef = useRef<{
+    //   pending_tasks: ConversationTask[];
+    //   current_task: ConversationTask[];
+    //   completed_tasks: ConversationTask[];
+    //   goal_description: string | null;
+    //   conversation_name: string;
+    //   conversation_description: string;
+    // } | null>(null);
 
     // Function to fetch tasks with optimization to prevent unnecessary updates
     const fetchTasks = useCallback(async () => {

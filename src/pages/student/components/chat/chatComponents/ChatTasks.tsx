@@ -44,6 +44,7 @@ const tasks: TaskData[] = [
 ];
 
 export function TaskMenu({ onClose, onSelectTask }: TaskMenuProps) {
+  console.log(onClose);
   return (
     <Card className="w-full absolute bottom-[calc(100%+8px)] left-0 z-20 p-0">
       <CardHeader className="p-3 pb-0 flex flex-col">

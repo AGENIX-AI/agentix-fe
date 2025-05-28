@@ -142,7 +142,7 @@ export function AssistantCapabilityStatement() {
                   Math.min(5, Math.ceil(personalityProfile.mood_style / 2) || 3)
                 ),
               },
-            ].map(({ trait, value }, i) => (
+            ].map(({ trait, value }, _) => (
               <div key={trait} className="flex items-center gap-3 w-full">
                 <ExtraSmall className="w-1/4 font-normal">
                   {formatPersonalityTrait(trait)}

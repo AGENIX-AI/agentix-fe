@@ -25,7 +25,6 @@ export function ResizableLayoutWithToggle({
   const [savedLeftWidth, setSavedLeftWidth] =
     useState<number>(initialLeftWidth);
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
@@ -92,14 +91,6 @@ export function ResizableLayoutWithToggle({
   const handleTouchStart = useCallback((e: React.TouchEvent) => {
     e.preventDefault();
     setIsDragging(true);
-  }, []);
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
   }, []);
 
   const updateWidth = useCallback((newWidth: number) => {
@@ -226,12 +217,8 @@ export function ResizableLayoutWithToggle({
         <>
           <Separator
             leftWidth={leftWidth}
-            isDragging={isDragging}
-            isHovering={isHovering}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
           />
 
           <Pane width={`${100 - leftWidth}%`}>{rightPane}</Pane>

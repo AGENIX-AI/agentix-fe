@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -108,7 +108,8 @@ const LoginForm = () => {
       } else {
         const { error } = await authClient.signIn.magicLink({
           ...values,
-          callbackURL: import.meta.env.VITE_APP_CALLBACK_URL + "/auth/magic-link",
+          callbackURL:
+            import.meta.env.VITE_APP_CALLBACK_URL + "/auth/magic-link",
         });
 
         if (error) {

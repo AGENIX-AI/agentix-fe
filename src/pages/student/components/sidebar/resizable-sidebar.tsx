@@ -32,7 +32,6 @@ export function ResizableSidebar({
   );
   const [width, setWidth] = useState<number>(initialWidth);
   const [isDragging, setIsDragging] = useState(false);
-  const [isHovering, setIsHovering] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
@@ -122,14 +121,6 @@ export function ResizableSidebar({
     },
     [isCollapsed]
   );
-
-  const handleMouseEnter = useCallback(() => {
-    setIsHovering(true);
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setIsHovering(false);
-  }, []);
 
   const updateWidth = useCallback((newWidth: number) => {
     // Only update if the change is significant (more than 0.5px)
@@ -390,8 +381,6 @@ export function ResizableSidebar({
             )}
             onMouseDown={handleMouseDown}
             onTouchStart={handleTouchStart}
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
           >
             <div className="absolute inset-y-0 right-0 flex items-center justify-center"></div>
           </div>

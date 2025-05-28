@@ -14,7 +14,6 @@ export interface ChatBoxProps {
   setIsLoading?: (isLoading: boolean) => void;
   placeholder?: string;
   className?: string;
-  email: string;
   name: string;
   avatar_url?: string;
   disabled?: boolean;
@@ -32,7 +31,6 @@ export function ChatBox({
   setIsLoading,
   placeholder = "Type a message...",
   className,
-  email,
   name,
   avatar_url,
   disabled = false,

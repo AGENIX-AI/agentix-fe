@@ -37,7 +37,7 @@ export function ChatInput({
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState("");
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const { assistantId, setConversationId } = useStudent();
+  const { assistantId } = useStudent();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

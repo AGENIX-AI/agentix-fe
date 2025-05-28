@@ -32,6 +32,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
 
   useEffect(() => {
     // Trigger fade-in animation on mount
+    console.log(onSubmit, setIsEditing);
     setIsVisible(true);
   }, []);
 
@@ -45,16 +46,16 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
     }));
   };
 
-  const handleSubmit = () => {
-    if (onSubmit) {
-      const updatedCard: TopicMessageCard = {
-        ...card,
-        ...formData,
-      };
-      onSubmit(updatedCard);
-    }
-    setIsEditing(false);
-  };
+  // const handleSubmit = () => {
+  //   if (onSubmit) {
+  //     const updatedCard: TopicMessageCard = {
+  //       ...card,
+  //       ...formData,
+  //     };
+  //     onSubmit(updatedCard);
+  //   }
+  //   setIsEditing(false);
+  // };
 
   return (
     <Card

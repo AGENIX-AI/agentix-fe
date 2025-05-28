@@ -67,33 +67,6 @@ interface ConversationData {
   page_size: number;
 }
 
-interface ConversationFormData {
-  language: string;
-  conversation_name: string;
-  conversation_description: string;
-  conversation_goal: string;
-  type: number;
-}
-
-interface LastMessage {
-  characterId: string;
-  content: string;
-  timestamp: number;
-  sender_email: string;
-}
-
-interface ConversationInfo {
-  id: string;
-  stream_id: string;
-  topic_name: string;
-  language: string;
-  status: number;
-  type: number;
-  created_at: string;
-  updated_at: string;
-  last_message?: LastMessage;
-}
-
 interface AssistantProfileProps {
   className?: string;
   initialData?: CharacterInfo | null;
@@ -289,7 +262,7 @@ export function AssistantProfile({ className }: AssistantProfileProps) {
 
     try {
       //   const data = await getConversationByCharacterId(assistantInfo.id);
-      //   setConversationData(data);
+      setConversationData(null);
     } catch (error) {
       console.error("Error fetching conversation data:", error);
       setHasError(true);
@@ -315,16 +288,6 @@ export function AssistantProfile({ className }: AssistantProfileProps) {
       window.removeEventListener("refreshConversations", handleRefresh);
     };
   }, [fetchConversationData]);
-
-  // Helper function to get total conversation count
-  const getTotalConversationCount = () => {
-    if (!conversationData?.conversations) return 0;
-
-    const { general, tutorial, archived } = conversationData.conversations;
-    return (
-      (general?.length || 0) + (tutorial?.length || 0) + (archived?.length || 0)
-    );
-  };
 
   if (!assistantInfo) {
     return (

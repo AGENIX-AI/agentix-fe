@@ -2,22 +2,14 @@ import { cn } from "@/lib/utils";
 
 export interface DividerProps {
   leftWidth: number;
-  isDragging: boolean;
-  isHovering: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
   onTouchStart: (e: React.TouchEvent) => void;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
 }
 
 export function Divider({
   leftWidth,
-  isDragging,
-  isHovering,
   onMouseDown,
   onTouchStart,
-  onMouseEnter,
-  onMouseLeave,
 }: DividerProps) {
   return (
     <div
@@ -31,8 +23,6 @@ export function Divider({
       }}
       onMouseDown={onMouseDown}
       onTouchStart={onTouchStart}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
     ></div>
   );
 }
