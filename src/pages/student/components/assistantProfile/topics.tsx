@@ -2,11 +2,8 @@ import { useStudent } from "@/contexts/StudentContext";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
-import { getConversationsByAssistantId } from "@/services/conversation";
-import type {
-  ConversationResponse,
-  Conversation as ConversationType,
-} from "@/services/conversation";
+import type { Conversation as ConversationType } from "@/services/conversation";
+import type { ConversationListResponse } from "@/lib/utils/types/conversation";
 import { getConversations } from "@/api/conversations";
 // Types
 interface Personality {
@@ -51,7 +48,7 @@ interface AssistantTopicsProps {
 
 // Helper Components
 interface ConversationListProps {
-  conversationData: ConversationResponse | null;
+  conversationData: ConversationListResponse | null;
   isLoading: boolean;
   hasError: boolean;
 }
@@ -228,7 +225,7 @@ function ConversationCategory({
 export function AssistantTopics({ className }: AssistantTopicsProps) {
   const { assistantInfo } = useStudent();
   const [conversationData, setConversationData] =
-    useState<ConversationResponse | null>(null);
+    useState<ConversationListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 

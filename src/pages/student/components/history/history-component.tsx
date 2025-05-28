@@ -163,8 +163,8 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      (conversation.name?.toLowerCase() || "").includes(query) ||
-      (conversation.tagline?.toLowerCase() || "").includes(query) ||
+      (conversation.assistants?.name?.toLowerCase() || "").includes(query) ||
+      (conversation.assistants?.tagline?.toLowerCase() || "").includes(query) ||
       (conversation.last_message?.content?.toLowerCase() || "").includes(query)
     );
   });
@@ -235,19 +235,13 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
                       >
                         <Avatar className="overflow-hidden">
                           <AvatarImage
-                            src={
-                              conversation.assistants?.image ||
-                              conversation.image ||
-                              ""
-                            }
+                            src={conversation.assistants?.image || ""}
                           />
                         </Avatar>
                         <div className="flex-1 overflow-hidden">
                           <div className="flex items-center justify-between">
                             <p className="text-sm font-semibold">
-                              {conversation.assistants?.name ||
-                                conversation.name ||
-                                "Assistant"}
+                              {conversation.assistants?.name || "Assistant"}
                             </p>
                           </div>
                           <p className="text-xs truncate">
