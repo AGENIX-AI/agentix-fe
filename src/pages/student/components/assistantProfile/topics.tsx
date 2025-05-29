@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { Conversation as ConversationType } from "@/services/conversation";
 import type { ConversationListResponse } from "@/lib/utils/types/conversation";
 import { getConversations } from "@/api/conversations";
+import { LoadingState } from "@/components/ui/loading-state";
 // Types
 interface Personality {
   id: string;
@@ -61,9 +62,7 @@ function ConversationList({
   return (
     <div>
       {isLoading ? (
-        <div className="bg-muted/30 rounded-md text-center">
-          <p className="text-xs ">Loading conversation data...</p>
-        </div>
+        <LoadingState />
       ) : hasError ? (
         <div className="bg-destructive/10 rounded-md text-center">
           <p className="text-xs text-destructive">

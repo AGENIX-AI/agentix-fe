@@ -1,10 +1,11 @@
 import {
   AudioWaveform,
-  CheckSquare,
   Command,
   GalleryVerticalEnd,
   HelpCircle,
   LayoutDashboard,
+  UserSearch,
+  FileText,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -40,10 +41,20 @@ export const sidebarData: SidebarData = {
           url: "/",
           icon: LayoutDashboard,
         },
+        // {
+        //   title: "AI Assistant",
+        //   url: "/",
+        //   icon: CheckSquare,
+        // },
         {
-          title: "AI Assistant",
-          url: "/",
-          icon: CheckSquare,
+          title: "Find Instructor",
+          url: "/student",
+          icon: UserSearch,
+        },
+        {
+          title: "Posts",
+          url: "/student",
+          icon: FileText,
         },
       ],
     },

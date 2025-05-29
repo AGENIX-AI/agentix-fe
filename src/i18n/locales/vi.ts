@@ -132,6 +132,45 @@ const viTranslation = {
   "language_en": "Tiếng Anh",
   "language_vi": "Tiếng Việt",
 
+  // Chat Components
+  "chat": {
+    "input": {
+      "placeholder": "Nhập tin nhắn...",
+      "send": "Gửi"
+    },
+    "tasks": {
+      "title": "Nhiệm vụ",
+      "select_task": "Chọn một nhiệm vụ để bắt đầu",
+      "create_topic": "Tạo một chủ đề học tập"
+    },
+    "create_topic_form": {
+      "title": "Tạo một chủ đề học tập",
+      "topic": "Chủ đề",
+      "topic_placeholder": "Mô tả chủ đề muốn thảo luận",
+      "goal": "Mục tiêu",
+      "goal_placeholder": "Mục tiêu bạn muốn đạt được về chủ đề này",
+      "problems": "Vấn đề",
+      "problems_placeholder": "Mối quan tâm, thách thức hoặc nhu cầu hiện tại về chủ đề",
+      "language": "Ngôn ngữ",
+      "language_placeholder": "Chọn ngôn ngữ",
+      "create": "Tạo"
+    },
+    "header": {
+      "back": "Quay lại",
+      "new_chat": "Cuộc trò chuyện mới",
+      "show_history": "Hiển thị lịch sử",
+      "hide_history": "Ẩn lịch sử",
+      "powered_by": "Được hỗ trợ bởi {{name}}"
+    },
+    "message": {
+      "typing": "Đang nhập...",
+      "view_full_image": "Xem hình ảnh đầy đủ",
+      "close": "Đóng",
+      "play_audio": "Phát âm thanh",
+      "stop_audio": "Dừng âm thanh"
+    }
+  },
+
   // Instructor Finder
   "findInstructor": "Tìm Giảng Viên",
   "searchByName": "Tìm theo tên",

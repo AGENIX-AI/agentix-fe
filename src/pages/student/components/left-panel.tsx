@@ -55,34 +55,24 @@ export default function LeftPanel({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [localMiniappVisible, setLocalMiniappVisible] = useState(true);
 
-  // Try to use AppPageContext if available
-  const appPageContext = useStudent();
+  // Use StudentContext for history visibility
+  const { isHistoryVisible } = useStudent();
 
+  // This function is now unused since we're using the miniapp toggle instead
   const toggleSidebar = () => {
     setIsSidebarCollapsed((prev) => !prev);
   };
 
-  // Use prop value if provided, otherwise use AppPageContext if available, otherwise use local state
-  // const isMinimappVisibleValue =
-  //   isMiniappVisible !== undefined
-  //     ? isMiniappVisible
-  //     : appPageContext
-  //     ? appPageContext.isHistoryVisible
-  //     : localMiniappVisible;
-
+  // Use local state for miniapp visibility
   const isMinimappVisibleValue = localMiniappVisible;
+
   const toggleMiniapp = () => {
-    const newValue = !isMinimappVisibleValue;
-    // Update parent's state if callback is provided
+    // Toggle the miniapp visibility state
+    setLocalMiniappVisible((prev) => !prev);
+
+    // If parent callback is provided, call it with the new value
     if (onMiniappToggle) {
-      onMiniappToggle(newValue);
-    } else if (appPageContext) {
-      // If within AppPageContext, use its toggleHistory function
-      // appPageContext.toggleHistory();
-      console.log("appPageContext.toggleHistory");
-    } else {
-      // Otherwise, use local state
-      setLocalMiniappVisible(newValue);
+      onMiniappToggle(!localMiniappVisible);
     }
   };
 
@@ -148,6 +138,7 @@ export default function LeftPanel({
           <MiniappToggleButton
             isMiniappVisible={isMinimappVisibleValue}
             toggleMiniapp={toggleMiniapp}
+            className="mr-2"
           />
         </div>
       </header>
@@ -155,11 +146,13 @@ export default function LeftPanel({
       <div className="flex w-full" style={{ height: "calc(100vh - 4.5rem)" }}>
         {/* Layout container with resizable sidebar and content */}
         <div className="flex w-full h-full">
-          {/* Sidebar */}
-          <ResizableSidebar
-            className="bg-transparent h-[calc(100vh-4.5rem)]"
-            isCollapsed={isSidebarCollapsed}
-          />
+          {/* Sidebar - Show only if miniapp is visible */}
+          {isMinimappVisibleValue && (
+            <ResizableSidebar
+              className="bg-transparent h-[calc(100vh-4.5rem)]"
+              isCollapsed={isSidebarCollapsed}
+            />
+          )}
 
           {/* Main content area */}
           <div className="flex-1 h-full overflow-hidden">
@@ -171,6 +164,7 @@ export default function LeftPanel({
                 minLeftWidth={30}
                 maxLeftWidth={40}
                 storageKey="edvara-history-width"
+                isHistoryVisible={isHistoryVisible}
               />
             </div>
           </div>

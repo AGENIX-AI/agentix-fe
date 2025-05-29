@@ -5,6 +5,7 @@ import { useState, type JSX } from "react";
 import { CreateTopicForm, type CreateTopicFormData } from "./CreateTopicForm";
 import { ExtraSmall, Small } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "react-i18next";
 
 export interface TaskFormData {
   productName: string;
@@ -34,7 +35,7 @@ interface TaskData {
 const tasks: TaskData[] = [
   {
     id: "create-topic",
-    title: "Create a tutoring topic",
+    title: "create_topic", // This is now a translation key
     icon: (
       <div className="w-4 h-4 flex items-center justify-center bg-red-50 rounded">
         <Small className="text-red-500 text-xs">🖌️</Small>
@@ -43,17 +44,17 @@ const tasks: TaskData[] = [
   },
 ];
 
-export function TaskMenu({ onClose, onSelectTask }: TaskMenuProps) {
-  console.log(onClose);
+export function TaskMenu({ onSelectTask }: TaskMenuProps) {
+  const { t } = useTranslation();
   return (
     <Card className="w-full absolute bottom-[calc(100%+8px)] left-0 z-20 p-0">
       <CardHeader className="p-3 pb-0 flex flex-col">
         <div className="flex items-center">
           <ClipboardList className="w-4 h-4 mr-2" />
-          <CardTitle>Task</CardTitle>
+          <CardTitle>{t('chat.tasks.title')}</CardTitle>
         </div>
         <ExtraSmall className="text-muted-foreground">
-          Select a task to get started
+          {t('chat.tasks.select_task')}
         </ExtraSmall>
       </CardHeader>
       <Separator className="m-0 w-[calc(100%-24px)] mx-3" />
@@ -63,11 +64,11 @@ export function TaskMenu({ onClose, onSelectTask }: TaskMenuProps) {
             <Button
               key={task.id}
               className="w-full text-left flex items-center gap-2 text-sm cursor-pointer justify-start bg-background "
-              onClick={() => onSelectTask(task.id, task.title)}
+              onClick={() => onSelectTask(task.id, t(`chat.tasks.${task.id.replace('-', '_')}`))}
               variant="ghost"
             >
               {task.icon}
-              <ExtraSmall>{task.title}</ExtraSmall>
+              <ExtraSmall>{t(`chat.tasks.${task.id.replace('-', '_')}`)}</ExtraSmall>
             </Button>
           ))}
         </div>
@@ -89,6 +90,7 @@ export function ChatTasks({
   taskId,
   taskTitle,
 }: ChatTasksProps) {
+  const { t } = useTranslation();
   const [selectedTaskTitle, setSelectedTaskTitle] = useState<
     string | undefined
   >(taskTitle);
@@ -96,9 +98,8 @@ export function ChatTasks({
     taskId
   );
 
-  const handleSelectTask = (id: string, title: string) => {
-    console.log(id, title);
-    setSelectedTaskTitle(title);
+  const handleSelectTask = (id: string) => {
+    setSelectedTaskTitle(t(`chat.tasks.${id.replace('-', '_')}`));
     setSelectedTaskId(id);
   };
 

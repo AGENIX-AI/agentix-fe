@@ -2,10 +2,11 @@ import { SearchIcon } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { useEffect, useState, useRef } from "react";
+import { LoadingState } from "@/components/ui/loading-state";
 
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { H5 } from "@/components/ui/typography";
+import { ExtraSmall, H5 } from "@/components/ui/typography";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 
 import { useStudent } from "@/contexts/StudentContext";
@@ -140,24 +141,6 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
     return unsubscribe;
   }, []);
 
-  // Function to safely render HTML content
-  const renderMessageContent = (content: string) => {
-    // Create a temporary div to parse HTML
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = content;
-
-    // Get text content without HTML tags
-    const textContent = tempDiv.textContent || tempDiv.innerText || "";
-
-    // If the content is just text, return it directly
-    if (content === textContent) {
-      return content;
-    }
-
-    // If it contains HTML, return the text content
-    return textContent;
-  };
-
   // Filter conversations based on search query
   const filteredConversations = conversations.filter((conversation) => {
     if (!searchQuery) return true;
@@ -199,7 +182,7 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
 
   return (
     <div className={cn(className, "border-r border-border no-scrollbar")}>
-      <div className="bg-background text-sm h-[calc(100vh-3.5rem)] p-6">
+      <div className="bg-background text-sm h-[calc(100vh-3.5rem)] p-6 ">
         <div className="flex flex-col h-full bg-background">
           {/* Header */}
           <div>
@@ -221,16 +204,14 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
 
           <ScrollArea className="flex-1">
             {showLoadingState ? (
-              <div className="flex items-center justify-center h-32">
-                <div className="animate-spin h-6 w-6 border-2 border-primary rounded-full border-t-transparent"></div>
-              </div>
+              <LoadingState message="Loading conversations..." size="medium" className="h-32" />
             ) : (
               <div className="space-y-2">
                 {assistantConversations.map(
                   (conversation: ConversationListItem, index: number) => (
                     <div key={conversation.id}>
                       <div
-                        className="flex items-center gap-3 p-2 hover:bg-accent cursor-pointer !rounded-lg"
+                        className="flex items-center gap-3 p-2 cursor-pointer rounded-lg"
                         onClick={() => handleConversationClick(conversation)}
                       >
                         <Avatar className="overflow-hidden">
@@ -244,15 +225,12 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
                               {conversation.assistants?.name || "Assistant"}
                             </p>
                           </div>
-                          <p className="text-xs truncate">
+                          <ExtraSmall className="truncate">
                             {conversation.last_message?.sender == "user"
                               ? "You: "
                               : ""}
-                            {conversation.last_message?.content ||
-                              renderMessageContent(
-                                conversation.last_message?.content || ""
-                              )}
-                          </p>
+                            {conversation.last_message?.content || ""}
+                          </ExtraSmall>
                         </div>
                       </div>
                       {index < assistantConversations.length - 1 && (

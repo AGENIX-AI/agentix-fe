@@ -7,11 +7,9 @@ interface ImageViewerProps {
 }
 
 export function ImageViewer({ currentImageUrl, onClose }: ImageViewerProps) {
-  // const [scale, setScale] = useState(1);
-
   // Reset scale when a new image is shown
   useEffect(() => {
-    // setScale(1);
+    // No-op for now
   }, [currentImageUrl]);
 
   return (

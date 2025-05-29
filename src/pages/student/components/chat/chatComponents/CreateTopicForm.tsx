@@ -9,6 +9,7 @@ import { Small } from "@/components/ui/typography";
 import { Grid } from "@/components/layout/grid";
 import { Item } from "@radix-ui/react-dropdown-menu";
 import { Combobox, type ComboboxOption } from "@/components/ui/combobox";
+import { useTranslation } from "react-i18next";
 
 export interface CreateTopicFormData {
   topic: string;
@@ -28,16 +29,17 @@ export function CreateTopicForm({
   onSubmit,
   taskTitle,
 }: CreateTopicFormProps) {
+  const { t, i18n } = useTranslation();
   const [formData, setFormData] = useState<CreateTopicFormData>({
     topic: "",
     goal: "",
     problems: "",
-    language: "English",
+    language: i18n.language === "vi" ? "Vietnamese" : "English",
   });
 
   const languageOptions: ComboboxOption[] = [
-    { value: "Vietnamese", label: "Vietnamese" },
-    { value: "English", label: "English" },
+    { value: "Vietnamese", label: t("language_vi") },
+    { value: "English", label: t("language_en") },
   ];
 
   const handleChange = (
@@ -80,49 +82,49 @@ export function CreateTopicForm({
           <Grid>
             <Item>
               <div className="space-y-1">
-                <Label className="text-xs">Topic</Label>
+                <Label className="text-xs">{t('chat.create_topic_form.topic')}</Label>
                 <Input
                   type="text"
                   name="topic"
                   value={formData.topic}
                   onChange={handleChange}
-                  placeholder="Describe topic to discuss"
+                  placeholder={t('chat.create_topic_form.topic_placeholder')}
                   className="h-9 text-xs"
                 />
               </div>
             </Item>
             <Item>
               <div className="space-y-1">
-                <Label className="text-xs">Goal</Label>
+                <Label className="text-xs">{t('chat.create_topic_form.goal')}</Label>
                 <Textarea
                   name="goal"
                   value={formData.goal}
                   onChange={handleChange}
-                  placeholder="What goal want to got about topic"
+                  placeholder={t('chat.create_topic_form.goal_placeholder')}
                   className="text-xs min-h-[80px] resize-none"
                 />
               </div>
             </Item>
             <Item>
               <div className="space-y-1">
-                <Label className="text-xs">Problems</Label>
+                <Label className="text-xs">{t('chat.create_topic_form.problems')}</Label>
                 <Textarea
                   name="problems"
                   value={formData.problems}
                   onChange={handleChange}
-                  placeholder="Current concern, challenge, or need for topic"
+                  placeholder={t('chat.create_topic_form.problems_placeholder')}
                   className="text-xs min-h-[80px] resize-none"
                 />
               </div>
             </Item>
             <Item>
               <div className="space-y-1">
-                <Label className="text-xs">Language</Label>
+                <Label className="text-xs">{t('chat.create_topic_form.language')}</Label>
                 <Combobox
                   options={languageOptions}
                   value={formData.language}
                   onValueChange={handleLanguageChange}
-                  placeholder="Select language"
+                  placeholder={t('chat.create_topic_form.language_placeholder')}
                   triggerClassName="h-9 text-xs"
                 />
               </div>
@@ -134,7 +136,7 @@ export function CreateTopicForm({
             className="h-8 w-32 mt-4"
             onClick={handleSubmit}
           >
-            <Small>Create</Small>
+            <Small>{t('chat.create_topic_form.create')}</Small>
             <SendIcon className="size-4" />
           </Button>
         </form>

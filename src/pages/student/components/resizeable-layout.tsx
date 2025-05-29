@@ -9,6 +9,7 @@ export interface ModifiedResizableLayoutProps {
   minLeftWidth?: number;
   maxLeftWidth?: number;
   storageKey?: string;
+  isHistoryVisible?: boolean;
 }
 
 export function ModifiedResizableLayout({
@@ -18,8 +19,8 @@ export function ModifiedResizableLayout({
   minLeftWidth = 20,
   maxLeftWidth = 80,
   storageKey = "edvara-chat-layout-width",
+  isHistoryVisible = true,
 }: ModifiedResizableLayoutProps) {
-  const isHistoryVisible = true;
   const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
   const [savedLeftWidth, setSavedLeftWidth] =
     useState<number>(initialLeftWidth);

@@ -1,9 +1,10 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import "./ChatBox.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils/cn";
+import { getSpeech } from "@/api/conversations";
 
 export interface ChatBoxProps {
   messages?: any[];
@@ -41,6 +42,9 @@ export function ChatBox({
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const [playingMessageId, setPlayingMessageId] = useState<string | null>(null);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -50,6 +54,51 @@ export function ChatBox({
         messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Function to handle playing audio
+  const handlePlayAudio = async (messageId: string) => {
+    // If the same audio is playing, stop it
+    if (playingMessageId === messageId && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setPlayingMessageId(null);
+      return;
+    }
+
+    // If another audio is playing, stop it first
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    try {
+      setIsAudioLoading(true);
+
+      // Call the API to get speech data
+      const response = await getSpeech(messageId);
+
+      // Create audio from base64 data
+      const audioData = response.base64;
+      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
+      audioRef.current = audio;
+
+      // Set up event handlers
+      audio.onplay = () => setPlayingMessageId(messageId);
+      audio.onended = () => setPlayingMessageId(null);
+      audio.onerror = () => {
+        setPlayingMessageId(null);
+        console.error("Error playing audio");
+      };
+
+      // Play the audio
+      await audio.play();
+      setIsAudioLoading(false);
+    } catch (error) {
+      console.error("Error fetching or playing audio:", error);
+      setPlayingMessageId(null);
+      setIsAudioLoading(false);
+    }
+  };
 
   return (
     <div
@@ -73,6 +122,9 @@ export function ChatBox({
               currentUserImage={user?.metadata.avatar_url || ""}
               agentName={name}
               agentImage={avatar_url || ""}
+              handlePlayAudio={handlePlayAudio}
+              isPlaying={playingMessageId === message.invocation_id}
+              isAudioLoading={isAudioLoading && playingMessageId === message.invocation_id}
             />
           ))}
 

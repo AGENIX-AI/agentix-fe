@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/sidebar-data";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "@/components/ui/user-menu";
+import { useStudent } from "@/contexts/StudentContext";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -36,6 +37,7 @@ export function ResizableSidebar({
   const initializedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
+  const { setChatPanel, setRightPanel } = useStudent();
 
   // Store the last expanded width to restore when uncollapsing
   const lastExpandedWidthRef = useRef<number>(initialWidth);
@@ -339,6 +341,14 @@ export function ResizableSidebar({
                             isCollapsed && "justify-center px-2"
                           )}
                           title={isCollapsed ? navItem.title : undefined}
+                          onClick={() => {
+                            if (navItem.title === "Find Instructor") {
+                              setChatPanel("findInstructor");
+                            }
+                            if (navItem.title === "Posts") {
+                              setRightPanel("following_posts");
+                            }
+                          }}
                         >
                           {Icon && <Icon className="h-4 w-4" />}
                           {!isCollapsed && (

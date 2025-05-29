@@ -9,7 +9,7 @@ import type { Assistant } from "@/api/assistants";
 import { getAssistantById } from "@/api/assistants";
 import type { InstructorProfile } from "@/api/instructor";
 import { getInstructorById } from "@/api/instructor";
-import { Loader2Icon } from "lucide-react";
+import { LoadingState } from "@/components/ui/loading-state";
 
 interface AssistantBannerProps {
   assistant: Assistant | null;
@@ -24,8 +24,8 @@ function AssistantBanner({
 }: AssistantBannerProps) {
   if (loading) {
     return (
-      <div className="sticky top-0 z-10 bg-card h-48 flex items-center justify-center">
-        <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+      <div className="sticky top-0 z-10 bg-card h-48">
+        <LoadingState message="Loading assistant profile..." size="medium" />
       </div>
     );
   }

@@ -1,4 +1,4 @@
-const enTranslation = {
+const enTranslation: Record<string, any> = {
   // Common
   app_name: "Edvara",
   loading: "Loading...",
@@ -136,6 +136,45 @@ const enTranslation = {
   language: "Language",
   language_en: "English",
   language_vi: "Vietnamese",
+
+  // Chat Components
+  chat: {
+    input: {
+      placeholder: "Type a message...",
+      send: "Send"
+    },
+    tasks: {
+      title: "Task",
+      select_task: "Select a task to get started",
+      create_topic: "Create a tutoring topic"
+    },
+    create_topic_form: {
+      title: "Create a tutoring topic",
+      topic: "Topic",
+      topic_placeholder: "Describe topic to discuss",
+      goal: "Goal",
+      goal_placeholder: "What goal want to got about topic",
+      problems: "Problems",
+      problems_placeholder: "Current concern, challenge, or need for topic",
+      language: "Language",
+      language_placeholder: "Select language",
+      create: "Create"
+    },
+    header: {
+      back: "Back",
+      new_chat: "New Chat",
+      show_history: "Show history",
+      hide_history: "Hide history",
+      powered_by: "Powered by {{name}}"
+    },
+    message: {
+      typing: "Typing...",
+      view_full_image: "View full image",
+      close: "Close",
+      play_audio: "Play audio",
+      stop_audio: "Stop audio"
+    }
+  },
 
   // Instructor Finder
   findInstructor: "Find Instructor",

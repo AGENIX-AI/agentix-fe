@@ -6,6 +6,7 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface FullImageModalProps {
   image: {
@@ -26,6 +27,7 @@ export function FullImageModal({
   isOpen,
   onClose,
 }: FullImageModalProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-[90vw] w-[95vw] max-h-[90vh] p-1 overflow-auto bg-background/95">
@@ -35,7 +37,7 @@ export function FullImageModal({
               variant="ghost"
               size="icon"
               className="text-foreground bg-background/50 hover:bg-background/70 rounded-full m-2"
-              aria-label="Close full image view"
+              aria-label={t('chat.message.close')}
             >
               <X className="h-4 w-4" />
             </Button>

@@ -8,6 +8,7 @@ import {
 import { AlignJustify } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { H2, Small, Muted } from "@/components/ui/typography";
+import { useTranslation } from "react-i18next";
 
 // Create a memoized button component to prevent rerenders
 const HistoryToggleButton = memo(
@@ -19,7 +20,9 @@ const HistoryToggleButton = memo(
     isHistoryVisible: boolean;
     toggleHistory: () => void;
     className?: string;
-  }) => (
+  }) => {
+    const { t } = useTranslation();
+    return (
     <Tooltip>
       <TooltipTrigger asChild>
         <Button
@@ -35,10 +38,10 @@ const HistoryToggleButton = memo(
         </Button>
       </TooltipTrigger>
       <TooltipContent side="bottom">
-        <Small>{isHistoryVisible ? "Hide history" : "Show history"}</Small>
+        <Small>{isHistoryVisible ? t('chat.header.hide_history') : t('chat.header.show_history')}</Small>
       </TooltipContent>
     </Tooltip>
-  )
+  )}
 );
 
 HistoryToggleButton.displayName = "HistoryToggleButton";
@@ -59,9 +62,7 @@ export function ChatHeader({
   tagline = "Powered by AI",
   agentImage,
 }: ChatHeaderProps) {
-  console.log(agentImage);
-  console.log(agentName);
-  console.log(tagline);
+  const { t } = useTranslation();
 
   return (
     <div className="">
@@ -79,7 +80,7 @@ export function ChatHeader({
           </Avatar>
           <div className="">
             <H2 className="text-sm font-medium text-foreground">{agentName}</H2>
-            <Muted className="text-xs">{tagline}</Muted>
+            <Muted className="text-xs">{t('chat.header.powered_by', {name: tagline})}</Muted>
           </div>
         </div>
       </div>

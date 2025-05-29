@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { LinkedinIcon, MessageCircle, Loader2 } from "lucide-react";
+import { LinkedinIcon, MessageCircle } from "lucide-react";
 import { H6, ExtraSmall } from "@/components/ui/typography";
+import { LoadingState } from "@/components/ui/loading-state";
 import type { InstructorAssistant } from "@/api/instructor";
 import { Button } from "@/components/ui/button";
 import { useStudent } from "@/contexts/StudentContext";
@@ -15,7 +16,9 @@ interface AIAssistantsProps {
 export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
   const { setAssistantId, setConversationId, setChatPanel, setRightPanel } =
     useStudent();
-  const [loadingAssistantId, setLoadingAssistantId] = useState<string | null>(null);
+  const [loadingAssistantId, setLoadingAssistantId] = useState<string | null>(
+    null
+  );
 
   const handleStartChat = async (assistant: InstructorAssistant) => {
     console.log("Starting chat with AI Assistant:", assistant);
@@ -28,11 +31,13 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
       setConversationId(response.conversation_id);
       setChatPanel("chat");
       setRightPanel("agentCapabilityStatement");
-      
+
       // Emit reload-history event to refresh the conversation list
       console.log("Emitting reload-history event");
-      eventBus.emit("reload-history", { assistantId: assistant.id, conversationId: response.conversation_id });
-      
+      eventBus.emit("reload-history", {
+        assistantId: assistant.id,
+        conversationId: response.conversation_id,
+      });
     } catch (error) {
       console.error("Error creating conversation:", error);
     } finally {
@@ -45,7 +50,11 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
 
       <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
         {assistants.map((assistant) => (
-          <div key={assistant.id} className="relative">
+          <div
+            key={assistant.id}
+            className="relative cursor-pointer"
+            onClick={() => handleStartChat(assistant)}
+          >
             <div className="flex items-center rounded-md p-2">
               <Avatar className="h-8 w-8">
                 <AvatarImage
@@ -82,12 +91,13 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
 
               <Button
                 size="sm"
-                onClick={() => handleStartChat(assistant)}
                 className="flex items-center gap-1 ml-2"
                 disabled={loadingAssistantId !== null}
               >
                 {loadingAssistantId === assistant.id ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <div className="h-4 w-4 flex items-center justify-center">
+                    <LoadingState size="small" message="" />
+                  </div>
                 ) : (
                   <MessageCircle className="h-4 w-4" />
                 )}

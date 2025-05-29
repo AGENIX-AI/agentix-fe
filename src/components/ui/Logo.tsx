@@ -20,8 +20,8 @@ export function Logo({ withLabel = true, className }: LogoProps) {
     if (mounted) {
       setLogoSrc(
         resolvedTheme === "dark"
-          ? "public/logo/head-logo-dark.png"
-          : "public/logo/head-logo-light.png"
+          ? "https://edvara-bucket.sgp1.cdn.digitaloceanspaces.com/edvara-image/head-logo-dark.png"
+          : "https://edvara-bucket.sgp1.cdn.digitaloceanspaces.com/edvara-image/head-logo-light.png"
       );
     }
   }, [resolvedTheme, mounted]);

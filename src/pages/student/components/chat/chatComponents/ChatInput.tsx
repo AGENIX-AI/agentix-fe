@@ -6,6 +6,7 @@ import { TaskMenu, ChatTasks } from "./ChatTasks";
 import { useStudent } from "@/contexts/StudentContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "react-i18next";
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -25,11 +26,12 @@ export function ChatInput({
   onFileUpload,
   isLoading = false,
   setIsLoading,
-  placeholder = "Type a message...",
+  placeholder,
   disabled = false,
   allowImagePaste = true,
   textareaRef,
 }: ChatInputProps) {
+  const { t } = useTranslation();
   const [input, setInput] = useState("");
   const [pastedImage, setPastedImage] = useState<string | null>(null);
   const [pastedImageBlob, setPastedImageBlob] = useState<File | null>(null);
@@ -195,7 +197,7 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onPaste={handlePaste}
-          placeholder={placeholder}
+          placeholder={placeholder || t('chat.input.placeholder')}
           className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
           rows={1}
           onKeyDown={(e) => {
