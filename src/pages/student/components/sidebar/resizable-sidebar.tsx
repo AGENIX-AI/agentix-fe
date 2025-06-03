@@ -37,7 +37,7 @@ export function ResizableSidebar({
   const initializedRef = useRef(false);
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
-  const { setChatPanel, setRightPanel } = useStudent();
+  const { setRightPanel } = useStudent();
 
   // Store the last expanded width to restore when uncollapsing
   const lastExpandedWidthRef = useRef<number>(initialWidth);

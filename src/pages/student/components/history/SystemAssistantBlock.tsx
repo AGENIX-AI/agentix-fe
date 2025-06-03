@@ -1,5 +1,4 @@
 import { useState, useEffect, memo } from "react";
-import { Separator } from "@/components/ui/separator";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useStudent } from "@/contexts/StudentContext";
 import {

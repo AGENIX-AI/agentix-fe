@@ -95,7 +95,7 @@ export function ChatComponent() {
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
-
+  console.log(isUploadingFile);
   // Add effect to focus input when isAgentResponding changes from true to false
   useEffect(() => {
     if (!isAgentResponding && inputRef.current) {
