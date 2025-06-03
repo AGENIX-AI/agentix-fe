@@ -244,7 +244,7 @@ export const getConversations = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const url = new URL(`${baseUrl}/conversations`);
+  const url = new URL(`${baseUrl}/conversations/`);
   url.searchParams.append("assistant_id", assistantId);
   url.searchParams.append("page", page.toString());
   url.searchParams.append("page_size", pageSize.toString());
