@@ -27,9 +27,9 @@ export function AssistantProfile() {
       .join(" ");
 
   return (
-    <div className="mx-6">
+    <div className="p-5 pb-0">
       {/* Profile Header */}
-      <div className="flex items-center gap-6 mb-4">
+      <div className="flex items-center gap-6">
         <div className="flex-1 min-w-0">
           <Large className="font-extrabold mb-1 leading-tight">
             {assistantInfo.name}
@@ -37,7 +37,7 @@ export function AssistantProfile() {
           <ExtraSmall className="text-muted-foreground block mb-4">
             {assistantInfo.tagline}
           </ExtraSmall>
-          <div className="flex items-center gap-3 my-2">
+          <div className="flex items-center gap-3">
             <Badge className="flex items-center px-2 py-1">
               <ExtraSmall>{assistantInfo.language}</ExtraSmall>
             </Badge>
@@ -54,7 +54,7 @@ export function AssistantProfile() {
       <Separator className="my-4" />
 
       <div className="mb-8">
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2  mb-4">
           <Badge>About</Badge>
         </div>
         <ExtraSmall className="mb-4 font-normal">
@@ -78,7 +78,7 @@ export function AssistantProfile() {
       <Separator className="my-4" />
 
       {/* Personality Traits Section */}
-      <div className="mb-8">
+      <div className="mb-2">
         <div className="flex items-center gap-2 mb-4">
           <Badge>Personality Traits</Badge>
         </div>

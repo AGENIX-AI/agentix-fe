@@ -3,6 +3,7 @@ import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useStudent } from "@/contexts/StudentContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
+import { InstructorFinder } from "./instructorFinder/instructor-finder";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -31,6 +32,12 @@ export default function RightPanel({}) {
       return (
         <div>
           <AssistantView page="agentCapabilityStatement" />
+        </div>
+      );
+    case "findInstructor":
+      return (
+        <div>
+          <InstructorFinder />
         </div>
       );
     case "empty":

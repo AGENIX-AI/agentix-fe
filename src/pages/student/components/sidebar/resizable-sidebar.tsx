@@ -343,7 +343,7 @@ export function ResizableSidebar({
                           title={isCollapsed ? navItem.title : undefined}
                           onClick={() => {
                             if (navItem.title === "Find Instructor") {
-                              setChatPanel("findInstructor");
+                              setRightPanel("findInstructor");
                             }
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");

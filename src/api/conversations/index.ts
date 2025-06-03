@@ -184,6 +184,46 @@ export const getListConversations =
   };
 
 /**
+ * Get system assistant conversation
+ * @returns System assistant conversation details
+ */
+export interface SystemAssistantResponse {
+  id: string | null;
+  conversation_name: string | null;
+  conversation_description: string | null;
+  assistants: {
+    id: string;
+    name: string;
+    tagline: string;
+    image: string;
+  };
+  last_message: any | null;
+}
+
+export const getSystemAssistantConversation =
+  async (): Promise<SystemAssistantResponse> => {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(
+      `${baseUrl}/conversations/get_system_assistant_conversation`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch system assistant conversation: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  };
+
+/**
  * Get paginated list of conversations with filtering and sorting options
  * @param assistantId - The ID of the assistant to filter conversations by
  * @param page - The page number to fetch (starts at 1)
@@ -314,6 +354,131 @@ export const getSpeech = async (message: string): Promise<any> => {
 
   if (!response.ok) {
     throw new Error(`Failed to fetch speech: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Generate a tutoring discussion based on provided topics, goals, and problems
+ * @param data - The data for generating the tutoring discussion
+ * @returns Response with the new conversation ID
+ */
+export interface GenerateTutoringDiscussData {
+  topics: string;
+  goals: string;
+  problems: string;
+  language: string;
+  conversation_id?: string;
+}
+
+export interface GenerateTutoringDiscussResponse {
+  new_message: string;
+}
+
+export const generateTutoringDiscuss = async (
+  data: GenerateTutoringDiscussData
+): Promise<GenerateTutoringDiscussResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/generate_tutoring_discuss`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to generate tutoring discussion: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Refactor a tutoring discussion with updated parameters
+ * @param data - The data for refactoring the tutoring discussion
+ * @returns Response with the new message content
+ */
+export interface RefactorTutoringDiscussData {
+  conversation_id: string;
+  language: string;
+  topics: string;
+  goals: string;
+  problems: string;
+}
+
+export interface RefactorTutoringDiscussResponse {
+  new_message: string;
+}
+
+export const refactorTutoringDiscuss = async (
+  data: RefactorTutoringDiscussData
+): Promise<RefactorTutoringDiscussResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/refactor_tutoring_discuss`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to refactor tutoring discussion: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Create a new topic in a conversation
+ * @param data - The data for creating a new topic
+ * @returns Response with the new conversation ID
+ */
+export interface CreateNewTopicData {
+  topics: string;
+  goals: string;
+  problems: string;
+  language: string;
+  assistant_id: string;
+  conversation_created_id?: string;
+}
+
+export interface CreateNewTopicResponse {
+  conversation_id: string;
+}
+
+export const createGenerateTask = async (
+  data: CreateNewTopicData
+): Promise<CreateNewTopicResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/create_generate_tasklist_conversation`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to create new topic: ${response.statusText}`);
   }
 
   return await response.json();

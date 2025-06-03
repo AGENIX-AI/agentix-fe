@@ -14,7 +14,7 @@ export function Separator({
   return (
     <div
       className={cn(
-        "absolute top-0 bottom-0 md:w-4 w-full h-4 md:h-full flex items-center justify-center z-100"
+        "absolute top-0 bottom-0 md:w-4 w-full h-4 md:h-full flex items-center justify-center"
       )}
       style={{
         left: `${leftWidth}%`,

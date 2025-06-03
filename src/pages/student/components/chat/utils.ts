@@ -15,7 +15,6 @@ export function getInitials(name: string): string {
  */
 export function formatMessageDate(timestamp: string): string {
   if (!timestamp) return "";
-  console.log("timestamp", timestamp);
   const date = new Date(Number(timestamp) * 1000); // Convert seconds to ms
   const formattedDate = new Intl.DateTimeFormat("en-US", {
     month: "short",

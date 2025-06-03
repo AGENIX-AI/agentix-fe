@@ -9,6 +9,7 @@ import { useStudent } from "@/contexts/StudentContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { getConversationHistory, sendMessage } from "@/api/conversations";
 import { format } from "date-fns";
+import { ChatProvider } from "@/contexts/ChatContext";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -84,14 +85,14 @@ export function ChatComponent() {
     toggleHistory,
     assistantId,
     assistantInfo,
-    conversationId,
     setConversationId,
-    conversationInfo,
+    conversationId,
+    isChatLoading,
+    setIsChatLoading,
   } = useStudent();
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
@@ -107,7 +108,7 @@ export function ChatComponent() {
   const fetchMessages = async () => {
     try {
       if (!conversationId) return;
-      setIsLoading(true);
+      setIsChatLoading(true);
       const messages = await getConversationHistory(conversationId);
       setMessages(messages);
       // Scroll to the bottom of the chat after messages are loaded
@@ -122,7 +123,7 @@ export function ChatComponent() {
     } catch (error) {
       console.error("Error fetching messages:", error);
     } finally {
-      setIsLoading(false);
+      setIsChatLoading(false);
     }
   };
   useEffect(() => {
@@ -140,52 +141,6 @@ export function ChatComponent() {
       }
     }
   }, [messages]);
-
-  // const switchToConversation = async (
-  //   conversationId: string
-  // ): Promise<boolean> => {
-  //   try {
-  //     setIsLoading(true);
-  //     // Set the conversationId in the context
-  //     // The AppPageProvider will automatically fetch the conversation data
-  //     setConversationId(conversationId);
-
-  //     // Wait a bit for the conversation data to be fetched
-  //     await new Promise((resolve) => setTimeout(resolve, 100));
-
-  //     if (conversationInfo) {
-  //       setConversationId(conversationInfo.id);
-  //       await fetchMessages();
-  //       return true;
-  //     }
-  //     return false;
-  //   } catch (error) {
-  //     // console.error("Error switching conversation:", error);
-  //     return false;
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
-  useEffect(() => {
-    if (!assistantId) return;
-
-    setIsAgentResponding(false);
-
-    const initializeConversation = async () => {
-      try {
-        if (!fetchMessages || !conversationInfo) return;
-
-        setConversationId(conversationInfo.id);
-
-        await fetchMessages();
-      } catch (error) {
-        // console.error("Error initializing conversation:", error);
-      }
-    };
-
-    initializeConversation();
-  }, [conversationInfo]);
 
   const handleSendMessage = async (content: string) => {
     if (!conversationId || isAgentResponding) return;
@@ -223,6 +178,16 @@ export function ChatComponent() {
       const response = await sendMessage(conversationId, content);
       console.log("Received response:", response);
 
+      // Handle special action message types
+      if (
+        response.message &&
+        response.message.startsWith("Action:SetConversationId:")
+      ) {
+        const id = response.message.replace("Action:SetConversationId:", "");
+        setConversationId(id);
+        return;
+      }
+
       if (response.success) {
         // Add agent response to the chat
         const agentMessage: Message = {
@@ -252,6 +217,34 @@ export function ChatComponent() {
       // Reset the agent responding state
       setIsAgentResponding(false);
     }
+  };
+
+  const handleNewMessage = (newMessage: {
+    sender: "agent_response" | "user";
+    content: string;
+  }) => {
+    if (!conversationId) return;
+    console.log("handleNewMessage", newMessage);
+
+    // Add the new message to the chat
+    const agentMessage: Message = {
+      sender: "agent_response",
+      content: newMessage.content,
+      time: Date.now(),
+    };
+
+    setMessages((prevMessages) => [...prevMessages, agentMessage]);
+
+    // Emit event to update history
+    eventBus.emit("conversation-update", {
+      assistantId: assistantId,
+      conversationId: conversationId,
+      lastMessage: {
+        content: newMessage.content,
+        time: new Date().toISOString(),
+        sender: "agent_response",
+      },
+    });
   };
 
   // Helper function to escape markdown image syntax
@@ -297,6 +290,16 @@ export function ChatComponent() {
 
       // Send message to API
       const response = await sendMessage(conversationId, messageWithImage);
+
+      // Handle special action message types
+      if (
+        response.message &&
+        response.message.startsWith("Action:SetConversationId:")
+      ) {
+        const id = response.message.replace("Action:SetConversationId:", "");
+        setConversationId(id);
+        return;
+      }
 
       if (response.success) {
         // Add agent response to the chat
@@ -422,7 +425,7 @@ export function ChatComponent() {
   };
 
   // Render loading state
-  if (isLoading) {
+  if (isChatLoading) {
     return (
       <div className="h-full w-full flex flex-col p-5 bg-background">
         <ChatHeader
@@ -443,44 +446,31 @@ export function ChatComponent() {
   }
 
   return (
-    <div className="h-full w-full flex flex-col pt-5 pl-5 pr-5 bg-background">
-      <ChatHeader
-        isHistoryVisible={isHistoryVisible}
-        toggleHistory={toggleHistory}
-        agentName={assistantInfo?.name}
-        tagline={assistantInfo?.tagline}
-        agentImage={assistantInfo?.image}
-      />
-      <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] pt-2 chat-messages-container">
-        <ChatBox
-          messages={messages}
-          onSendMessage={handleSendMessage}
-          onSendMessageWithImage={handleSendMessageWithImage}
-          onFileUpload={handleFileUpload}
-          isLoading={isLoading || isUploadingFile || isAgentResponding}
-          setIsLoading={setIsLoading}
-          placeholder={
-            isAgentResponding
-              ? "Agent is typing..."
-              : isUploadingFile
-              ? "Uploading image..."
-              : "Type your message here..."
-          }
-          className="h-full border-0 rounded-none shadow-none bg-background"
-          name={assistantInfo?.name ?? ""}
-          avatar_url={assistantInfo?.image ?? ""}
-          disabled={isAgentResponding || isUploadingFile}
-          typingIndicator={
-            isLoading || isUploadingFile || isAgentResponding ? (
-              <TypingIndicator
-                avatar_url={assistantInfo?.image}
-                name={assistantInfo?.name}
-              />
-            ) : null
-          }
-          inputRef={inputRef}
+    <ChatProvider
+      handleSendMessage={handleSendMessage}
+      handleNewMessage={handleNewMessage}
+    >
+      <div className="h-full w-full flex flex-col pt-5 pl-5 pr-5 bg-background">
+        <ChatHeader
+          isHistoryVisible={isHistoryVisible}
+          toggleHistory={toggleHistory}
+          agentName={assistantInfo?.name}
+          tagline={assistantInfo?.tagline}
+          agentImage={assistantInfo?.image}
         />
+        <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] pt-2 chat-messages-container">
+          <ChatBox
+            messages={messages}
+            onSendMessageWithImage={handleSendMessageWithImage}
+            onFileUpload={handleFileUpload}
+            className="h-full border-0 rounded-none shadow-none bg-background"
+            name={assistantInfo?.name ?? ""}
+            avatar_url={assistantInfo?.image ?? ""}
+            inputRef={inputRef}
+            isAgentResponding={isAgentResponding}
+          />
+        </div>
       </div>
-    </div>
+    </ChatProvider>
   );
 }

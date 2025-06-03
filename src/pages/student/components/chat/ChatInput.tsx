@@ -3,17 +3,15 @@ import { useState, useRef, type ClipboardEvent } from "react";
 import { ImageInput } from "./ImageInput";
 import { ImagePreview } from "./ImagePreview";
 import { TaskMenu, ChatTasks } from "./ChatTasks";
-import { useStudent } from "@/contexts/StudentContext";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
+import { useChatContext } from "@/contexts/ChatContext";
+import { useStudent } from "@/contexts/StudentContext";
 
 interface ChatInputProps {
-  onSendMessage: (message: string) => void;
   onSendMessageWithImage?: (message: string, imageData: string) => void;
   onFileUpload?: (file: File, textInput?: string) => void;
-  isLoading?: boolean;
-  setIsLoading?: (isLoading: boolean) => void;
   placeholder?: string;
   disabled?: boolean;
   allowImagePaste?: boolean;
@@ -21,11 +19,8 @@ interface ChatInputProps {
 }
 
 export function ChatInput({
-  onSendMessage,
   onSendMessageWithImage,
   onFileUpload,
-  isLoading = false,
-  setIsLoading,
   placeholder,
   disabled = false,
   allowImagePaste = true,
@@ -39,7 +34,8 @@ export function ChatInput({
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [selectedTask, setSelectedTask] = useState("");
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
-  const { assistantId } = useStudent();
+  const { handleSendMessage } = useChatContext();
+  const { isChatLoading } = useStudent();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,7 +52,7 @@ export function ChatInput({
       onSendMessageWithImage(input, pastedImage);
       setPastedImage(null);
     } else {
-      onSendMessage(input);
+      handleSendMessage(input);
     }
 
     setInput("");
@@ -109,37 +105,6 @@ export function ChatInput({
     setPastedImageBlob(null);
   };
 
-  const handleTaskFormSubmit = async (formData: any) => {
-    if (!assistantId) return;
-    console.log(formData);
-
-    try {
-      // Set loading state
-      if (typeof isLoading === "boolean" && setIsLoading) {
-        setIsLoading(true);
-      }
-
-      //   const conversation = await createConversationTopic(
-      //     assistantId,
-      //     formData.formData.type,
-      //     formData.formData.topic,
-      //     formData.formData.goal,
-      //     formData.formData.problems,
-      //     formData.formData.language
-      //   );
-      //   console.log("create topic:", conversation);
-
-      //   setConversationId(conversation.conversation_id);
-    } catch (error) {
-      console.error("Error creating conversation topic:", error);
-    } finally {
-      // Reset loading state
-      if (typeof isLoading === "boolean" && setIsLoading) {
-        setIsLoading(false);
-      }
-    }
-  };
-
   const handleTaskClick = () => {
     if (showTaskForm) {
       setShowTaskForm(false);
@@ -172,7 +137,6 @@ export function ChatInput({
         {showTaskForm && (
           <ChatTasks
             onClose={() => setShowTaskForm(false)}
-            onSubmitTask={handleTaskFormSubmit}
             taskId={selectedTask.split(",")[0]}
             taskTitle={selectedTask.split(",")[1]}
           />
@@ -197,7 +161,7 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onPaste={handlePaste}
-          placeholder={placeholder || t('chat.input.placeholder')}
+          placeholder={placeholder || t("chat.input.placeholder")}
           className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
           rows={1}
           onKeyDown={(e) => {
@@ -216,7 +180,7 @@ export function ChatInput({
           type="button"
           onClick={handleSubmit}
           disabled={
-            isLoading ||
+            isChatLoading ||
             disabled ||
             (!input.trim() && !pastedImage && !pastedImageBlob)
           }

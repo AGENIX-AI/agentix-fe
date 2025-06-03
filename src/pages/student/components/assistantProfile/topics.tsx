@@ -104,6 +104,8 @@ function ConversationCategory({
     switch (category) {
       case "general":
         return "General Topic";
+      case "mentor":
+        return "Mentoring Topics";
       case "tutorial":
         return "Tutoring Topics";
       case "archived":
@@ -176,7 +178,7 @@ function ConversationCategory({
                         conv.goals &&
                         conv.goals.length > 0 && (
                           <p className="text-xs  mt-1">
-                            Goal: {conv.goals[0].goal_title}
+                            Goal: {conv.goals[0].goal_description}
                           </p>
                         )}
                       <p className="text-xs  mt-1">

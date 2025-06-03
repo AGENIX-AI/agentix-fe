@@ -1,5 +1,4 @@
 import { memo, useState } from "react";
-import { SecondPage } from "./chat/second-page";
 import { AlignJustify, SearchIcon } from "lucide-react";
 import {
   Tooltip,
@@ -16,6 +15,7 @@ import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
 import { ModifiedResizableLayout } from "./resizeable-layout";
 import { ResizableSidebar } from "./sidebar/resizable-sidebar";
+import { ChatComponent } from "./chat/ChatComponent";
 
 const MiniappToggleButton = memo(
   ({
@@ -159,7 +159,7 @@ export default function LeftPanel({
             <div className="flex h-full overflow-hidden">
               <ModifiedResizableLayout
                 leftPane={<HistoryComponent />}
-                rightPane={<SecondPage />}
+                rightPane={<ChatComponent />}
                 initialLeftWidth={30}
                 minLeftWidth={30}
                 maxLeftWidth={40}

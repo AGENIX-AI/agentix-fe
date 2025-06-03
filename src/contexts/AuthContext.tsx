@@ -160,15 +160,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         updateApiAuthHeader(accessToken);
         // Call checkAuthStatus to get user data
         checkAuthStatus();
-        return;
       } catch (error) {
         console.error("Failed to validate token", error);
         clearTokenCookies();
+        // If token validation fails, then check auth status
+        checkAuthStatus();
       }
+    } else {
+      // Only check server auth status if we don't have tokens
+      checkAuthStatus();
     }
-
-    // Try to check server auth status once
-    checkAuthStatus();
   }, []);
 
   const signIn = (authResponse: { user: User; session: Session }) => {

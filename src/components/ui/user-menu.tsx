@@ -44,6 +44,7 @@ export function UserMenu({
   const { setTheme: setCurrentTheme, theme: currentTheme } = useTheme();
   const [theme, setTheme] = useState<string>(currentTheme ?? "system");
   const [language, setLanguage] = useState<string>(i18n.language);
+  const { signOut } = useAuth();
 
   const colorModeOptions = [
     {
@@ -80,6 +81,7 @@ export function UserMenu({
 
   const onLogout = () => {
     console.log("Logout");
+    signOut();
   };
 
   if (!userInfo) {

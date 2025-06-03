@@ -1,10 +1,12 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { PlayIcon, StopCircleIcon } from "lucide-react";
+import { PlayIcon, StopCircleIcon, Loader2 } from "lucide-react";
 import { MessageContent } from "./MessageContent";
 import { formatMessageDate, getInitials } from "./utils";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useState, useRef } from "react";
+import { getSpeech } from "@/api/conversations";
 
 interface MessageBubbleProps {
   message: any;
@@ -14,9 +16,6 @@ interface MessageBubbleProps {
   currentUserImage?: string;
   agentName: string;
   agentImage?: string;
-  handlePlayAudio?: (messageId: string) => Promise<void>;
-  isPlaying?: boolean;
-  isAudioLoading?: boolean;
 }
 
 export function MessageBubble({
@@ -27,16 +26,61 @@ export function MessageBubble({
   currentUserImage = "",
   agentName,
   agentImage,
-  handlePlayAudio,
-  isPlaying = false,
-  isAudioLoading = false,
 }: MessageBubbleProps) {
   const { t } = useTranslation();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  // Function to handle playing audio
+  const handlePlayAudio = async () => {
+    if (!message.invocation_id) return;
+
+    // If the same audio is playing, stop it
+    if (isPlaying && audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+      setIsPlaying(false);
+      return;
+    }
+
+    // If another audio is playing, stop it first
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    try {
+      setIsAudioLoading(true);
+
+      // Call the API to get speech data
+      const response = await getSpeech(message.invocation_id);
+
+      // Create audio from base64 data
+      const audioData = response.base64;
+      const audio = new Audio(`data:audio/mp3;base64,${audioData}`);
+      audioRef.current = audio;
+
+      // Set up event handlers
+      audio.onplay = () => setIsPlaying(true);
+      audio.onended = () => setIsPlaying(false);
+      audio.onerror = () => {
+        setIsPlaying(false);
+        console.error("Error playing audio");
+      };
+
+      // Play the audio
+      await audio.play();
+      setIsAudioLoading(false);
+    } catch (error) {
+      console.error("Error fetching or playing audio:", error);
+      setIsPlaying(false);
+      setIsAudioLoading(false);
+    }
+  };
 
   const onPlayButtonClick = () => {
-    if (handlePlayAudio) {
-      handlePlayAudio(message.invocation_id);
-    }
+    handlePlayAudio();
   };
   console.log(message);
 
@@ -75,17 +119,14 @@ export function MessageBubble({
                 ? t("chat.message.stop_audio")
                 : t("chat.message.play_audio")
             }
-            disabled={isAudioLoading}
+            disabled={isAudioLoading || !message.invocation_id}
           >
-            {isPlaying ? (
+            {isAudioLoading ? (
+              <Loader2 className="size-3 text-primary animate-spin" />
+            ) : isPlaying ? (
               <StopCircleIcon className="size-3 text-primary" />
             ) : (
-              <PlayIcon
-                className={cn(
-                  "size-3 text-primary",
-                  isAudioLoading && "animate-pulse text-primary/70"
-                )}
-              />
+              <PlayIcon className="size-3 text-primary" />
             )}
           </Button>
         )}

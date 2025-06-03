@@ -1,9 +1,9 @@
 import { processMessageContent } from "./utils";
 import { useRef, useEffect, memo, useState, useCallback } from "react";
-import { parseMessageCard } from "./message-cards/types";
-import { MessageCardRenderer } from "./message-cards/MessageCardRenderer";
 import { ImageViewer } from "./ImageViewer";
 import { cn } from "@/lib/utils";
+import { parseMessageCard } from "./messageCards/types";
+import { MessageCardRenderer } from "./messageCards/MessageCardRenderer";
 
 interface MessageContentProps {
   content: string;

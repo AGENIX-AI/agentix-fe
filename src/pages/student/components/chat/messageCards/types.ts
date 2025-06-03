@@ -27,11 +27,32 @@ export function isTopicMessageCard(
 }
 
 /**
+ * Tutoring topic message card interface
+ */
+export interface TutoringTopicMessageCard extends BaseMessageCard {
+  type: "create_tutoring_topic";
+  topics: string;
+  goals: string;
+  problems: string;
+  callback_conversation_id?: string;
+}
+
+/**
+ * Type guard to check if a message card is a TutoringTopicMessageCard
+ */
+export function isTutoringTopicMessageCard(
+  card: BaseMessageCard
+): card is TutoringTopicMessageCard {
+  return card.type === "create_tutoring_topic";
+}
+
+/**
  * Union type of all message card types
  * Add new message card types to this union as they are created
  */
 export type MessageCard =
   | TopicMessageCard
+  | TutoringTopicMessageCard
   | (BaseMessageCard & { type: string });
 
 /**

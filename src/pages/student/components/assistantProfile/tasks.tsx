@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback, memo } from "react";
+import { useEffect, useState, useCallback, memo, useRef } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import { ExtraSmall, H4, P, Small } from "@/components/ui/typography";
+import { ExtraSmall, H4, P } from "@/components/ui/typography";
 import {
   Table,
   TableBody,
@@ -43,6 +43,48 @@ interface ConversationTask {
 }
 
 // Helper function to check if tasks have changed
+const areTasksEqual = (tasksA: any, tasksB: any): boolean => {
+  if (!tasksA || !tasksB) return tasksA === tasksB;
+
+  // Compare basic properties
+  if (
+    tasksA.goal_description !== tasksB.goal_description ||
+    tasksA.conversation_name !== tasksB.conversation_name ||
+    tasksA.conversation_description !== tasksB.conversation_description
+  ) {
+    return false;
+  }
+
+  // Compare task arrays
+  const compareTaskArrays = (
+    arrA: ConversationTask[],
+    arrB: ConversationTask[]
+  ) => {
+    if (arrA.length !== arrB.length) return false;
+
+    // Create a map of tasks by ID for faster comparison
+    const taskMapB = new Map(arrB.map((task) => [task.id, task]));
+
+    return arrA.every((taskA) => {
+      const taskB = taskMapB.get(taskA.id);
+      if (!taskB) return false;
+
+      return (
+        taskA.step === taskB.step &&
+        taskA.user_task === taskB.user_task &&
+        taskA.agent_task === taskB.agent_task &&
+        taskA.status === taskB.status &&
+        taskA.success_condition === taskB.success_condition
+      );
+    });
+  };
+
+  return (
+    compareTaskArrays(tasksA.pending_tasks, tasksB.pending_tasks) &&
+    compareTaskArrays(tasksA.current_task, tasksB.current_task) &&
+    compareTaskArrays(tasksA.completed_tasks, tasksB.completed_tasks)
+  );
+};
 
 // Memoized TaskCard component to prevent re-renders when props don't change
 const TaskCard = memo(
@@ -86,7 +128,7 @@ const TaskCard = memo(
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 )}
               </span>
-              <ExtraSmall className="line-clamp-2 break-words w-full">
+              <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
                 {task.success_condition}
               </ExtraSmall>
             </div>
@@ -94,40 +136,30 @@ const TaskCard = memo(
           <TableCell style={{ width: "20%" }}>
             <div className="flex items-center gap-2">
               {getStatusIcon(status)}
-              <Small className="capitalize">{status}</Small>
+              <ExtraSmall className="capitalize">{status}</ExtraSmall>
             </div>
           </TableCell>
         </TableRow>
         {isExpanded && (
           <TableRow className="hover:bg-transparent">
             <TableCell colSpan={3} className="p-0 ">
-              <div className="p-2 ml-19">
-                <div className="mb-3">
+              <div className="p-2">
+                <div className="mb-2">
                   <ExtraSmall className="font-semibold text-primary">
                     User Task:
                   </ExtraSmall>
-                  <ExtraSmall className=" whitespace-pre-line ml-1">
+                  <ExtraSmall className="whitespace-pre-line  line-clamp-3  overflow-hidden text-ellipsis">
                     {task.user_task}
                   </ExtraSmall>
                 </div>
-                <div className="mb-3">
+                <div className="mb-2">
                   <ExtraSmall className="font-semibold text-primary">
                     Assistant Task:
                   </ExtraSmall>
-                  <ExtraSmall className=" whitespace-pre-line ml-1">
+                  <ExtraSmall className="whitespace-pre-line  line-clamp-3  overflow-hidden text-ellipsis">
                     {task.agent_task}
                   </ExtraSmall>
                 </div>
-                {task.hint && (
-                  <div className="mb-3">
-                    <ExtraSmall className="font-semibold text-primary">
-                      Hint:
-                    </ExtraSmall>
-                    <ExtraSmall className=" whitespace-pre-line ml-1">
-                      {task.hint}
-                    </ExtraSmall>
-                  </div>
-                )}
               </div>
             </TableCell>
           </TableRow>
@@ -153,7 +185,7 @@ const TaskCard = memo(
 // Main component with optimizations
 export const ConversationTasks = memo(
   function ConversationTasks({ className }: ConversationTasksProps) {
-    const { conversationInfo, assistantInfo } = useStudent();
+    const { conversationId, assistantInfo } = useStudent();
     const [isLoading, setIsLoading] = useState(false);
     const [tasks, setTasks] = useState<{
       pending_tasks: ConversationTask[];
@@ -163,29 +195,18 @@ export const ConversationTasks = memo(
       conversation_name: string;
       conversation_description: string;
     } | null>(null);
-    // Initialize tasks state
-    // Refs to store previous task states for comparison
-    // const prevTasksRef = useRef<{
-    //   pending_tasks: ConversationTask[];
-    //   current_task: ConversationTask[];
-    //   completed_tasks: ConversationTask[];
-    //   goal_description: string | null;
-    //   conversation_name: string;
-    //   conversation_description: string;
-    // } | null>(null);
-
+    const tasksRef = useRef(tasks);
     // Function to fetch tasks with optimization to prevent unnecessary updates
     const fetchTasks = useCallback(async () => {
-      console.log("Fetching tasks...", conversationInfo);
-      if (!conversationInfo?.id) return;
+      if (!conversationId) return;
 
       // Only show loading state on initial load
-      if (!tasks) {
+      if (!tasksRef.current) {
         setIsLoading(true);
       }
 
       try {
-        const result = await getConversationTasks(conversationInfo.id);
+        const result = await getConversationTasks(conversationId);
         if (result.success) {
           // Transform the API response to match our ConversationTask interface
           const newTasks = {
@@ -193,7 +214,7 @@ export const ConversationTasks = memo(
               ...task,
               id: task.id.toString(),
               step: Number(task.step),
-              dependencies: Array.isArray(task.dependencies) 
+              dependencies: Array.isArray(task.dependencies)
                 ? task.dependencies.map((dependency: any) => Number(dependency))
                 : [],
             })) as ConversationTask[],
@@ -218,7 +239,10 @@ export const ConversationTasks = memo(
             conversation_description: result.conversation_description || "",
           };
 
-          setTasks(newTasks);
+          // Only update state if tasks have actually changed
+          if (!tasksRef.current || !areTasksEqual(tasksRef.current, newTasks)) {
+            setTasks(newTasks);
+          }
         } else {
           console.error("Failed to fetch tasks: API returned success=false");
           setIsLoading(false);
@@ -229,19 +253,24 @@ export const ConversationTasks = memo(
       } finally {
         setIsLoading(false);
       }
-    }, [conversationInfo?.id]);
+    }, [conversationId]);
 
     // Initial fetch when component mounts or conversation changes
     useEffect(() => {
       fetchTasks();
     }, [fetchTasks]);
 
-    // Set up polling every 5 seconds when the tasks view is visible
+    // Update the ref whenever tasks change
+    useEffect(() => {
+      tasksRef.current = tasks;
+    }, [tasks]);
+
+    // Set up polling every 3 seconds when the tasks view is visible
     useEffect(() => {
       // Set up interval for polling
       const intervalId = setInterval(() => {
         fetchTasks();
-      }, 3000); // Increased polling interval from 3s to 5s to reduce potential jerking
+      }, 3000); // Poll every 3 seconds, but only update if data changed
 
       // Clean up interval on unmount or when visibility changes
       return () => {
@@ -297,9 +326,9 @@ export const ConversationTasks = memo(
       <div className={`${className}`}>
         <div className="p-5 pb-0">
           <div className="space-y-3 mb-6">
-            <Small className="font-bold">
+            <ExtraSmall className="font-bold">
               {tasks.conversation_name || "Conversation Tasks"}
-            </Small>
+            </ExtraSmall>
             {tasks.conversation_description && (
               <p className="text-sm text-muted-foreground">
                 {tasks.conversation_description}
@@ -307,17 +336,15 @@ export const ConversationTasks = memo(
             )}
             {tasks.goal_description && (
               <div className="bg-primary/10 border-l-4 border-primary rounded-md p-3">
-                <p className="text-sm font-medium">
-                  <span className="font-bold block mb-1">Goal:</span>
-                  {tasks.goal_description}
-                </p>
+                <ExtraSmall className="font-bold block mb-1">Goal:</ExtraSmall>
+                <ExtraSmall>{tasks.goal_description}</ExtraSmall>
               </div>
             )}
           </div>
-          <Separator className="my-4" />
+          <Separator className="mt-4" />
 
-          <Table className="w-full max-w-full">
-            <TableHeader>
+          <Table className="w-full max-w-full table-fixed overflow-hidden">
+            <TableHeader className="text-xs">
               <TableRow>
                 <TableHead style={{ width: "10%" }}>Step</TableHead>
                 <TableHead style={{ width: "70%" }}>Task Details</TableHead>

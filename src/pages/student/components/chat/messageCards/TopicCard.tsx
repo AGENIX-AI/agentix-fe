@@ -8,9 +8,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { TopicMessageCard } from "./types";
-import { Target, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Small } from "@/components/ui/typography";
+import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 
 interface TopicCardProps {
@@ -60,13 +59,13 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
   return (
     <Card
       className={cn(
-        "w-full mb-3 border border-primary/20 rounded-xl from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-sm transition-all duration-300 ease-in-out font-sans",
+        "w-[100%] mb-3 border border-primary/20 rounded-xl from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-sm transition-all duration-300 ease-in-out font-sans",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
         className
       )}
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
-      <CardHeader className="px-4 rounded-t-xl">
+      <CardHeader className="rounded-t-xl">
         {isEditing ? (
           <Input
             name="language"
@@ -81,21 +80,18 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
               <Small className="text-primary font-bold">
                 {card.topic_name}
               </Small>
-              <div>
-                <Small className="text-primary">
-                  {card.language ? `Language: ${card.language}` : ""}
-                </Small>
-              </div>
+              <ExtraSmall className="text-primary">
+                {card.language ? `Language: ${card.language}` : ""}
+              </ExtraSmall>
             </div>
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent className="=">
+      <CardContent>
         <div className="space-y-2">
           <div>
             <div className="flex items-center gap-1.5">
-              <Target className="text-primary h-4 w-4" />
-              <Small className="font-bold text-primary">Goal</Small>
+              <ExtraSmall className="font-bold text-primary">Goal</ExtraSmall>
             </div>
             {isEditing ? (
               <Textarea
@@ -106,31 +102,34 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
                 placeholder="What is the goal of this topic?"
               />
             ) : (
-              <Small className="text-xs pl-5">{card.topic_goal}</Small>
+              <ExtraSmall className="text-xs">{card.topic_goal}</ExtraSmall>
             )}
           </div>
 
-          <Separator className="my-3" />
+          {card.topic_problem && <Separator className="my-3" />}
 
-          <div className="space-y-2">
-            <div className="flex items-center gap-1.5">
-              <AlertCircle className="text-primary h-4 w-4" />
-              <Small className="font-bold text-primary">Problem</Small>
+          {card.topic_problem && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-1.5">
+                <ExtraSmall className="font-bold text-primary">
+                  Problem
+                </ExtraSmall>
+              </div>
+              {isEditing ? (
+                <Textarea
+                  name="topic_problem"
+                  value={formData.topic_problem}
+                  onChange={handleChange}
+                  className="min-h-[80px] text-xs"
+                  placeholder="What problem are you trying to solve?"
+                />
+              ) : (
+                <ExtraSmall className="text-xs">
+                  {card.topic_problem}
+                </ExtraSmall>
+              )}
             </div>
-            {isEditing ? (
-              <Textarea
-                name="topic_problem"
-                value={formData.topic_problem}
-                onChange={handleChange}
-                className="min-h-[80px] text-xs"
-                placeholder="What problem are you trying to solve?"
-              />
-            ) : (
-              <Small className="text-xs leading-relaxed pl-5">
-                {card.topic_problem}
-              </Small>
-            )}
-          </div>
+          )}
         </div>
       </CardContent>
     </Card>
