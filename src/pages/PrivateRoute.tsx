@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const PrivateRoute = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, needsApproval } = useAuth();
   const location = useLocation();
 
   // If still loading, don't redirect yet, just show nothing or a loading indicator
@@ -14,6 +14,11 @@ const PrivateRoute = () => {
     );
   }
 
+  // If user needs approval, redirect to waitlist page
+  if (needsApproval) {
+    return <Navigate to="/auth/waitlist" replace />;
+  }
+
   // Only redirect to login if we've finished loading and the user is not authenticated
   // If authenticated, render the child routes (Outlet)
   // When redirecting to login, add the current path as a redirectPath query parameter
@@ -21,7 +26,7 @@ const PrivateRoute = () => {
     <Outlet />
   ) : (
     <Navigate 
-      to={`/login?redirectPath=${encodeURIComponent(location.pathname)}`} 
+      to={`/auth/login?redirectPath=${encodeURIComponent(location.pathname)}`} 
       replace 
     />
   );

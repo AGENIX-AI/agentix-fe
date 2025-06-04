@@ -8,6 +8,7 @@ import Dashboard from "./pages/dashboard/Dashboard";
 import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Instructor from "./pages/instructor/Instructor";
+import Waitlist from "./pages/auth/waitlist/Waitlist";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";
@@ -27,6 +28,7 @@ function App() {
           <Route path="/auth/signup" element={<Signup />} />
           <Route path="/auth/magic-link" element={<MagicLink />} />
           <Route path="/auth/callback" element={<OAuthCallback />} />
+          <Route path="/auth/waitlist" element={<Waitlist />} />
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>

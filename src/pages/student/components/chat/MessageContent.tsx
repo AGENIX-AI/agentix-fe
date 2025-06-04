@@ -110,7 +110,7 @@ function MessageContentComponent({
           className={cn(
             "message_content render_markdown prose",
             "[&_ol]:list-decimal [&_ul]:list-disc",
-            "[&_ol]:my-4 [&_ul]:my-4 [&_li]:mt-1",
+            "[&_ol]:my-1 [&_ul]:my-1 [&_li]:mt-1",
             "text-xs font-['Inter',sans-serif]",
             "[&_img]:max-h-64 [&_img]:max-w-full [&_img]:rounded-md [&_img]:object-contain",
             "[&_strong]:font-bold",

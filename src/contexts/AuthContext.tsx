@@ -42,6 +42,7 @@ interface AuthContextType extends AuthState {
   refreshAuth: () => Promise<void>;
   reloadAuth: () => Promise<void>;
   userInfo: User | null;
+  needsApproval: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -63,6 +64,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     isAuthenticated: false,
     loading: true,
   });
+  
+  const [needsApproval, setNeedsApproval] = useState<boolean>(false);
 
   // Helper function to update API headers with token
   const updateApiAuthHeader = (token: string | null) => {
@@ -85,6 +88,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           saveTokenToCookies(response.session);
         }
 
+        setNeedsApproval(false);
         setAuthState({
           user: response.user,
           session: response.session || null,
@@ -98,6 +102,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           // We have refresh token, try to refresh
           refreshAuth();
         } else {
+          setNeedsApproval(false);
           setAuthState({
             user: null,
             session: null,
@@ -106,9 +111,27 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
           });
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Failed to check auth status", error);
+      
+      // Check if this is a "not approved yet" error
+      if (error?.response?.status === 500 && 
+          error?.response?.data?.detail === "You are not approved yet, please wait for approval") {
+        console.log("User needs approval");
+        setNeedsApproval(true);
+        // Keep the tokens so user remains in a logged-in state, but redirect to waitlist
+        setAuthState({
+          user: null,
+          session: null,
+          isAuthenticated: true, // Keep as true so they don't get redirected to login
+          loading: false,
+        });
+        // Redirect will be handled by the component using this context
+        return;
+      }
+      
       clearTokenCookies();
+      setNeedsApproval(false);
       setAuthState({
         user: null,
         session: null,
@@ -272,6 +295,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     refreshAuth,
     reloadAuth,
     userInfo: authState.user,
+    needsApproval,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

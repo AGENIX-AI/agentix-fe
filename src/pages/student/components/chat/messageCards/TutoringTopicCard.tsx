@@ -206,6 +206,7 @@ export function TutoringTopicCard({
             </div>
             <ExtraSmall className="text-xs">{card.goals}</ExtraSmall>
           </div>
+          <Separator className="my-3" />
 
           {card.problems && (
             <>
@@ -218,7 +219,6 @@ export function TutoringTopicCard({
                 </div>
                 <ExtraSmall className="text-xs">{card.problems}</ExtraSmall>
               </div>
-              <Separator className="my-3" />
             </>
           )}
         </div>

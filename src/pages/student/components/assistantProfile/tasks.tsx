@@ -120,17 +120,39 @@ const TaskCard = memo(
             <Badge className="font-mono">{task.step}</Badge>
           </TableCell>
           <TableCell style={{ width: "70%" }}>
-            <div className="flex items-center gap-2 w-full">
-              <span className="flex-shrink-0">
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                ) : (
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                )}
-              </span>
-              <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
-                {task.success_condition}
-              </ExtraSmall>
+            <div className="flex flex-col w-full">
+              <div className="flex items-center gap-2 w-full">
+                <span className="flex-shrink-0">
+                  {isExpanded ? (
+                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  )}
+                </span>
+                <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
+                  {task.success_condition}
+                </ExtraSmall>
+              </div>
+              {isExpanded && (
+                <div className="pl-6 mt-2">
+                  <div className="mb-2">
+                    <ExtraSmall className="font-semibold text-primary">
+                      User Task:
+                    </ExtraSmall>
+                    <ExtraSmall className="whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
+                      {task.user_task}
+                    </ExtraSmall>
+                  </div>
+                  <div className="mb-2">
+                    <ExtraSmall className="font-semibold text-primary">
+                      Assistant Task:
+                    </ExtraSmall>
+                    <ExtraSmall className="whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
+                      {task.agent_task}
+                    </ExtraSmall>
+                  </div>
+                </div>
+              )}
             </div>
           </TableCell>
           <TableCell style={{ width: "20%" }}>
@@ -140,30 +162,6 @@ const TaskCard = memo(
             </div>
           </TableCell>
         </TableRow>
-        {isExpanded && (
-          <TableRow className="hover:bg-transparent">
-            <TableCell colSpan={3} className="p-0 ">
-              <div className="p-2">
-                <div className="mb-2">
-                  <ExtraSmall className="font-semibold text-primary">
-                    User Task:
-                  </ExtraSmall>
-                  <ExtraSmall className="whitespace-pre-line  line-clamp-3  overflow-hidden text-ellipsis">
-                    {task.user_task}
-                  </ExtraSmall>
-                </div>
-                <div className="mb-2">
-                  <ExtraSmall className="font-semibold text-primary">
-                    Assistant Task:
-                  </ExtraSmall>
-                  <ExtraSmall className="whitespace-pre-line  line-clamp-3  overflow-hidden text-ellipsis">
-                    {task.agent_task}
-                  </ExtraSmall>
-                </div>
-              </div>
-            </TableCell>
-          </TableRow>
-        )}
       </>
     );
   },
@@ -354,6 +352,7 @@ export const ConversationTasks = memo(
             <TableBody>
               {allTasks.map((task) => {
                 const taskStep = Number(task.step);
+
                 const status =
                   taskStep < currentStep
                     ? "completed"
