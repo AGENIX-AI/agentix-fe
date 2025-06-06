@@ -4,7 +4,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/auth/login/Login";
 import Signup from "./pages/auth/signup/Signup";
-import Dashboard from "./pages/dashboard/Dashboard";
 import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Instructor from "./pages/instructor/Instructor";
@@ -32,7 +31,6 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/instructor" element={<Instructor />} />
             <Route path="/student" element={<Student />} />
             {/* Add more protected routes here */}

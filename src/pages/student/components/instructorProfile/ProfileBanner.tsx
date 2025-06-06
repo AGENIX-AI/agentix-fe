@@ -21,7 +21,7 @@ export function ProfileBanner({
   return (
     <div className="relative pb-8 border-b">
       {/* Banner Image */}
-      <div className="h-24 w-full overflow-hidden">
+      <div className="h-40 w-full overflow-hidden">
         <img
           src={
             backgroundImage ||

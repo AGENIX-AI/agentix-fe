@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import type { KeyboardEvent } from "react";
 import {
   Card,
   CardContent,
@@ -7,7 +8,6 @@ import {
   CardFooter,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
@@ -72,6 +72,14 @@ export function TutoringTopicCard({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
+    // Submit form when Enter is pressed without Shift key
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSaveEdit();
+    }
+  };
+
   const handleAccept = async () => {
     if (!assistantId) return;
 
@@ -108,7 +116,7 @@ export function TutoringTopicCard({
   };
 
   const handleSaveEdit = async () => {
-    if (!conversationId) return;
+    if (!conversationId || isLoading) return;
 
     try {
       setIsLoading(true);
@@ -186,6 +194,7 @@ export function TutoringTopicCard({
           </div>
         </CardDescription>
       </CardHeader>
+      <Separator className="" />
 
       <CardContent>
         <div className="space-y-2">
@@ -197,8 +206,6 @@ export function TutoringTopicCard({
             <ExtraSmall className="text-xs">{card.topics}</ExtraSmall>
           </div>
 
-          <Separator className="my-3" />
-
           <div>
             <div className="flex items-center gap-1.5">
               {/* <Target className="text-primary h-4 w-4" /> */}
@@ -206,7 +213,6 @@ export function TutoringTopicCard({
             </div>
             <ExtraSmall className="text-xs">{card.goals}</ExtraSmall>
           </div>
-          <Separator className="my-3" />
 
           {card.problems && (
             <>
@@ -223,7 +229,9 @@ export function TutoringTopicCard({
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-end gap-2 px-4 py-3">
+      <Separator className="" />
+
+      <CardFooter className="flex justify-end gap-2 px-4">
         <Button
           variant="outline"
           size="sm"
@@ -266,24 +274,15 @@ export function TutoringTopicCard({
           <DialogHeader>
             <DialogTitle>Edit Tutoring Topic</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <ExtraSmall className="font-bold">Language</ExtraSmall>
-              <Input
-                name="language"
-                value={formData.language || "English"}
-                onChange={handleChange}
-                className="text-xs"
-              />
-            </div>
-
+          <div className="space-y-4">
             <div className="space-y-2">
               <ExtraSmall className="font-bold">Topics</ExtraSmall>
               <Textarea
                 name="topics"
                 value={formData.topics}
                 onChange={handleChange}
-                className="text-xs min-h-[80px]"
+                onKeyDown={handleKeyPress}
+                className="text-xs min-h-[30px]"
               />
             </div>
 
@@ -293,6 +292,7 @@ export function TutoringTopicCard({
                 name="goals"
                 value={formData.goals}
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
                 className="text-xs min-h-[80px]"
               />
             </div>
@@ -303,11 +303,12 @@ export function TutoringTopicCard({
                 name="problems"
                 value={formData.problems}
                 onChange={handleChange}
+                onKeyDown={handleKeyPress}
                 className="text-xs min-h-[80px]"
               />
             </div>
           </div>
-          <DialogFooter className="flex gap-2">
+          <DialogFooter className="flex gap-2 py-2">
             <Button
               variant="outline"
               onClick={handleCloseDialog}

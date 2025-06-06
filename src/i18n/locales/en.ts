@@ -111,22 +111,30 @@ const enTranslation: Record<string, any> = {
   loading_data: "Loading your data...",
 
   // Instructor Page
-  instructor_welcome: "Welcome to the instructor dashboard. Here you can manage your courses and students.",
+  instructor_welcome:
+    "Welcome to the instructor dashboard. Here you can manage your courses and students.",
   instructor_page_title: "Instructor Dashboard",
-  instructor_content: "As an instructor, you have access to create and manage courses, track student progress, and provide feedback.",
+  instructor_content:
+    "As an instructor, you have access to create and manage courses, track student progress, and provide feedback.",
   instructor_courses: "Your Courses",
-  instructor_courses_description: "View and manage the courses you are teaching.",
+  instructor_courses_description:
+    "View and manage the courses you are teaching.",
   instructor_students: "Your Students",
-  instructor_students_description: "View and manage the students enrolled in your courses.",
+  instructor_students_description:
+    "View and manage the students enrolled in your courses.",
 
   // Student Page
-  student_welcome: "Welcome to the student dashboard. Here you can access your courses and track your progress.",
+  student_welcome:
+    "Welcome to the student dashboard. Here you can access your courses and track your progress.",
   student_page_title: "Student Dashboard",
-  student_content: "As a student, you have access to your enrolled courses, assignments, and learning materials.",
+  student_content:
+    "As a student, you have access to your enrolled courses, assignments, and learning materials.",
   student_courses: "Your Courses",
-  student_courses_description: "View and access the courses you are enrolled in.",
+  student_courses_description:
+    "View and access the courses you are enrolled in.",
   student_progress: "Your Progress",
-  student_progress_description: "Track your learning progress and achievements.",
+  student_progress_description:
+    "Track your learning progress and achievements.",
   student_assignments: "Your Assignments",
   student_profile: "Your Profile",
   student_profile_title: "Student Profile",
@@ -141,12 +149,12 @@ const enTranslation: Record<string, any> = {
   chat: {
     input: {
       placeholder: "Type a message...",
-      send: "Send"
+      send: "Send",
     },
     tasks: {
       title: "Task",
       select_task: "Select a task to get started",
-      create_topic: "Create a tutoring topic"
+      create_topic: "Create a tutoring topic",
     },
     create_topic_form: {
       title: "Create a tutoring topic",
@@ -158,22 +166,22 @@ const enTranslation: Record<string, any> = {
       problems_placeholder: "Current concern, challenge, or need for topic",
       language: "Language",
       language_placeholder: "Select language",
-      create: "Create"
+      create: "Create",
     },
     header: {
       back: "Back",
       new_chat: "New Chat",
       show_history: "Show history",
       hide_history: "Hide history",
-      powered_by: "Powered by {{name}}"
+      powered_by: "Powered by {{name}}",
     },
     message: {
       typing: "Typing...",
       view_full_image: "View full image",
       close: "Close",
       play_audio: "Play audio",
-      stop_audio: "Stop audio"
-    }
+      stop_audio: "Stop audio",
+    },
   },
 
   // Instructor Finder
@@ -190,6 +198,7 @@ const enTranslation: Record<string, any> = {
   of: "of",
   previous: "Previous",
   next: "Next",
+  recommendedInstructors: "Recommended Instructors",
 };
 
 export default enTranslation;

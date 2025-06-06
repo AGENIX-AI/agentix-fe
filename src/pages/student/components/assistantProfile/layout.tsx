@@ -42,7 +42,7 @@ function AssistantBanner({
   return (
     <div className="sticky top-0 z-10 bg-card">
       {/* Banner Image */}
-      <div className="h-32 w-full overflow-hidden">
+      <div className="h-40 w-full overflow-hidden">
         <img
           src={
             instructor.background_image ||

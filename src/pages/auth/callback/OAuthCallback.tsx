@@ -15,17 +15,17 @@ const OAuthCallback = () => {
         // Check for tokens in both hash and query parameters
         let accessToken = null;
         let refreshToken = null;
-        
+
         // Get the hash fragment from the URL (without the '#' character)
         const hash = window.location.hash.substring(1);
-        
+
         // Check URL hash first
         if (hash) {
           const hashParams = new URLSearchParams(hash);
           accessToken = hashParams.get("access_token");
           refreshToken = hashParams.get("refresh_token");
         }
-        
+
         // If no tokens found in hash, check query parameters
         if (!accessToken) {
           const queryParams = new URLSearchParams(window.location.search);
@@ -44,7 +44,7 @@ const OAuthCallback = () => {
         reloadAuth();
 
         // Redirect to dashboard after successful authentication
-        navigate("/dashboard");
+        navigate("/student");
       } catch (error) {
         console.error("OAuth callback error:", error);
         setError("Authentication failed. Please try again.");

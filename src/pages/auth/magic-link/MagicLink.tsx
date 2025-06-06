@@ -40,7 +40,7 @@ const MagicLink = () => {
         reloadAuth();
 
         // Redirect to dashboard
-        navigate("/dashboard", { replace: true });
+        navigate("/student", { replace: true });
       } catch (err) {
         console.error("Magic link authentication error:", err);
         setError(

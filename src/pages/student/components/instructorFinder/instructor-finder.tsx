@@ -26,8 +26,6 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
-  const { t } = useTranslation();
-
   return (
     <div className="flex justify-center items-center mt-6 gap-2">
       <Button
@@ -70,8 +68,8 @@ const InstructorRow: React.FC<InstructorRowProps> = ({
 
   return (
     <div className="w-full">
-      <div 
-        className="cursor-pointer hover:bg-muted/50 rounded-md p-3 transition-colors" 
+      <div
+        className="cursor-pointer hover:bg-muted/50 rounded-md p-3 transition-colors"
         onClick={() => onSelect(instructor)}
       >
         <div className="flex items-center justify-between gap-3">
@@ -162,7 +160,7 @@ export function InstructorFinder() {
 
   return (
     <div className="flex flex-col p-6 h-full">
-      <H5 className="mb-6">{t("findInstructor")}</H5>
+      <H5 className="mb-6">{t("recommendedInstructors")}</H5>
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">
         <div className="relative flex-1">
@@ -175,9 +173,7 @@ export function InstructorFinder() {
             className="pl-10"
           />
         </div>
-        <Button type="submit">
-          {t("search")}
-        </Button>
+        <Button type="submit">{t("search")}</Button>
       </form>
 
       {loading && (
@@ -227,9 +223,7 @@ export function InstructorFinder() {
         {totalCount > 0 && (
           <div className="text-center mt-4 mb-2">
             <Badge variant="outline" className="bg-muted/50">
-              <Small>
-                {t("foundInstructors", { count: totalCount })}
-              </Small>
+              <Small>{t("foundInstructors", { count: totalCount })}</Small>
             </Badge>
           </div>
         )}

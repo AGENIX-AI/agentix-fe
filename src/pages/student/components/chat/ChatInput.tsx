@@ -162,7 +162,7 @@ export function ChatInput({
           onChange={(e) => setInput(e.target.value)}
           onPaste={handlePaste}
           placeholder={placeholder || t("chat.input.placeholder")}
-          className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none"
+          className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-foreground"
           rows={1}
           onKeyDown={(e) => {
             if (e.key === "Enter" && !e.shiftKey) {

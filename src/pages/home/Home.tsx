@@ -15,27 +15,27 @@ const Home = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { reloadAuth } = useAuth();
-  
+
   useEffect(() => {
     // Check for access token in query parameters
     const params = new URLSearchParams(location.search);
     const accessToken = params.get("access_token");
     const refreshToken = params.get("refresh_token");
-    
+
     if (accessToken) {
       // Store the token in cookies
       Cookies.set("edvara_access_token", accessToken);
-      
+
       // If refresh token is available, store it too
       if (refreshToken) {
         Cookies.set("edvara_refresh_token", refreshToken);
       }
-      
+
       // Reload auth state
       reloadAuth();
-      
+
       // Redirect to dashboard
-      navigate("/dashboard");
+      navigate("/student");
     }
   }, [location, navigate, reloadAuth]);
 

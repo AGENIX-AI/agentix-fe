@@ -20,7 +20,7 @@ const Instructor = () => {
   };
 
   const handleBackToDashboard = () => {
-    navigate("/dashboard");
+    navigate("/student");
   };
 
   return (

@@ -42,7 +42,7 @@ const Signup = () => {
 
     try {
       await authService.signup({ name, email, password });
-      navigate("/dashboard");
+      navigate("/student");
     } catch (err: any) {
       setError(err.response?.data?.message || t("signup_failed"));
     } finally {

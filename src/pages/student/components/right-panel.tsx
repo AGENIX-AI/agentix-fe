@@ -1,4 +1,3 @@
-import Dashboard from "@/pages/dashboard/Dashboard";
 import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useStudent } from "@/contexts/StudentContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
@@ -12,8 +11,7 @@ export default function RightPanel({}) {
   switch (rightPanel) {
     case "profile_info":
       return <ProfileInfo />;
-    case "dashboard":
-      return <Dashboard />;
+
     case "following_posts":
       return <FollowingPosts />;
     case "assistantTopics":

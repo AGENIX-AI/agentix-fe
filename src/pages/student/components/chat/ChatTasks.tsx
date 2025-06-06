@@ -70,7 +70,7 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
         </ExtraSmall>
       </CardHeader>
 
-      <Separator className="m-0 w-[calc(100%-24px)] mx-3" />
+      <Separator className="m-0 w-[calc(100%-24px)] p-0" />
       <CardContent className="p-3 m-0 pt-0">
         <div className="space-y-1">
           {tasks.map((task) => (

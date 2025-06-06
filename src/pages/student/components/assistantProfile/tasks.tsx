@@ -116,10 +116,10 @@ const TaskCard = memo(
           className="cursor-pointer hover:bg-muted/50"
           onClick={() => setIsExpanded(!isExpanded)}
         >
-          <TableCell style={{ width: "10%" }}>
-            <Badge className="font-mono">{task.step}</Badge>
+          <TableCell style={{ width: "5%" }}>
+            <Badge className="font-mono text-xs">{task.step + 1}</Badge>
           </TableCell>
-          <TableCell style={{ width: "70%" }}>
+          <TableCell style={{ width: "90%" }}>
             <div className="flex flex-col w-full">
               <div className="flex items-center gap-2 w-full">
                 <span className="flex-shrink-0">
@@ -130,25 +130,23 @@ const TaskCard = memo(
                   )}
                 </span>
                 <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
-                  {task.success_condition}
+                  Goal : {task.success_condition}
                 </ExtraSmall>
               </div>
               {isExpanded && (
                 <div className="pl-6 mt-2">
                   <div className="mb-2">
-                    <ExtraSmall className="font-semibold text-primary">
-                      User Task:
-                    </ExtraSmall>
-                    <ExtraSmall className="whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
-                      {task.user_task}
+                    <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
+                      <ExtraSmall className="font-bold">
+                        Assistant Task
+                      </ExtraSmall>{" "}
+                      : {task.agent_task}
                     </ExtraSmall>
                   </div>
                   <div className="mb-2">
-                    <ExtraSmall className="font-semibold text-primary">
-                      Assistant Task:
-                    </ExtraSmall>
-                    <ExtraSmall className="whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
-                      {task.agent_task}
+                    <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
+                      <ExtraSmall className="font-bold">User Task</ExtraSmall> :{" "}
+                      {task.user_task}
                     </ExtraSmall>
                   </div>
                 </div>
@@ -288,8 +286,15 @@ export const ConversationTasks = memo(
       );
     }
 
+    // Get all tasks
+    const allTasks = tasks ? [
+      ...tasks.current_task,
+      ...tasks.pending_tasks,
+      ...tasks.completed_tasks,
+    ].sort((a, b) => Number(a.step) - Number(b.step)) : [];
+    
     // Check if there are no tasks at all
-    if (!tasks || isLoading) {
+    if (!tasks || isLoading || allTasks.length === 0) {
       return (
         <div className={`${className}`}>
           <div className="p-5">
@@ -308,11 +313,7 @@ export const ConversationTasks = memo(
       );
     }
 
-    const allTasks = [
-      ...tasks.current_task,
-      ...tasks.pending_tasks,
-      ...tasks.completed_tasks,
-    ].sort((a, b) => Number(a.step) - Number(b.step));
+    // allTasks is already defined above
 
     const currentStep = tasks.current_task[0]?.step
       ? Number(tasks.current_task[0].step)
@@ -344,8 +345,10 @@ export const ConversationTasks = memo(
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">
               <TableRow>
-                <TableHead style={{ width: "10%" }}>Step</TableHead>
-                <TableHead style={{ width: "70%" }}>Task Details</TableHead>
+                <TableHead style={{ width: "5%" }}>Step</TableHead>
+                <TableHead style={{ width: "75%" }}>
+                  <ExtraSmall className="ml-6">Task Details</ExtraSmall>
+                </TableHead>
                 <TableHead style={{ width: "20%" }}>Status</TableHead>
               </TableRow>
             </TableHeader>
