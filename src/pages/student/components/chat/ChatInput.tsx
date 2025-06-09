@@ -16,6 +16,7 @@ interface ChatInputProps {
   disabled?: boolean;
   allowImagePaste?: boolean;
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
+  className?: string;
 }
 
 export function ChatInput({
@@ -25,6 +26,7 @@ export function ChatInput({
   disabled = false,
   allowImagePaste = true,
   textareaRef,
+  className,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState("");
@@ -122,11 +124,11 @@ export function ChatInput({
   };
 
   return (
-    <div>
+    <div className={className}>
       {pastedImage && (
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}
-      <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border mt-2">
+      <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border">
         {showTaskMenu && (
           <TaskMenu
             onClose={() => setShowTaskMenu(false)}

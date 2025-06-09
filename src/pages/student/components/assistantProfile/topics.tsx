@@ -71,7 +71,7 @@ function ConversationList({
         </div>
       ) : (
         conversationData && (
-          <div className="space-y-3 mt-2">
+          <div className="space-y-3 mt-3">
             {Object.entries(conversationData.conversations).map(
               ([category, conversations]) => (
                 <ConversationCategory
@@ -133,13 +133,13 @@ function ConversationCategory({
 
   return (
     <>
-      <div className="mb-5 h-full">
-        <div className="flex items-center mb-2 px-6">
+      <div className="mb-3 h-full">
+        <div className="flex items-center mb-3 px-6">
           <h3 className="text-base font-semibold">{getCategoryTitle()}</h3>
         </div>
 
         {conversations && conversations.length > 0 ? (
-          <div className="px-6">
+          <div className="px-6 space-y-3">
             {conversations.map((conv: ConversationType) => (
               <div
                 key={conv.id}
@@ -147,7 +147,7 @@ function ConversationCategory({
                 onClick={() => handleConversationClick(conv)}
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex-shrink-0 mt-1">
+                  <div className="flex-shrink-0 mt-3">
                     <div className="h-10 w-10">
                       <svg
                         fill="var(--accent-foreground)"
@@ -169,18 +169,18 @@ function ConversationCategory({
                       </svg>
                     </div>
                   </div>
-                  <div className="flex-1 min-w-0 mb-3">
-                    <div className="flex flex-col">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col space-y-1">
                       <p className="text-sm font-medium">
                         {conv.conversation_name}
                       </p>
-                      <p className="text-xs  mt-1">
+                      <p className="text-xs">
                         Started : {formatDate(conv.created_at)}
                       </p>
                       {category !== "general" &&
                         conv.goals &&
                         conv.goals.length > 0 && (
-                          <p className="text-xs  mt-1">
+                          <p className="text-xs">
                             Goal : {conv.goals[0].goal_description}
                           </p>
                         )}
@@ -191,7 +191,7 @@ function ConversationCategory({
             ))}
           </div>
         ) : (
-          <div className="flex items-start gap-2 px-6 top-0 relative">
+          <div className="flex items-start gap-6 px-6 top-0 relative">
             <div className="h-10 w-10">
               <svg
                 fill="var(--accent-foreground)"
@@ -269,7 +269,7 @@ export function AssistantTopics({ className }: AssistantTopicsProps) {
   if (!assistantInfo) {
     return (
       <div className="h-full mt-13 w-full flex flex-col items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-6">
           <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
           <p className="text-muted-foreground text-center">Loading Canvas...</p>
         </div>

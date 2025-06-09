@@ -59,9 +59,9 @@ export function ChatBox({
     >
       <div
         ref={messagesContainerRef}
-        className="flex flex-1 flex-col gap-4 overflow-y-auto no-scrollbar chat-scroll-container"
+        className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-6"
       >
-        <div className="space-y-4 pt-4">
+        <div className="space-y-3">
           {messages.map((message, index) => (
             <MessageBubble
               key={index}
@@ -87,6 +87,7 @@ export function ChatBox({
         placeholder={placeholder}
         disabled={disabled}
         textareaRef={inputRef}
+        className="px-6 py-3"
       />
     </div>
   );

@@ -153,7 +153,7 @@ export function ChatComponent() {
       const userMessage: Message = {
         sender: "user",
         content: content,
-        time: Date.now(),
+        time: Math.floor(Date.now() / 1000),
         invocation_id: "",
       };
 
@@ -193,7 +193,7 @@ export function ChatComponent() {
         const agentMessage: Message = {
           sender: "agent_response",
           content: response.message,
-          time: Date.now(),
+          time: Math.floor(Date.now() / 1000),
           invocation_id: response.invocation_id,
         };
 
@@ -230,7 +230,7 @@ export function ChatComponent() {
     const agentMessage: Message = {
       sender: "agent_response",
       content: newMessage.content,
-      time: Date.now(),
+      time: Math.floor(Date.now() / 1000),
     };
 
     setMessages((prevMessages) => [...prevMessages, agentMessage]);
@@ -271,7 +271,7 @@ export function ChatComponent() {
       const userMessage: Message = {
         sender: "user",
         content: messageWithImage,
-        time: Date.now(),
+        time: Math.floor(Date.now() / 1000),
         invocation_id: "",
       };
 
@@ -306,7 +306,7 @@ export function ChatComponent() {
         const agentMessage: Message = {
           sender: "agent_response",
           content: response.message,
-          time: Date.now(),
+          time: Math.floor(Date.now() / 1000),
           invocation_id: response.invocation_id,
         };
 
@@ -354,7 +354,7 @@ export function ChatComponent() {
             const userMessage: Message = {
               sender: "user",
               content: messageWithImage,
-              time: Date.now(),
+              time: Math.floor(Date.now() / 1000),
               invocation_id: "",
             };
 
@@ -385,7 +385,7 @@ export function ChatComponent() {
               const agentMessage: Message = {
                 sender: "agent_response",
                 content: response.message,
-                time: Date.now(),
+                time: Math.floor(Date.now() / 1000),
                 invocation_id: response.invocation_id,
               };
 
@@ -427,7 +427,7 @@ export function ChatComponent() {
   // Render loading state
   if (isChatLoading) {
     return (
-      <div className="h-full w-full flex flex-col p-5 bg-background">
+      <div className="h-full w-full flex flex-col bg-background">
         <ChatHeader
           isHistoryVisible={isHistoryVisible}
           toggleHistory={toggleHistory}
@@ -450,7 +450,7 @@ export function ChatComponent() {
       handleSendMessage={handleSendMessage}
       handleNewMessage={handleNewMessage}
     >
-      <div className="h-full w-full flex flex-col pt-5 pl-5 pr-5 bg-background">
+      <div className="h-full w-full flex flex-col bg-background">
         <ChatHeader
           isHistoryVisible={isHistoryVisible}
           toggleHistory={toggleHistory}
@@ -458,7 +458,7 @@ export function ChatComponent() {
           tagline={assistantInfo?.tagline}
           agentImage={assistantInfo?.image}
         />
-        <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] pt-2 chat-messages-container">
+        <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] chat-messages-container">
           <ChatBox
             messages={messages}
             onSendMessageWithImage={handleSendMessageWithImage}

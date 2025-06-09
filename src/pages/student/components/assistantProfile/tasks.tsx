@@ -10,7 +10,7 @@ import {
   ChevronDown,
   ChevronRight,
 } from "lucide-react";
-import { ExtraSmall, H4, P } from "@/components/ui/typography";
+import { ExtraSmall, H4, Large, P } from "@/components/ui/typography";
 import {
   Table,
   TableBody,
@@ -121,7 +121,7 @@ const TaskCard = memo(
           </TableCell>
           <TableCell style={{ width: "90%" }}>
             <div className="flex flex-col w-full">
-              <div className="flex items-center gap-2 w-full">
+              <div className="flex items-center gap-6 w-full">
                 <span className="flex-shrink-0">
                   {isExpanded ? (
                     <ChevronDown className="h-4 w-4 text-muted-foreground" />
@@ -134,8 +134,14 @@ const TaskCard = memo(
                 </ExtraSmall>
               </div>
               {isExpanded && (
-                <div className="pl-6 mt-2">
-                  <div className="mb-2">
+                <div className="pl-6 mt-3 space-y-3">
+                  <div>
+                    <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
+                      <ExtraSmall className="font-bold">Goal</ExtraSmall> :{" "}
+                      {task.success_condition}
+                    </ExtraSmall>
+                  </div>
+                  <div>
                     <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
                       <ExtraSmall className="font-bold">
                         Assistant Task
@@ -143,7 +149,7 @@ const TaskCard = memo(
                       : {task.agent_task}
                     </ExtraSmall>
                   </div>
-                  <div className="mb-2">
+                  <div>
                     <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
                       <ExtraSmall className="font-bold">User Task</ExtraSmall> :{" "}
                       {task.user_task}
@@ -154,7 +160,7 @@ const TaskCard = memo(
             </div>
           </TableCell>
           <TableCell style={{ width: "20%" }}>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-6">
               {getStatusIcon(status)}
               <ExtraSmall className="capitalize">{status}</ExtraSmall>
             </div>
@@ -276,7 +282,7 @@ export const ConversationTasks = memo(
     if (!assistantInfo) {
       return (
         <div className="h-[calc(100vh)] mt-13 w-full flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-6">
             <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
             <P className="text-muted-foreground text-center">
               Loading Canvas...
@@ -287,20 +293,22 @@ export const ConversationTasks = memo(
     }
 
     // Get all tasks
-    const allTasks = tasks ? [
-      ...tasks.current_task,
-      ...tasks.pending_tasks,
-      ...tasks.completed_tasks,
-    ].sort((a, b) => Number(a.step) - Number(b.step)) : [];
-    
+    const allTasks = tasks
+      ? [
+          ...tasks.current_task,
+          ...tasks.pending_tasks,
+          ...tasks.completed_tasks,
+        ].sort((a, b) => Number(a.step) - Number(b.step))
+      : [];
+
     // Check if there are no tasks at all
     if (!tasks || isLoading || allTasks.length === 0) {
       return (
         <div className={`${className}`}>
-          <div className="p-5">
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <ListTodo size={48} className="text-muted-foreground mb-4" />
-              <H4 className="font-medium mb-2">
+          <div className="p-6">
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <ListTodo size={48} className="text-muted-foreground mb-3" />
+              <H4 className="font-medium mb-3">
                 No conversation tasks available
               </H4>
               <P className="text-muted-foreground max-w-md">
@@ -323,24 +331,19 @@ export const ConversationTasks = memo(
 
     return (
       <div className={`${className}`}>
-        <div className="p-5 pb-0">
-          <div className="space-y-3 mb-6">
-            <ExtraSmall className="font-bold">
+        <div className="px-6 py-3">
+          <div className="space-y-3">
+            <Large className="font-bold">
               {tasks.conversation_name || "Conversation Tasks"}
-            </ExtraSmall>
-            {tasks.conversation_description && (
-              <p className="text-sm text-muted-foreground">
-                {tasks.conversation_description}
-              </p>
-            )}
+            </Large>
             {tasks.goal_description && (
-              <div className="bg-primary/10 border-l-4 border-primary rounded-md p-3">
-                <ExtraSmall className="font-bold block mb-1">Goal:</ExtraSmall>
+              <div className="bg-primary/10 border-l-4 border-primary rounded-md p-3 space-y-3 mt-3">
+                <ExtraSmall className="font-bold block">Goal:</ExtraSmall>
                 <ExtraSmall>{tasks.goal_description}</ExtraSmall>
               </div>
             )}
           </div>
-          <Separator className="mt-4" />
+          <Separator className="mt-3" />
 
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">

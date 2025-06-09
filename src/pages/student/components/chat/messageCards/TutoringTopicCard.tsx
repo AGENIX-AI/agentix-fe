@@ -1,12 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import type { KeyboardEvent } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -50,7 +43,6 @@ export function TutoringTopicCard({
 }: TutoringTopicCardProps) {
   const { setConversationId, conversationId, assistantId } = useStudent();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<
     Omit<TutoringTopicMessageCard, "type">
@@ -62,11 +54,6 @@ export function TutoringTopicCard({
     callback_conversation_id: card.callback_conversation_id,
   });
 
-  useEffect(() => {
-    // Trigger fade-in animation on mount
-    setIsVisible(true);
-  }, []);
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -75,7 +62,6 @@ export function TutoringTopicCard({
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLTextAreaElement>) => {
-    // Submit form when Enter is pressed without Shift key
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSaveEdit();
@@ -97,7 +83,6 @@ export function TutoringTopicCard({
 
       console.log("New topic created:", response);
 
-      // Set the new conversation ID if provided
       if (response.conversation_id) {
         setConversationId(response.conversation_id);
       }
@@ -131,7 +116,6 @@ export function TutoringTopicCard({
 
       console.log("Tutoring discussion refactored:", response);
 
-      // Handle the new message
       if (response.new_message && handleNewMessage) {
         handleNewMessage({
           sender: "agent_response",
@@ -141,7 +125,6 @@ export function TutoringTopicCard({
 
       setIsEditDialogOpen(false);
 
-      // Update the card if onEdit is provided
       if (onEdit) {
         const updatedCard: TutoringTopicMessageCard = {
           ...card,
@@ -158,7 +141,6 @@ export function TutoringTopicCard({
 
   const handleCloseDialog = () => {
     setIsEditDialogOpen(false);
-    // Reset form data to original card values
     setFormData({
       topics: card.topics,
       goals: card.goals,
@@ -181,64 +163,67 @@ export function TutoringTopicCard({
   };
 
   const cardContent = (
-    <Card
+    <div
       className={cn(
-        "w-full border border-primary/20 rounded-xl from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-sm transition-all duration-300 ease-in-out font-sans",
-        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
+        "w-full border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans",
         className
       )}
-      style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
+      style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" } as React.CSSProperties}
     >
-      <CardHeader className="rounded-t-xl">
-        <CardDescription className="text-xs text-primary">
+      {/* Header */}
+      <div className="rounded-t-xl p-3">
+        <div className="text-xs text-primary">
           <div className="flex flex-col space-y-3">
             <Small className="text-primary font-bold">
               Create Tutoring Topic
             </Small>
-            <ExtraSmall className="text-primary">
+            <ExtraSmall className="text-muted-foreground">
               {card.language ? `Language: ${card.language}` : ""}
             </ExtraSmall>
           </div>
-        </CardDescription>
-      </CardHeader>
-      <Separator className="" />
+        </div>
+        <Separator className="mt-3" />
+      </div>
 
-      <CardContent>
-        <div className="space-y-2">
+      {/* Content */}
+      <div className="px-3">
+        <div className="space-y-3">
           <div>
-            <div className="flex items-center gap-1.5">
-              {/* <List className="text-primary h-4 w-4" /> */}
+            <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Topics</ExtraSmall>
             </div>
-            <ExtraSmall className="text-xs">{card.topics}</ExtraSmall>
+            <ExtraSmall className="text-xs text-foreground">
+              {card.topics}
+            </ExtraSmall>
           </div>
 
           <div>
-            <div className="flex items-center gap-1.5">
-              {/* <Target className="text-primary h-4 w-4" /> */}
+            <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Goals</ExtraSmall>
             </div>
-            <ExtraSmall className="text-xs">{card.goals}</ExtraSmall>
+            <ExtraSmall className="text-xs text-foreground">
+              {card.goals}
+            </ExtraSmall>
           </div>
 
           {card.problems && (
-            <>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  {/* <AlertCircle className="text-primary h-4 w-4" /> */}
-                  <ExtraSmall className="font-bold text-primary">
-                    Problems
-                  </ExtraSmall>
-                </div>
-                <ExtraSmall className="text-xs">{card.problems}</ExtraSmall>
+            <div>
+              <div className="flex items-center gap-3">
+                <ExtraSmall className="font-bold text-primary">
+                  Problems
+                </ExtraSmall>
               </div>
-            </>
+              <ExtraSmall className="text-xs text-foreground">
+                {card.problems}
+              </ExtraSmall>
+            </div>
           )}
         </div>
-      </CardContent>
-      <Separator className="" />
+        <Separator className="mt-3" />
+      </div>
 
-      <CardFooter className="flex justify-end gap-2 px-4">
+      {/* Footer */}
+      <div className="flex justify-end gap-3 p-3">
         {card.forward_to_conversation_id ? (
           <Button
             variant="default"
@@ -282,24 +267,24 @@ export function TutoringTopicCard({
             </Button>
           </>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 
   return (
     <>
-      {/* Main Card Component */}
       {cardContent}
 
-      {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>Edit Tutoring Topic</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
-              <ExtraSmall className="font-bold">Topics</ExtraSmall>
+          <div className="space-y-3">
+            <div className="space-y-3">
+              <ExtraSmall className="font-bold text-foreground">
+                Topics
+              </ExtraSmall>
               <Textarea
                 name="topics"
                 value={formData.topics}
@@ -309,8 +294,10 @@ export function TutoringTopicCard({
               />
             </div>
 
-            <div className="space-y-2">
-              <ExtraSmall className="font-bold">Goals</ExtraSmall>
+            <div className="space-y-3">
+              <ExtraSmall className="font-bold text-foreground">
+                Goals
+              </ExtraSmall>
               <Textarea
                 name="goals"
                 value={formData.goals}
@@ -320,8 +307,10 @@ export function TutoringTopicCard({
               />
             </div>
 
-            <div className="space-y-2">
-              <ExtraSmall className="font-bold">Problems</ExtraSmall>
+            <div className="space-y-3">
+              <ExtraSmall className="font-bold text-foreground">
+                Problems
+              </ExtraSmall>
               <Textarea
                 name="problems"
                 value={formData.problems}
@@ -331,7 +320,7 @@ export function TutoringTopicCard({
               />
             </div>
           </div>
-          <DialogFooter className="flex gap-2 py-2">
+          <DialogFooter className="flex gap-3 py-3">
             <Button
               variant="outline"
               onClick={handleCloseDialog}

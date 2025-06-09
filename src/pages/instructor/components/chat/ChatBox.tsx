@@ -61,7 +61,7 @@ export function ChatBox({
         ref={messagesContainerRef}
         className="flex flex-1 flex-col gap-4 overflow-y-auto no-scrollbar chat-scroll-container"
       >
-        <div className="space-y-4 pt-4">
+        <div className="space-y-4">
           {messages.map((message, index) => (
             <MessageBubble
               key={index}

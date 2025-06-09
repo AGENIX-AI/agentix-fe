@@ -9,6 +9,19 @@ interface ConversationItemProps {
   onClick: (conversation: ConversationListItem) => void;
 }
 
+// Parse special message formats and extract relevant information
+const parseMessageContent = (content: string): string => {
+  // Check if the message follows the MessageCard format
+  if (content.startsWith('MessageCard|')) {
+    // Extract topics value if it exists
+    const topicsMatch = content.match(/\|topics=([^|]+)\|/);
+    if (topicsMatch && topicsMatch[1]) {
+      return topicsMatch[1];
+    }
+  }
+  return content;
+};
+
 function ConversationItemComponent({
   conversation,
   isSystemAssistant = false,
@@ -33,7 +46,7 @@ function ConversationItemComponent({
             ? conversation.assistants?.tagline ||
               "Support you to use the App effectively"
             : `${conversation.last_message?.sender === "user" ? "You: " : ""}${
-                conversation.last_message?.content || ""
+                parseMessageContent(conversation.last_message?.content || "")
               }`}
         </ExtraSmall>
       </div>

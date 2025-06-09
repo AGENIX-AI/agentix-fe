@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList } from "lucide-react";
 import { useState, type JSX } from "react";
 import {
@@ -18,6 +17,7 @@ import {
 import { useStudent } from "@/contexts/StudentContext";
 import { generateTutoringDiscuss } from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
+import { cn } from "@/lib/utils";
 
 export interface TaskFormData {
   productName: string;
@@ -49,8 +49,8 @@ const tasks: TaskData[] = [
     id: "create-topic",
     title: "create_topic", // This is now a translation key
     icon: (
-      <div className="w-4 h-4 flex items-center justify-center bg-red-50 rounded">
-        <Small className="text-red-500 text-xs">🖌️</Small>
+      <div className="w-4 h-4 flex items-center justify-center bg-accent rounded">
+        <Small className="text-accent-foreground text-xs">🖌️</Small>
       </div>
     ),
   },
@@ -59,24 +59,41 @@ const tasks: TaskData[] = [
 export function TaskMenu({ onSelectTask }: TaskMenuProps) {
   const { t } = useTranslation();
   return (
-    <Card className="w-full absolute bottom-[calc(100%+8px)] left-0 z-20 p-0">
-      <CardHeader className="p-3 pb-0 flex flex-col">
-        <div className="flex items-center">
-          <ClipboardList className="w-4 h-4 mr-2" />
-          <CardTitle>{t("chat.tasks.title")}</CardTitle>
+    <div
+      className={cn(
+        "w-full absolute bottom-[calc(100%+8px)] left-0 z-20 border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans"
+      )}
+      style={
+        {
+          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        } as React.CSSProperties
+      }
+    >
+      {/* Header */}
+      <div className="rounded-t-xl p-3">
+        <div className="text-xs text-primary">
+          <div className="flex flex-col space-y-3">
+            <div className="flex items-center">
+              <ClipboardList className="w-4 h-4 mr-2 text-primary" />
+              <Small className="text-primary font-bold">
+                {t("chat.tasks.title")}
+              </Small>
+            </div>
+            <ExtraSmall className="text-muted-foreground">
+              {t("chat.tasks.select_task")}
+            </ExtraSmall>
+          </div>
         </div>
-        <ExtraSmall className="text-muted-foreground pt-2">
-          {t("chat.tasks.select_task")}
-        </ExtraSmall>
-      </CardHeader>
+        <Separator className="mt-3" />
+      </div>
 
-      <Separator className="m-0 w-[calc(100%-24px)] p-0" />
-      <CardContent className="p-3 m-0 pt-0">
-        <div className="space-y-1">
+      {/* Content */}
+      <div className="px-3">
+        <div className="space-y-1 mb-3">
           {tasks.map((task) => (
             <Button
               key={task.id}
-              className="w-full text-left flex items-center gap-2 text-sm cursor-pointer justify-start bg-background "
+              className="w-full text-left flex items-center gap-2 text-sm cursor-pointer justify-start bg-muted hover:bg-accent transition-colors border-0"
               onClick={() =>
                 onSelectTask(
                   task.id,
@@ -86,14 +103,16 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
               variant="ghost"
             >
               {task.icon}
-              <ExtraSmall>
+              <ExtraSmall className="text-foreground">
                 {t(`chat.tasks.${task.id.replace("-", "_")}`)}
               </ExtraSmall>
             </Button>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Footer - Empty for now, but maintaining structure */}
+    </div>
   );
 }
 

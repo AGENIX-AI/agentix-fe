@@ -85,7 +85,7 @@ export function MessageBubble({
   console.log(message);
 
   return (
-    <div className={cn("flex flex-col mt-1 items-start ml-1")}>
+    <div className={cn("flex flex-col items-start")}>
       <div className="flex items-center gap-2">
         {isCurrentUser ? (
           <Avatar className="h-6 w-6">
@@ -133,8 +133,7 @@ export function MessageBubble({
       </div>
       <div
         className={cn(
-          "text-xs dark:prose-invert max-w-none variant-attr-cell leading-relaxed chat-message-content",
-          !isCurrentUser ? "ml-8" : "px-8 rounded-md"
+          "text-xs dark:prose-invert max-w-none variant-attr-cell leading-relaxed chat-message-content"
         )}
       >
         <MessageContent
