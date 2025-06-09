@@ -1,4 +1,4 @@
-import { useStudent } from "@/contexts/StudentContext";
+import { useInstructor } from "@/contexts/InstructorContext";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
@@ -97,7 +97,7 @@ function ConversationCategory({
   category,
   conversations,
 }: ConversationCategoryProps) {
-  const { setConversationId } = useStudent();
+  const { setConversationId } = useInstructor();
 
   // Format category name for display
   const getCategoryTitle = () => {
@@ -224,7 +224,7 @@ function ConversationCategory({
 
 // Main Component
 export function AssistantTopics({ className }: AssistantTopicsProps) {
-  const { assistantInfo } = useStudent();
+  const { assistantInfo } = useInstructor();
   const [conversationData, setConversationData] =
     useState<ConversationListResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);

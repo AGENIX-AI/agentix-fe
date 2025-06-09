@@ -6,7 +6,7 @@ import {
 import { TopicCard } from "./TopicCard";
 import { TutoringTopicCard } from "./TutoringTopicCard";
 import { Small } from "@/components/ui/typography";
-import { useChatContext } from "@/contexts/ChatContext";
+import { useChatContext } from "@/contexts/InstructorChatContext";
 
 interface MessageCardRendererProps {
   card: MessageCard;

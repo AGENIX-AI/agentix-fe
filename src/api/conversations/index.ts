@@ -452,9 +452,8 @@ export interface CreateNewTopicData {
   topics: string;
   goals: string;
   problems: string;
-  language: string;
-  assistant_id: string;
   conversation_created_id?: string;
+  invocation_id: string;
 }
 
 export interface CreateNewTopicResponse {

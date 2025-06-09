@@ -6,8 +6,8 @@ import Login from "./pages/auth/login/Login";
 import Signup from "./pages/auth/signup/Signup";
 import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
-import Instructor from "./pages/instructor/Instructor";
 import Waitlist from "./pages/auth/waitlist/Waitlist";
+import Instructor from "./pages/instructor/instructor";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";

@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Small } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useStudent } from "@/contexts/StudentContext";
+import { useInstructor } from "@/contexts/InstructorContext";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
@@ -55,8 +55,8 @@ export default function LeftPanel({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [localMiniappVisible, setLocalMiniappVisible] = useState(true);
 
-  // Use StudentContext for history visibility
-  const { isHistoryVisible } = useStudent();
+  // Use InstructorContext for history visibility
+  const { isHistoryVisible } = useInstructor();
 
   // This function is now unused since we're using the miniapp toggle instead
   const toggleSidebar = () => {
@@ -106,7 +106,7 @@ export default function LeftPanel({
           </Link>
           <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
           <Link
-            to="/instructor"
+            to="/app/instructor"
             className="transition-colors hover:text-foreground/80"
           >
             <Small>Instructor</Small>

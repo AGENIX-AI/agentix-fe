@@ -20,7 +20,7 @@ import type { TutoringTopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
 import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
-import { useStudent } from "@/contexts/StudentContext";
+import { useInstructor } from "@/contexts/InstructorContext";
 import {
   refactorTutoringDiscuss,
   createGenerateTask,
@@ -48,7 +48,7 @@ export function TutoringTopicCard({
   onCancel,
   invocation_id,
 }: TutoringTopicCardProps) {
-  const { setConversationId, conversationId, assistantId } = useStudent();
+  const { setConversationId, conversationId, assistantId } = useInstructor();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
