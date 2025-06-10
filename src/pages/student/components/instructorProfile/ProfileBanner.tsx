@@ -1,4 +1,3 @@
-import { BadgeCheck } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
@@ -59,8 +58,8 @@ export function ProfileBanner({
         <div className="ml-6 mt-4">
           <div className="flex items-center space-x-2">
             <H4>{instructorName}</H4>
-            <BadgeCheck className="h-5 w-5 text-primary" />
-            <Small className="text-muted-foreground">· 1st</Small>
+            {/* <BadgeCheck className="h-5 w-5 text-primary" /> */}
+            {/* <Small className="text-muted-foreground">· 1st</Small> */}
           </div>
 
           <ExtraSmall className="mt-1 line-clamp-3">

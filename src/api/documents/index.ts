@@ -1,7 +1,7 @@
 import Cookies from "js-cookie";
 
 /**
- * Parameters for getting image documents
+ * Parameters for getting documents
  */
 export interface ImageDocument {
   id: string;
@@ -23,6 +23,35 @@ export interface GetImageDocumentsResponse {
   success: boolean;
   documents: ImageDocument[];
   document_id: string;
+  total_items: number;
+  page_number: number;
+  page_size: number;
+}
+
+export interface Document {
+  id: string;
+  user_id: string;
+  filename: string | null;
+  url: string;
+  upload_status: "completed" | "not_complete" | "failed";
+  created_at: string;
+  updated_at: string;
+  file_name: string;
+  title: string;
+  assistant_id: string;
+}
+
+export interface GetAssistantDocumentsParams {
+  page_number?: number;
+  page_size?: number;
+  sort_by?: string;
+  sort_order?: number;
+  search?: string;
+}
+
+export interface GetAssistantDocumentsResponse {
+  success: boolean;
+  documents: Document[];
   total_items: number;
   page_number: number;
   page_size: number;
@@ -156,6 +185,43 @@ export const createImageIndex = async (
 
   if (!response.ok) {
     throw new Error(`Failed to create image index: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get documents associated with an assistant
+ * @param assistantId ID of the assistant
+ * @param params Parameters for filtering and pagination
+ * @returns Promise with the list of documents
+ */
+export const getAssistantDocuments = async (
+  assistantId: string,
+  params: GetAssistantDocumentsParams = {}
+): Promise<GetAssistantDocumentsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_by: params.sort_by ?? "created_at",
+    sort_order: params.sort_order?.toString() ?? "1",
+    ...(params.search && { search: params.search }),
+  });
+
+  const response = await fetch(
+    `${baseUrl}/documents/get_assisstant_documents/${assistantId}?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch assistant documents: ${response.statusText}`);
   }
 
   return await response.json();

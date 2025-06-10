@@ -14,6 +14,7 @@ import { ExtraSmall, H5, Small } from "@/components/ui/typography";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { ProfileBanner } from "../instructorProfile";
 
 interface PaginationProps {
   currentPage: number;
@@ -160,6 +161,13 @@ export function InstructorFinder() {
 
   return (
     <div className="flex flex-col p-6 h-full">
+      <ProfileBanner
+        instructorName="Edvara"
+        profileImage=""
+        backgroundImage=""
+        instructorDescription=""
+      />
+
       <H5 className="mb-6">{t("recommendedInstructors")}</H5>
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">

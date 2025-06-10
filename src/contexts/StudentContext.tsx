@@ -120,7 +120,7 @@ export function StudentContextProvider({
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [rightPanel, setRightPanel] = useState(
     // savedState?.rightPanel || "following_posts"
-    "following_posts"
+    "findInstructor"
   );
   const [chatPanel, setChatPanel] = useState(
     // savedState?.chatPanel || "findInstructor"

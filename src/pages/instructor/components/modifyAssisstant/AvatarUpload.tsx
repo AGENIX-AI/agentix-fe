@@ -68,7 +68,7 @@ export function AvatarUpload({
 
   return (
     <>
-      <div className={cn("space-y-4", className)}>
+      <div className={cn("spacey=3 spacex=6", className)}>
         <h2 className="text-sm font-bold">Avatar</h2>
         <div className="flex flex-col items-center">
           <div

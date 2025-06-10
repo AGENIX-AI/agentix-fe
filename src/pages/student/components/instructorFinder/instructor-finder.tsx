@@ -14,6 +14,7 @@ import { ExtraSmall, H5, Small } from "@/components/ui/typography";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { ProfileBanner } from "../instructorProfile";
 
 interface PaginationProps {
   currentPage: number;
@@ -159,75 +160,83 @@ export function InstructorFinder() {
   };
 
   return (
-    <div className="flex flex-col p-6 h-full">
-      <H5 className="mb-6">{t("recommendedInstructors")}</H5>
+    <div>
+      <ProfileBanner
+        instructorName="Edvara"
+        profileImage="https://edvara-bucket.sgp1.cdn.digitaloceanspaces.com/public/Edvara-logo-1024.png"
+        backgroundImage="https://t4.ftcdn.net/jpg/04/61/47/03/360_F_461470323_6TMQSkCCs9XQoTtyer8VCsFypxwRiDGU.jpg"
+        instructorDescription="Edvara is a platform that helps you find the best instructors for your needs."
+      />
+      <div className="flex flex-col p-6 h-full">
+        <H5 className="mb-6">{t("recommendedInstructors")}</H5>
 
-      <form onSubmit={handleSearch} className="flex gap-2 mb-6">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t("searchByName")}
-            className="pl-10"
-          />
-        </div>
-        <Button type="submit">{t("search")}</Button>
-      </form>
+        <form onSubmit={handleSearch} className="flex gap-2 mb-6">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder={t("searchByName")}
+              className="pl-10"
+            />
+          </div>
+          <Button type="submit">{t("search")}</Button>
+        </form>
 
-      {loading && (
-        <div className="flex justify-center items-center py-8">
-          <div className="animate-pulse flex flex-col gap-4 w-full">
-            {[...Array(3)].map((_, i) => (
-              <div key={i} className="h-16 bg-muted rounded-md w-full"></div>
+        {loading && (
+          <div className="flex justify-center items-center py-8">
+            <div className="animate-pulse flex flex-col gap-4 w-full">
+              {[...Array(3)].map((_, i) => (
+                <div key={i} className="h-16 bg-muted rounded-md w-full"></div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {error && (
+          <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
+            <Small className="text-destructive">
+              {t("errorLoadingInstructors")}: {error}
+            </Small>
+          </Card>
+        )}
+
+        {!loading && !error && instructors.length === 0 && (
+          <div className="text-center py-12 text-muted-foreground border rounded-md bg-muted/20">
+            <Small>{t("noInstructorsFound")}</Small>
+          </div>
+        )}
+
+        <ScrollArea className="flex-1 pr-4">
+          <div className="flex flex-col w-full mb-6 gap-1">
+            {instructors.map((instructor, index) => (
+              <InstructorRow
+                key={instructor.id}
+                instructor={instructor}
+                onSelect={handleSelectInstructor}
+                isLast={index === instructors.length - 1}
+              />
             ))}
           </div>
-        </div>
-      )}
 
-      {error && (
-        <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
-          <Small className="text-destructive">
-            {t("errorLoadingInstructors")}: {error}
-          </Small>
-        </Card>
-      )}
-
-      {!loading && !error && instructors.length === 0 && (
-        <div className="text-center py-12 text-muted-foreground border rounded-md bg-muted/20">
-          <Small>{t("noInstructorsFound")}</Small>
-        </div>
-      )}
-
-      <ScrollArea className="flex-1 pr-4">
-        <div className="flex flex-col w-full mb-6 gap-1">
-          {instructors.map((instructor, index) => (
-            <InstructorRow
-              key={instructor.id}
-              instructor={instructor}
-              onSelect={handleSelectInstructor}
-              isLast={index === instructors.length - 1}
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
             />
-          ))}
-        </div>
+          )}
 
-        {totalPages > 1 && (
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
-        )}
-
-        {totalCount > 0 && (
-          <div className="text-center mt-4 mb-2">
-            <Badge variant="outline" className="bg-muted/50">
-              <Small>{t("foundInstructors", { count: totalCount })}</Small>
-            </Badge>
-          </div>
-        )}
-      </ScrollArea>
+          {totalCount > 0 && (
+            <div className="text-center mt-4 mb-2">
+              <Badge variant="outline" className="bg-muted/50">
+                <Small>{t("foundInstructors", { count: totalCount })}</Small>
+              </Badge>
+            </div>
+          )}
+        </ScrollArea>
+      </div>
     </div>
   );
 }

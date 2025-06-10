@@ -34,16 +34,16 @@ export function BasicInformation({
   className,
 }: BasicInformationProps) {
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-3", className)}>
       <h2 className="text-sm font-bold">Basic Information</h2>
-      <div className="space-y-6">
+      <div>
         <div>
-          <div className="flex justify-between items-center mb-1">
+          <div className="flex justify-between items-center">
             <Label htmlFor="name">Name</Label>
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 px-2"
+              className="h-8"
               onClick={() => onGenerateWithAI("name")}
             >
               <Wand2 className="w-4 h-4 mr-1" /> Generate
@@ -57,12 +57,12 @@ export function BasicInformation({
         </div>
 
         <div>
-          <div className="flex justify-between items-center mb-1">
+          <div className="flex justify-between items-center">
             <Label htmlFor="tagline">Tagline</Label>
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 px-2"
+              className="h-8"
               onClick={() => onGenerateWithAI("tagline")}
             >
               <Wand2 className="w-4 h-4 mr-1" /> Generate
@@ -76,12 +76,12 @@ export function BasicInformation({
         </div>
 
         <div>
-          <div className="flex justify-between items-center mb-1">
+          <div className="flex justify-between items-center">
             <Label htmlFor="description">Description</Label>
             <Button
               size="sm"
               variant="ghost"
-              className="h-8 px-2"
+              className="h-8"
               onClick={() => onGenerateWithAI("description")}
             >
               <Wand2 className="w-4 h-4 mr-1" /> Generate

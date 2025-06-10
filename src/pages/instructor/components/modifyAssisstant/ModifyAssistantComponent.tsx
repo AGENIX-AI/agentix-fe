@@ -12,7 +12,6 @@ import {
 } from "./types";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
-  generateAssistantCapabilities,
   generateAssistantImage,
   updateAssistant,
   uploadAssistantImage,
@@ -22,12 +21,13 @@ import { Large } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
 export default function ModifyAssistantComponent({
   className,
 }: {
   className?: string;
 }) {
-  const { assistantInfo } = useInstructor();
+  const { assistantInfo, fetchAssistantData } = useInstructor();
   const [formData, setFormData] = useState<ModifyAssistantFormData>({
     name: "",
     tagline: "",
@@ -36,7 +36,6 @@ export default function ModifyAssistantComponent({
     language: "Vietnamese",
     avatar: null,
     speciality: "",
-    capabilities: [],
     styleSettings: {
       coachingStyle: 0,
       empathy: 0,
@@ -50,8 +49,6 @@ export default function ModifyAssistantComponent({
   const [avatarPreview, setAvatarPreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGeneratingAvatar, setIsGeneratingAvatar] = useState(false);
-  const [isGeneratingCapabilities, setIsGeneratingCapabilities] =
-    useState(false);
 
   const handleInputChange = (
     field: keyof ModifyAssistantFormData,
@@ -69,8 +66,7 @@ export default function ModifyAssistantComponent({
       personality: assistantInfo?.personality || undefined,
       language: assistantInfo?.language || "Vietnamese",
       avatar: null,
-      speciality: "",
-      capabilities: [],
+      speciality: assistantInfo?.speciality || "",
       styleSettings: {
         coachingStyle:
           ((assistantInfo?.personality?.instruction_style ?? 3) - 1) * 25,
@@ -125,70 +121,6 @@ export default function ModifyAssistantComponent({
 
   const handleSpecialityChange = (value: string) => {
     setFormData((prev) => ({ ...prev, speciality: value }));
-  };
-
-  const handleCapabilityAdd = () => {
-    setFormData((prev) => ({
-      ...prev,
-      capabilities: [...prev.capabilities, ""],
-    }));
-  };
-
-  const handleCapabilityChange = (index: number, value: string) => {
-    setFormData((prev) => {
-      const updatedCapabilities = [...prev.capabilities];
-      updatedCapabilities[index] = value;
-      return { ...prev, capabilities: updatedCapabilities };
-    });
-  };
-
-  const handleCapabilityRemove = (index: number) => {
-    setFormData((prev) => {
-      const updatedCapabilities = [...prev.capabilities];
-      updatedCapabilities.splice(index, 1);
-      return { ...prev, capabilities: updatedCapabilities };
-    });
-  };
-
-  const generateCapabilitiesWithAI = async () => {
-    try {
-      // Get current assistant info for generating capabilities
-      const { name, tagline, description, language } = formData;
-
-      if (!name) {
-        toast.error("Assistant name is required to generate capabilities");
-        return;
-      }
-
-      // Set loading state
-      setIsGeneratingCapabilities(true);
-
-      // Call API to generate capabilities
-      const response = await generateAssistantCapabilities(
-        name,
-        tagline,
-        description,
-        language
-      );
-
-      if (response.success && response.capability_statement) {
-        // Update both speciality and capabilities in formData
-        setFormData((prev) => ({
-          ...prev,
-          speciality: response.capability_statement.speciality,
-          capabilities: response.capability_statement.capabilities,
-        }));
-
-        toast.success("Capabilities generated successfully");
-      } else {
-        toast.error("Failed to generate capabilities");
-      }
-    } catch (error) {
-      console.error("Error generating capabilities:", error);
-      toast.error("Failed to generate capabilities");
-    } finally {
-      setIsGeneratingCapabilities(false);
-    }
   };
 
   const generateWithAI = async (
@@ -302,17 +234,16 @@ export default function ModifyAssistantComponent({
         personality,
         image: imagePath,
         language: formData.language,
-        capability_statement: {
-          speciality: formData.speciality,
-          capabilities: formData.capabilities,
-        },
+        speciality: formData.speciality,
       });
 
       if (updateResponse.success) {
+        console.log("Assistant updated successfully");
         toast.success("Assistant updated successfully");
-        // fetchassistantInfo();
-        eventBus.emit("refresh-conversations", {});
+        fetchAssistantData();
+        eventBus.emit("reload-history", {});
       } else {
+        console.log("Failed to update assistant");
         throw new Error("Failed to update assistant");
       }
     } catch (error) {
@@ -332,7 +263,7 @@ export default function ModifyAssistantComponent({
       </div>
 
       <div className="flex-1 overflow-auto">
-        <div className="flex flex-col gap-8 p-4">
+        <div className="flex flex-col gap-8 p-6">
           <AvatarUpload
             avatarPreview={avatarPreview}
             isGenerating={isGeneratingAvatar}
@@ -355,13 +286,7 @@ export default function ModifyAssistantComponent({
 
           <CapabilityStatement
             speciality={formData.speciality}
-            capabilities={formData.capabilities}
             onSpecialityChange={handleSpecialityChange}
-            onCapabilityAdd={handleCapabilityAdd}
-            onCapabilityChange={handleCapabilityChange}
-            onCapabilityRemove={handleCapabilityRemove}
-            onGenerateCapabilitiesWithAI={generateCapabilitiesWithAI}
-            isGeneratingCapabilities={isGeneratingCapabilities}
           />
 
           <Separator className="" />

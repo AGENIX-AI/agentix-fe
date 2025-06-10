@@ -63,6 +63,7 @@ interface AppPageContextType {
   setAssistantId: (id: string | null) => void;
   assistantInfo: AssistantInfo | null;
   setAssistantInfo: (info: AssistantInfo | null) => void;
+  fetchAssistantData: () => void;
   conversationId: string | null;
   setConversationId: (id: string | null) => void;
   conversationInfo: ConversationInfo | null;
@@ -228,6 +229,7 @@ export function InstructorContextProvider({
         setAssistantId,
         assistantInfo,
         setAssistantInfo,
+        fetchAssistantData,
         conversationId,
         setConversationId,
         conversationInfo,

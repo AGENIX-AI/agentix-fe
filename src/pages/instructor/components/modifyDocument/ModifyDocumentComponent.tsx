@@ -1,6 +1,4 @@
-"use client";
-
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -10,6 +8,8 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, UploadCloud, FileText, HelpCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ExtraSmall, Small } from "@/components/ui/typography";
+import { getAssistantDocuments, type Document as ApiDocument } from "@/api/documents";
+import { useInstructor } from "@/contexts/InstructorContext";
 
 interface DocumentStats {
   total: number;
@@ -23,73 +23,72 @@ interface Document {
   title: string;
   url: string;
   file_name: string;
-  upload_status: "pending" | "completed" | "failed";
-  embedding_status: "pending" | "completed" | "failed" | "not_started";
-  analysis_status: "pending" | "completed" | "failed" | "not_started";
+  upload_status: "pending" | "completed" | "failed" | "not_complete";
+  embedding_status?: "pending" | "completed" | "failed" | "not_started";
+  analysis_status?: "pending" | "completed" | "failed" | "not_started";
   created_at: string;
-  number_index: number;
+  number_index?: number;
 }
 
 export default function ModifyDocumentComponent() {
+  const { assistantId } = useInstructor();
   const [isUploading, setIsUploading] = useState(false);
   const [formatAfterUpload, setFormatAfterUpload] = useState(true);
   const [isDragging, setIsDragging] = useState(false);
-  const [documents, setDocuments] = useState<Document[]>([
-    {
-      id: "1",
-      title: "Introduction to AI",
-      url: "https://example.com/doc1",
-      file_name: "intro-ai.pdf",
-      upload_status: "completed",
-      embedding_status: "completed",
-      analysis_status: "completed",
-      created_at: "2025-05-01T10:30:00Z",
-      number_index: 100,
-    },
-    {
-      id: "2",
-      title: "Machine Learning Basics",
-      url: "https://example.com/doc2",
-      file_name: "ml-basics.pdf",
-      upload_status: "completed",
-      embedding_status: "completed",
-      analysis_status: "pending",
-      created_at: "2025-05-02T14:15:00Z",
-      number_index: 200,
-    },
-    {
-      id: "3",
-      title: "Neural Networks",
-      url: "https://example.com/doc3",
-      file_name: "neural-networks.pdf",
-      upload_status: "completed",
-      embedding_status: "pending",
-      analysis_status: "not_started",
-      created_at: "2025-05-03T09:45:00Z",
-      number_index: 300,
-    },
-    {
-      id: "4",
-      title: "Advanced Techniques",
-      url: "https://example.com/doc4",
-      file_name: "advanced-tech.pdf",
-      upload_status: "failed",
-      embedding_status: "not_started",
-      analysis_status: "not_started",
-      created_at: "2025-05-04T16:20:00Z",
-      number_index: 400,
-    },
-  ]);
+  const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalItems, setTotalItems] = useState(0);
+  const [sortBy] = useState("created_at");
+  const [sortOrder] = useState(1); // 1 for ascending, -1 for descending
 
+  // Fetch documents when assistantId, page, or search changes
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (!assistantId) return;
+      
+      setIsLoading(true);
+      try {
+        const response = await getAssistantDocuments(assistantId, {
+          page_number: currentPage,
+          page_size: pageSize,
+          sort_by: sortBy,
+          sort_order: sortOrder,
+          search: searchQuery || undefined,
+        });
+        
+        if (response.success) {
+          // Convert API documents to our Document interface
+          const mappedDocuments: Document[] = response.documents.map((doc: ApiDocument) => ({
+            id: doc.id,
+            title: doc.title || doc.file_name,
+            url: doc.url,
+            file_name: doc.file_name,
+            upload_status: doc.upload_status,
+            created_at: doc.created_at,
+          }));
+          
+          setDocuments(mappedDocuments);
+          setTotalItems(response.total_items);
+        }
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchDocuments();
+  }, [assistantId, currentPage, pageSize, sortBy, sortOrder, searchQuery]);
+  
   // Calculate stats from documents
   const stats: DocumentStats = {
-    total: documents.length,
-    uploaded: documents.filter((doc) => doc.upload_status === "completed")
-      .length,
-    embedded: documents.filter((doc) => doc.embedding_status === "completed")
-      .length,
-    analyzed: documents.filter((doc) => doc.analysis_status === "completed")
-      .length,
+    total: totalItems,
+    uploaded: documents.filter((doc) => doc.upload_status === "completed").length,
+    embedded: documents.filter((doc) => doc.embedding_status === "completed").length || 0,
+    analyzed: documents.filter((doc) => doc.analysis_status === "completed").length || 0,
   };
 
   // Handle drag events for the dropzone
@@ -167,14 +166,14 @@ export default function ModifyDocumentComponent() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full">
       <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
         <h1 className="text-lg font-bold tracking-tight">
           Modify Document {document.title}
         </h1>
       </div>
 
-      <div className="space-y-6 p-4">
+      <div className="flex-1 overflow-y-auto p-6 space-y-3">
         {/* Stats Section */}
         <div className="space-y-3">
           <Small className="font-bold text-primary">Document Statistics</Small>
@@ -186,10 +185,10 @@ export default function ModifyDocumentComponent() {
           </div>
         </div>
 
-        <Separator className="my-6" />
+        <Separator className="my-3" />
 
         {/* Upload Section */}
-        <div className="space-y-6">
+        <div className="space-y-3">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
             <div>
               <Small className="font-bold text-primary mb-1">
@@ -283,10 +282,23 @@ export default function ModifyDocumentComponent() {
           </div>
         </div>
 
-        <Separator className="my-6" />
+        <Separator className="my-3" />
 
+        {/* Search Bar */}
+        <div className="mt-4">
+          <div className="relative">
+            <Input
+              type="text"
+              placeholder="Search documents..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pr-10"
+            />
+          </div>
+        </div>
+        
         {/* Documents List */}
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           <div className="flex justify-between items-center">
             <Small className="font-bold text-primary">Documents</Small>
             <div className="text-sm text-muted-foreground">
@@ -294,22 +306,72 @@ export default function ModifyDocumentComponent() {
             </div>
           </div>
 
-          {documents.length === 0 ? (
+          {isLoading ? (
+            <div className="text-center py-12">
+              <Loader2 className="mx-auto h-8 w-8 text-primary animate-spin" />
+              <ExtraSmall className="text-gray-500 mt-2">
+                Loading documents...
+              </ExtraSmall>
+            </div>
+          ) : documents.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed rounded-lg">
               <UploadCloud className="mx-auto h-10 w-10 text-gray-300" />
               <ExtraSmall className="text-gray-500 mt-2">
                 No documents found
               </ExtraSmall>
               <ExtraSmall className="text-gray-400">
-                Upload your first document above
+                {searchQuery ? "Try a different search term" : "Upload your first document above"}
               </ExtraSmall>
             </div>
           ) : (
-            <div className="grid gap-4">
-              {documents.map((doc) => (
-                <DocumentItem key={doc.id} document={doc} />
-              ))}
-            </div>
+            <>
+              <div className="grid gap-4">
+                {documents.map((doc) => (
+                  <DocumentItem key={doc.id} document={doc} />
+                ))}
+              </div>
+              
+              {/* Pagination Controls */}
+              {totalItems > 0 && (
+                <div className="flex justify-between items-center mt-4">
+                  <div className="flex items-center gap-2">
+                    <Small>Items per page:</Small>
+                    <select 
+                      className="text-sm border rounded p-1"
+                      value={pageSize}
+                      onChange={(e) => setPageSize(Number(e.target.value))}
+                    >
+                      <option value="5">5</option>
+                      <option value="10">10</option>
+                      <option value="20">20</option>
+                      <option value="50">50</option>
+                    </select>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage <= 1}
+                      onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    >
+                      Previous
+                    </Button>
+                    <Small>
+                      Page {currentPage} of {Math.ceil(totalItems / pageSize)}
+                    </Small>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={currentPage >= Math.ceil(totalItems / pageSize)}
+                      onClick={() => setCurrentPage(prev => prev + 1)}
+                    >
+                      Next
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
@@ -332,6 +394,7 @@ function DocumentItem({ document }: { document: Document }) {
       case "completed":
         return "text-green-600 bg-green-50 border-green-100 dark:bg-green-950/30 dark:border-green-900";
       case "pending":
+      case "not_complete":
         return "text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-950/30 dark:border-amber-900";
       case "failed":
         return "text-red-600 bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900";
@@ -359,7 +422,7 @@ function DocumentItem({ document }: { document: Document }) {
   );
 
   return (
-    <div className="border rounded-lg overflow-hidden bg-card/50 hover:shadow-sm transition-all duration-200">
+    <div className="border rounded-lg bg-card/50 hover:shadow-sm transition-all duration-200">
       <div className="p-4 flex flex-col md:flex-row gap-4">
         {/* Document Info */}
         <div className="flex-1">
@@ -384,17 +447,23 @@ function DocumentItem({ document }: { document: Document }) {
 
         {/* Status Indicators */}
         <div className="flex flex-wrap gap-2 items-center">
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Embedding:</span>
-            <StatusBadge status={document.embedding_status} />
-          </div>
-          <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">Analysis:</span>
-            <StatusBadge status={document.analysis_status} />
-          </div>
-          <div className="text-xs text-muted-foreground ml-1 md:ml-4">
-            {document.number_index} chunks
-          </div>
+          {document.embedding_status && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Embedding:</span>
+              <StatusBadge status={document.embedding_status} />
+            </div>
+          )}
+          {document.analysis_status && (
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">Analysis:</span>
+              <StatusBadge status={document.analysis_status} />
+            </div>
+          )}
+          {document.number_index && (
+            <div className="text-xs text-muted-foreground ml-1 md:ml-4">
+              {document.number_index} chunks
+            </div>
+          )}
         </div>
       </div>
     </div>

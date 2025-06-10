@@ -2,6 +2,8 @@ import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
+import ModifyAssistantComponent from "./modifyAssisstant/ModifyAssistantComponent";
+import ModifyDocumentComponent from "./modifyDocument/ModifyDocumentComponent";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -26,13 +28,11 @@ export default function RightPanel({}) {
         </div>
       );
     case "modifyDocument":
-      return <div>Modify Document</div>;
+      return <ModifyDocumentComponent />;
     case "modifyImageDocument":
       return <div>Modify Image Document</div>;
     case "modifyAssisstant":
-      return <div>Modify Assisstant</div>;
-    case "createAssistant":
-      return <div>Create Assistant</div>;
+      return <ModifyAssistantComponent />;
 
     case "empty":
       return (

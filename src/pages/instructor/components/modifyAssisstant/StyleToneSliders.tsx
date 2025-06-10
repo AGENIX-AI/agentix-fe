@@ -23,11 +23,11 @@ export function StyleToneSliders({
   className,
 }: StyleToneSlidersProps) {
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-3", className)}>
       <h2 className="text-sm font-bold">Style Tone</h2>
-      <div className="space-y-6">
+      <div className="space-y-3">
         {/* Coaching vs Mentoring Style */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Coaching style</span>
             <span className="text-sm font-medium">Mentoring style</span>
@@ -53,7 +53,7 @@ export function StyleToneSliders({
         </div>
 
         {/* Empathetic vs Direct */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Empathetic</span>
             <span className="text-sm font-medium">Direct</span>
@@ -79,7 +79,7 @@ export function StyleToneSliders({
         </div>
 
         {/* Concise vs Detailed */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Concise</span>
             <span className="text-sm font-medium">Detailed</span>
@@ -105,7 +105,7 @@ export function StyleToneSliders({
         </div>
 
         {/* Formal vs Casual */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Formal</span>
             <span className="text-sm font-medium">Casual</span>
@@ -131,7 +131,7 @@ export function StyleToneSliders({
         </div>
 
         {/* Accepting vs Challenging */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Accepting</span>
             <span className="text-sm font-medium">Challenging</span>
@@ -157,7 +157,7 @@ export function StyleToneSliders({
         </div>
 
         {/* Serious vs Jovial */}
-        <div className="space-y-2">
+        <div className="spacey=3 spacex=6">
           <div className="flex justify-between items-center">
             <span className="text-sm font-medium">Serious</span>
             <span className="text-sm font-medium">Jovial</span>

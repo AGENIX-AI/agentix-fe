@@ -101,14 +101,14 @@ export default function LeftPanel({
 
         {/* Middle section - navigation */}
         <nav className="flex gap-4 text-sm mx-auto font-semibold mt-1">
-          <Link to="#" className="text-[#007E85] hover:text-foreground/80">
+          <Link
+            to="/student"
+            className="transition-colors hover:text-foreground/80"
+          >
             <Small>Student</Small>
           </Link>
           <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
-          <Link
-            to="/app/instructor"
-            className="transition-colors hover:text-foreground/80"
-          >
+          <Link to="#" className="text-[#007E85] hover:text-foreground/80">
             <Small>Instructor</Small>
           </Link>
           <Separator orientation="vertical" className="h-6 w p-0" />

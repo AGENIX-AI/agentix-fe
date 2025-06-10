@@ -61,10 +61,7 @@ export interface UpdateAssistantParams {
   image?: string;
   agent_image?: string;
   language?: string;
-  capability_statement?: {
-    speciality?: string;
-    capabilities?: string[];
-  };
+  speciality?: string;
 }
 
 /**
@@ -91,6 +88,23 @@ export interface GenerateImageResponse {
   image_base64: string;
 }
 
+/**
+ * Interface for creating a new assistant
+ */
+export interface CreateAssistantParams {
+  name: string;
+  tagline: string;
+  description: string;
+  language: string;
+}
+/**
+ * Response for creating a new assistant
+ */
+export interface CreateAssistantResponse {
+  success: boolean;
+  assistant_id: string;
+  conversation_id: string;
+}
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
   const accessToken = Cookies.get("edvara_access_token");
@@ -156,17 +170,16 @@ export async function generateAssistantCapabilities(
   description: string,
   language = "English"
 ): Promise<GenerateCapabilitiesResponse> {
-  const headers = getAuthHeaders();
+  let headers = getAuthHeaders();
 
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/generate_capability`,
-    {
-      method: "POST",
-      body: JSON.stringify({ name, tagline, description, language }),
-      credentials: "include",
-      headers: headers,
-    }
-  );
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+
+  const response = await fetch(`${baseUrl}/assistants/generate_capability`, {
+    method: "POST",
+    body: JSON.stringify({ name, tagline, description, language }),
+    credentials: "include",
+    headers: headers,
+  });
 
   const data = await response.json();
 
@@ -183,15 +196,13 @@ export async function updateAssistant(
   params: UpdateAssistantParams
 ): Promise<UpdateAssistantResponse> {
   const headers = getAuthHeaders();
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/${characterId}`,
-    {
-      method: "PUT",
-      body: JSON.stringify(params),
-      credentials: "include",
-      headers: headers,
-    }
-  );
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const response = await fetch(`${baseUrl}/assistants/${characterId}`, {
+    method: "PUT",
+    body: JSON.stringify(params),
+    credentials: "include",
+    headers: headers,
+  });
 
   const data = await response.json();
 
@@ -209,18 +220,25 @@ export async function uploadAssistantImage(
   try {
     const formData = new FormData();
     formData.append("image", imageFile);
-    const headers = getAuthHeaders();
+    
+    // Get auth headers but omit Content-Type
+    const authHeaders = getAuthHeaders();
+    const { Authorization, "X-Refresh-Token": refreshToken } = authHeaders as any;
+    
+    // Create new headers without Content-Type
+    const headers: HeadersInit = {};
+    if (Authorization) headers.Authorization = Authorization;
+    if (refreshToken) headers["X-Refresh-Token"] = refreshToken;
+    
+    const baseUrl = import.meta.env.VITE_API_URL || "";
 
-    // Don't set Content-Type for FormData, browser will set it with boundary
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/upload_image`,
-      {
-        method: "POST",
-        body: formData,
-        credentials: "include",
-        headers: headers,
-      }
-    );
+    // Browser will set correct Content-Type with boundary for FormData
+    const response = await fetch(`${baseUrl}/assistants/upload_image`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+      headers: headers,
+    });
 
     const data = await response.json();
 
@@ -243,21 +261,41 @@ export async function generateAssistantImage(
   style: string
 ): Promise<GenerateImageResponse> {
   const headers = getAuthHeaders();
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/generate_image`,
-    {
-      method: "POST",
-      body: JSON.stringify({ name, tagline, description, style }),
-      credentials: "include",
-      headers: headers,
-    }
-  );
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const response = await fetch(`${baseUrl}/assistants/generate_image`, {
+    method: "POST",
+    body: JSON.stringify({ name, tagline, description, style }),
+    credentials: "include",
+    headers: headers,
+  });
 
   const data = await response.json();
 
   if (!response.ok) {
     console.error("Generate image failed:", data);
     throw new Error(data.error || "Failed to generate image");
+  }
+
+  return data;
+}
+
+export async function createAssistant(
+  params: CreateAssistantParams
+): Promise<CreateAssistantResponse> {
+  const headers = getAuthHeaders();
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const response = await fetch(`${baseUrl}/assistants/`, {
+    method: "POST",
+    body: JSON.stringify(params),
+    credentials: "include",
+    headers: headers,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Create assistant failed:", data);
+    throw new Error(data.error || "Failed to create assistant");
   }
 
   return data;
