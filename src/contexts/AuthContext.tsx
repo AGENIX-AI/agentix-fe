@@ -43,6 +43,7 @@ interface AuthContextType extends AuthState {
   reloadAuth: () => Promise<void>;
   userInfo: User | null;
   needsApproval: boolean;
+  needsWaitlistForm: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -64,8 +65,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     isAuthenticated: false,
     loading: true,
   });
-  
+
   const [needsApproval, setNeedsApproval] = useState<boolean>(false);
+  const [needsWaitlistForm, setNeedsWaitlistForm] = useState<boolean>(false);
 
   // Helper function to update API headers with token
   const updateApiAuthHeader = (token: string | null) => {
@@ -82,6 +84,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       // First try to use the current token to get user info
       const response = await authService.getCurrentUser();
       console.log("Auth response:", response);
+
       if (response && response.user) {
         // If successful, save tokens in cookies (if session exists)
         if (response.session) {
@@ -89,6 +92,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         }
 
         setNeedsApproval(false);
+        setNeedsWaitlistForm(false);
         setAuthState({
           user: response.user,
           session: response.session || null,
@@ -113,10 +117,28 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
       }
     } catch (error: any) {
       console.error("Failed to check auth status", error);
-      
+      // Check if user needs to fill in waitlist form
+      if (
+        error?.response?.data?.detail === "Please fill in the waitlist form"
+      ) {
+        console.log("User needs to fill in waitlist form");
+        setNeedsWaitlistForm(true);
+        setNeedsApproval(false);
+        // Keep the tokens so user remains in a logged-in state, but redirect to waitlist form
+        setAuthState({
+          user: null,
+          session: null,
+          isAuthenticated: true, // Keep as true so they don't get redirected to login
+          loading: false,
+        });
+        return;
+      }
+
       // Check if this is a "not approved yet" error
-      if (error?.response?.status === 500 && 
-          error?.response?.data?.detail === "You are not approved yet, please wait for approval") {
+      if (
+        error?.response?.data?.detail ===
+        "You are not approved yet, please wait for approval"
+      ) {
         console.log("User needs approval");
         setNeedsApproval(true);
         // Keep the tokens so user remains in a logged-in state, but redirect to waitlist
@@ -129,9 +151,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
         // Redirect will be handled by the component using this context
         return;
       }
-      
+
       clearTokenCookies();
       setNeedsApproval(false);
+      setNeedsWaitlistForm(false);
       setAuthState({
         user: null,
         session: null,
@@ -296,6 +319,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     reloadAuth,
     userInfo: authState.user,
     needsApproval,
+    needsWaitlistForm,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

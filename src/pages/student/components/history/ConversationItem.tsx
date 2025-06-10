@@ -9,19 +9,6 @@ interface ConversationItemProps {
   onClick: (conversation: ConversationListItem) => void;
 }
 
-// Parse special message formats and extract relevant information
-const parseMessageContent = (content: string): string => {
-  // Check if the message follows the MessageCard format
-  if (content.startsWith('MessageCard|')) {
-    // Extract topics value if it exists
-    const topicsMatch = content.match(/\|topics=([^|]+)\|/);
-    if (topicsMatch && topicsMatch[1]) {
-      return topicsMatch[1];
-    }
-  }
-  return content;
-};
-
 function ConversationItemComponent({
   conversation,
   isSystemAssistant = false,
@@ -29,7 +16,7 @@ function ConversationItemComponent({
 }: ConversationItemProps) {
   return (
     <div
-      className={`flex items-center gap-3 p-2 cursor-pointer rounded-lg`}
+      className={`flex items-center gap-3 p-1 cursor-pointer rounded-lg`}
       onClick={() => onClick(conversation)}
     >
       <Avatar className="overflow-hidden">
@@ -46,7 +33,7 @@ function ConversationItemComponent({
             ? conversation.assistants?.tagline ||
               "Support you to use the App effectively"
             : `${conversation.last_message?.sender === "user" ? "You: " : ""}${
-                parseMessageContent(conversation.last_message?.content || "")
+                conversation.last_message?.content || ""
               }`}
         </ExtraSmall>
       </div>

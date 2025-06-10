@@ -2,7 +2,6 @@ import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
-import { InstructorFinder } from "./instructorFinder/instructor-finder";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -26,18 +25,15 @@ export default function RightPanel({}) {
           <AssistantView page="tasks" />
         </div>
       );
-    case "agentCapabilityStatement":
-      return (
-        <div>
-          <AssistantView page="agentCapabilityStatement" />
-        </div>
-      );
-    case "findInstructor":
-      return (
-        <div>
-          <InstructorFinder />
-        </div>
-      );
+    case "modifyDocument":
+      return <div>Modify Document</div>;
+    case "modifyImageDocument":
+      return <div>Modify Image Document</div>;
+    case "modifyAssisstant":
+      return <div>Modify Assisstant</div>;
+    case "createAssistant":
+      return <div>Create Assistant</div>;
+
     case "empty":
       return (
         <div className="flex flex-col h-full overflow-hidden">

@@ -24,7 +24,7 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
 
   return (
     <div className={cn(className, "border-r border-border")}>
-      <div className="bg-background text-sm h-[calc(100vh-3.5rem)] p-6 overflow-y-auto">
+      <div className="bg-background text-sm h-[calc(100vh-3.5rem)] p-6 ">
         <div className="flex flex-col h-full bg-background">
           {/* Header */}
           <div>
@@ -43,16 +43,16 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex flex-col h-full overflow-y-auto">
+          <div className="flex flex-col h-full">
             {/* BLOCK 1: System Assistant */}
             <SystemAssistantBlock setIsChatLoading={setIsChatLoading} />
-            <Separator orientation="horizontal" className="w-full my-1" />
 
             {/* BLOCK 2: User Conversations */}
             <UserConversationsBlock
               searchQuery={searchQuery}
               setIsChatLoading={setIsChatLoading}
             />
+            <Separator orientation="horizontal" className="w-full my-1" />
           </div>
 
           <div className="text-[10px] text-center mb-2">

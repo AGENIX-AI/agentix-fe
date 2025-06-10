@@ -29,7 +29,7 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
           {/* Header */}
           <div>
             <div className="flex items-center justify-start h-full p-0 pb-6">
-              <H5>Chat History</H5>
+              <H5>Your Assistants</H5>
             </div>
           </div>
 
@@ -43,16 +43,16 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex flex-col h-full overflow-y-auto">
+          <div className="flex flex-col h-full overflow-y-3">
             {/* BLOCK 1: System Assistant */}
             <SystemAssistantBlock setIsChatLoading={setIsChatLoading} />
-            <Separator orientation="horizontal" className="w-full my-1" />
 
             {/* BLOCK 2: User Conversations */}
             <UserConversationsBlock
               searchQuery={searchQuery}
               setIsChatLoading={setIsChatLoading}
             />
+            <Separator orientation="horizontal" className="w-full my-1" />
           </div>
 
           <div className="text-[10px] text-center mb-2">

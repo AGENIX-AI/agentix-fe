@@ -23,25 +23,30 @@ const HistoryToggleButton = memo(
   }) => {
     const { t } = useTranslation();
     return (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`transition-all duration-300 border border-border ${className}`}
-          onClick={toggleHistory}
-          aria-label={
-            isHistoryVisible ? "Hide history panel" : "Show history panel"
-          }
-        >
-          <AlignJustify className="h-4 w-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom">
-        <Small>{isHistoryVisible ? t('chat.header.hide_history') : t('chat.header.show_history')}</Small>
-      </TooltipContent>
-    </Tooltip>
-  )}
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`transition-all duration-300 border border-border ${className}`}
+            onClick={toggleHistory}
+            aria-label={
+              isHistoryVisible ? "Hide history panel" : "Show history panel"
+            }
+          >
+            <AlignJustify className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom">
+          <Small>
+            {isHistoryVisible
+              ? t("chat.header.hide_history")
+              : t("chat.header.show_history")}
+          </Small>
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 );
 
 HistoryToggleButton.displayName = "HistoryToggleButton";
@@ -66,7 +71,7 @@ export function ChatHeader({
 
   return (
     <div className="">
-      <div className="flex items-center justify-start h-full">
+      <div className="flex items-center justify-start h-full px-6 py-3">
         <HistoryToggleButton
           isHistoryVisible={isHistoryVisible}
           toggleHistory={toggleHistory}
@@ -80,7 +85,9 @@ export function ChatHeader({
           </Avatar>
           <div className="">
             <H2 className="text-sm font-medium text-foreground">{agentName}</H2>
-            <Muted className="text-xs">{t('chat.header.powered_by', {name: tagline})}</Muted>
+            <Muted className="text-xs">
+              {t("chat.header.powered_by", { name: tagline })}
+            </Muted>
           </div>
         </div>
       </div>

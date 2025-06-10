@@ -1,6 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList } from "lucide-react";
 import { useState, type JSX } from "react";
 import {
   CreateTopicForm,
@@ -15,8 +13,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useInstructor } from "@/contexts/InstructorContext";
 import { generateTutoringDiscuss } from "@/api/conversations";
+import { cn } from "@/lib/utils";
+import { useInstructor } from "@/contexts/InstructorContext";
 import { useChatContext } from "@/contexts/InstructorChatContext";
 
 export interface TaskFormData {
@@ -43,57 +42,140 @@ interface TaskData {
   icon: JSX.Element;
 }
 
-// Shared tasks array used by both TaskMenu and ChatTasks
-const tasks: TaskData[] = [
-  {
-    id: "create-topic",
-    title: "create_topic", // This is now a translation key
-    icon: (
-      <div className="w-4 h-4 flex items-center justify-center bg-red-50 rounded">
-        <Small className="text-red-500 text-xs">🖌️</Small>
-      </div>
-    ),
-  },
-];
+// Define tasks variable that will be set conditionally
+let tasks: TaskData[];
 
-export function TaskMenu({ onSelectTask }: TaskMenuProps) {
+export function TaskMenu({ onClose }: TaskMenuProps) {
   const { t } = useTranslation();
-  return (
-    <Card className="w-full absolute bottom-[calc(100%+8px)] left-0 z-20 p-0">
-      <CardHeader className="p-3 pb-0 flex flex-col">
-        <div className="flex items-center">
-          <ClipboardList className="w-4 h-4 mr-2" />
-          <CardTitle>{t("chat.tasks.title")}</CardTitle>
-        </div>
-        <ExtraSmall className="text-muted-foreground pt-2">
-          {t("chat.tasks.select_task")}
-        </ExtraSmall>
-      </CardHeader>
+  const { assistantInfo, setRightPanel } = useInstructor();
 
-      <Separator className="m-0 w-[calc(100%-24px)] p-0" />
-      <CardContent className="p-3 m-0 pt-0">
-        <div className="space-y-1">
+  if (assistantInfo?.role === "system") {
+    tasks = [
+      {
+        id: "create-assisstant",
+        title: "CREATE YOUR ASSISTANT",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <span className="text-secondary text-xs">🖌️</span>
+          </div>
+        ),
+      },
+    ];
+  } else {
+    tasks = [
+      {
+        id: "create-topic",
+        title: "CREATE TOPIC",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center bg-accent rounded">
+            <Small className="text-accent-foreground text-xs">🖌️</Small>
+          </div>
+        ),
+      },
+      {
+        id: "modify-assistant",
+        title: "MODIFY YOUR ASSISTANT",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <span className="text-secondary text-xs">✏️</span>
+          </div>
+        ),
+      },
+      {
+        id: "modify-document",
+        title: "MODIFY DOCUMENT",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <span className="text-secondary text-xs">➕</span>
+          </div>
+        ),
+      },
+      {
+        id: "modify-image-document",
+        title: "MODIFY IMAGE DOCUMENT",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <span className="text-secondary text-xs">🖼️</span>
+          </div>
+        ),
+      },
+    ];
+  }
+  const handleSelectTask = (id: string) => {
+    if (id === "modify-assistant" && setRightPanel) {
+      setRightPanel("modifyAssisstant");
+      onClose();
+      return;
+    }
+
+    if (id === "modify-document" && setRightPanel) {
+      setRightPanel("modifyDocument");
+      onClose();
+      return;
+    }
+
+    if (id === "modify-image-document" && setRightPanel) {
+      setRightPanel("modifyImageDocument");
+      onClose();
+      return;
+    }
+
+    if (id === "create-assisstant" && setRightPanel) {
+      setRightPanel("createAssistant");
+      onClose();
+      return;
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "w-full absolute bottom-[calc(100%+8px)] left-0 z-20 border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans overflow-visible pointer-events-auto"
+      )}
+      style={
+        {
+          boxShadow: "0 2px 4px rgba(0,0,0,0.05)",
+        } as React.CSSProperties
+      }
+    >
+      {/* Header */}
+      <div className="rounded-t-xl p-3">
+        <div className="text-xs text-primary">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center">
+              <Small className="text-primary font-bold">
+                {t("chat.tasks.title")}
+              </Small>
+            </div>
+            <ExtraSmall className="text-muted-foreground">
+              {t("chat.tasks.select_task")}
+            </ExtraSmall>
+          </div>
+        </div>
+        <Separator className="mt-3" />
+      </div>
+
+      {/* Content */}
+      <div className="px-3">
+        <div className="space-y-3 mb-3">
           {tasks.map((task) => (
             <Button
               key={task.id}
-              className="w-full text-left flex items-center gap-2 text-sm cursor-pointer justify-start bg-background "
-              onClick={() =>
-                onSelectTask(
-                  task.id,
-                  t(`chat.tasks.${task.id.replace("-", "_")}`)
-                )
-              }
+              className="w-full text-left flex items-center gap-2 text-sm cursor-pointer justify-start bg-muted hover:bg-accent transition-colors border-0 relative z-30"
+              onClick={() => {
+                handleSelectTask(task.id);
+              }}
               variant="ghost"
             >
               {task.icon}
-              <ExtraSmall>
-                {t(`chat.tasks.${task.id.replace("-", "_")}`)}
-              </ExtraSmall>
+              <ExtraSmall className="text-foreground">{task.title}</ExtraSmall>
             </Button>
           ))}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+
+      {/* Footer - Empty for now, but maintaining structure */}
+    </div>
   );
 }
 
@@ -104,7 +186,6 @@ export interface ChatTasksProps {
 }
 
 export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
-  const { t } = useTranslation();
   const { conversationId, assistantId } = useInstructor();
   const { handleNewMessage } = useChatContext();
   const [selectedTaskTitle, setSelectedTaskTitle] = useState<
@@ -114,12 +195,6 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     taskId
   );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!!taskId);
-
-  const handleSelectTask = (id: string) => {
-    setSelectedTaskTitle(t(`chat.tasks.${id.replace("-", "_")}`));
-    setSelectedTaskId(id);
-    setIsModalOpen(true);
-  };
 
   const handleSubmitTaskForm = async (formData: CreateTopicFormData) => {
     try {
@@ -156,11 +231,6 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     }
   };
 
-  // Only show dialog when a task is selected, otherwise show the task menu
-  if (!selectedTaskId) {
-    return <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />;
-  }
-
   // When a task is selected, show the appropriate dialog based on task ID
   switch (selectedTaskId) {
     case "create-topic":
@@ -178,7 +248,5 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
           </DialogContent>
         </Dialog>
       );
-    default:
-      return <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />;
   }
 }

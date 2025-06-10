@@ -1,8 +1,10 @@
 import { useState, useEffect, useRef, memo } from "react";
-import { Separator } from "@/components/ui/separator";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
-import { getListConversations } from "@/api/conversations";
+import {
+  getInstructorListConversations,
+  createInstructorFirstConversation,
+} from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { ConversationItem } from "./ConversationItem";
@@ -29,17 +31,41 @@ function UserConversationsBlockComponent({
   );
   const conversationsRef = useRef<ConversationListItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const pageSize = 100;
 
   // Display loading state for the history component
   const showLoadingState = isLoading && conversations.length === 0;
 
-  const fetchConversations = async () => {
+  const fetchConversations = async (search?: string, page: number = 1) => {
     try {
       setIsLoading(true);
-      const response = await getListConversations();
+      const response = await getInstructorListConversations(
+        page,
+        pageSize,
+        "created_at",
+        1,
+        search
+      );
       if (response.success) {
-        setConversations(response.conversations);
-        conversationsRef.current = response.conversations;
+        // Convert InstructorConversationItem to ConversationListItem format
+        const convertedConversations: ConversationListItem[] =
+          response.conversations.map((conv) => ({
+            id: conv.id || "",
+            conversation_name: conv.conversation_name || "",
+            conversation_description: conv.conversation_description || "",
+            last_message: conv.last_message,
+            assistants: {
+              id: conv.assistant.id,
+              name: conv.assistant.name,
+              image: conv.assistant.image,
+              tagline: conv.assistant.tagline,
+            },
+          }));
+
+        setConversations(convertedConversations);
+        conversationsRef.current = convertedConversations;
+        setCurrentPage(response.page_number);
       }
     } catch (error) {
       console.error("Failed to fetch conversations:", error);
@@ -52,6 +78,15 @@ function UserConversationsBlockComponent({
   useEffect(() => {
     fetchConversations();
   }, []);
+
+  // Handle search query changes
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchConversations(searchQuery, 1);
+    }, 300); // Debounce search requests
+
+    return () => clearTimeout(timeoutId);
+  }, [searchQuery]);
 
   // Listen for conversation updates
   useEffect(() => {
@@ -116,40 +151,54 @@ function UserConversationsBlockComponent({
       );
 
       // Fetch conversations to refresh the list
-      fetchConversations();
+      fetchConversations(searchQuery, currentPage);
     });
 
     return () => {
       conversationUpdateUnsubscribe();
       reloadHistoryUnsubscribe();
     };
-  }, []);
+  }, [searchQuery, currentPage]);
 
-  // Filter conversations based on search query
-  const filteredConversations = conversations.filter((conversation) => {
-    if (!searchQuery) return true;
-
-    const query = searchQuery.toLowerCase();
-    return (
-      (conversation.assistants?.name?.toLowerCase() || "").includes(query) ||
-      (conversation.assistants?.tagline?.toLowerCase() || "").includes(query) ||
-      (conversation.last_message?.content?.toLowerCase() || "").includes(query)
-    );
-  });
-
-  const handleConversationClick = (conversation: ConversationListItem) => {
+  const handleConversationClick = async (
+    conversation: ConversationListItem
+  ) => {
     // Prevent actions if messages are currently loading
     if (isMessageLoading) return;
     setIsChatLoading(true);
+
     // Set assistant ID from the conversation
     setAssistantId(conversation.assistants?.id);
 
-    if (conversation) {
+    if (conversation && conversation.id) {
       // If this is an existing conversation with details
       setConversationId(conversation.id);
     } else {
-      // Reset states for a new conversation
-      setConversationId(null);
+      // Create a new conversation if no conversation ID exists
+      try {
+        if (conversation.assistants?.id) {
+          const response = await createInstructorFirstConversation(
+            conversation.assistants.id
+          );
+          console.log(
+            "Conversation created with ID:",
+            response.conversation_id
+          );
+          setConversationId(response.conversation_id);
+
+          // Emit reload-history event to refresh the conversation list
+          eventBus.emit("reload-history", {
+            assistantId: conversation.assistants.id,
+            conversationId: response.conversation_id,
+          });
+        } else {
+          // Reset states for a new conversation
+          setConversationId(null);
+        }
+      } catch (error) {
+        console.error("Error creating conversation:", error);
+        setConversationId(null);
+      }
     }
 
     // Change the right panel to assistantTopics
@@ -170,19 +219,14 @@ function UserConversationsBlockComponent({
 
   return (
     <div className="space-y-2">
-      {filteredConversations.map(
-        (conversation: ConversationListItem, index: number) => (
-          <div key={conversation.id}>
-            <ConversationItem
-              conversation={conversation}
-              onClick={handleConversationClick}
-            />
-            {index < filteredConversations.length - 1 && (
-              <Separator orientation="horizontal" className="w-full my-1" />
-            )}
-          </div>
-        )
-      )}
+      {conversations.map((conversation: ConversationListItem) => (
+        <div key={conversation.id}>
+          <ConversationItem
+            conversation={conversation}
+            onClick={handleConversationClick}
+          />
+        </div>
+      ))}
     </div>
   );
 }

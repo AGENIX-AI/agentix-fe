@@ -172,24 +172,23 @@ export function TutoringTopicCard({
     >
       {/* Header */}
       <div className="rounded-t-xl p-3">
-        <div className="text-xs text-primary">
-          <div className="flex flex-col space-y-3">
-            <Small className="text-primary font-bold">
-              Create Tutoring Topic
-            </Small>
-            <ExtraSmall className="text-muted-foreground">
-              {card.language ? `Language: ${card.language}` : ""}
-            </ExtraSmall>
-          </div>
+        <div className="flex flex-col space-y-1">
+          <Small className="text-primary font-bold">
+            Create Tutoring Topic
+          </Small>
+          <ExtraSmall className="text-muted-foreground">
+            {card.language ? `Language: ${card.language}` : ""}
+          </ExtraSmall>
         </div>
+
         <Separator className="mt-3" />
       </div>
 
       {/* Content */}
       <div className="px-3">
         <div className="space-y-3">
-          <div>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center gap-3 ">
               <ExtraSmall className="font-bold text-primary">Topics</ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
@@ -197,8 +196,8 @@ export function TutoringTopicCard({
             </ExtraSmall>
           </div>
 
-          <div>
-            <div className="flex items-center gap-3">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center gap-3 ">
               <ExtraSmall className="font-bold text-primary">Goals</ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
@@ -207,8 +206,8 @@ export function TutoringTopicCard({
           </div>
 
           {card.problems && (
-            <div>
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center gap-3 ">
                 <ExtraSmall className="font-bold text-primary">
                   Problems
                 </ExtraSmall>

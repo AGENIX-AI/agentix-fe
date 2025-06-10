@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, memo } from "react";
-import { Separator } from "@/components/ui/separator";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useStudent } from "@/contexts/StudentContext";
 import { getListConversations } from "@/api/conversations";
@@ -169,20 +168,15 @@ function UserConversationsBlockComponent({
   }
 
   return (
-    <div className="space-y-2">
-      {filteredConversations.map(
-        (conversation: ConversationListItem, index: number) => (
-          <div key={conversation.id}>
-            <ConversationItem
-              conversation={conversation}
-              onClick={handleConversationClick}
-            />
-            {index < filteredConversations.length - 1 && (
-              <Separator orientation="horizontal" className="w-full my-1" />
-            )}
-          </div>
-        )
-      )}
+    <div className="">
+      {filteredConversations.map((conversation: ConversationListItem) => (
+        <div key={conversation.id}>
+          <ConversationItem
+            conversation={conversation}
+            onClick={handleConversationClick}
+          />
+        </div>
+      ))}
     </div>
   );
 }

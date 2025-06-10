@@ -6,6 +6,7 @@ import type { Conversation as ConversationType } from "@/services/conversation";
 import type { ConversationListResponse } from "@/lib/utils/types/conversation";
 import { getConversations } from "@/api/conversations";
 import { LoadingState } from "@/components/ui/loading-state";
+import { Large, Small } from "@/components/ui/typography";
 // Types
 interface Personality {
   id: string;
@@ -134,19 +135,19 @@ function ConversationCategory({
   return (
     <>
       <div className="mb-3 h-full">
-        <div className="flex items-center mb-3 px-6">
-          <h3 className="text-base font-semibold">{getCategoryTitle()}</h3>
+        <div className="flex items-center px-6">
+          <Large className="font-bold">{getCategoryTitle()}</Large>
         </div>
 
         {conversations && conversations.length > 0 ? (
-          <div className="px-6 space-y-3">
+          <div className="px-6 space-y-3 mt-3">
             {conversations.map((conv: ConversationType) => (
               <div
                 key={conv.id}
                 className="hover:bg-muted/10 transition-colors cursor-pointer"
                 onClick={() => handleConversationClick(conv)}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-center gap-3">
                   <div className="flex-shrink-0 mt-3">
                     <div className="h-10 w-10">
                       <svg
@@ -171,9 +172,7 @@ function ConversationCategory({
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col space-y-1">
-                      <p className="text-sm font-medium">
-                        {conv.conversation_name}
-                      </p>
+                      <Small>{conv.conversation_name}</Small>
                       <p className="text-xs">
                         Started : {formatDate(conv.created_at)}
                       </p>
@@ -191,30 +190,38 @@ function ConversationCategory({
             ))}
           </div>
         ) : (
-          <div className="flex items-start gap-6 px-6 top-0 relative">
-            <div className="h-10 w-10">
-              <svg
-                fill="var(--accent-foreground)"
-                height="30px"
-                width="30px"
-                version="1.1"
-                id="Capa_1"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 60 60"
-              >
-                <g id="SVGRepo_bgCarrier"></g>
-                <g id="SVGRepo_tracerCarrier"></g>
-                <g id="SVGRepo_iconCarrier">
-                  <g>
-                    <path d="M57.348,0.793H12.652C11.189,0.793,10,1.983,10,3.446v7.347h34.348c2.565,0,4.652,2.087,4.652,4.653v25.347h1.586 L60,50.207V3.446C60,1.983,58.811,0.793,57.348,0.793z"></path>
-                    <path d="M44.348,12.793H2.652C1.189,12.793,0,13.983,0,15.446v43.761l9.414-9.414h34.934c1.463,0,2.652-1.19,2.652-2.653V15.446 C47,13.983,45.811,12.793,44.348,12.793z M11,22.793h12c0.553,0,1,0.448,1,1s-0.447,1-1,1H11c-0.553,0-1-0.448-1-1 S10.447,22.793,11,22.793z M36,38.793H11c-0.553,0-1-0.448-1-1s0.447-1,1-1h25c0.553,0,1,0.448,1,1S36.553,38.793,36,38.793z M36,31.793H11c-0.553,0-1-0.448-1-1s0.447-1,1-1h25c0.553,0,1,0.448,1,1S36.553,31.793,36,31.793z"></path>
-                  </g>
-                </g>
-              </svg>
+          <div className="px-6 space-y-3">
+            <div className="hover:bg-muted/10 transition-colors">
+              <div className="flex items-center gap-3">
+                <div className="flex-shrink-0 mt-3">
+                  <div className="h-10 w-10">
+                    <svg
+                      fill="var(--accent-foreground)"
+                      height="30px"
+                      width="30px"
+                      version="1.1"
+                      id="Capa_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 60 60"
+                    >
+                      <g id="SVGRepo_bgCarrier"></g>
+                      <g id="SVGRepo_tracerCarrier"></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <g>
+                          <path d="M57.348,0.793H12.652C11.189,0.793,10,1.983,10,3.446v7.347h34.348c2.565,0,4.652,2.087,4.652,4.653v25.347h1.586 L60,50.207V3.446C60,1.983,58.811,0.793,57.348,0.793z"></path>
+                          <path d="M44.348,12.793H2.652C1.189,12.793,0,13.983,0,15.446v43.761l9.414-9.414h34.934c1.463,0,2.652-1.19,2.652-2.653V15.446 C47,13.983,45.811,12.793,44.348,12.793z M11,22.793h12c0.553,0,1,0.448,1,1s-0.447,1-1,1H11c-0.553,0-1-0.448-1-1 S10.447,22.793,11,22.793z M36,38.793H11c-0.553,0-1-0.448-1-1s0.447-1,1-1h25c0.553,0,1,0.448,1,1S36.553,38.793,36,38.793z M36,31.793H11c-0.553,0-1-0.448-1-1s0.447-1,1-1h25c0.553,0,1,0.448,1,1S36.553,31.793,36,31.793z"></path>
+                        </g>
+                      </g>
+                    </svg>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-col space-y-1">
+                    <Small>No conversations found</Small>
+                  </div>
+                </div>
+              </div>
             </div>
-            <p className="text-sm min-w-0 font-medium">
-              No conversations found
-            </p>
           </div>
         )}
       </div>

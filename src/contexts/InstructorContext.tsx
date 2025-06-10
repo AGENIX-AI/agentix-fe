@@ -78,6 +78,9 @@ interface AppPageContextType {
   setIsMessageLoading: (loading: boolean) => void;
   isChatLoading: boolean;
   setIsChatLoading: (loading: boolean) => void;
+  characterInfo?: {
+    name: string;
+  };
 }
 
 const InstructorContext = createContext<AppPageContextType | undefined>(

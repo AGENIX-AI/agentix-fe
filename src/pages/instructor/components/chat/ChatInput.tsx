@@ -2,7 +2,7 @@ import { ClipboardList, SendIcon } from "lucide-react";
 import { useState, useRef, type ClipboardEvent } from "react";
 import { ImageInput } from "./ImageInput";
 import { ImagePreview } from "./ImagePreview";
-import { TaskMenu, ChatTasks } from "./ChatTasks";
+import { TaskMenu } from "./ChatTasks";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
@@ -16,6 +16,7 @@ interface ChatInputProps {
   disabled?: boolean;
   allowImagePaste?: boolean;
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
+  className?: string;
 }
 
 export function ChatInput({
@@ -25,6 +26,7 @@ export function ChatInput({
   disabled = false,
   allowImagePaste = true,
   textareaRef,
+  className,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const [input, setInput] = useState("");
@@ -32,7 +34,6 @@ export function ChatInput({
   const [pastedImageBlob, setPastedImageBlob] = useState<File | null>(null);
   const [showTaskMenu, setShowTaskMenu] = useState(false);
   const [showTaskForm, setShowTaskForm] = useState(false);
-  const [selectedTask, setSelectedTask] = useState("");
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
   const { handleSendMessage } = useChatContext();
   const { isChatLoading } = useInstructor();
@@ -115,30 +116,21 @@ export function ChatInput({
     }
   };
 
-  const handleTaskSelect = (taskId: string, taskTitle: string) => {
-    setSelectedTask(`${taskId},${taskTitle}`);
+  const handleTaskSelect = () => {
     setShowTaskMenu(false);
     setShowTaskForm(true);
   };
 
   return (
-    <div>
+    <div className={className}>
       {pastedImage && (
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}
-      <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border mt-2">
+      <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border">
         {showTaskMenu && (
           <TaskMenu
             onClose={() => setShowTaskMenu(false)}
             onSelectTask={handleTaskSelect}
-          />
-        )}
-
-        {showTaskForm && (
-          <ChatTasks
-            onClose={() => setShowTaskForm(false)}
-            taskId={selectedTask.split(",")[0]}
-            taskTitle={selectedTask.split(",")[1]}
           />
         )}
 

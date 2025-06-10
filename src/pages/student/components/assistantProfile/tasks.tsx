@@ -7,8 +7,6 @@ import {
   AlertCircle,
   Loader2Icon,
   ListTodo,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
 import { ExtraSmall, H4, Large, P } from "@/components/ui/typography";
 import {
@@ -119,28 +117,16 @@ const TaskCard = memo(
           <TableCell style={{ width: "5%" }}>
             <Badge className="font-mono text-xs">{task.step + 1}</Badge>
           </TableCell>
-          <TableCell style={{ width: "90%" }}>
+          <TableCell style={{ width: "75%" }}>
             <div className="flex flex-col w-full">
               <div className="flex items-center gap-6 w-full">
-                <span className="flex-shrink-0">
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </span>
-                <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
-                  Goal : {task.success_condition}
+                <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis ml-4">
+                  <ExtraSmall className="font-bold">Goal</ExtraSmall> :{" "}
+                  {task.success_condition}
                 </ExtraSmall>
               </div>
               {isExpanded && (
-                <div className="pl-6 mt-3 space-y-3">
-                  <div>
-                    <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
-                      <ExtraSmall className="font-bold">Goal</ExtraSmall> :{" "}
-                      {task.success_condition}
-                    </ExtraSmall>
-                  </div>
+                <div className="mt-3 space-y-3 ml-4">
                   <div>
                     <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
                       <ExtraSmall className="font-bold">
@@ -350,7 +336,7 @@ export const ConversationTasks = memo(
               <TableRow>
                 <TableHead style={{ width: "5%" }}>Step</TableHead>
                 <TableHead style={{ width: "75%" }}>
-                  <ExtraSmall className="ml-6">Task Details</ExtraSmall>
+                  <ExtraSmall className="ml-4">Task Details</ExtraSmall>
                 </TableHead>
                 <TableHead style={{ width: "20%" }}>Status</TableHead>
               </TableRow>

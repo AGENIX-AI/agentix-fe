@@ -93,6 +93,35 @@ export const createFirstConversation = async (
 };
 
 /**
+ * Create the first conversation with an assistant for instructor
+ * @param assistantId - The ID of the assistant to create a conversation with
+ * @returns The created conversation ID
+ */
+export const createInstructorFirstConversation = async (
+  assistantId: string
+): Promise<{ conversation_id: string }> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/instructor/create_first_conversation/${assistantId}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to create instructor conversation: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
  * Get conversation by ID
  * @param conversationId - The ID of the conversation to fetch
  * @returns The conversation details
@@ -182,6 +211,76 @@ export const getListConversations =
 
     return await response.json();
   };
+
+/**
+ * Get list of conversations for instructor with pagination and search
+ * @param pageNumber - Page number for pagination (default: 1)
+ * @param pageSize - Page size for pagination (default: 100)
+ * @param sortBy - Sort field (default: "created_at")
+ * @param sortOrder - Sort order: 1 for ascending, -1 for descending (default: 1)
+ * @param search - Search query (optional)
+ * @returns List of conversations with pagination info
+ */
+export interface InstructorConversationItem {
+  id: string | null;
+  conversation_name: string | null;
+  conversation_description: string | null;
+  assistant: {
+    id: string;
+    name: string;
+    tagline: string;
+    image: string;
+  };
+  last_message: any | null;
+}
+
+export interface InstructorConversationListResponse {
+  success: boolean;
+  conversations: InstructorConversationItem[];
+  total_items: number;
+  page_number: number;
+  page_size: number;
+}
+
+export const getInstructorListConversations = async (
+  pageNumber: number = 1,
+  pageSize: number = 100,
+  sortBy: string = "created_at",
+  sortOrder: number = 1,
+  search?: string
+): Promise<InstructorConversationListResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  // Build query parameters
+  const params = new URLSearchParams({
+    page_number: pageNumber.toString(),
+    page_size: pageSize.toString(),
+    sort_by: sortBy,
+    sort_order: sortOrder.toString(),
+  });
+
+  if (search) {
+    params.append("search", search);
+  }
+
+  const response = await fetch(
+    `${baseUrl}/conversations/instructor/get_list_conversation?${params.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch instructor conversations list: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
 
 /**
  * Get system assistant conversation

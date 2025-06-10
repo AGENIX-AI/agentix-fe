@@ -16,7 +16,7 @@ function ConversationItemComponent({
 }: ConversationItemProps) {
   return (
     <div
-      className={`flex items-center gap-3 p-2 cursor-pointer rounded-lg`}
+      className={`flex items-center gap-3 p-1 cursor-pointer rounded-lg`}
       onClick={() => onClick(conversation)}
     >
       <Avatar className="overflow-hidden">

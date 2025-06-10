@@ -1,7 +1,6 @@
 import { processMessageContent } from "./utils";
 import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { ImageViewer } from "./ImageViewer";
-import { cn } from "@/lib/utils";
 import { parseMessageCard } from "./messageCards/types";
 import { MessageCardRenderer } from "./messageCards/MessageCardRenderer";
 
@@ -101,7 +100,7 @@ function MessageContentComponent({
   }, [cleanedContent]);
 
   return (
-    <div className="">
+    <div className="!p-0 !m-0" style={{ padding: 0, margin: 0 }}>
       {/* Render message card if present */}
       {card && (
         <MessageCardRenderer card={card} invocation_id={invocation_id} />
@@ -111,19 +110,11 @@ function MessageContentComponent({
       {cleanedContent && (
         <div
           ref={contentRef}
-          className={cn(
-            "message_content render_markdown prose",
-            "[&_ol]:list-decimal [&_ul]:list-disc",
-            "[&_ol]:my-2 [&_ul]:my-2 [&_li]:mt-1",
-            "text-xs font-['Inter',sans-serif]",
-            "[&_img]:max-h-64 [&_img]:max-w-full [&_img]:rounded-md [&_img]:object-contain",
-            "[&_strong]:font-bold",
-            "[&_.katex-display]:overflow-x-auto [&_.katex-display]:py-2",
-            "[&_.katex]:text-xs [&_.katex]:text-current",
-            "[&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_h4]:text-xs [&_h5]:text-xs [&_h6]:text-xs [&_p]:text-xs",
-            "[&_h1]:font-normal [&_h2]:font-normal [&_h3]:font-normal [&_h4]:font-normal [&_h5]:font-normal [&_h6]:font-normal"
-          )}
-          style={{ fontFamily: "Inter, sans-serif" }}
+          className="message_content render_markdown text-xs font-['Inter',sans-serif] [&_ol]:list-decimal [&_ul]:list-disc [&_li]:!m-1 [&_li]:!p-1 [&_p]:mb-1 [&_h1]:mb-1 [&_h2]:mb-1 [&_h3]:mb-1 [&_h4]:mb-1 [&_h5]:mb-1 [&_h6]:mb-1 [&_img]:max-h-64 [&_img]:max-w-full [&_img]:rounded-md [&_img]:object-contain [&_strong]:font-bold [&_.katex-display]:overflow-x-auto [&_.katex]:text-xs [&_.katex]:text-current [&_h1]:text-xs [&_h2]:text-xs [&_h3]:text-xs [&_h4]:text-xs [&_h5]:text-xs [&_h6]:text-xs [&_p]:text-xs [&_h1]:font-normal [&_h2]:font-normal [&_h3]:font-normal [&_h4]:font-normal [&_h5]:font-normal [&_h6]:font-normal [&_ul]:!m-0 [&_ul]:!p-0 [&_ol]:!m-0 [&_ol]:!p-0"
+          style={{
+            fontFamily: "Inter, sans-serif",
+            lineHeight: 1.5,
+          }}
           dangerouslySetInnerHTML={{ __html: cleanedContent }}
         />
       )}

@@ -74,7 +74,7 @@ function SystemAssistantBlockComponent({
       <LoadingState
         message="Loading system assistant..."
         size="medium"
-        className="h-16 mb-4"
+        className="h-16 mb-3"
       />
     );
   }

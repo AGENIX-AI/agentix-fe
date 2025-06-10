@@ -62,6 +62,12 @@ interface ErrorResponse {
   message: string;
 }
 
+interface WaitlistFormValues {
+  role: string;
+  field: string;
+  business: string;
+}
+
 // Simulated auth client for compatibility with provided code
 export const authClient = {
   // Method to get user data from an access token
@@ -233,6 +239,24 @@ export const authService = {
         import.meta.env.VITE_API_URL + `/auth/login/${provider}`;
     } catch (error) {
       console.error(`Failed to authenticate with ${provider}`, error);
+      throw error;
+    }
+  },
+
+  submitWaitlistForm: async (formData: WaitlistFormValues): Promise<void> => {
+    try {
+      const accessToken = Cookies.get("edvara_access_token");
+      const refreshToken = Cookies.get("edvara_refresh_token");
+      const url = import.meta.env.VITE_API_URL + "/auth/submit_waitlist";
+      const response = await axios.put(url, formData, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "X-Refresh-Token": refreshToken,
+        },
+      });
+      return response.data;
+    } catch (error) {
+      console.error("Error submitting waitlist form:", error);
       throw error;
     }
   },

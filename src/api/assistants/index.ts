@@ -36,6 +36,60 @@ export interface GetAssistantResponse {
   success: boolean;
   assistant: Assistant | null;
 }
+export interface GenerateCapabilitiesResponse {
+  success: boolean;
+  capability_statement: {
+    speciality: string;
+    capabilities: string[];
+  };
+}
+/**
+ * Parameters for updating an assistant/character
+ */
+export interface UpdateAssistantParams {
+  name?: string;
+  tagline?: string;
+  description?: string;
+  personality?: {
+    instruction_style?: number;
+    communication_style?: number;
+    response_length_style?: number;
+    formality_style?: number;
+    assertiveness_style?: number;
+    mood_style?: number;
+  };
+  image?: string;
+  agent_image?: string;
+  language?: string;
+  capability_statement?: {
+    speciality?: string;
+    capabilities?: string[];
+  };
+}
+
+/**
+ * Response for the update assistant endpoint
+ */
+export interface UpdateAssistantResponse {
+  success: boolean;
+  message: string;
+}
+
+/**
+ * Response for the upload image endpoint
+ */
+export interface UploadImageResponse {
+  success: boolean;
+  image_path: string;
+}
+
+/**
+ * Response for the generate image endpoint
+ */
+export interface GenerateImageResponse {
+  success: boolean;
+  image_base64: string;
+}
 
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
@@ -95,3 +149,116 @@ export const getAssistantById = async (
     };
   }
 };
+
+export async function generateAssistantCapabilities(
+  name: string,
+  tagline: string,
+  description: string,
+  language = "English"
+): Promise<GenerateCapabilitiesResponse> {
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/generate_capability`,
+    {
+      method: "POST",
+      body: JSON.stringify({ name, tagline, description, language }),
+      credentials: "include",
+      headers: headers,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Generate capabilities failed:", data);
+    throw new Error(data.error || "Failed to generate capabilities");
+  }
+
+  return data;
+}
+
+export async function updateAssistant(
+  characterId: string,
+  params: UpdateAssistantParams
+): Promise<UpdateAssistantResponse> {
+  const headers = getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/${characterId}`,
+    {
+      method: "PUT",
+      body: JSON.stringify(params),
+      credentials: "include",
+      headers: headers,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Update assistant failed:", data);
+    throw new Error(data.error || "Failed to update assistant");
+  }
+
+  return data;
+}
+
+export async function uploadAssistantImage(
+  imageFile: File
+): Promise<UploadImageResponse> {
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+    const headers = getAuthHeaders();
+
+    // Don't set Content-Type for FormData, browser will set it with boundary
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/upload_image`,
+      {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Upload failed:", data);
+      throw new Error(data.error || "Image upload failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error uploading image document:", error);
+    throw new Error("Error uploading image document");
+  }
+}
+
+export async function generateAssistantImage(
+  name: string,
+  tagline: string,
+  description: string,
+  style: string
+): Promise<GenerateImageResponse> {
+  const headers = getAuthHeaders();
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_EDVARA_BACKEND_URL}/assistants/generate_image`,
+    {
+      method: "POST",
+      body: JSON.stringify({ name, tagline, description, style }),
+      credentials: "include",
+      headers: headers,
+    }
+  );
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    console.error("Generate image failed:", data);
+    throw new Error(data.error || "Failed to generate image");
+  }
+
+  return data;
+}

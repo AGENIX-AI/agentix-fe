@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { ClipboardList } from "lucide-react";
 import { useState, type JSX } from "react";
 import {
   CreateTopicForm,
@@ -72,9 +71,8 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
       {/* Header */}
       <div className="rounded-t-xl p-3">
         <div className="text-xs text-primary">
-          <div className="flex flex-col space-y-3">
+          <div className="flex flex-col space-y-1">
             <div className="flex items-center">
-              <ClipboardList className="w-4 h-4 mr-2 text-primary" />
               <Small className="text-primary font-bold">
                 {t("chat.tasks.title")}
               </Small>
