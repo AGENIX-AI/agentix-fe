@@ -26,9 +26,9 @@ const WaitlistForm = () => {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const roleOptions: ComboboxOption[] = [
-    { value: "student", label: "Student" },
-    { value: "instructor", label: "Instructor" },
-    { value: "corporate", label: "Corporate Training" },
+    { value: "student", label: "Student / Learner" },
+    { value: "instructor", label: "Professor / Instructor" },
+    { value: "both", label: "Both" },
   ];
 
   const [formData, setFormData] = useState<WaitlistFormData>({

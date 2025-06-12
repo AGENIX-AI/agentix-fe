@@ -31,31 +31,40 @@ export interface GetImageDocumentsResponse {
 export interface Document {
   id: string;
   user_id: string;
-  filename: string | null;
   url: string;
-  upload_status: "completed" | "not_complete" | "failed";
+  upload_status: "completed" | "not_complete" | "failed" | "pending";
   created_at: string;
   updated_at: string;
   file_name: string;
   title: string;
-  assistant_id: string;
+  type: "document" | "image";
+  linked?: boolean;
+  assistant_document?: {
+    assistant_id: string;
+  }[];
 }
 
-export interface GetAssistantDocumentsParams {
+export interface GetDocumentsParams {
   page_number?: number;
   page_size?: number;
   sort_by?: string;
   sort_order?: number;
   search?: string;
+  type?: "document" | "image";
+  assistant_id?: string;
 }
 
-export interface GetAssistantDocumentsResponse {
+export interface GetAssistantDocumentsParams extends GetDocumentsParams {}
+
+export interface GetDocumentsResponse {
   success: boolean;
   documents: Document[];
   total_items: number;
   page_number: number;
   page_size: number;
 }
+
+export interface GetAssistantDocumentsResponse extends GetDocumentsResponse {}
 
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
@@ -158,17 +167,118 @@ export const uploadImageDocument = async (
 };
 
 /**
- * Create an image index with description
+ * Upload a document without requiring a document ID
+ * @param file File to upload
+ * @returns Promise with the upload response including success status, description, title, and URL
+ */
+export const uploadDocument = async (
+  file: File
+): Promise<{
+  success: boolean;
+  description: string;
+  title: string;
+  url: string;
+}> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const accessToken = Cookies.get("edvara_access_token");
+  const refreshToken = Cookies.get("edvara_refresh_token");
+  const headers: HeadersInit = {};
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  if (refreshToken) {
+    headers["X-Refresh-Token"] = refreshToken;
+  }
+
+  const response = await fetch(`${baseUrl}/documents/upload_image_document`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+    headers,
+    // Don't set Content-Type, browser will set it with boundary
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.error("Upload failed:", data);
+    throw new Error(
+      data.error || `Failed to upload document: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Upload a document file (PDF, DOC, etc.)
+ * @param file File to upload
+ * @param title Title for the document
+ * @param isParse Whether to parse the document
+ * @returns Promise with the upload response including success status, message, and document_id
+ */
+export const uploadDocumentFile = async (
+  file: File,
+  title: string,
+  isParse: boolean,
+  assistantId: string
+): Promise<{ success: boolean; message: string; document_id: string }> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const formData = new FormData();
+  formData.append("file", file);
+  formData.append("title", title);
+  formData.append("is_parse", String(isParse));
+  formData.append("assistant_id", assistantId);
+
+  const accessToken = Cookies.get("edvara_access_token");
+  const refreshToken = Cookies.get("edvara_refresh_token");
+  const headers: HeadersInit = {};
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  if (refreshToken) {
+    headers["X-Refresh-Token"] = refreshToken;
+  }
+
+  const response = await fetch(`${baseUrl}/documents/upload_document`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+    headers,
+    // Don't set Content-Type, browser will set it with boundary
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.error("Upload failed:", data);
+    throw new Error(
+      data.error || `Failed to upload document: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Create an image index with description and title
  * @param assistantId ID of the assistant
  * @param description Description for the image
+ * @param title Title for the image
  * @param url URL of the image
- * @returns Promise with the success status
+ * @returns Promise with the success status, document_id and chunk_index
  */
 export const createImageIndex = async (
   assistantId: string,
   description: string,
+  title: string,
   url: string
-): Promise<{ success: boolean }> => {
+): Promise<{ success: boolean; document_id: string; chunk_index: string }> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -179,6 +289,7 @@ export const createImageIndex = async (
     body: JSON.stringify({
       assistant_id: assistantId,
       description,
+      title,
       url,
     }),
   });
@@ -209,6 +320,7 @@ export const getAssistantDocuments = async (
     sort_by: params.sort_by ?? "created_at",
     sort_order: params.sort_order?.toString() ?? "1",
     ...(params.search && { search: params.search }),
+    ...(params.type && { type: params.type }),
   });
 
   const response = await fetch(
@@ -221,8 +333,95 @@ export const getAssistantDocuments = async (
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch assistant documents: ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch assistant documents: ${response.statusText}`
+    );
   }
 
   return await response.json();
 };
+
+/**
+ * Get user's own documents
+ * @param params Parameters for filtering and pagination
+ * @returns Promise with the list of documents
+ */
+export const getOwnDocuments = async (
+  params: GetDocumentsParams = {}
+): Promise<GetDocumentsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_by: params.sort_by ?? "created_at",
+    sort_order: params.sort_order?.toString() ?? "1",
+    ...(params.search && { search: params.search }),
+    ...(params.type && { type: params.type }),
+    ...(params.assistant_id && { assistant_id: params.assistant_id }),
+  });
+
+  const response = await fetch(
+    `${baseUrl}/documents/get_own_documents?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch own documents: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Link a document to an assistant
+ */
+export async function linkDocument(documentId: string, assistantId: string) {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${baseUrl}/documents/link_document`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify({
+      document_id: documentId,
+      assistant_id: assistantId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to link document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Unlink a document from an assistant
+ */
+export async function unlinkDocument(documentId: string, assistantId: string) {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${baseUrl}/documents/unlink_document`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify({
+      document_id: documentId,
+      assistant_id: assistantId,
+    }),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to unlink document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}

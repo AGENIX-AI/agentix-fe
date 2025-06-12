@@ -8,13 +8,12 @@ interface LogoProps {
   withLabel?: boolean;
 }
 
-export function Logo({ withLabel = true, className }: LogoProps) {
+export function Logo({ className }: LogoProps) {
   const navigate = useNavigate();
   const { resolvedTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   // Initialize with null to prevent empty src
   const [logoSrc, setLogoSrc] = useState<string | null>(null);
-  console.log(withLabel);
 
   // Only update the logo source after component has mounted to prevent hydration mismatch
   useEffect(() => {

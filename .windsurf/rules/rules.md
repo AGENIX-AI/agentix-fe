@@ -14,8 +14,8 @@ This document defines the specific rules and guidelines for the Edvara Frontend 
 
   - All styling should be done using Tailwind CSS utility classes
   - Custom CSS should be avoided unless absolutely necessary
-  - Follow the project's theme configuration in `/old-data/theme.css`
-  - Use the animation utilities from `/old-data/tailwind-animate.css`
+  - Follow the project's theme configuration in `src/styles/theme.css`
+  - Use the animation utilities from `src/styles/tailwind-animate.css`
   - When design allways have dark and white mode
 
 - **CSS Organization**

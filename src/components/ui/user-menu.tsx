@@ -75,12 +75,9 @@ export function UserMenu({
     },
   ];
 
-  useEffect(() => {
-    console.log("Fetch version");
-  }, []);
+  useEffect(() => {}, []);
 
   const onLogout = () => {
-    console.log("Logout");
     signOut();
   };
 

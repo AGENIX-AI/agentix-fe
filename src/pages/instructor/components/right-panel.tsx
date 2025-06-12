@@ -4,6 +4,7 @@ import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
 import ModifyAssistantComponent from "./modifyAssisstant/ModifyAssistantComponent";
 import ModifyDocumentComponent from "./modifyDocument/ModifyDocumentComponent";
+import AddDocument from "./addDocument/add-document";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -33,6 +34,9 @@ export default function RightPanel({}) {
       return <div>Modify Image Document</div>;
     case "modifyAssisstant":
       return <ModifyAssistantComponent />;
+
+    case "addDocument":
+      return <AddDocument />;
 
     case "empty":
       return (
