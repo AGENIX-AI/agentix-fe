@@ -5,6 +5,7 @@ import { AssistantView } from "./assistantProfile/layout";
 import ModifyAssistantComponent from "./modifyAssisstant/ModifyAssistantComponent";
 import ModifyDocumentComponent from "./modifyDocument/ModifyDocumentComponent";
 import AddDocument from "./addDocument/add-document";
+import { Dashboard } from "./dashboard/dashboard";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -37,6 +38,8 @@ export default function RightPanel({}) {
 
     case "addDocument":
       return <AddDocument />;
+    case "dashboard":
+      return <Dashboard />;
 
     case "empty":
       return (

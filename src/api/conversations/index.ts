@@ -225,7 +225,7 @@ export interface InstructorConversationItem {
   id: string | null;
   conversation_name: string | null;
   conversation_description: string | null;
-  assistant: {
+  assistants: {
     id: string;
     name: string;
     tagline: string;
@@ -406,9 +406,8 @@ export const sendMessage = async (
  */
 export interface ConversationTasksResponse {
   success: boolean;
-  pending_tasks: any[];
-  current_task: any[];
-  completed_tasks: any[];
+  tasks: any[];
+  current_task: number;
   conversation_description: string;
   goal_title: string;
   goal_description: string;
@@ -473,6 +472,7 @@ export interface GenerateTutoringDiscussData {
 
 export interface GenerateTutoringDiscussResponse {
   new_message: string;
+  invocation_id: string;
 }
 
 export const generateTutoringDiscuss = async (

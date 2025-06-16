@@ -6,7 +6,7 @@ import {
   type Document as ApiDocument,
 } from "@/api/documents";
 import { useInstructor } from "@/contexts/InstructorContext";
-import { Large, Small } from "@/components/ui/typography";
+import { Small } from "@/components/ui/typography";
 
 import { SearchFilterBar } from "./shared/SearchFilterBar";
 import { DocumentTable } from "./shared/DocumentTable";
@@ -14,6 +14,7 @@ import { Pagination } from "./shared/Pagination";
 import { EmbeddedDocumentsComponent } from "./ownDocuments";
 import type { DocumentType } from "./types";
 import { Separator } from "@/components/ui/separator";
+import { AssistantBanner } from "../assistantProfile/layout";
 
 // Define the document interface specific to this component
 export interface AssistantDocument {
@@ -91,15 +92,26 @@ export default function ModifyDocumentComponent() {
   };
 
   return (
-    <div className="flex flex-col h-full">
-      <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-6">
+    <div className="flex flex-col h-full ">
+      {/* <ProfileBanner
+        instructorName={assistantInfo?.name}
+        profileImage={assistantInfo?.profile_image}
+        backgroundImage={assistantInfo?.background_image}
+        instructorDescription={assistantInfo?.description}
+      /> */}
+
+      <AssistantBanner />
+
+      {/* <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-6">
         <Large className="font-bold tracking-tight">Modify Document</Large>
-      </div>
+      </div> */}
 
       <div className="flex-1 overflow-y-auto space-y-3 px-6 pt-3">
-        <Small className=" font-semibold mb-2">
-          {assistantInfo?.name} Documents
-        </Small>
+        <div className="mb-3">
+          <Small className=" font-semibold ">
+            {assistantInfo?.name} Documents
+          </Small>
+        </div>
         <SearchFilterBar
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
@@ -138,7 +150,7 @@ export default function ModifyDocumentComponent() {
             )}
           </>
         )}
-        <Separator orientation="horizontal" />
+        <Separator orientation="horizontal" className="p-0 m-0" />
         <EmbeddedDocumentsComponent
           refreshAssistantDocuments={fetchAssistantDocuments}
         />

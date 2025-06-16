@@ -136,8 +136,10 @@ export function EmbeddedDocumentsComponent({
   };
 
   return (
-    <div className="space-y-3 ">
-      <Small className="font-semibold mb-3">Your Documents</Small>
+    <div className="my-3">
+      <div className="mb-3">
+        <Small className="font-semibold">Your Documents</Small>
+      </div>
       <SearchFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}

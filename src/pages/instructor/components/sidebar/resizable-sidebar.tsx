@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, ChevronRight, Menu, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { sidebarData } from "@/lib/utils/sidebar-data";
+import { sidebarData } from "@/lib/utils/instructor-sidebar-data";
 import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "@/components/ui/user-menu";
 import { useInstructor } from "@/contexts/InstructorContext";
@@ -342,11 +342,11 @@ export function ResizableSidebar({
                           )}
                           title={isCollapsed ? navItem.title : undefined}
                           onClick={() => {
-                            if (navItem.title === "Find Instructor") {
-                              setRightPanel("findInstructor");
+                            if (navItem.title === "Documents") {
+                              setRightPanel("addDocument");
                             }
-                            if (navItem.title === "Posts") {
-                              setRightPanel("following_posts");
+                            if (navItem.title === "Dashboard") {
+                              setRightPanel("dashboard");
                             }
                           }}
                         >

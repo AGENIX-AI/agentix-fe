@@ -82,7 +82,6 @@ export function MessageBubble({
   const onPlayButtonClick = () => {
     handlePlayAudio();
   };
-  console.log(message);
 
   return (
     <div className={cn("flex flex-col mt-1 items-start")}>
@@ -108,7 +107,7 @@ export function MessageBubble({
         <span className="text-[10px]">
           {message.time ? formatMessageDate(message.time) : ""}
         </span>
-        {!isCurrentUser && (
+        {!isCurrentUser && !message.content?.startsWith("MessageCard") && (
           <Button
             onClick={onPlayButtonClick}
             variant="ghost"

@@ -5,36 +5,38 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { useEffect, useState } from "react";
-import type { Assistant } from "@/api/assistants";
 import type { InstructorProfile } from "@/api/instructor";
 import { getInstructorById } from "@/api/instructor";
 import { LoadingState } from "@/components/ui/loading-state";
 
-interface AssistantBannerProps {
-  assistant: Assistant | null;
-  instructor: InstructorProfile | null;
-  loading: boolean;
-}
+interface AssistantBannerProps {}
 
-function AssistantBanner({
-  assistant,
-  instructor,
-  loading,
-}: AssistantBannerProps) {
-  if (loading) {
+export function AssistantBanner({}: AssistantBannerProps) {
+  const { assistantId, instructorId, assistantInfo } = useInstructor();
+  const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
+
+  useEffect(() => {
+    if (assistantId) {
+      const fetchData = async () => {
+        try {
+          // Fetch instructor data if instructorId is available
+          if (instructorId) {
+            const instructorData = await getInstructorById(instructorId);
+            setInstructor(instructorData);
+          }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
+      };
+
+      fetchData();
+    }
+  }, [assistantId, instructorId]);
+
+  if (!instructor) {
     return (
       <div className="sticky top-0 z-10 bg-card h-48">
         <LoadingState message="Loading assistant profile..." size="medium" />
-      </div>
-    );
-  }
-
-  if (!assistant || !instructor) {
-    return (
-      <div className="sticky top-0 z-10 bg-card h-48 flex items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          No assistant information available
-        </p>
       </div>
     );
   }
@@ -77,17 +79,17 @@ function AssistantBanner({
           <Avatar className="h-12 w-12 rounded-full mr-3 ml-6">
             <AvatarImage
               src={
-                assistant.image ||
+                assistantInfo?.image ||
                 "https://api-app.edvara.net/static/default-assistant.png"
               }
-              alt={assistant.name}
+              alt={assistantInfo?.name}
             />
           </Avatar>
           <div>
-            <h3 className="text-sm font-semibold">{assistant.name}</h3>
-            <p className="text-xs">{assistant.tagline}</p>
+            <h3 className="text-sm font-semibold">{assistantInfo?.name}</h3>
+            <p className="text-xs">{assistantInfo?.tagline}</p>
             <p className="text-xs">
-              Specialized in {assistant.speciality || "General Assistance"}
+              Specialized in {assistantInfo?.speciality || "General Assistance"}
             </p>
           </div>
         </div>
@@ -97,48 +99,9 @@ function AssistantBanner({
 }
 
 export function AssistantView({ page }: { page: string }) {
-  const { assistantId, instructorId, assistantInfo } = useInstructor();
-
-  const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (assistantId) {
-      const fetchData = async () => {
-        setLoading(true);
-        setError(null);
-        try {
-          // Fetch instructor data if instructorId is available
-          if (instructorId) {
-            const instructorData = await getInstructorById(instructorId);
-            setInstructor(instructorData);
-          }
-        } catch (error) {
-          console.error("Error fetching data:", error);
-          setError("Failed to load data. Please try again later.");
-        } finally {
-          setLoading(false);
-        }
-      };
-
-      fetchData();
-    }
-  }, [assistantId, instructorId]);
-
   return (
     <div className="flex flex-col h-full max-h-screen">
-      <AssistantBanner
-        assistant={assistantInfo}
-        instructor={instructor}
-        loading={loading}
-      />
-
-      {error && (
-        <div className="p-4 bg-destructive/10 text-destructive text-sm">
-          {error}
-        </div>
-      )}
+      <AssistantBanner />
 
       <div className="overflow-y-auto flex-1 pb-1">
         <Tabs defaultValue={page} className="w-full mt-2">

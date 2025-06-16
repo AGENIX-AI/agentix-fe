@@ -173,7 +173,7 @@ export function TutoringTopicCard({
       {/* Header */}
       <div className="rounded-t-xl p-3">
         <div className="flex flex-col space-y-1">
-          <Small className="text-primary font-bold">
+          <Small className="text-primary font-bold gap-3">
             Create Tutoring Topic
           </Small>
           <ExtraSmall className="text-muted-foreground">

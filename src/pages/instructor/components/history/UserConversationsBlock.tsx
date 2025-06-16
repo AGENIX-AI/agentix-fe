@@ -48,23 +48,8 @@ function UserConversationsBlockComponent({
         search
       );
       if (response.success) {
-        // Convert InstructorConversationItem to ConversationListItem format
-        const convertedConversations: ConversationListItem[] =
-          response.conversations.map((conv) => ({
-            id: conv.id || "",
-            conversation_name: conv.conversation_name || "",
-            conversation_description: conv.conversation_description || "",
-            last_message: conv.last_message,
-            assistants: {
-              id: conv.assistant.id,
-              name: conv.assistant.name,
-              image: conv.assistant.image,
-              tagline: conv.assistant.tagline,
-            },
-          }));
-
-        setConversations(convertedConversations);
-        conversationsRef.current = convertedConversations;
+        setConversations(response.conversations);
+        conversationsRef.current = response.conversations;
         setCurrentPage(response.page_number);
       }
     } catch (error) {
@@ -169,13 +154,15 @@ function UserConversationsBlockComponent({
 
     // Set assistant ID from the conversation
     setAssistantId(conversation.assistants?.id);
-
+    console.log(conversation);
     if (conversation && conversation.id) {
       // If this is an existing conversation with details
       setConversationId(conversation.id);
     } else {
       // Create a new conversation if no conversation ID exists
       try {
+        console.log("fetch new conversation");
+        console.log(conversation);
         if (conversation.assistants?.id) {
           const response = await createInstructorFirstConversation(
             conversation.assistants.id
@@ -187,10 +174,11 @@ function UserConversationsBlockComponent({
           setConversationId(response.conversation_id);
 
           // Emit reload-history event to refresh the conversation list
-          eventBus.emit("reload-history", {
-            assistantId: conversation.assistants.id,
-            conversationId: response.conversation_id,
-          });
+          // eventBus.emit("reload-history", {
+          //   assistantId: conversation.assistants.id,
+          //   conversationId: response.conversation_id,
+          // });
+          fetchConversations();
         } else {
           // Reset states for a new conversation
           setConversationId(null);

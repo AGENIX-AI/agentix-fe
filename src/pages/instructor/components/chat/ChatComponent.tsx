@@ -7,9 +7,10 @@ import { Small, Muted } from "@/components/ui/typography";
 import { useInstructor } from "@/contexts/InstructorContext";
 
 import { eventBus } from "@/lib/utils/event/eventBus";
-import { getConversationHistory, sendMessage } from "@/api/conversations";
+import { getConversationHistory } from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/InstructorChatContext";
+import { sendInstructorMessage } from "@/api/instructor";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -175,7 +176,7 @@ export function ChatComponent() {
         "Sending message to API with conversationId:",
         conversationId
       );
-      const response = await sendMessage(conversationId, content);
+      const response = await sendInstructorMessage(conversationId, content);
       console.log("Received response:", response);
 
       // Handle special action message types
@@ -222,6 +223,7 @@ export function ChatComponent() {
   const handleNewMessage = (newMessage: {
     sender: "agent_response" | "user";
     content: string;
+    invocation_id?: string;
   }) => {
     if (!conversationId) return;
     console.log("handleNewMessage", newMessage);
@@ -231,6 +233,7 @@ export function ChatComponent() {
       sender: "agent_response",
       content: newMessage.content,
       time: Date.now(),
+      invocation_id: newMessage.invocation_id,
     };
 
     setMessages((prevMessages) => [...prevMessages, agentMessage]);
@@ -289,7 +292,10 @@ export function ChatComponent() {
       });
 
       // Send message to API
-      const response = await sendMessage(conversationId, messageWithImage);
+      const response = await sendInstructorMessage(
+        conversationId,
+        messageWithImage
+      );
 
       // Handle special action message types
       if (
@@ -375,7 +381,7 @@ export function ChatComponent() {
             setIsAgentResponding(true);
 
             // Send message to API
-            const response = await sendMessage(
+            const response = await sendInstructorMessage(
               conversationId,
               messageWithImage
             );

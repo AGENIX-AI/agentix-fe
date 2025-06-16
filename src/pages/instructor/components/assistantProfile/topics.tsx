@@ -2,10 +2,12 @@ import { useInstructor } from "@/contexts/InstructorContext";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
-import type { Conversation as ConversationType } from "@/services/conversation";
-import type { ConversationListResponse } from "@/lib/utils/types/conversation";
-import { getConversations } from "@/api/conversations";
 import { LoadingState } from "@/components/ui/loading-state";
+import { getInstructorConversations } from "@/api/instructor";
+import type {
+  InstructorConversation,
+  GetInstructorConversationsResponse,
+} from "@/api/instructor";
 // Types
 interface Personality {
   id: string;
@@ -49,7 +51,7 @@ interface AssistantTopicsProps {
 
 // Helper Components
 interface ConversationListProps {
-  conversationData: ConversationListResponse | null;
+  conversationData: GetInstructorConversationsResponse | null;
   isLoading: boolean;
   hasError: boolean;
 }
@@ -90,7 +92,7 @@ function ConversationList({
 
 interface ConversationCategoryProps {
   category: string;
-  conversations: ConversationType[];
+  conversations: InstructorConversation[];
 }
 
 function ConversationCategory({
@@ -103,11 +105,9 @@ function ConversationCategory({
   const getCategoryTitle = () => {
     switch (category) {
       case "general":
-        return "General Topic";
-      case "mentor":
-        return "Mentoring Topics";
-      case "tutorial":
-        return "Tutoring Topics";
+        return "General Topics";
+      case "learning":
+        return "Learning Topics";
       case "archived":
         return "Archived Topics";
       default:
@@ -115,7 +115,7 @@ function ConversationCategory({
     }
   };
 
-  const handleConversationClick = (conversation: ConversationType) => {
+  const handleConversationClick = (conversation: InstructorConversation) => {
     setConversationId(conversation.id);
   };
 
@@ -140,7 +140,7 @@ function ConversationCategory({
 
         {conversations && conversations.length > 0 ? (
           <div className="px-6">
-            {conversations.map((conv: ConversationType) => (
+            {conversations.map((conv: InstructorConversation) => (
               <div
                 key={conv.id}
                 className="hover:bg-muted/10 transition-colors cursor-pointer"
@@ -226,7 +226,7 @@ function ConversationCategory({
 export function AssistantTopics({ className }: AssistantTopicsProps) {
   const { assistantInfo } = useInstructor();
   const [conversationData, setConversationData] =
-    useState<ConversationListResponse | null>(null);
+    useState<GetInstructorConversationsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
 
@@ -238,7 +238,13 @@ export function AssistantTopics({ className }: AssistantTopicsProps) {
     setHasError(false);
 
     try {
-      const data = await getConversations(assistantInfo.id);
+      const data = await getInstructorConversations({
+        assistant_id: assistantInfo.id,
+        page_number: 1,
+        page_size: 100,
+        sort_by: "created_at",
+        sort_order: 1,
+      });
       setConversationData(data);
     } catch (error) {
       console.error("Error fetching conversation data:", error);

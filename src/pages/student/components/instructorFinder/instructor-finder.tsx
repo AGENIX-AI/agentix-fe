@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar } from "@/components/ui/avatar";
-import { ExtraSmall, H5, Small } from "@/components/ui/typography";
+import { ExtraSmall, Small } from "@/components/ui/typography";
 import { Search, ChevronLeft, ChevronRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -95,9 +95,6 @@ const InstructorRow: React.FC<InstructorRowProps> = ({
               </ExtraSmall>
             </div>
           </div>
-          <Button variant="ghost" size="sm" className="h-8">
-            <Small>{t("view")}</Small>
-          </Button>
         </div>
       </div>
       {!isLast && <Separator className="my-1" />}
@@ -150,6 +147,13 @@ export function InstructorFinder() {
     fetchInstructors(1, searchTerm);
   };
 
+  const handleSearchInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newSearchTerm = e.target.value;
+    setSearchTerm(newSearchTerm);
+    setCurrentPage(1); // Reset to first page when searching
+    fetchInstructors(1, newSearchTerm);
+  };
+
   useEffect(() => {
     fetchInstructors(1, "");
   }, []);
@@ -168,15 +172,13 @@ export function InstructorFinder() {
         instructorDescription="Edvara is a platform that helps you find the best instructors for your needs."
       />
       <div className="flex flex-col p-6 h-full">
-        <H5 className="mb-6">{t("recommendedInstructors")}</H5>
-
         <form onSubmit={handleSearch} className="flex gap-2 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               type="text"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchInputChange}
               placeholder={t("searchByName")}
               className="pl-10"
             />
@@ -184,6 +186,9 @@ export function InstructorFinder() {
           <Button type="submit">{t("search")}</Button>
         </form>
 
+        {!searchTerm && (
+          <Small className="mb-6">{t("recommendedInstructors")}</Small>
+        )}
         {loading && (
           <div className="flex justify-center items-center py-8">
             <div className="animate-pulse flex flex-col gap-4 w-full">
@@ -228,10 +233,12 @@ export function InstructorFinder() {
             />
           )}
 
-          {totalCount > 0 && (
+          {totalCount > 0 && searchTerm && (
             <div className="text-center mt-4 mb-2">
               <Badge variant="outline" className="bg-muted/50">
-                <Small>{t("foundInstructors", { count: totalCount })}</Small>
+                <ExtraSmall>
+                  {t("foundInstructors", { count: totalCount })}
+                </ExtraSmall>
               </Badge>
             </div>
           )}

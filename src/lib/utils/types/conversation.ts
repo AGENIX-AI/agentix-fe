@@ -16,9 +16,9 @@ export interface Goal {
 }
 
 export interface ConversationListItem {
-  id: string;
-  conversation_name: string;
-  conversation_description: string;
+  id: string | null;
+  conversation_name?: string | null;
+  conversation_description?: string | null;
   last_message?: LastMessage;
   assistants: Assistant;
 }

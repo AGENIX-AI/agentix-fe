@@ -126,7 +126,7 @@ export function InstructorContextProvider({
   const [isTasksVisible, setIsTasksVisible] = useState(false);
   const [rightPanel, setRightPanel] = useState(
     // savedState?.rightPanel || "following_posts"
-    "following_posts"
+    "dashboard"
   );
   const [chatPanel, setChatPanel] = useState(
     // savedState?.chatPanel || "findInstructor"

@@ -9,6 +9,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import type { DocumentTableProps } from "../types";
+import { DocumentViewerDialog } from "./DocumentViewerDialog";
 
 export function DocumentTable({
   documents,
@@ -24,7 +25,7 @@ export function DocumentTable({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[300px] text-xs">Title</TableHead>
+            <TableHead className="text-xs max-w-[200px]">Title</TableHead>
             <TableHead className="text-xs">Type</TableHead>
             <TableHead className="text-xs">Status</TableHead>
             {showLinkedColumn && (
@@ -37,13 +38,15 @@ export function DocumentTable({
         <TableBody>
           {documents.map((document) => (
             <TableRow key={document.id}>
-              <TableCell>
-                <div className="text-xs">{document.title}</div>
+              <TableCell className="max-w-[200px] truncate">
+                <div className="text-xs ">{document.title}</div>
                 <div className="text-xs text-muted-foreground">
                   {document.filename}
                 </div>
               </TableCell>
-              <TableCell className="text-xs">{document.type}</TableCell>
+              <TableCell className="text-xs">
+                {document.type === "image" ? "Image" : "Document"}
+              </TableCell>
               <TableCell>
                 <span
                   className={cn(
@@ -77,8 +80,8 @@ export function DocumentTable({
               </TableCell>
               <TableCell className="text-right text-xs">
                 <div className="flex gap-2 justify-end">
-                  {showLinkedColumn && (
-                    loadingDocumentIds.includes(document.id) ? (
+                  {showLinkedColumn &&
+                    (loadingDocumentIds.includes(document.id) ? (
                       <Loader2 className="h-3 w-3 animate-spin text-primary" />
                     ) : document.linked ? (
                       <button
@@ -96,16 +99,15 @@ export function DocumentTable({
                       >
                         Link
                       </button>
-                    )
-                  )}
-                  <a
-                    href={document.view_link || `#view-${document.id}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-primary hover:underline"
-                  >
-                    View
-                  </a>
+                    ))}
+                  <DocumentViewerDialog
+                    document={document}
+                    trigger={
+                      <button className="text-xs text-primary hover:underline">
+                        View
+                      </button>
+                    }
+                  />
                 </div>
               </TableCell>
             </TableRow>

@@ -108,7 +108,7 @@ export function MessageBubble({
         <span className="text-[10px]">
           {message.time ? formatMessageDate(message.time) : ""}
         </span>
-        {!isCurrentUser && (
+        {!isCurrentUser && !message.content?.startsWith("MessageCard") && (
           <Button
             onClick={onPlayButtonClick}
             variant="ghost"

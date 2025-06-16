@@ -7,10 +7,8 @@ import {
   AlertCircle,
   Loader2Icon,
   ListTodo,
-  ChevronDown,
-  ChevronRight,
 } from "lucide-react";
-import { ExtraSmall, H4, P } from "@/components/ui/typography";
+import { ExtraSmall, H4, Large, P } from "@/components/ui/typography";
 import {
   Table,
   TableBody,
@@ -31,26 +29,42 @@ interface ConversationTask {
   step: number;
   user_task: string;
   agent_task: string;
-  status: string;
+  status: string; // Now this contains 'not_complete', 'pending', etc. from the API
   success_condition: string;
-  hint: string;
-  fallback: string;
-  checkpoint: string;
-  dependencies: number[];
-  reward: string;
-  goal_id: string;
+  hint?: string;
+  fallback?: string;
+  checkpoint?: string;
+  dependencies?: number[];
+  reward?: string;
+  goal_id?: string;
   id: string;
+  conversation_id?: string;
+}
+
+// Define the structure for the processed tasks data
+interface ProcessedTasks {
+  pending_tasks: ConversationTask[];
+  current_task: ConversationTask[];
+  completed_tasks: ConversationTask[];
+  goal_description: string | null;
+  conversation_name: string;
+  conversation_description: string;
+  current_step: number;
 }
 
 // Helper function to check if tasks have changed
-const areTasksEqual = (tasksA: any, tasksB: any): boolean => {
+const areTasksEqual = (
+  tasksA: ProcessedTasks | null,
+  tasksB: ProcessedTasks | null
+): boolean => {
   if (!tasksA || !tasksB) return tasksA === tasksB;
 
   // Compare basic properties
   if (
     tasksA.goal_description !== tasksB.goal_description ||
     tasksA.conversation_name !== tasksB.conversation_name ||
-    tasksA.conversation_description !== tasksB.conversation_description
+    tasksA.conversation_description !== tasksB.conversation_description ||
+    tasksA.current_step !== tasksB.current_step
   ) {
     return false;
   }
@@ -119,22 +133,20 @@ const TaskCard = memo(
           <TableCell style={{ width: "5%" }}>
             <Badge className="font-mono text-xs">{task.step + 1}</Badge>
           </TableCell>
-          <TableCell style={{ width: "90%" }}>
+          <TableCell style={{ width: "75%" }}>
             <div className="flex flex-col w-full">
-              <div className="flex items-center gap-2 w-full">
-                <span className="flex-shrink-0">
-                  {isExpanded ? (
-                    <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                  )}
-                </span>
-                <ExtraSmall className="line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis">
-                  Goal : {task.success_condition}
+              <div className="flex items-center gap-6 w-full">
+                <ExtraSmall
+                  className={`line-clamp-2 break-words w-full max-w-[400px] overflow-hidden text-ellipsis ml-4 ${
+                    isExpanded ? "whitespace-pre-line" : ""
+                  }`}
+                >
+                  <ExtraSmall className="font-bold">Goal</ExtraSmall> :{" "}
+                  {task.success_condition}
                 </ExtraSmall>
               </div>
               {isExpanded && (
-                <div className="pl-6 mt-2">
+                <div className="mt-3 space-y-3 ml-4">
                   <div className="mb-2">
                     <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
                       <ExtraSmall className="font-bold">
@@ -182,16 +194,11 @@ const TaskCard = memo(
 export const ConversationTasks = memo(
   function ConversationTasks({ className }: ConversationTasksProps) {
     const { conversationId, assistantInfo } = useInstructor();
-    const [isLoading, setIsLoading] = useState(false);
-    const [tasks, setTasks] = useState<{
-      pending_tasks: ConversationTask[];
-      current_task: ConversationTask[];
-      completed_tasks: ConversationTask[];
-      goal_description: string | null;
-      conversation_name: string;
-      conversation_description: string;
-    } | null>(null);
-    const tasksRef = useRef(tasks);
+    const [isLoading, setIsLoading] = useState(true);
+    const [tasks, setTasks] = useState<ProcessedTasks | null>(null);
+    const tasksRef = useRef<ProcessedTasks | null>(null);
+    const [plainTasks, setPlainTasks] = useState<ConversationTask[]>();
+
     // Function to fetch tasks with optimization to prevent unnecessary updates
     const fetchTasks = useCallback(async () => {
       if (!conversationId) return;
@@ -200,39 +207,50 @@ export const ConversationTasks = memo(
       if (!tasksRef.current) {
         setIsLoading(true);
       }
-
       try {
         const result = await getConversationTasks(conversationId);
         if (result.success) {
+          if (plainTasks === result.tasks) return;
+          setIsLoading(true);
+
           // Transform the API response to match our ConversationTask interface
+          // Get current_task directly from the API response
+          setPlainTasks(result.tasks);
+          const currentTaskStep = Number(result.current_task);
+
+          // Process all tasks from the single tasks array
+          const processedTasks = result.tasks.map((task: any) => ({
+            ...task,
+            id: task.id.toString(),
+            step: Number(task.step),
+            // Set the proper status based on step comparison with current_task
+            // This overrides the original status from the API
+            status:
+              Number(task.step) > currentTaskStep
+                ? "pending"
+                : Number(task.step) === currentTaskStep
+                ? "current"
+                : "completed",
+            dependencies: Array.isArray(task.dependencies)
+              ? task.dependencies.map((dependency: any) => Number(dependency))
+              : [],
+          })) as ConversationTask[];
+
+          // Classify tasks based on their step compared to current_task
           const newTasks = {
-            pending_tasks: result.pending_tasks.map((task: any) => ({
-              ...task,
-              id: task.id.toString(),
-              step: Number(task.step),
-              dependencies: Array.isArray(task.dependencies)
-                ? task.dependencies.map((dependency: any) => Number(dependency))
-                : [],
-            })) as ConversationTask[],
-            current_task: result.current_task.map((task: any) => ({
-              ...task,
-              id: task.id.toString(),
-              step: Number(task.step),
-              dependencies: Array.isArray(task.dependencies)
-                ? task.dependencies.map((dependency: any) => Number(dependency))
-                : [],
-            })) as ConversationTask[],
-            completed_tasks: result.completed_tasks.map((task: any) => ({
-              ...task,
-              id: task.id.toString(),
-              step: Number(task.step),
-              dependencies: Array.isArray(task.dependencies)
-                ? task.dependencies.map((dependency: any) => Number(dependency))
-                : [],
-            })) as ConversationTask[],
+            pending_tasks: processedTasks.filter(
+              (task) => Number(task.step) > currentTaskStep
+            ),
+            current_task: processedTasks.filter(
+              (task) => Number(task.step) === currentTaskStep
+            ),
+            completed_tasks: processedTasks.filter(
+              (task) => Number(task.step) < currentTaskStep
+            ),
             goal_description: result.goal_description,
             conversation_name: result.goal_title || "Conversation Tasks",
             conversation_description: result.conversation_description || "",
+            current_step: currentTaskStep, // Store the current step value directly
           };
 
           // Only update state if tasks have actually changed
@@ -276,7 +294,7 @@ export const ConversationTasks = memo(
     if (!assistantInfo) {
       return (
         <div className="h-[calc(100vh)] mt-13 w-full flex flex-col items-center justify-center">
-          <div className="flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-6">
             <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
             <P className="text-muted-foreground text-center">
               Loading Canvas...
@@ -299,10 +317,10 @@ export const ConversationTasks = memo(
     if (!tasks || isLoading || allTasks.length === 0) {
       return (
         <div className={`${className}`}>
-          <div className="p-5">
-            <div className="flex flex-col items-center justify-center py-10 text-center">
-              <ListTodo size={48} className="text-muted-foreground mb-4" />
-              <H4 className="font-medium mb-2">
+          <div className="p-6">
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <ListTodo size={48} className="text-muted-foreground mb-3" />
+              <H4 className="font-medium mb-3">
                 No conversation tasks available
               </H4>
               <P className="text-muted-foreground max-w-md">
@@ -317,47 +335,43 @@ export const ConversationTasks = memo(
 
     // allTasks is already defined above
 
-    const currentStep = tasks.current_task[0]?.step
-      ? Number(tasks.current_task[0].step)
-      : allTasks.length > 0
-      ? Number(allTasks[0].step)
-      : 0;
+    // Get the current task step from the stored tasks data
+    const currentStep = tasks.current_step || 0;
 
     return (
       <div className={`${className}`}>
-        <div className="p-5 pb-0">
-          <div className="space-y-3 mb-6">
-            <ExtraSmall className="font-bold">
+        <div className="px-6 py-3">
+          <div className="space-y-3">
+            <Large className="p-0">
               {tasks.conversation_name || "Conversation Tasks"}
-            </ExtraSmall>
-            {tasks.conversation_description && (
-              <p className="text-sm text-muted-foreground">
-                {tasks.conversation_description}
-              </p>
-            )}
+            </Large>
             {tasks.goal_description && (
-              <div className="bg-primary/10 border-l-4 border-primary rounded-md p-3">
-                <ExtraSmall className="font-bold block mb-1">Goal:</ExtraSmall>
-                <ExtraSmall>{tasks.goal_description}</ExtraSmall>
+              <div className="flex flex-col gap-1 mb-3">
+                <ExtraSmall className="font-semibold">Goal:</ExtraSmall>
+                <ExtraSmall className="">{tasks.goal_description}</ExtraSmall>
               </div>
             )}
           </div>
-          <Separator className="mt-4" />
+          <Separator className="mt-3" />
 
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">
               <TableRow>
                 <TableHead style={{ width: "5%" }}>Step</TableHead>
-                <TableHead style={{ width: "75%" }}>
-                  <ExtraSmall className="ml-6">Task Details</ExtraSmall>
+                <TableHead style={{ width: "70%" }}>
+                  <ExtraSmall className="ml-4">Task Details</ExtraSmall>
                 </TableHead>
-                <TableHead style={{ width: "20%" }}>Status</TableHead>
+                <TableHead style={{ width: "25%" }}>Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {allTasks.map((task) => {
                 const taskStep = Number(task.step);
 
+                // Compare task.step with current_task to determine status
+                // If task.step < current_task: completed
+                // If task.step === current_task: current
+                // If task.step > current_task: pending
                 const status =
                   taskStep < currentStep
                     ? "completed"

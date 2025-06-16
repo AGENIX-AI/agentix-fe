@@ -88,9 +88,9 @@ function SystemAssistantBlockComponent({
     id: systemAssistant.id || "",
     assistants: systemAssistant.assistants,
     last_message: systemAssistant.last_message,
-    conversation_name: systemAssistant.assistants?.name || "System Assistant",
+    conversation_name: systemAssistant.assistants.name || "System Assistant",
     conversation_description:
-      systemAssistant.assistants?.tagline ||
+      systemAssistant.assistants.tagline ||
       "Support you to use the App effectively",
   };
 

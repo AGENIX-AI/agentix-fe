@@ -27,22 +27,22 @@ export function SearchFilterBar({
   onAddDocument,
 }: SearchFilterBarProps) {
   return (
-    <div className="flex flex-row gap-3 mb-4">
-      <div className="flex-1">
+    <div className="flex flex-row gap-3 mb-3 w-full">
+      <div className="w-1/2">
         <Input
           type="text"
           placeholder="Search..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-70"
+          className="w-full"
         />
       </div>
-      <div className="flex-1 sm:w-40">
+      <div className="w-[20%]">
         <Select
           value={documentType || "all"}
           onValueChange={(value) => setDocumentType(value as any)}
         >
-          <SelectTrigger>
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="Type" />
           </SelectTrigger>
           <SelectContent>
@@ -55,8 +55,10 @@ export function SearchFilterBar({
         </Select>
       </div>
 
-      <div className="flex items-center">
-        <Button onClick={onAddDocument}>Add Document</Button>
+      <div className="w-[30%]">
+        <Button onClick={onAddDocument} className="w-full">
+          Add Document
+        </Button>
       </div>
     </div>
   );

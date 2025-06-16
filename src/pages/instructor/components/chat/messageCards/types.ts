@@ -48,12 +48,52 @@ export function isTutoringTopicMessageCard(
 }
 
 /**
+ * Learning discuss message card interface
+ */
+export interface LearningDiscussMessageCard extends BaseMessageCard {
+  type: "create_learning_discuss";
+  topics: string;
+  focus_on: string;
+  forward_to_conversation_id?: string;
+}
+
+/**
+ * Type guard to check if a message card is a LearningDiscussMessageCard
+ */
+export function isLearningDiscussMessageCard(
+  card: BaseMessageCard
+): card is LearningDiscussMessageCard {
+  return card.type === "create_learning_discuss";
+}
+
+/**
+ * Learning Topic message card interface
+ */
+export interface LearningTopicMessageCard extends BaseMessageCard {
+  type: "topic";
+  topic_name: string;
+  focus_on: string;
+  topic_type: string;
+}
+
+/**
+ * Type guard to check if a message card is a LearningTopicMessageCard
+ */
+export function isLearningTopicMessageCard(
+  card: BaseMessageCard
+): card is LearningTopicMessageCard {
+  return card.type === "topic" && "topic_type" in card && "focus_on" in card;
+}
+
+/**
  * Union type of all message card types
  * Add new message card types to this union as they are created
  */
 export type MessageCard =
   | TopicMessageCard
   | TutoringTopicMessageCard
+  | LearningDiscussMessageCard
+  | LearningTopicMessageCard
   | (BaseMessageCard & { type: string });
 
 /**

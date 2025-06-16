@@ -2,12 +2,14 @@ import { Button } from "@/components/ui/button";
 import { useState, type JSX } from "react";
 
 import { CreateAssisstantForm } from "./chatTasks/CreateAssisstantForm";
-import { ExtraSmall, Small } from "@/components/ui/typography";
+import { CreateLearningTopicForm } from "./chatTasks/CreateLearningTopicForm";
+import { ExtraSmall } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { PenLine, Sparkles, Settings, FilePlus } from "lucide-react";
 
 export interface TaskFormData {
   productName: string;
@@ -41,6 +43,8 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
   const { assistantInfo, setRightPanel } = useInstructor();
   const [isCreateAssistantDialogOpen, setIsCreateAssistantDialogOpen] =
     useState(false);
+  const [isCreateLearningTopicDialogOpen, setIsCreateLearningTopicDialogOpen] =
+    useState(false);
 
   if (assistantInfo?.role === "system") {
     tasks = [
@@ -49,7 +53,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
         title: "CREATE YOUR ASSISTANT",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
-            <span className="text-secondary text-xs">🖌️</span>
+            <Sparkles className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
@@ -57,29 +61,38 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
   } else {
     tasks = [
       {
+        id: "create-learning-topic",
+        title: "CREATE LEARNING TOPIC",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <Sparkles className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
+      {
         id: "modify-assistant",
-        title: "MODIFY YOUR ASSISTANT",
+        title: `MODIFY ${assistantInfo?.name.toUpperCase()}`,
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
-            <span className="text-secondary text-xs">✏️</span>
+            <PenLine className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
       {
-        id: "modify-document",
-        title: "MODIFY DOCUMENT",
+        id: "manage-knowledge-space",
+        title: "MANAGE KNOWLEDGE SPACE",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
-            <span className="text-secondary text-xs">➕</span>
+            <Settings className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
       {
-        id: "modify-image-document",
-        title: "MODIFY IMAGE DOCUMENT",
+        id: "add-document",
+        title: "ADD DOCUMENT",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
-            <span className="text-secondary text-xs">🖼️</span>
+            <FilePlus className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
@@ -92,14 +105,14 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       return;
     }
 
-    if (id === "modify-document" && setRightPanel) {
+    if (id === "manage-knowledge-space" && setRightPanel) {
       setRightPanel("modifyDocument");
       onClose();
       return;
     }
 
-    if (id === "modify-image-document" && setRightPanel) {
-      setRightPanel("modifyImageDocument");
+    if (id === "add-document" && setRightPanel) {
+      setRightPanel("addDocument");
       onClose();
       return;
     }
@@ -107,6 +120,11 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     if (id === "create-assisstant") {
       setIsCreateAssistantDialogOpen(true);
       // onClose();
+      return;
+    }
+
+    if (id === "create-learning-topic") {
+      setIsCreateLearningTopicDialogOpen(true);
       return;
     }
   };
@@ -128,9 +146,9 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
           <div className="text-xs text-primary">
             <div className="flex flex-col space-y-1">
               <div className="flex items-center">
-                <Small className="text-primary font-bold">
+                <ExtraSmall className="text-primary font-bold">
                   {t("chat.tasks.title")}
-                </Small>
+                </ExtraSmall>
               </div>
               <ExtraSmall className="text-muted-foreground">
                 {t("chat.tasks.select_task")}
@@ -168,6 +186,12 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
         open={isCreateAssistantDialogOpen}
         onOpenChange={setIsCreateAssistantDialogOpen}
         taskTitle="CREATE YOUR ASSISTANT"
+      />
+
+      <CreateLearningTopicForm
+        open={isCreateLearningTopicDialogOpen}
+        onOpenChange={setIsCreateLearningTopicDialogOpen}
+        taskTitle="CREATE LEARNING TOPIC"
       />
     </>
   );

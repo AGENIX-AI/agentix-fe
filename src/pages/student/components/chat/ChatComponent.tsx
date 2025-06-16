@@ -222,6 +222,7 @@ export function ChatComponent() {
   const handleNewMessage = (newMessage: {
     sender: "agent_response" | "user";
     content: string;
+    invocation_id?: string;
   }) => {
     if (!conversationId) return;
     console.log("handleNewMessage", newMessage);
@@ -231,6 +232,7 @@ export function ChatComponent() {
       sender: "agent_response",
       content: newMessage.content,
       time: Math.floor(Date.now() / 1000),
+      invocation_id: newMessage.invocation_id,
     };
 
     setMessages((prevMessages) => [...prevMessages, agentMessage]);

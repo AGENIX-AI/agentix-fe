@@ -4,7 +4,7 @@ import {
   CreateTopicForm,
   type CreateTopicFormData,
 } from "./chatTasks/CreateTopicForm";
-import { ExtraSmall, Small } from "@/components/ui/typography";
+import { ExtraSmall } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,6 +17,7 @@ import { useStudent } from "@/contexts/StudentContext";
 import { generateTutoringDiscuss } from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
 import { cn } from "@/lib/utils";
+import { Sparkles } from "lucide-react";
 
 export interface TaskFormData {
   productName: string;
@@ -48,8 +49,8 @@ const tasks: TaskData[] = [
     id: "create-topic",
     title: "create_topic", // This is now a translation key
     icon: (
-      <div className="w-4 h-4 flex items-center justify-center bg-accent rounded">
-        <Small className="text-accent-foreground text-xs">🖌️</Small>
+      <div className="w-4 h-4 flex items-center justify-center rounded">
+        <Sparkles className="h-4 w-4 text-secondary" />
       </div>
     ),
   },
@@ -70,12 +71,12 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
     >
       {/* Header */}
       <div className="rounded-t-xl p-3">
-        <div className="text-xs text-primary">
+        <div className="text-primary">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center">
-              <Small className="text-primary font-bold">
+              <ExtraSmall className="text-primary font-bold">
                 {t("chat.tasks.title")}
-              </Small>
+              </ExtraSmall>
             </div>
             <ExtraSmall className="text-muted-foreground">
               {t("chat.tasks.select_task")}
@@ -102,7 +103,7 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
             >
               {task.icon}
               <ExtraSmall className="text-foreground">
-                {t(`chat.tasks.${task.id.replace("-", "_")}`)}
+                {t(`chat.tasks.${task.id.replace("-", "_")}`).toUpperCase()}
               </ExtraSmall>
             </Button>
           ))}
@@ -155,6 +156,7 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
         handleNewMessage({
           sender: "agent_response",
           content: response.new_message,
+          invocation_id: response.invocation_id,
         });
       }
       setIsModalOpen(false);

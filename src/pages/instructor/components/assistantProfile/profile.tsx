@@ -2,7 +2,6 @@ import { Badge } from "@/components/ui/badge";
 import { ExtraSmall, Large } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
-import { Small } from "@/components/ui/typography";
 import { useInstructor } from "@/contexts/InstructorContext";
 
 export function AssistantProfile() {
@@ -14,11 +13,6 @@ export function AssistantProfile() {
   const personalityProfile = assistantInfo.personality;
 
   console.log("personalityProfile", personalityProfile);
-  const traitColor = (value: number) => {
-    if (value <= 2) return "bg-gray-200";
-    if (value <= 4) return "bg-blue-200";
-    return "bg-green-200";
-  };
 
   const formatPersonalityTrait = (trait: string) =>
     trait
@@ -27,17 +21,15 @@ export function AssistantProfile() {
       .join(" ");
 
   return (
-    <div className="p-5 pb-0">
+    <div className="px-6 py-3">
       {/* Profile Header */}
-      <div className="flex items-center gap-6">
-        <div className="flex-1 min-w-0">
-          <Large className="font-extrabold mb-1 leading-tight">
-            {assistantInfo.name}
-          </Large>
-          <ExtraSmall className="text-muted-foreground block mb-4">
+      <div className="flex items-center">
+        <div className="flex-1 min-w-0 space-y-3">
+          <Large className="font-bold">{assistantInfo.name}</Large>
+          <ExtraSmall className="text-muted-foreground block">
             {assistantInfo.tagline}
           </ExtraSmall>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-6">
             <Badge className="flex items-center px-2 py-1">
               <ExtraSmall>{assistantInfo.language}</ExtraSmall>
             </Badge>
@@ -51,107 +43,71 @@ export function AssistantProfile() {
         </div>
       </div>
 
-      <Separator className="my-4" />
+      <Separator className="my-3" />
 
-      <div className="mb-8">
-        <div className="flex items-center gap-2  mb-4">
+      <div className="mb-3">
+        <div className="flex items-center gap-6 mb-3">
           <Badge>About</Badge>
         </div>
-        <ExtraSmall className="mb-4 font-normal">
-          {assistantInfo.description}
-        </ExtraSmall>
+        <div className="mb-3 flex items-center gap-6">
+          <ExtraSmall>{assistantInfo.description}</ExtraSmall>
+        </div>
       </div>
-      <Separator className="my-4" />
+      <Separator className="my-3" />
 
       {/* Capabilities Section */}
-      <div className="mb-4">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="mb-3">
+        <div className="flex items-center gap-6 mb-3">
           <Badge>Capabilities</Badge>
         </div>
-        <div className="mb-2 flex items-center gap-2">
-          <Small className="font-semibold">Specialty:</Small>
+        <div className="mb-3 flex items-center gap-6">
+          <ExtraSmall className="font-semibold">Specialty:</ExtraSmall>
           <ExtraSmall>
             {assistantInfo?.speciality || "General Assistant"}
           </ExtraSmall>
         </div>
       </div>
-      <Separator className="my-4" />
+      <Separator className="my-3" />
 
       {/* Personality Traits Section */}
-      <div className="mb-2">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="mb-3">
+        <div className="flex items-center gap-6 mb-3">
           <Badge>Personality Traits</Badge>
         </div>
-        <div className="space-y-4">
+        <div className="space-y-3">
           {personalityProfile ? (
             [
               {
                 trait: "instruction_style",
-                value: Math.max(
-                  1,
-                  Math.min(
-                    5,
-                    Math.ceil(personalityProfile.instruction_style / 2) || 3
-                  )
-                ),
+                value: personalityProfile.instruction_style,
               },
               {
                 trait: "communication_style",
-                value: Math.max(
-                  1,
-                  Math.min(
-                    5,
-                    Math.ceil(personalityProfile.communication_style / 2) || 3
-                  )
-                ),
+                value: personalityProfile.instruction_style,
               },
               {
                 trait: "response_length_style",
-                value: Math.max(
-                  1,
-                  Math.min(
-                    5,
-                    Math.ceil(personalityProfile.response_length_style / 2) || 3
-                  )
-                ),
+                value: personalityProfile.response_length_style,
               },
               {
                 trait: "formality_style",
-                value: Math.max(
-                  1,
-                  Math.min(
-                    5,
-                    Math.ceil(personalityProfile.formality_style / 2) || 3
-                  )
-                ),
+                value: personalityProfile.formality_style,
               },
               {
                 trait: "assertiveness_style",
-                value: Math.max(
-                  1,
-                  Math.min(
-                    5,
-                    Math.ceil(personalityProfile.assertiveness_style / 2) || 3
-                  )
-                ),
+                value: personalityProfile.assertiveness_style,
               },
               {
                 trait: "mood_style",
-                value: Math.max(
-                  1,
-                  Math.min(5, Math.ceil(personalityProfile.mood_style / 2) || 3)
-                ),
+                value: personalityProfile.mood_style,
               },
             ].map(({ trait, value }, _) => (
-              <div key={trait} className="flex items-center gap-3 w-full">
+              <div key={trait} className="flex items-center gap-6 w-full">
                 <ExtraSmall className="w-1/4 font-normal">
                   {formatPersonalityTrait(trait)}
                 </ExtraSmall>
-                <Progress
-                  value={value * 20}
-                  className={`flex-1 ${traitColor(value)}`}
-                />
-                <ExtraSmall className="ml-2 w-10 text-right font-normal">
+                <Progress value={value * 20} className={`flex-1`} />
+                <ExtraSmall className="ml-6 w-10 text-right font-normal">
                   {value}/5
                 </ExtraSmall>
               </div>

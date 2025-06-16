@@ -131,7 +131,6 @@ const WaitlistForm = () => {
                     onChange={handleInputChange}
                     className="border-input focus:border-primary focus:ring-primary/20 text-sm"
                     placeholder="e.g., Computer Science, Engineering, Marketing"
-                    required
                   />
                 </div>
 
@@ -149,7 +148,6 @@ const WaitlistForm = () => {
                     onChange={handleInputChange}
                     className="border-input focus:border-primary focus:ring-primary/20 text-sm"
                     placeholder="Enter your school or business name"
-                    required
                   />
                 </div>
               </div>

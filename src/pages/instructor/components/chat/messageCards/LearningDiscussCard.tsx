@@ -1,12 +1,5 @@
 import { useState, useEffect } from "react";
 import type { KeyboardEvent } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardFooter,
-} from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -16,29 +9,31 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import type { TutoringTopicMessageCard } from "./types";
+import type { LearningDiscussMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
 import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { useInstructor } from "@/contexts/InstructorContext";
-import { refactorTutoringDiscuss } from "@/api/conversations";
-import { createGenerateTasklistLearning } from "@/api/instructor";
+import {
+  createGenerateTasklistLearning,
+  createLearningDiscuss,
+} from "@/api/instructor";
 
-interface TutoringTopicCardProps {
-  card: TutoringTopicMessageCard;
+interface LearningDiscussCardProps {
+  card: LearningDiscussMessageCard;
   className?: string;
   handleNewMessage?: (newMessage: {
     sender: "agent_response" | "user";
     content: string;
     invocation_id: string;
   }) => void;
-  onAccept?: (card: TutoringTopicMessageCard) => void;
-  onEdit?: (card: TutoringTopicMessageCard) => void;
+  onAccept?: (card: LearningDiscussMessageCard) => void;
+  onEdit?: (card: LearningDiscussMessageCard) => void;
   onCancel?: () => void;
   invocation_id: string;
 }
 
-export function TutoringTopicCard({
+export function LearningDiscussCard({
   card,
   className,
   handleNewMessage,
@@ -46,19 +41,18 @@ export function TutoringTopicCard({
   onEdit,
   onCancel,
   invocation_id,
-}: TutoringTopicCardProps) {
-  const { setConversationId, conversationId, assistantId } = useInstructor();
+}: LearningDiscussCardProps) {
+  const { setConversationId, conversationId } = useInstructor();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState<
-    Omit<TutoringTopicMessageCard, "type">
+    Omit<LearningDiscussMessageCard, "type">
   >({
     topics: card.topics,
-    goals: card.goals,
-    problems: card.problems,
+    focus_on: card.focus_on,
     language: card.language,
-    callback_conversation_id: card.callback_conversation_id,
+    forward_to_conversation_id: card.forward_to_conversation_id,
   });
 
   useEffect(() => {
@@ -82,22 +76,20 @@ export function TutoringTopicCard({
   };
 
   const handleAccept = async () => {
-    if (!assistantId) return;
+    if (!conversationId) return;
 
     try {
       setIsLoading(true);
-
-      // Use the new API function to create and generate tasklist learning
       const response = await createGenerateTasklistLearning({
         topics: formData.topics,
-        focus_on: formData.goals || "", // Using goals as focus_on
-        conversation_created_id: conversationId || undefined,
+        focus_on: formData.focus_on,
+        conversation_created_id: conversationId,
         invocation_id: invocation_id,
       });
 
-      console.log("New tasklist learning created:", response);
+      console.log("Learning discussion created:", response);
 
-      // Set the new conversation ID if provided
+      // Handle the new message
       if (response.conversation_id) {
         setConversationId(response.conversation_id);
       }
@@ -106,7 +98,7 @@ export function TutoringTopicCard({
         onAccept(card);
       }
     } catch (error) {
-      console.error("Error creating tasklist learning:", error);
+      console.error("Error creating learning discussion:", error);
     } finally {
       setIsLoading(false);
     }
@@ -121,22 +113,20 @@ export function TutoringTopicCard({
 
     try {
       setIsLoading(true);
-      const response = await refactorTutoringDiscuss({
-        conversation_id: conversationId,
+      const response = await createLearningDiscuss({
         topics: formData.topics,
-        goals: formData.goals,
-        problems: formData.problems,
-        language: formData.language || "English",
+        focus_on: formData.focus_on,
+        conversation_id: conversationId,
       });
 
-      console.log("Tutoring discussion refactored:", response);
+      console.log("Learning discussion created:", response);
 
       // Handle the new message
       if (response.new_message && handleNewMessage) {
         handleNewMessage({
           sender: "agent_response",
           content: response.new_message,
-          invocation_id: "",
+          invocation_id: response.invocation_id || invocation_id,
         });
       }
 
@@ -144,14 +134,14 @@ export function TutoringTopicCard({
 
       // Update the card if onEdit is provided
       if (onEdit) {
-        const updatedCard: TutoringTopicMessageCard = {
+        const updatedCard: LearningDiscussMessageCard = {
           ...card,
           ...formData,
         };
         onEdit(updatedCard);
       }
     } catch (error) {
-      console.error("Error refactoring tutoring discussion:", error);
+      console.error("Error creating learning discussion:", error);
     } finally {
       setIsLoading(false);
     }
@@ -162,10 +152,9 @@ export function TutoringTopicCard({
     // Reset form data to original card values
     setFormData({
       topics: card.topics,
-      goals: card.goals,
-      problems: card.problems,
+      focus_on: card.focus_on,
       language: card.language,
-      callback_conversation_id: card.callback_conversation_id,
+      forward_to_conversation_id: card.forward_to_conversation_id,
     });
   };
 
@@ -182,64 +171,55 @@ export function TutoringTopicCard({
   };
 
   const cardContent = (
-    <Card
+    <div
       className={cn(
-        "w-full border border-primary/20 rounded-xl from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-sm transition-all duration-300 ease-in-out font-sans",
+        "w-full mb-3 border border-primary/20 rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
         className
       )}
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
-      <CardHeader className="rounded-t-xl">
-        <CardDescription className="text-xs text-primary">
-          <div className="flex flex-col space-y-3">
-            <Small className="text-primary font-bold">
-              Create Tutoring Topic
-            </Small>
-            <ExtraSmall className="text-primary">
-              {card.language ? `Language: ${card.language}` : ""}
-            </ExtraSmall>
+      {/* Header */}
+      <div className="p-3 rounded-t-xl">
+        <div className="text-primary">
+          <div className="flex flex-col gap-1">
+            <Small className="font-bold">Learning Discussion</Small>
+            {card.language && (
+              <ExtraSmall className="text-primary">
+                Language: {card.language}
+              </ExtraSmall>
+            )}
           </div>
-        </CardDescription>
-      </CardHeader>
-      <Separator className="" />
-
-      <CardContent>
-        <div className="space-y-2">
-          <div>
-            <div className="flex items-center gap-1.5">
-              {/* <List className="text-primary h-4 w-4" /> */}
+          <Separator className="mt-3" />
+        </div>
+      </div>
+      {/* Content */}
+      <div className="px-3 pb-3">
+        <div className="space-y-4">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Topics</ExtraSmall>
             </div>
-            <ExtraSmall className="text-xs">{card.topics}</ExtraSmall>
+            <ExtraSmall className="text-xs text-foreground">
+              {card.topics}
+            </ExtraSmall>
           </div>
 
-          <div>
-            <div className="flex items-center gap-1.5">
-              {/* <Target className="text-primary h-4 w-4" /> */}
-              <ExtraSmall className="font-bold text-primary">Goals</ExtraSmall>
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center gap-3">
+              <ExtraSmall className="font-bold text-primary">
+                Focus On
+              </ExtraSmall>
             </div>
-            <ExtraSmall className="text-xs">{card.goals}</ExtraSmall>
+            <ExtraSmall className="text-xs text-foreground">
+              {card.focus_on}
+            </ExtraSmall>
           </div>
-
-          {card.problems && (
-            <>
-              <div>
-                <div className="flex items-center gap-1.5">
-                  {/* <AlertCircle className="text-primary h-4 w-4" /> */}
-                  <ExtraSmall className="font-bold text-primary">
-                    Problems
-                  </ExtraSmall>
-                </div>
-                <ExtraSmall className="text-xs">{card.problems}</ExtraSmall>
-              </div>
-            </>
-          )}
         </div>
-      </CardContent>
-      <Separator className="" />
+        <Separator className="mt-3" />
+      </div>
 
-      <CardFooter className="flex justify-end gap-2 px-4">
+      <div className="flex justify-end gap-3 p-3">
         {card.forward_to_conversation_id ? (
           <Button
             variant="default"
@@ -283,8 +263,8 @@ export function TutoringTopicCard({
             </Button>
           </>
         )}
-      </CardFooter>
-    </Card>
+      </div>
+    </div>
   );
 
   return (
@@ -296,7 +276,7 @@ export function TutoringTopicCard({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Tutoring Topic</DialogTitle>
+            <DialogTitle>Edit Learning Discussion</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
@@ -311,21 +291,10 @@ export function TutoringTopicCard({
             </div>
 
             <div className="space-y-2">
-              <ExtraSmall className="font-bold">Goals</ExtraSmall>
+              <ExtraSmall className="font-bold">Focus On</ExtraSmall>
               <Textarea
-                name="goals"
-                value={formData.goals}
-                onChange={handleChange}
-                onKeyDown={handleKeyPress}
-                className="text-xs min-h-[80px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <ExtraSmall className="font-bold">Problems</ExtraSmall>
-              <Textarea
-                name="problems"
-                value={formData.problems}
+                name="focus_on"
+                value={formData.focus_on}
                 onChange={handleChange}
                 onKeyDown={handleKeyPress}
                 className="text-xs min-h-[80px]"

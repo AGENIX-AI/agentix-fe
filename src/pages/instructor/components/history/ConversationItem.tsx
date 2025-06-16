@@ -9,11 +9,46 @@ interface ConversationItemProps {
   onClick: (conversation: ConversationListItem) => void;
 }
 
+// Parse MessageCard content to extract fields like topics, goals, etc.
+const parseMessageCard = (content: string) => {
+  if (!content || !content.startsWith("MessageCard")) return null;
+
+  const result: Record<string, string> = {};
+
+  // Extract fields using regex
+  const fieldsRegex = /\|(\w+)=([^|]+)/g;
+  let match;
+
+  while ((match = fieldsRegex.exec(content)) !== null) {
+    const [, key, value] = match;
+    result[key] = value.trim();
+  }
+
+  return result;
+};
+
 function ConversationItemComponent({
   conversation,
   isSystemAssistant = false,
   onClick,
 }: ConversationItemProps) {
+  const lastMessageContent = conversation.last_message?.content || "";
+  const messageCardData = parseMessageCard(lastMessageContent);
+
+  // Determine what to display in the conversation item
+  const displayContent = () => {
+    if (messageCardData && messageCardData.topics) {
+      return `Topic: ${messageCardData.topics}`;
+    }
+
+    return isSystemAssistant
+      ? conversation.assistants?.tagline ||
+          "Support you to use the App effectively"
+      : `${
+          conversation.last_message?.sender === "user" ? "You: " : ""
+        }${lastMessageContent}`;
+  };
+
   return (
     <div
       className={`flex items-center gap-3 py-2 cursor-pointer rounded-lg`}
@@ -28,14 +63,7 @@ function ConversationItemComponent({
             {conversation.assistants?.name || "Assistant"}
           </p>
         </div>
-        <ExtraSmall className="truncate">
-          {isSystemAssistant
-            ? conversation.assistants?.tagline ||
-              "Support you to use the App effectively"
-            : `${conversation.last_message?.sender === "user" ? "You: " : ""}${
-                conversation.last_message?.content || ""
-              }`}
-        </ExtraSmall>
+        <ExtraSmall className="truncate">{displayContent()}</ExtraSmall>
       </div>
     </div>
   );

@@ -12,10 +12,10 @@ interface ProfileBannerProps {
 }
 
 export function ProfileBanner({
-  instructorName = "Instructor",
-  profileImage = "",
-  backgroundImage = "",
-  instructorDescription = "",
+  instructorName = "Edvara",
+  profileImage = "https://edvara-bucket.sgp1.cdn.digitaloceanspaces.com/public/Edvara-logo-1024.png",
+  backgroundImage = "https://t4.ftcdn.net/jpg/04/61/47/03/360_F_461470323_6TMQSkCCs9XQoTtyer8VCsFypxwRiDGU.jpg",
+  instructorDescription = "Edvara is a platform that helps you find the best instructors for your needs.",
 }: ProfileBannerProps) {
   return (
     <div className="relative pb-8 border-b">
@@ -35,7 +35,7 @@ export function ProfileBanner({
       <div className="flex items-start px-6 -mb-4">
         {/* Left: Avatar and Follow Button */}
         <div className="flex flex-col items-center -mt-16">
-          <Avatar className="h-32 w-32 border-4 border-background">
+          <Avatar className="h-32 w-32 border-2">
             <AvatarImage src={profileImage} alt={instructorName} />
             <AvatarFallback className="text-3xl bg-primary/10 text-primary">
               {instructorName
@@ -47,7 +47,7 @@ export function ProfileBanner({
           </Avatar>
           <Button
             variant="outline"
-            className="rounded-full border-2 border-border text-foreground hover:bg-muted px-6 w-full"
+            className="rounded-full border-2 border-border text-foreground hover:bg-muted px-6 w-full mt-3"
           >
             <span className="font-bold">+</span>
             <Small className="ml-1">Follow</Small>

@@ -35,7 +35,7 @@ export function ProfileBanner({
       <div className="flex items-start px-6 -mb-4">
         {/* Left: Avatar and Follow Button */}
         <div className="flex flex-col items-center -mt-16">
-          <Avatar className="h-32 w-32 border-4 border-background">
+          <Avatar className="h-32 w-32 border-2">
             <AvatarImage src={profileImage} alt={instructorName} />
             <AvatarFallback className="text-3xl bg-primary/10 text-primary">
               {instructorName
@@ -47,7 +47,7 @@ export function ProfileBanner({
           </Avatar>
           <Button
             variant="outline"
-            className="rounded-full border-2 border-border text-foreground hover:bg-muted px-6 w-full"
+            className="rounded-full border-2 border-border text-foreground hover:bg-muted px-6 w-full mt-3"
           >
             <span className="font-bold">+</span>
             <Small className="ml-1">Follow</Small>
