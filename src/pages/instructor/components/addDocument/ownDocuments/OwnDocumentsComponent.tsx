@@ -19,7 +19,7 @@ export type DocumentType =
   | undefined;
 
 export default function OwnDocumentsComponent() {
-  const { assistantId, setRightPanel } = useInstructor();
+  const { assistantId } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -91,10 +91,6 @@ export default function OwnDocumentsComponent() {
           setSearchQuery={setSearchQuery}
           documentType={documentType}
           setDocumentType={setDocumentType}
-          onAddDocument={() => {
-            console.log("Add document");
-            setRightPanel("addDocument");
-          }}
         />
 
         {isLoading ? (

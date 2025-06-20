@@ -4,6 +4,7 @@ import {
   isTutoringTopicMessageCard,
   isLearningDiscussMessageCard,
   isLearningTopicMessageCard,
+  isCreateDocumentFromChatMessageCard,
 } from "./types";
 import { TopicCard } from "./TopicCard";
 import { Small } from "@/components/ui/typography";
@@ -11,6 +12,7 @@ import { useChatContext } from "@/contexts/InstructorChatContext";
 import { TutoringTopicCard } from "@/pages/instructor/components/chat/messageCards/TutoringTopicCard";
 import { LearningDiscussCard } from "./LearningDiscussCard";
 import { LearningTopicCard } from "./LearningTopicCard";
+import { CreateDocumentFromChatCard } from "./CreateDocumentFromChatCard";
 
 interface MessageCardRendererProps {
   card: MessageCard;
@@ -41,6 +43,15 @@ export function MessageCardRenderer({
   } else if (isLearningDiscussMessageCard(card)) {
     return (
       <LearningDiscussCard
+        card={card}
+        className={className}
+        handleNewMessage={handleNewMessage}
+        invocation_id={invocation_id || ""}
+      />
+    );
+  } else if (isCreateDocumentFromChatMessageCard(card)) {
+    return (
+      <CreateDocumentFromChatCard
         card={card}
         className={className}
         handleNewMessage={handleNewMessage}

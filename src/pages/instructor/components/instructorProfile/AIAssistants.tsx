@@ -14,8 +14,7 @@ interface AIAssistantsProps {
 }
 
 export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
-  const { setAssistantId, setConversationId, setChatPanel, setRightPanel } =
-    useInstructor();
+  const { setAssistantId, setConversationId, setRightPanel } = useInstructor();
   const [loadingAssistantId, setLoadingAssistantId] = useState<string | null>(
     null
   );
@@ -29,7 +28,7 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
       const response = await createFirstConversation(assistant.id);
       console.log("Conversation created with ID:", response.conversation_id);
       setConversationId(response.conversation_id);
-      setChatPanel("chat");
+
       setRightPanel("agentCapabilityStatement");
 
       // Emit reload-history event to refresh the conversation list

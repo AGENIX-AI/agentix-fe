@@ -342,11 +342,14 @@ export function ResizableSidebar({
                           )}
                           title={isCollapsed ? navItem.title : undefined}
                           onClick={() => {
-                            if (navItem.title === "Documents") {
+                            if (navItem.title === "Knowledge Base") {
                               setRightPanel("addDocument");
                             }
                             if (navItem.title === "Dashboard") {
                               setRightPanel("dashboard");
+                            }
+                            if (navItem.title === "Topic Knowledge") {
+                              setRightPanel("topicKnowledge");
                             }
                           }}
                         >

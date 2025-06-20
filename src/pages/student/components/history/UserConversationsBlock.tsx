@@ -19,8 +19,8 @@ function UserConversationsBlockComponent({
     setAssistantId,
     setConversationId,
     setRightPanel,
-    setChatPanel,
-    isMessageLoading,
+
+    isChatLoading,
   } = useStudent();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
@@ -138,7 +138,9 @@ function UserConversationsBlockComponent({
 
   const handleConversationClick = (conversation: ConversationListItem) => {
     // Prevent actions if messages are currently loading
-    if (isMessageLoading) return;
+    if (isChatLoading) {
+      return;
+    }
     setIsChatLoading(true);
     // Set assistant ID from the conversation
     setAssistantId(conversation.assistants?.id);
@@ -153,7 +155,6 @@ function UserConversationsBlockComponent({
 
     // Change the right panel to assistantTopics
     setRightPanel("assistantTopics");
-    setChatPanel("chat");
     setIsChatLoading(false);
   };
 

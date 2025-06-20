@@ -4,11 +4,17 @@ import Cookies from "js-cookie";
  * Parameters for getting documents
  */
 export interface ImageDocument {
-  id: string;
-  description: string;
+  id?: string;
+  chunk_index: string;
+  title: string;
+  keywords: string[];
+  summary: string;
+  content: string;
   url: string;
-  created_at: string;
-  updated_at: string;
+  type: string;
+  created_at?: string;
+  updated_at?: string;
+  description?: string;
 }
 
 export interface GetImageDocumentsParams {
@@ -37,8 +43,13 @@ export interface Document {
   updated_at: string;
   file_name: string;
   title: string;
-  type: "document" | "image";
+  type: "document" | "image" | "topic_knowledge";
   linked?: boolean;
+  description?: string;
+  path?: string;
+  language?: string;
+  image_confirm?: boolean;
+  base_documents?: string[];
   assistant_document?: {
     assistant_id: string;
   }[];
@@ -50,7 +61,7 @@ export interface GetDocumentsParams {
   sort_by?: string;
   sort_order?: number;
   search?: string;
-  type?: "document" | "image";
+  type?: "document" | "image" | "topic_knowledge";
   assistant_id?: string;
 }
 
@@ -118,6 +129,43 @@ export const getImageDocuments = async (
 
   if (!response.ok) {
     throw new Error(`Failed to fetch image documents: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get image document by document ID
+ * @param documentId ID of the document
+ * @param params Parameters for filtering and pagination
+ * @returns Promise with the list of image documents
+ */
+export const getImageDocument = async (
+  documentId: string,
+  params: GetImageDocumentsParams = {}
+): Promise<GetImageDocumentsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_by: params.sort_by ?? "chunk_index",
+    sort_order: params.sort_order?.toString() ?? "1",
+    ...(params.search && { search: params.search }),
+  });
+
+  const response = await fetch(
+    `${baseUrl}/documents/get_image_document/${documentId}?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch image document: ${response.statusText}`);
   }
 
   return await response.json();
@@ -224,15 +272,13 @@ export const uploadDocument = async (
 export const uploadDocumentFile = async (
   file: File,
   title: string,
-  isParse: boolean,
-  assistantId: string
+  isParse: boolean
 ): Promise<{ success: boolean; message: string; document_id: string }> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const formData = new FormData();
   formData.append("file", file);
   formData.append("title", title);
   formData.append("is_parse", String(isParse));
-  formData.append("assistant_id", assistantId);
 
   const accessToken = Cookies.get("edvara_access_token");
   const refreshToken = Cookies.get("edvara_refresh_token");
@@ -421,6 +467,255 @@ export async function unlinkDocument(documentId: string, assistantId: string) {
 
   if (!response.ok) {
     throw new Error(`Failed to unlink document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Topic Knowledge Item interface
+ */
+export interface TopicKnowledgeItem {
+  chunk_index: string;
+  title: string;
+  keywords: string[];
+  summary: string;
+  content: string;
+  type: string;
+}
+
+/**
+ * Get topic knowledge reference documents
+ */
+export async function getTopicKnowledgeReferenceDocuments(
+  topicKnowledgeId: string
+): Promise<{ success: boolean; documents: Document[] }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/reference/${topicKnowledgeId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch topic knowledge reference documents: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Get topic knowledge items with pagination
+ */
+export async function getTopicKnowledgeItems(
+  topicKnowledgeId: string,
+  params: {
+    page_number?: number;
+    page_size?: number;
+    sort_by?: string;
+    sort_order?: number;
+    search?: string;
+  } = {}
+): Promise<{
+  success: boolean;
+  items: TopicKnowledgeItem[];
+  page_size: number;
+  page_number: number;
+  total_items: number;
+}> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_by: params.sort_by ?? "chunk_index",
+    sort_order: params.sort_order?.toString() ?? "1",
+    ...(params.search && { search: params.search }),
+  });
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/${topicKnowledgeId}?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch topic knowledge items: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Create topic knowledge
+ */
+export async function createTopicKnowledge(data: {
+  base_documents: string[];
+  title: string;
+  language: string;
+}): Promise<{ success: boolean; document_id: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${baseUrl}/documents/create_topic_knowledge`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    throw new Error(`Failed to create topic knowledge: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Create topic knowledge manually
+ */
+export async function createTopicKnowledgeManual(data: {
+  document_id: string;
+  title: string;
+  content: string;
+  ai_parse?: boolean;
+}): Promise<{
+  success: boolean;
+  output: {
+    success: boolean;
+    output: TopicKnowledgeItem;
+  };
+}> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/manual_create`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to create manual topic knowledge: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Framework enum type
+ */
+export type Framework = "FWOH" | "PESTEL" | "SWOT" | "BLOOMTAXONOMY";
+
+/**
+ * Create topic knowledge using framework
+ */
+export async function createTopicKnowledgeFramework(data: {
+  document_id: string;
+  framework: Framework;
+}): Promise<{
+  success: boolean;
+  output: TopicKnowledgeItem[];
+}> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/framework_create`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to create framework topic knowledge: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Modify topic knowledge item
+ */
+export async function modifyTopicKnowledge(
+  chunkIndex: string,
+  data: {
+    title: string;
+    content: string;
+    document_id: string;
+  }
+): Promise<{
+  success: boolean;
+  response: {
+    success: boolean;
+    output: TopicKnowledgeItem;
+  };
+}> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/modify_topic_knowledge/${chunkIndex}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to modify topic knowledge: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Delete topic knowledge item
+ */
+export async function deleteTopicKnowledge(chunkIndex: string): Promise<{
+  success: boolean;
+  message: string;
+}> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/topic_knowledge/delete_topic_knowledge/${chunkIndex}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to delete topic knowledge: ${response.statusText}`);
   }
 
   return await response.json();

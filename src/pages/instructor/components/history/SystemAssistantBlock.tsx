@@ -3,7 +3,7 @@ import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
   getSystemAssistantConversation,
-  createFirstConversation,
+  createInstructorFirstConversation,
 } from "@/api/conversations";
 import type { SystemAssistantResponse } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
@@ -14,7 +14,7 @@ function SystemAssistantBlockComponent({
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
 }) {
-  const { setAssistantId, setConversationId, setRightPanel, setChatPanel } =
+  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
   const [systemAssistant, setSystemAssistant] =
@@ -26,16 +26,24 @@ function SystemAssistantBlockComponent({
       setIsLoading(true);
       const response = await getSystemAssistantConversation();
       setSystemAssistant(response);
+      setIsLoading(false);
       if (response.id) {
         setConversationId(response.id);
         setAssistantId(response.assistants?.id);
         setRightPanel("assistantTopics");
-        setChatPanel("chat");
+      } else {
+        if (response.assistants?.id) {
+          setIsChatLoading(true);
+          const firstConversationResponse =
+            await createInstructorFirstConversation(response.assistants.id);
+
+          setConversationId(firstConversationResponse.conversation_id);
+          setAssistantId(response.assistants.id);
+          setIsChatLoading(false);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch system assistant:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -44,24 +52,24 @@ function SystemAssistantBlockComponent({
   }, []);
 
   const handleSystemAssistantClick = async () => {
+    if (isChatLoading) {
+      return;
+    }
     setIsChatLoading(true);
-    console.log("handleSystemAssistantClick");
     if (systemAssistant?.id) {
       // If system assistant already has a conversation ID, use it
       setConversationId(systemAssistant.id);
       setAssistantId(systemAssistant.assistants?.id);
       setRightPanel("assistantTopics");
-      setChatPanel("chat");
     } else if (systemAssistant?.assistants?.id) {
       // If no conversation ID exists, create a new one
       try {
-        const response = await createFirstConversation(
+        const response = await createInstructorFirstConversation(
           systemAssistant.assistants.id
         );
         setConversationId(response.conversation_id);
         setAssistantId(systemAssistant.assistants.id);
         setRightPanel("assistantTopics");
-        setChatPanel("chat");
       } catch (error) {
         console.error("Failed to create conversation:", error);
       }

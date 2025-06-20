@@ -1,11 +1,6 @@
 import type { Document as ApiDocument } from "@/api/documents";
 
-export type DocumentType =
-  | "document"
-  | "image"
-  | "topic_knowledge"
-  | "all"
-  | undefined;
+export type DocumentType = "document" | "image" | "all" | undefined;
 
 export interface Document extends ApiDocument {
   view_link?: string;

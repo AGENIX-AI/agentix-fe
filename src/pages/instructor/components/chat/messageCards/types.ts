@@ -86,6 +86,24 @@ export function isLearningTopicMessageCard(
 }
 
 /**
+ * Create document from chat message card interface
+ */
+export interface CreateDocumentFromChatMessageCard extends BaseMessageCard {
+  type: "create_document_from_chat";
+  filepath: string;
+  topic?: string;
+}
+
+/**
+ * Type guard to check if a message card is a CreateDocumentFromChatMessageCard
+ */
+export function isCreateDocumentFromChatMessageCard(
+  card: BaseMessageCard
+): card is CreateDocumentFromChatMessageCard {
+  return card.type === "create_document_from_chat";
+}
+
+/**
  * Union type of all message card types
  * Add new message card types to this union as they are created
  */
@@ -94,6 +112,7 @@ export type MessageCard =
   | TutoringTopicMessageCard
   | LearningDiscussMessageCard
   | LearningTopicMessageCard
+  | CreateDocumentFromChatMessageCard
   | (BaseMessageCard & { type: string });
 
 /**

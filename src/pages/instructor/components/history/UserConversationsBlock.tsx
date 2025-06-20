@@ -18,13 +18,8 @@ function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
 }: UserConversationsBlockProps) {
-  const {
-    setAssistantId,
-    setConversationId,
-    setRightPanel,
-    setChatPanel,
-    isMessageLoading,
-  } = useInstructor();
+  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
+    useInstructor();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     []
@@ -40,6 +35,7 @@ function UserConversationsBlockComponent({
   const fetchConversations = async (search?: string, page: number = 1) => {
     try {
       setIsLoading(true);
+      console.log("fetchConversations");
       const response = await getInstructorListConversations(
         page,
         pageSize,
@@ -149,7 +145,9 @@ function UserConversationsBlockComponent({
     conversation: ConversationListItem
   ) => {
     // Prevent actions if messages are currently loading
-    if (isMessageLoading) return;
+    if (isChatLoading) {
+      return;
+    }
     setIsChatLoading(true);
 
     // Set assistant ID from the conversation
@@ -174,11 +172,11 @@ function UserConversationsBlockComponent({
           setConversationId(response.conversation_id);
 
           // Emit reload-history event to refresh the conversation list
-          // eventBus.emit("reload-history", {
-          //   assistantId: conversation.assistants.id,
-          //   conversationId: response.conversation_id,
-          // });
-          fetchConversations();
+          // This is more efficient than calling fetchConversations() directly
+          eventBus.emit("reload-history", {
+            assistantId: conversation.assistants.id,
+            conversationId: response.conversation_id,
+          });
         } else {
           // Reset states for a new conversation
           setConversationId(null);
@@ -191,7 +189,6 @@ function UserConversationsBlockComponent({
 
     // Change the right panel to assistantTopics
     setRightPanel("assistantTopics");
-    setChatPanel("chat");
     setIsChatLoading(false);
   };
 

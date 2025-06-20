@@ -9,7 +9,7 @@ import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { useInstructor } from "@/contexts/InstructorContext";
-import { PenLine, Sparkles, Settings, FilePlus } from "lucide-react";
+import { PenLine, Sparkles, Settings, FileText, Brain } from "lucide-react";
 
 export interface TaskFormData {
   productName: string;
@@ -57,6 +57,24 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
           </div>
         ),
       },
+      {
+        id: "create-knowledge-base",
+        title: "CREATE KNOWLEDGE BASE",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <FileText className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
+      {
+        id: "create-topic-knowledge",
+        title: "CREATE TOPIC KNOWLEDGE",
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <Brain className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
     ];
   } else {
     tasks = [
@@ -80,19 +98,10 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "manage-knowledge-space",
-        title: "MANAGE KNOWLEDGE SPACE",
+        title: "MANAGE KNOWLEDGE BASE",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Settings className="h-4 w-4 text-secondary" />
-          </div>
-        ),
-      },
-      {
-        id: "add-document",
-        title: "ADD DOCUMENT",
-        icon: (
-          <div className="w-4 h-4 flex items-center justify-center rounded">
-            <FilePlus className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
@@ -125,6 +134,18 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
 
     if (id === "create-learning-topic") {
       setIsCreateLearningTopicDialogOpen(true);
+      return;
+    }
+
+    if (id === "create-knowledge-base") {
+      setRightPanel("addDocument");
+      onClose();
+      return;
+    }
+
+    if (id === "create-topic-knowledge") {
+      setRightPanel("topicKnowledge");
+      onClose();
       return;
     }
   };

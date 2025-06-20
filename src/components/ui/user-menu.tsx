@@ -31,6 +31,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+declare const __BUILD_NUMBER__: string;
 
 export function UserMenu({
   showUserName,
@@ -84,7 +85,8 @@ export function UserMenu({
   if (!userInfo) {
     return null;
   }
-  console.log(userInfo.metadata.avatar_url);
+  console.log("__BUILD_NUMBER__", __BUILD_NUMBER__);
+
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger asChild>
@@ -109,13 +111,12 @@ export function UserMenu({
                 <span className="block text-xs opacity-70 truncate max-w-[150px]">
                   {userInfo.metadata.email}
                 </span>
-                <span className="text-[9px] block font-normal text-xs truncate">
-                  {/* v.{version}.{lastBuildDate} */}
-                </span>
+                <div className="text-[9px] block font-normal text-xs truncate">
+                  Build: {__BUILD_NUMBER__}
+                </div>
               </span>
             )}
           </span>
-
           {showUserName && <MoreVerticalIcon className="size-4" />}
         </button>
       </DropdownMenuTrigger>

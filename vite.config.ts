@@ -11,4 +11,9 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    __BUILD_NUMBER__: JSON.stringify(
+      process.env.VITE_APP_BUILD_NUMBER || "dev"
+    ),
+  },
 });

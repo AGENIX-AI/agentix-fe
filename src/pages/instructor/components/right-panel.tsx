@@ -6,6 +6,9 @@ import ModifyAssistantComponent from "./modifyAssisstant/ModifyAssistantComponen
 import ModifyDocumentComponent from "./modifyDocument/ModifyDocumentComponent";
 import AddDocument from "./addDocument/add-document";
 import { Dashboard } from "./dashboard/dashboard";
+import ReviewDocument from "./reviewDocument/review-document";
+import TopicKnowledge from "./topicKnowledge/topic-knowledge";
+import TopicKnowledgeDetails from "./topicKnowledge/topic-knowledge-details";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -41,6 +44,12 @@ export default function RightPanel({}) {
     case "dashboard":
       return <Dashboard />;
 
+    case "reviewDocument":
+      return <ReviewDocument />;
+    case "topicKnowledge":
+      return <TopicKnowledge />;
+    case "topicKnowledgeDetails":
+      return <TopicKnowledgeDetails />;
     case "empty":
       return (
         <div className="flex flex-col h-full overflow-hidden">
