@@ -13,14 +13,8 @@ interface HistoryComponentProps {
 }
 
 export function HistoryComponent({ className }: HistoryComponentProps) {
-  const { assistantInfo, setIsChatLoading } = useStudent();
+  const { setIsChatLoading } = useStudent();
   const [searchQuery, setSearchQuery] = useState("");
-
-  const renderDisclaimerText = () => {
-    return `${
-      assistantInfo?.name || "The assistant"
-    } may be wrong. Please verify.`;
-  };
 
   return (
     <div className={cn(className, "border-r border-border")}>
@@ -56,7 +50,11 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
           </div>
 
           <div className="text-[10px] text-center mb-2">
-            {renderDisclaimerText()}
+            {/* {renderDisclaimerText()} */}
+            <span className="text-[9px] block font-normal text-xs truncate">
+              v.{import.meta.env.VITE_APP_VERSION}.
+              {import.meta.env.VITE_APP_LAST_BUILD_DATE}
+            </span>
           </div>
         </div>
       </div>

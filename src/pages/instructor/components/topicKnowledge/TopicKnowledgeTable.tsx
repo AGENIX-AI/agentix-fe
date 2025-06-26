@@ -62,7 +62,7 @@ export function TopicKnowledgeTable({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-xs">Topic Knowledge</TableCell>
+                  <TableCell className="text-xs">Knowledge Component</TableCell>
                   <TableCell>
                     <span
                       className={cn(
@@ -117,7 +117,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onView?.(document.id)}
                             className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                            title="View topic knowledge"
+                            title="View knowledge component"
                           >
                             <Eye className="h-3 w-3" />
                             View
@@ -125,7 +125,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onEdit?.(document.id)}
                             className="text-xs text-amber-600 hover:underline flex items-center gap-1"
-                            title="Edit topic knowledge"
+                            title="Edit knowledge component"
                           >
                             <Edit className="h-3 w-3" />
                             Edit
@@ -133,7 +133,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onDelete?.(document.id)}
                             className="text-xs text-red-600 hover:underline flex items-center gap-1"
-                            title="Delete topic knowledge"
+                            title="Delete knowledge component"
                           >
                             <Trash2 className="h-3 w-3" />
                             Delete

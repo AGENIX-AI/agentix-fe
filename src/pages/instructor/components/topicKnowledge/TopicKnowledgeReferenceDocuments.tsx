@@ -75,7 +75,7 @@ export function TopicKnowledgeReferenceDocuments({
                 No reference documents found
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                No reference documents available for this topic knowledge
+                No reference documents available for this knowledge component
               </p>
             </div>
           ) : (

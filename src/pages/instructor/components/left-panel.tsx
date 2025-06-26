@@ -147,13 +147,10 @@ export default function LeftPanel({
         {/* Layout container with resizable sidebar and content */}
         <div className="flex w-full h-full">
           {/* Sidebar - Show only if miniapp is visible */}
-          {isMinimappVisibleValue && (
-            <ResizableSidebar
-              className="bg-transparent h-[calc(100vh-4.5rem)]"
-              isCollapsed={isSidebarCollapsed}
-            />
-          )}
-
+          <ResizableSidebar
+            className="bg-transparent h-[calc(100vh-4.5rem)]"
+            isCollapsed={isSidebarCollapsed}
+          />
           {/* Main content area */}
           <div className="flex-1 h-full overflow-hidden">
             <div className="flex h-full overflow-hidden">

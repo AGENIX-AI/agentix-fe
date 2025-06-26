@@ -36,7 +36,7 @@ export function ChatInput({
   const [showTaskForm, setShowTaskForm] = useState(false);
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
   const { handleSendMessage } = useChatContext();
-  const { isChatLoading } = useInstructor();
+  const { isChatLoading, assistantInfo } = useInstructor();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -126,6 +126,9 @@ export function ChatInput({
       {pastedImage && (
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}
+      <div className="text-[9px] text-center mb-2">
+        {assistantInfo?.name || "The assistant"} may be wrong. Please verify.
+      </div>
       <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border">
         {showTaskMenu && (
           <TaskMenu

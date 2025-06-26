@@ -50,8 +50,8 @@ export function TopicKnowledgeComponent({
           setTotalItems(response.total_items);
         }
       } catch (error) {
-        console.error("Error fetching topic knowledge documents:", error);
-        toast.error("Failed to fetch topic knowledge documents");
+        console.error("Error fetching knowledge components:", error);
+        toast.error("Failed to fetch knowledge components");
       } finally {
         setIsLoading(false);
       }
@@ -101,13 +101,13 @@ export function TopicKnowledgeComponent({
       // TODO: Implement delete API call
       // For now, just show a confirmation toast
       const confirmed = window.confirm(
-        "Are you sure you want to delete this topic knowledge?"
+        "Are you sure you want to delete this knowledge component?"
       );
 
       if (confirmed) {
         // Remove from local state for now
         setDocuments(documents.filter((doc) => doc.id !== documentId));
-        toast.success("Topic knowledge deleted successfully");
+        toast.success("Knowledge component deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -125,35 +125,35 @@ export function TopicKnowledgeComponent({
         currentTopicKnowledgeId: documentId,
       });
       setRightPanel("topicKnowledgeDetails");
-      toast.success("Topic knowledge selected");
+      toast.success("Knowledge component selected");
     } catch (error) {
-      console.error("Error selecting topic knowledge:", error);
-      toast.error("Failed to select topic knowledge");
+      console.error("Error selecting knowledge component:", error);
+      toast.error("Failed to select knowledge component");
     }
   };
 
   return (
     <div className="my-3">
       <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">Topic Knowledge</Small>
+        <Small className="font-semibold">Knowledge Components</Small>
         <Button
           onClick={() => {
             onAddTopicKnowledge?.();
           }}
           className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
         >
-          Add Topic Knowledge
+          Add Knowledge Component
         </Button>
       </div>
 
-      {/* Simple search bar without type filter since we only show topic knowledge */}
+      {/* Simple search bar without type filter since we only show knowledge components */}
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search topic knowledge..."
+          placeholder="Search knowledge components..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
+          className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
       </div>
 
@@ -166,10 +166,10 @@ export function TopicKnowledgeComponent({
           {documents.length === 0 ? (
             <div className="text-center py-8 border rounded-lg">
               <h3 className="mt-2 text-xs font-medium">
-                No topic knowledge found
+                No knowledge components found
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                No topic knowledge documents available
+                No knowledge components available
               </p>
             </div>
           ) : (

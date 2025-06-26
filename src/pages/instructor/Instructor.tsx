@@ -29,7 +29,7 @@ export default function AppStartPage() {
           leftPane={<LeftPanel onMiniappToggle={handleMiniappToggle} />}
           rightPane={<RightPanel />}
           initialLeftWidth={55}
-          minLeftWidth={55}
+          minLeftWidth={50}
           maxLeftWidth={65}
           storageKey="edvara-mainpage-width"
           isRightPaneVisible={isMiniappVisible}

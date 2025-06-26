@@ -47,7 +47,7 @@ export const sidebarData: SidebarData = {
           icon: FileText,
         },
         {
-          title: "Topic Knowledge",
+          title: "Knowledge Components",
           url: "/instructor",
           icon: Brain,
         },

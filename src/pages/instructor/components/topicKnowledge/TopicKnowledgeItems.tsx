@@ -59,8 +59,8 @@ export function TopicKnowledgeItems({
           setTotalItems(response.total_items);
         }
       } catch (error) {
-        console.error("Error fetching topic knowledge items:", error);
-        toast.error("Failed to fetch topic knowledge items");
+        console.error("Error fetching knowledge component items:", error);
+        toast.error("Failed to fetch knowledge component items");
       } finally {
         setIsLoading(false);
       }
@@ -89,8 +89,8 @@ export function TopicKnowledgeItems({
           setTotalItems(response.total_items);
         }
       } catch (error) {
-        console.error("Error fetching topic knowledge items:", error);
-        toast.error("Failed to fetch topic knowledge items");
+        console.error("Error fetching knowledge component items:", error);
+        toast.error("Failed to fetch knowledge component items");
       } finally {
         setIsLoading(false);
       }
@@ -148,14 +148,14 @@ export function TopicKnowledgeItems({
           items.filter((item) => item.chunk_index !== itemToDelete.chunk_index)
         );
         toast.success(
-          response.message || "Topic knowledge item deleted successfully"
+          response.message || "Knowledge component item deleted successfully"
         );
         setShowDeleteDialog(false);
         setItemToDelete(null);
       }
     } catch (error) {
       console.error("Error deleting item:", error);
-      toast.error("Failed to delete topic knowledge item");
+      toast.error("Failed to delete knowledge component item");
     } finally {
       setIsDeleting(false);
     }
@@ -185,7 +185,7 @@ export function TopicKnowledgeItems({
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search topic knowledge items..."
+          placeholder="Search knowledge chunks..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -201,10 +201,10 @@ export function TopicKnowledgeItems({
           {items.length === 0 ? (
             <div className="text-center py-8 border rounded-lg">
               <h3 className="mt-2 text-xs font-medium">
-                No topic knowledge items found
+                No knowledge chunks found
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                No items available for this topic knowledge
+                No chunks available for this knowledge component
               </p>
             </div>
           ) : (

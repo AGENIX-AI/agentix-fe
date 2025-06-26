@@ -123,13 +123,13 @@ export function ViewEditKnowledgeChunkSidebar({
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Chunk Index */}
+          {/* Chunk Index
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Chunk Index</Label>
             <Small className="text-xs font-mono break-all">
               {item.chunk_index}
             </Small>
-          </div>
+          </div> */}
 
           {/* Keywords */}
           {item.keywords && item.keywords.length > 0 && (

@@ -69,7 +69,11 @@ export function DocumentTable({
                       </div>
                     </TableCell>
                     <TableCell className="text-xs">
-                      {document.type === "image" ? "Image" : "Document"}
+                      {document.type === "image"
+                        ? "Image"
+                        : document.type == "document"
+                        ? "Document"
+                        : "Knowledge"}
                     </TableCell>
                     <TableCell>
                       <span

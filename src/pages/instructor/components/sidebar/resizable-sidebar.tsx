@@ -7,8 +7,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/instructor-sidebar-data";
 import { Separator } from "@/components/ui/separator";
-import { UserMenu } from "@/components/ui/user-menu";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { UserMenu } from "../userMenu/user-menu";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -319,7 +319,7 @@ export function ResizableSidebar({
                                         {SubIcon && (
                                           <SubIcon className="h-4 w-4" />
                                         )}
-                                        <span className="ml-2 flex-1 text-left">
+                                        <span className="ml-2 flex-1 text-left text-xs  ">
                                           {subItem.title}
                                         </span>
                                         {subItem.badge && (
@@ -337,7 +337,7 @@ export function ResizableSidebar({
                         <Link
                           to={(navItem as any).url || "#"}
                           className={cn(
-                            "flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                            "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                             isCollapsed && "justify-center px-2"
                           )}
                           title={isCollapsed ? navItem.title : undefined}
@@ -348,7 +348,7 @@ export function ResizableSidebar({
                             if (navItem.title === "Dashboard") {
                               setRightPanel("dashboard");
                             }
-                            if (navItem.title === "Topic Knowledge") {
+                            if (navItem.title === "Knowledge Components") {
                               setRightPanel("topicKnowledge");
                             }
                           }}

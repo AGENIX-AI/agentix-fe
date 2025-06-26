@@ -136,9 +136,14 @@ export function AddKnowledgeChunkSidebar({
       {/* Sidebar */}
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">Add Knowledge Chunk</h2>
-          <Button variant="ghost" size="icon" onClick={handleClose}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleClose}
+            className="text-xs"
+          >
             <X className="h-4 w-4" />
           </Button>
         </div>
@@ -240,7 +245,7 @@ export function AddKnowledgeChunkSidebar({
         </div>
 
         {/* Footer */}
-        <div className="border-t p-6">
+        <div className="border-t h-16 px-6 py-4 flex items-center justify-between">
           <div className="flex gap-3">
             <Button
               variant="outline"

@@ -1,5 +1,5 @@
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { UserAvatar } from "./user-avatar";
+import { UserAvatar } from "@/components/ui/user-avatar";
 
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
+} from "@/components/ui/dropdown-menu";
 import {
   BookIcon,
   GlobeIcon,
@@ -31,6 +31,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useInstructor } from "@/contexts/InstructorContext";
 declare const __BUILD_NUMBER__: string;
 
 export function UserMenu({
@@ -46,6 +47,7 @@ export function UserMenu({
   const [theme, setTheme] = useState<string>(currentTheme ?? "system");
   const [language, setLanguage] = useState<string>(i18n.language);
   const { signOut } = useAuth();
+  const { setRightPanel } = useInstructor();
 
   const colorModeOptions = [
     {
@@ -104,7 +106,7 @@ export function UserMenu({
             />
             {showUserName && (
               <span className="text-left leading-tight">
-                <span className="font-medium text-xs">
+                <span className="font-medium text-sm">
                   {userInfo.metadata.full_name}
                 </span>
                 <span className="block text-xs opacity-70 truncate max-w-[120px]">
@@ -118,7 +120,7 @@ export function UserMenu({
       </DropdownMenuTrigger>
 
       <DropdownMenuContent align="end" className="w-[240px] p-3 ml-0">
-        <DropdownMenuLabel className="text-xs">
+        <DropdownMenuLabel className="text-sm">
           {userInfo.metadata.full_name}
           <span className="block font-normal text-xs truncate">
             {userInfo.metadata.email}
@@ -192,17 +194,18 @@ export function UserMenu({
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
-          <Link to="/settings/general">
-            <SettingsIcon className="mr-2 size-5" />
-            <span className="text-xs">
-              {t("app.userMenu.accountSettings", "Account Settings")}
-            </span>
-          </Link>
+        <DropdownMenuItem
+          onClick={() => setRightPanel("editProfile")}
+          className="text-xs py-2 cursor-pointer"
+        >
+          <SettingsIcon className="mr-2 size-5" />
+          <span className="text-xs">
+            {t("app.userMenu.accountSettings", "Account Settings")}
+          </span>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
-          <a href="https://supastarter.dev/docs/nextjs">
+          <a href="https://edvara.net/">
             <BookIcon className="mr-2 size-5" />
             <span className="text-xs">
               {t("app.userMenu.documentation", "Documentation")}

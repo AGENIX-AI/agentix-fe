@@ -229,7 +229,7 @@ export function ChatComponent() {
 
     // Add the new message to the chat
     const agentMessage: Message = {
-      sender: "agent_response",
+      sender: newMessage.sender,
       content: newMessage.content,
       time: Math.floor(Date.now() / 1000),
       invocation_id: newMessage.invocation_id,

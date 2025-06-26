@@ -560,12 +560,13 @@ export async function getTopicKnowledgeItems(
 }
 
 /**
- * Create topic knowledge
+ * Create knowledge component
  */
 export async function createTopicKnowledge(data: {
   base_documents: string[];
   title: string;
   language: string;
+  framework?: string;
 }): Promise<{ success: boolean; document_id: string }> {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
@@ -715,7 +716,9 @@ export async function deleteTopicKnowledge(chunkIndex: string): Promise<{
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to delete topic knowledge: ${response.statusText}`);
+    throw new Error(
+      `Failed to delete knowledge component: ${response.statusText}`
+    );
   }
 
   return await response.json();

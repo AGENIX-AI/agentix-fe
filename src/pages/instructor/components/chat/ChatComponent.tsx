@@ -220,6 +220,28 @@ export function ChatComponent() {
     }
   };
 
+  // Set up eventBus listener for send-message events from other components
+  useEffect(() => {
+    // Handler for send-message events
+    const handleSendMessageEvent = (data: {
+      content: string;
+      source: string;
+      taskId?: string;
+      taskStep?: number;
+    }) => {
+      // Only process if we have a valid conversationId
+      if (conversationId) {
+        handleSendMessage(data.content);
+      }
+    };
+
+    // Subscribe to the send-message event and get the cleanup function
+    const unsubscribe = eventBus.on("send-message", handleSendMessageEvent);
+
+    // Clean up the subscription when the component unmounts
+    return unsubscribe;
+  }, [conversationId]); // We don't need handleSendMessage in deps as it's in component scope
+
   const handleNewMessage = (newMessage: {
     sender: "agent_response" | "user";
     content: string;
@@ -230,7 +252,7 @@ export function ChatComponent() {
 
     // Add the new message to the chat
     const agentMessage: Message = {
-      sender: "agent_response",
+      sender: newMessage.sender,
       content: newMessage.content,
       time: Date.now(),
       invocation_id: newMessage.invocation_id,
@@ -245,7 +267,7 @@ export function ChatComponent() {
       lastMessage: {
         content: newMessage.content,
         time: new Date().toISOString(),
-        sender: "agent_response",
+        sender: newMessage.sender,
       },
     });
   };

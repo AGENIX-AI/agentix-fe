@@ -68,7 +68,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-topic-knowledge",
-        title: "CREATE TOPIC KNOWLEDGE",
+        title: "CREATE KNOWLEDGE COMPONENT",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Brain className="h-4 w-4 text-secondary" />
@@ -79,8 +79,8 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
   } else {
     tasks = [
       {
-        id: "create-learning-topic",
-        title: "CREATE LEARNING TOPIC",
+        id: "create-training-topic",
+        title: "CREATE TRAINING TOPIC",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -132,7 +132,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       return;
     }
 
-    if (id === "create-learning-topic") {
+    if (id === "create-training-topic") {
       setIsCreateLearningTopicDialogOpen(true);
       return;
     }
@@ -212,7 +212,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       <CreateLearningTopicForm
         open={isCreateLearningTopicDialogOpen}
         onOpenChange={setIsCreateLearningTopicDialogOpen}
-        taskTitle="CREATE LEARNING TOPIC"
+        taskTitle="CREATE TRAINING TOPIC"
       />
     </>
   );

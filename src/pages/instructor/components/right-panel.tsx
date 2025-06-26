@@ -9,6 +9,7 @@ import { Dashboard } from "./dashboard/dashboard";
 import ReviewDocument from "./reviewDocument/review-document";
 import TopicKnowledge from "./topicKnowledge/topic-knowledge";
 import TopicKnowledgeDetails from "./topicKnowledge/topic-knowledge-details";
+import { EditProfile } from "./editProfile/EditProfile";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -50,6 +51,8 @@ export default function RightPanel({}) {
       return <TopicKnowledge />;
     case "topicKnowledgeDetails":
       return <TopicKnowledgeDetails />;
+    case "editProfile":
+      return <EditProfile />;
     case "empty":
       return (
         <div className="flex flex-col h-full overflow-hidden">

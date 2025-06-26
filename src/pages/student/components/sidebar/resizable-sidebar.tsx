@@ -314,12 +314,12 @@ export function ResizableSidebar({
                                     <li key={subIndex}>
                                       <Link
                                         to={subItem.url || "#"}
-                                        className="flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200"
+                                        className="flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200"
                                       >
                                         {SubIcon && (
                                           <SubIcon className="h-4 w-4" />
                                         )}
-                                        <span className="ml-2 flex-1 text-left">
+                                        <span className="ml-2 flex-1 text-left text-xs">
                                           {subItem.title}
                                         </span>
                                         {subItem.badge && (
@@ -337,7 +337,7 @@ export function ResizableSidebar({
                         <Link
                           to={(navItem as any).url || "#"}
                           className={cn(
-                            "flex items-center px-3 py-2 text-sm rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                            "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                             isCollapsed && "justify-center px-2"
                           )}
                           title={isCollapsed ? navItem.title : undefined}

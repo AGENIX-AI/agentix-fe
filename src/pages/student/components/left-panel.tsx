@@ -76,18 +76,11 @@ export default function LeftPanel({
     }
   };
 
-  const resetState = () => {
-    console.log("Resetting state");
-    // appPageContext?.setCharacterId(null);
-    // appPageContext?.setConversationId(null);
-    // appPageContext?.setRightPanel("dashboard");
-  };
-
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
       <header className="flex h-18 items-center border bg-background z-30 px-3">
         {/* Left section */}
-        <div className="flex items-center cursor-pointer" onClick={resetState}>
+        <div className="flex items-center cursor-pointer">
           <Button
             variant="ghost"
             size="icon"
@@ -147,13 +140,10 @@ export default function LeftPanel({
         {/* Layout container with resizable sidebar and content */}
         <div className="flex w-full h-full">
           {/* Sidebar - Show only if miniapp is visible */}
-          {isMinimappVisibleValue && (
-            <ResizableSidebar
-              className="bg-transparent h-[calc(100vh-4.5rem)]"
-              isCollapsed={isSidebarCollapsed}
-            />
-          )}
-
+          <ResizableSidebar
+            className="bg-transparent h-[calc(100vh-4.5rem)]"
+            isCollapsed={isSidebarCollapsed}
+          />
           {/* Main content area */}
           <div className="flex-1 h-full overflow-hidden">
             <div className="flex h-full overflow-hidden">

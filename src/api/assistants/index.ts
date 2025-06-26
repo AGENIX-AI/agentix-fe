@@ -220,16 +220,17 @@ export async function uploadAssistantImage(
   try {
     const formData = new FormData();
     formData.append("image", imageFile);
-    
+
     // Get auth headers but omit Content-Type
     const authHeaders = getAuthHeaders();
-    const { Authorization, "X-Refresh-Token": refreshToken } = authHeaders as any;
-    
+    const { Authorization, "X-Refresh-Token": refreshToken } =
+      authHeaders as any;
+
     // Create new headers without Content-Type
     const headers: HeadersInit = {};
     if (Authorization) headers.Authorization = Authorization;
     if (refreshToken) headers["X-Refresh-Token"] = refreshToken;
-    
+
     const baseUrl = import.meta.env.VITE_API_URL || "";
 
     // Browser will set correct Content-Type with boundary for FormData

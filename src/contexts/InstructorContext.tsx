@@ -57,8 +57,8 @@ interface AppPageContextType {
   characterInfo?: {
     name: string;
   };
-  metaData?: any;
-  setMetaData?: (metaData: any) => void;
+  metaData: any;
+  setMetaData: (metaData: any) => void;
 }
 
 const InstructorContext = createContext<AppPageContextType | undefined>(

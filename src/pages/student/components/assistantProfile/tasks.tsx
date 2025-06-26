@@ -39,6 +39,10 @@ interface ConversationTask {
   goal_id?: string;
   id: string;
   conversation_id?: string;
+  type?: "task" | "qa"; // Added type property to match instructor version
+  // Q&A specific fields
+  question?: string;
+  answer?: string;
 }
 
 // Define the structure for the processed tasks data
@@ -131,7 +135,7 @@ const TaskCard = memo(
           onClick={() => setIsExpanded(!isExpanded)}
         >
           <TableCell style={{ width: "5%" }}>
-            <Badge className="font-mono text-xs">{task.step + 1}</Badge>
+            <Badge className="font-mono text-xs">{task.step}</Badge>
           </TableCell>
           <TableCell style={{ width: "75%" }}>
             <div className="flex flex-col w-full">
@@ -166,9 +170,27 @@ const TaskCard = memo(
             </div>
           </TableCell>
           <TableCell style={{ width: "20%" }}>
-            <div className="flex items-center gap-2">
-              {getStatusIcon(status)}
-              <ExtraSmall className="capitalize">{status}</ExtraSmall>
+            <div className="flex items-center justify-between w-full">
+              <div className="flex items-center gap-2">
+                {getStatusIcon(status)}
+                <ExtraSmall className="capitalize">
+                  {task.status || status}
+                </ExtraSmall>
+              </div>
+              {/* Add edit button for Q&A type tasks with pending status */}
+              {task.type === "qa" &&
+                (task.status === "pending" || status === "pending") && (
+                  <button
+                    className="px-2 py-1 bg-primary/10 hover:bg-primary/20 rounded text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row expansion
+                      // Edit functionality can be added here
+                      console.log("Edit Q&A", task);
+                    }}
+                  >
+                    <ExtraSmall>Edit</ExtraSmall>
+                  </button>
+                )}
             </div>
           </TableCell>
         </TableRow>
@@ -223,14 +245,18 @@ export const ConversationTasks = memo(
             ...task,
             id: task.id.toString(),
             step: Number(task.step),
-            // Set the proper status based on step comparison with current_task
-            // This overrides the original status from the API
+            // Only override status for the current task step, otherwise keep the original API status
+            // For tasks with step === currentTaskStep, mark as "current" for UI highlighting
             status:
-              Number(task.step) > currentTaskStep
-                ? "pending"
+              // If task has status completed, keep it as completed even if it's the current step
+              task.status === "completed"
+                ? "completed"
                 : Number(task.step) === currentTaskStep
                 ? "current"
-                : "completed",
+                : task.status ||
+                  (Number(task.step) > currentTaskStep
+                    ? "pending"
+                    : "completed"),
             dependencies: Array.isArray(task.dependencies)
               ? task.dependencies.map((dependency: any) => Number(dependency))
               : [],
@@ -368,16 +394,13 @@ export const ConversationTasks = memo(
               {allTasks.map((task) => {
                 const taskStep = Number(task.step);
 
-                // Compare task.step with current_task to determine status
-                // If task.step < current_task: completed
-                // If task.step === current_task: current
-                // If task.step > current_task: pending
+                // Determine task status:
+                // 1. If task.step === currentStep, status is "current"
+                // 2. Otherwise use the task's own status ("pending" or "completed")
                 const status =
-                  taskStep < currentStep
-                    ? "completed"
-                    : taskStep === currentStep
+                  taskStep === currentStep
                     ? "current"
-                    : "pending";
+                    : (task.status as "pending" | "completed");
 
                 return (
                   <TaskCard

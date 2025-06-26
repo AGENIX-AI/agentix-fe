@@ -152,12 +152,14 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
 
       console.log("Tutoring discussion created:", response);
 
-      if (response.new_message) {
-        handleNewMessage({
-          sender: "agent_response",
-          content: response.new_message,
-          invocation_id: response.invocation_id,
-        });
+      if (response) {
+        for (const item of response) {
+          handleNewMessage({
+            sender: item.sender,
+            content: item.new_message,
+            invocation_id: item.invocation_id,
+          });
+        }
       }
       setIsModalOpen(false);
       onClose();

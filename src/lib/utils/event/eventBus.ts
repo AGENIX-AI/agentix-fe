@@ -8,17 +8,17 @@ class EventBus {
       this.listeners[event] = [];
     }
     this.listeners[event].push(callback);
-    
+
     return () => {
       this.listeners[event] = this.listeners[event].filter(
-        listener => listener !== callback
+        (listener) => listener !== callback
       );
     };
   }
 
   emit(event: string, data: any) {
     if (this.listeners[event]) {
-      this.listeners[event].forEach(callback => callback(data));
+      this.listeners[event].forEach((callback) => callback(data));
     }
   }
 }

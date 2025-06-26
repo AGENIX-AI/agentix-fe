@@ -25,6 +25,7 @@ interface TutoringTopicCardProps {
   handleNewMessage?: (newMessage: {
     sender: "agent_response" | "user";
     content: string;
+    invocation_id?: string;
   }) => void;
   onAccept?: (card: TutoringTopicMessageCard) => void;
   onEdit?: (card: TutoringTopicMessageCard) => void;
@@ -116,11 +117,14 @@ export function TutoringTopicCard({
 
       console.log("Tutoring discussion refactored:", response);
 
-      if (response.new_message && handleNewMessage) {
-        handleNewMessage({
-          sender: "agent_response",
-          content: response.new_message,
-        });
+      if (response && handleNewMessage) {
+        for (const item of response) {
+          handleNewMessage({
+            sender: item.sender,
+            content: item.new_message,
+            invocation_id: item.invocation_id,
+          });
+        }
       }
 
       setIsEditDialogOpen(false);
@@ -233,7 +237,7 @@ export function TutoringTopicCard({
             className="text-xs flex-1 max-w-[150px]"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Forward"}
+            {isLoading ? "Processing..." : "Go To Topic"}
           </Button>
         ) : (
           <>

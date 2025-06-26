@@ -6,6 +6,7 @@ import Cookies from "js-cookie";
  * Response for creating a learning discussion
  */
 export interface CreateLearningDiscussResponse {
+  sender: "agent_response" | "user";
   new_message: string;
   invocation_id: string;
 }
@@ -249,7 +250,7 @@ export const getInstructorAssistants = async (
  */
 export const createLearningDiscuss = async (
   data: CreateLearningDiscussData
-): Promise<CreateLearningDiscussResponse> => {
+): Promise<CreateLearningDiscussResponse[]> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -376,3 +377,124 @@ export const sendInstructorMessage = async (
 
   return await response.json();
 };
+
+/**
+ * Get instructor's own profile
+ * @returns The instructor's profile data
+ */
+export const getInstructorProfile = async (): Promise<InstructorProfile> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/instructor-profiles/get-instructor-profile`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to fetch instructor profile: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Update instructor profile
+ * @param profileData - The updated profile data
+ * @returns The updated instructor profile
+ */
+export interface UpdateInstructorProfileData {
+  instructor_name: string;
+  instructor_description: string;
+  profile_image: string;
+  background_image: string;
+  payment_info: string;
+}
+
+export const updateInstructorProfile = async (
+  profileData: UpdateInstructorProfileData
+): Promise<InstructorProfile> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/instructor-profiles/update-instructor-profile`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(profileData),
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      `Failed to update instructor profile: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Response for uploading an image
+ */
+export interface UploadImageResponse {
+  success: boolean;
+  url: string;
+}
+
+/**
+ * Upload instructor profile image
+ * @param imageFile - The image file to upload
+ * @returns Response with success status and image URL
+ */
+export async function uploadInstructorProfileImage(
+  imageFile: File
+): Promise<UploadImageResponse> {
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    // Get auth headers but omit Content-Type
+    const authHeaders = getAuthHeaders();
+    const { Authorization, "X-Refresh-Token": refreshToken } =
+      authHeaders as any;
+
+    // Create new headers without Content-Type
+    const headers: HeadersInit = {};
+    if (Authorization) headers.Authorization = Authorization;
+    if (refreshToken) headers["X-Refresh-Token"] = refreshToken;
+
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+
+    // Browser will set correct Content-Type with boundary for FormData
+    const response = await fetch(
+      `${baseUrl}/instructor-profiles/upload_image`,
+      {
+        method: "POST",
+        body: formData,
+        credentials: "include",
+        headers: headers,
+      }
+    );
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      console.error("Upload failed:", data);
+      throw new Error(data.error || "Image upload failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error uploading instructor profile image:", error);
+    throw new Error("Error uploading instructor profile image");
+  }
+}

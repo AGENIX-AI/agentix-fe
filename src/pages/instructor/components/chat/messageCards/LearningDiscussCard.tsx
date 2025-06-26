@@ -122,12 +122,14 @@ export function LearningDiscussCard({
       console.log("Learning discussion created:", response);
 
       // Handle the new message
-      if (response.new_message && handleNewMessage) {
-        handleNewMessage({
-          sender: "agent_response",
-          content: response.new_message,
-          invocation_id: response.invocation_id || invocation_id,
-        });
+      if (response && handleNewMessage) {
+        for (const item of response) {
+          handleNewMessage({
+            sender: item.sender,
+            content: item.new_message,
+            invocation_id: item.invocation_id,
+          });
+        }
       }
 
       setIsEditDialogOpen(false);
@@ -230,7 +232,7 @@ export function LearningDiscussCard({
             className="text-xs flex-1 max-w-[150px]"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Forward"}
+            {isLoading ? "Processing..." : "Go to Topic"}
           </Button>
         ) : (
           <>

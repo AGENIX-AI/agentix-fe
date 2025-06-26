@@ -471,13 +471,14 @@ export interface GenerateTutoringDiscussData {
 }
 
 export interface GenerateTutoringDiscussResponse {
+  sender: "user" | "agent_response";
   new_message: string;
   invocation_id: string;
 }
 
 export const generateTutoringDiscuss = async (
   data: GenerateTutoringDiscussData
-): Promise<GenerateTutoringDiscussResponse> => {
+): Promise<GenerateTutoringDiscussResponse[]> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -514,12 +515,14 @@ export interface RefactorTutoringDiscussData {
 }
 
 export interface RefactorTutoringDiscussResponse {
+  sender: "user" | "agent_response";
   new_message: string;
+  invocation_id: string;
 }
 
 export const refactorTutoringDiscuss = async (
   data: RefactorTutoringDiscussData
-): Promise<RefactorTutoringDiscussResponse> => {
+): Promise<RefactorTutoringDiscussResponse[]> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 

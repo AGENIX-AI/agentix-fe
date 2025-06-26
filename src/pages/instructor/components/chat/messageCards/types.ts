@@ -104,6 +104,24 @@ export function isCreateDocumentFromChatMessageCard(
 }
 
 /**
+ * Training Topic Reference message card interface
+ */
+export interface TrainingTopicRefMessageCard extends BaseMessageCard {
+  type: "training_topic_ref";
+  title: string;
+  document_id: string;
+}
+
+/**
+ * Type guard to check if a message card is a TrainingTopicRefMessageCard
+ */
+export function isTrainingTopicRefMessageCard(
+  card: BaseMessageCard
+): card is TrainingTopicRefMessageCard {
+  return card.type === "training_topic_ref";
+}
+
+/**
  * Union type of all message card types
  * Add new message card types to this union as they are created
  */
@@ -113,6 +131,7 @@ export type MessageCard =
   | LearningDiscussMessageCard
   | LearningTopicMessageCard
   | CreateDocumentFromChatMessageCard
+  | TrainingTopicRefMessageCard
   | (BaseMessageCard & { type: string });
 
 /**

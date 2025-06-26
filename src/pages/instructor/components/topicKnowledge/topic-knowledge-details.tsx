@@ -9,7 +9,7 @@ export default function TopicKnowledgeDetails() {
   return (
     <div className="flex flex-col h-full">
       <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-6 flex-shrink-0">
-        <Large className="font-bold tracking-tight">Topic Knowledge</Large>
+        <Large className="font-bold tracking-tight">Knowledge Component</Large>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6 py-3">

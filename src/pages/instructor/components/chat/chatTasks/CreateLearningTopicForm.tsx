@@ -73,20 +73,22 @@ export function CreateLearningTopicForm({
       console.log("Learning discussion created:", response);
 
       // Handle the new message from the response
-      if (response.new_message) {
-        handleNewMessage({
-          sender: "agent_response",
-          content: response.new_message,
-          invocation_id: response.invocation_id,
-        });
+      if (response) {
+        for (const item of response) {
+          handleNewMessage({
+            sender: item.sender,
+            content: item.new_message,
+            invocation_id: item.invocation_id,
+          });
+        }
       }
 
-      // Success message
-      toast.success("Learning topic created successfully");
+      // Success messages
+      toast.success("Training topic created successfully");
       onOpenChange(false);
     } catch (error) {
-      console.error("Failed to create learning topic:", error);
-      toast.error("An error occurred while creating the learning topic");
+      console.error("Failed to create training topic:", error);
+      toast.error("An error occurred while creating the training topic");
     } finally {
       setIsLoading(false);
     }
@@ -107,7 +109,7 @@ export function CreateLearningTopicForm({
                 name="topic"
                 value={formData.topic}
                 onChange={handleChange}
-                placeholder="Enter learning topic"
+                placeholder="Enter training topic"
                 className="h-9 text-xs"
                 disabled={isLoading}
                 required
