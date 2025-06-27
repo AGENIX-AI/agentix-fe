@@ -170,7 +170,7 @@ export async function generateAssistantCapabilities(
   description: string,
   language = "English"
 ): Promise<GenerateCapabilitiesResponse> {
-  let headers = getAuthHeaders();
+  const headers = getAuthHeaders();
 
   const baseUrl = import.meta.env.VITE_API_URL || "";
 

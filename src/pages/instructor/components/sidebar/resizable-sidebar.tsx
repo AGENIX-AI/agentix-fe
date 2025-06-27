@@ -9,6 +9,7 @@ import { sidebarData } from "@/lib/utils/instructor-sidebar-data";
 import { Separator } from "@/components/ui/separator";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { UserMenu } from "../userMenu/user-menu";
+import { useCreditsPolling } from "@/hooks/useCreditsPolling";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -38,6 +39,9 @@ export function ResizableSidebar({
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
   const { setRightPanel } = useInstructor();
+
+  // Poll credits every 5 seconds
+  const { credits, error: creditsError } = useCreditsPolling(5000);
 
   // Store the last expanded width to restore when uncollapsing
   const lastExpandedWidthRef = useRef<number>(initialWidth);
@@ -373,13 +377,30 @@ export function ResizableSidebar({
           ))}
         </div>
 
-        {/* Footer with UserMenu */}
+        {/* Footer with Credits and UserMenu */}
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 border-border p-3",
-            isCollapsed ? "flex justify-center" : ""
+            "absolute bottom-0 left-0 right-0 border-border p-3 space-y-3",
+            isCollapsed ? "flex flex-col items-center" : ""
           )}
         >
+          {/* Credits Display */}
+          {credits && !creditsError && (
+            <div
+              className="flex flex-col items-center justify-center space-y-1"
+              title={`Credits: ${credits.balance.toLocaleString()}`}
+            >
+              <span className="text-xs font-medium text-center">
+                {isCollapsed
+                  ? credits.balance > 999
+                    ? `${Math.floor(credits.balance / 1000)}k`
+                    : credits.balance.toString()
+                  : credits.balance.toLocaleString()}{" "}
+                💎
+              </span>
+            </div>
+          )}
+
           <UserMenu
             showUserName={!isCollapsed}
             className={cn("w-full", isCollapsed ? "justify-center" : "")}

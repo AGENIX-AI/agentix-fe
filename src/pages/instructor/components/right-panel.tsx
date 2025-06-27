@@ -10,6 +10,7 @@ import ReviewDocument from "./reviewDocument/review-document";
 import TopicKnowledge from "./topicKnowledge/topic-knowledge";
 import TopicKnowledgeDetails from "./topicKnowledge/topic-knowledge-details";
 import { EditProfile } from "./editProfile/EditProfile";
+import { BuyCredits } from "./buyCredits/BuyCredits";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -53,6 +54,8 @@ export default function RightPanel({}) {
       return <TopicKnowledgeDetails />;
     case "editProfile":
       return <EditProfile />;
+    case "buyCredits":
+      return <BuyCredits />;
     case "empty":
       return (
         <div className="flex flex-col h-full overflow-hidden">

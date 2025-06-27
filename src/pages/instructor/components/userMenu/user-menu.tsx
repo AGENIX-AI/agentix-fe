@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import {
   BookIcon,
+  CreditCardIcon,
   GlobeIcon,
   HardDriveIcon,
   HomeIcon,
@@ -119,7 +120,7 @@ export function UserMenu({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[240px] p-3 ml-0">
+      <DropdownMenuContent align="end" className="w-[280px] p-3 ml-3">
         <DropdownMenuLabel className="text-sm">
           {userInfo.metadata.full_name}
           <span className="block font-normal text-xs truncate">
@@ -203,6 +204,18 @@ export function UserMenu({
             {t("app.userMenu.accountSettings", "Account Settings")}
           </span>
         </DropdownMenuItem>
+
+        <DropdownMenuItem
+          onClick={() => setRightPanel("buyCredits")}
+          className="text-xs py-2 cursor-pointer"
+        >
+          <CreditCardIcon className="mr-2 size-5" />
+          <span className="text-xs">
+            {t("app.userMenu.buyCredits", "Buy Credits")}
+          </span>
+        </DropdownMenuItem>
+
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
           <a href="https://edvara.net/">

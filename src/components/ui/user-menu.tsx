@@ -16,6 +16,7 @@ import {
 } from "./dropdown-menu";
 import {
   BookIcon,
+  CreditCardIcon,
   GlobeIcon,
   HardDriveIcon,
   HomeIcon,
@@ -197,6 +198,15 @@ export function UserMenu({
             <SettingsIcon className="mr-2 size-5" />
             <span className="text-xs">
               {t("app.userMenu.accountSettings", "Account Settings")}
+            </span>
+          </Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
+          <Link to="/buy-credits">
+            <CreditCardIcon className="mr-2 size-5" />
+            <span className="text-xs">
+              {t("app.userMenu.buyCredits", "Buy Credits")}
             </span>
           </Link>
         </DropdownMenuItem>
