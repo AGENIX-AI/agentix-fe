@@ -9,6 +9,7 @@ import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Waitlist from "./pages/auth/waitlist/Waitlist";
 import WaitlistForm from "./pages/auth/waitlist/WaitlistForm";
 import Instructor from "./pages/instructor/instructor";
+import AdminPortal from "./pages/admin/admin";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";
@@ -35,6 +36,7 @@ function App() {
           <Route element={<PrivateRoute />}>
             <Route path="/instructor" element={<Instructor />} />
             <Route path="/student" element={<Student />} />
+            <Route path="/admin/*" element={<AdminPortal />} />
             {/* Add more protected routes here */}
           </Route>
 
