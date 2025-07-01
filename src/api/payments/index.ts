@@ -26,6 +26,8 @@ export interface Package {
   credit: number;
   price: number;
   popular: boolean;
+  name: string;
+  description: string;
 }
 
 // Credits response interface
@@ -93,23 +95,42 @@ export const getPackages = async (): Promise<{
   message?: string;
 }> => {
   try {
-    const baseUrl = import.meta.env.VITE_API_URL || "";
-    const headers = getAuthHeaders();
+    // Return hardcoded packages data as requested
+    const packages: Package[] = [
+      {
+        id: "289edfe9-fca3-4c65-9348-82e5dc221342",
+        credit: 2000,
+        price: 2,
+        popular: false,
+        name: "Starter Pack",
+        description: "Ideal for new users to explore basic features.",
+      },
+      {
+        id: "094ca33c-699f-48fb-a2f8-7ffaa903ed79",
+        credit: 6500,
+        price: 5,
+        popular: true,
+        name: "Value Pack",
+        description: "A balanced option for regular use at a good price.",
+      },
+      {
+        id: "f2c23850-efb3-4bdd-a6a8-8c2a655c4b15",
+        credit: 9000,
+        price: 7,
+        popular: false,
+        name: "Pro Pack",
+        description: "Great for power users needing more credits.",
+      },
+      {
+        id: "0ad317c9-6a41-492a-a6af-529242850700",
+        credit: 13000,
+        price: 10,
+        popular: false,
+        name: "Max Pack",
+        description: "Best value for heavy users with maximum savings.",
+      },
+    ];
 
-    const response = await fetch(`${baseUrl}/package/get_package`, {
-      method: "GET",
-      credentials: "include",
-      headers,
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(
-        errorData.message || `Failed to get packages: ${response.statusText}`
-      );
-    }
-
-    const packages: Package[] = await response.json();
     return {
       success: true,
       packages,

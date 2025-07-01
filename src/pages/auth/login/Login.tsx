@@ -117,12 +117,73 @@ const LoginForm = () => {
         }
       }
     } catch (e) {
+      console.log("Login error caught:", e);
+      console.log("Error type:", typeof e);
+      console.log(
+        "Error keys:",
+        e && typeof e === "object" ? Object.keys(e) : "not an object"
+      );
+
+      let errorCode: string | undefined;
+
+      // Check for email not confirmed error in different possible structures
+      if (e && typeof e === "object") {
+        // Check direct detail property
+        if ("detail" in e && typeof e.detail === "string") {
+          console.log("Found detail:", e.detail);
+          if (e.detail.includes("Email not confirmed")) {
+            errorCode = "auth/email-not-confirmed";
+          } else if (e.detail.includes("400:")) {
+            errorCode = "400";
+          }
+        }
+
+        // Check if it's wrapped in response.data or similar
+        if (
+          !errorCode &&
+          "response" in e &&
+          e.response &&
+          typeof e.response === "object"
+        ) {
+          const response = e.response as any;
+          if (
+            "data" in response &&
+            response.data &&
+            typeof response.data === "object"
+          ) {
+            if (
+              "detail" in response.data &&
+              typeof response.data.detail === "string"
+            ) {
+              console.log(
+                "Found detail in response.data:",
+                response.data.detail
+              );
+              if (response.data.detail.includes("Email not confirmed")) {
+                errorCode = "auth/email-not-confirmed";
+              }
+            }
+          }
+        }
+
+        // Check if error message is in message property
+        if (!errorCode && "message" in e && typeof e.message === "string") {
+          console.log("Found message:", e.message);
+          if (e.message.includes("Email not confirmed")) {
+            errorCode = "auth/email-not-confirmed";
+          }
+        }
+      }
+
+      // Fallback to existing code-based error handling
+      if (!errorCode && e && typeof e === "object" && "code" in e) {
+        errorCode = e.code as string;
+      }
+
+      console.log("Final error code:", errorCode);
+
       form.setError("root", {
-        message: getAuthErrorMessage(
-          e && typeof e === "object" && "code" in e
-            ? (e.code as string)
-            : undefined
-        ),
+        message: getAuthErrorMessage(errorCode),
       });
     }
   };
@@ -133,12 +194,29 @@ const LoginForm = () => {
 
       navigate(redirectPath, { replace: true });
     } catch (e) {
+      let errorCode: string | undefined;
+
+      // Check for email not confirmed error
+      if (
+        e &&
+        typeof e === "object" &&
+        "detail" in e &&
+        typeof e.detail === "string"
+      ) {
+        if (e.detail.includes("Email not confirmed")) {
+          errorCode = "auth/email-not-confirmed";
+        } else if (e.detail.includes("400:")) {
+          errorCode = "400";
+        }
+      }
+
+      // Fallback to existing code-based error handling
+      if (!errorCode && e && typeof e === "object" && "code" in e) {
+        errorCode = e.code as string;
+      }
+
       form.setError("root", {
-        message: getAuthErrorMessage(
-          e && typeof e === "object" && "code" in e
-            ? (e.code as string)
-            : undefined
-        ),
+        message: getAuthErrorMessage(errorCode),
       });
     }
   };
@@ -179,8 +257,10 @@ const LoginForm = () => {
               {form.formState.isSubmitted &&
                 form.formState.errors.root?.message && (
                   <Alert variant="destructive">
-                    <span className="size-6">⚠️</span>
                     <AlertTitle>
+                      <span className="inline-flex items-center justify-center w-4 h-4 mr-2">
+                        ⚠️
+                      </span>{" "}
                       {form.formState.errors.root.message}
                     </AlertTitle>
                   </Alert>
@@ -279,7 +359,9 @@ const LoginForm = () => {
                     className="w-full sm:col-span-2"
                     onClick={() => signInWithPasskey()}
                   >
-                    <span className="mr-1.5 size-4 text-primary">🔑</span>
+                    <span className="mr-2 inline-flex items-center justify-center w-4 h-4 text-primary">
+                      🔑
+                    </span>
                     {t("auth.login.loginWithPasskey")}
                   </Button>
                 )}

@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "@/components/ui/user-menu";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
+import { NovuProvider, Inbox } from "@novu/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -32,6 +34,7 @@ export function ResizableSidebar({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
+  const { userInfo } = useAuth();
   const [width, setWidth] = useState<number>(initialWidth);
   const [isDragging, setIsDragging] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -381,6 +384,46 @@ export function ResizableSidebar({
             isCollapsed ? "flex flex-col items-center" : ""
           )}
         >
+          {/* Notification Center */}
+          <div
+            className={cn(
+              "w-full transition-colors relative",
+              isCollapsed ? "justify-center " : "justify-start "
+            )}
+            style={{ zIndex: 9999 }}
+          >
+            <style>{`
+              [data-novu-cn="popover-content"]:not([data-novu-cn="bell"]),
+              .novu-notification-center-popover-content:not(.bell):not([class*="bell"]) {
+                position: fixed !important;
+                bottom: 120px !important;
+                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
+                transform: none !important;
+                top: auto !important;
+                z-index: 9999 !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+              }
+              
+              .nv-popoverContent:not(.nv-bell):not([class*="bell"]) {
+                position: fixed !important;
+                bottom: 120px !important;
+                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
+                transform: none !important;
+                top: auto !important;
+                z-index: 9999 !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+              }
+            `}</style>
+            <NovuProvider
+              subscriberId={userInfo?.id || ""}
+              applicationIdentifier={
+                import.meta.env.VITE_NOVU_APP_IDENTIFIER || ""
+              }
+            >
+              <Inbox />
+            </NovuProvider>
+          </div>
+
           {/* Credits Display */}
           {credits && !creditsError && (
             <div

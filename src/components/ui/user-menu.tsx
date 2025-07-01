@@ -32,7 +32,7 @@ import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
-declare const __BUILD_NUMBER__: string;
+import { useStudent } from "@/contexts/StudentContext";
 
 export function UserMenu({
   showUserName,
@@ -47,7 +47,7 @@ export function UserMenu({
   const [theme, setTheme] = useState<string>(currentTheme ?? "system");
   const [language, setLanguage] = useState<string>(i18n.language);
   const { signOut } = useAuth();
-
+  const { setRightPanel } = useStudent();
   const colorModeOptions = [
     {
       value: "system",
@@ -137,7 +137,7 @@ export function UserMenu({
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="w-[200px] ml-2">
+            <DropdownMenuSubContent className="w-[280px] ml-2">
               <DropdownMenuRadioGroup
                 value={theme}
                 onValueChange={(value) => {
@@ -202,14 +202,16 @@ export function UserMenu({
           </Link>
         </DropdownMenuItem>
 
-        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
-          <Link to="/buy-credits">
-            <CreditCardIcon className="mr-2 size-5" />
-            <span className="text-xs">
-              {t("app.userMenu.buyCredits", "Buy Credits")}
-            </span>
-          </Link>
+        <DropdownMenuItem
+          onClick={() => setRightPanel("buyCredits")}
+          className="text-xs py-2 cursor-pointer"
+        >
+          <CreditCardIcon className="mr-2 size-5" />
+          <span className="text-xs">
+            {t("app.userMenu.buyCredits", "Buy Credits")}
+          </span>
         </DropdownMenuItem>
+        <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
           <a href="https://supastarter.dev/docs/nextjs">

@@ -83,6 +83,8 @@ const viTranslation = {
       invalidLink: "Liên kết này không hợp lệ hoặc đã được sử dụng.",
       tooManyRequests: "Quá nhiều lần thử. Vui lòng thử lại sau.",
       magicLinkFailed: "Không thể gửi liên kết ma thuật. Vui lòng thử lại.",
+      emailNotConfirmed:
+        "Vui lòng xác minh địa chỉ email của bạn trước khi đăng nhập. Kiểm tra email để tìm liên kết xác nhận.",
       invalidCredentials:
         "Thông tin đăng nhập không hợp lệ. Vui lòng kiểm tra email và mật khẩu của bạn.",
       defaultError: "Đã xảy ra lỗi. Vui lòng thử lại.",

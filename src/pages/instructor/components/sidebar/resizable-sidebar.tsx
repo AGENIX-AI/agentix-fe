@@ -10,6 +10,8 @@ import { Separator } from "@/components/ui/separator";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { UserMenu } from "../userMenu/user-menu";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
+import { NovuProvider, Inbox } from "@novu/react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -39,7 +41,7 @@ export function ResizableSidebar({
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
   const { setRightPanel } = useInstructor();
-
+  const { userInfo } = useAuth();
   // Poll credits every 5 seconds
   const { credits, error: creditsError } = useCreditsPolling(5000);
 
@@ -384,6 +386,46 @@ export function ResizableSidebar({
             isCollapsed ? "flex flex-col items-center" : ""
           )}
         >
+          {" "}
+          {/* Notification Center */}
+          <div
+            className={cn(
+              "w-full transition-colors relative",
+              isCollapsed ? "justify-center" : "justify-start"
+            )}
+            style={{ zIndex: 9999 }}
+          >
+            <style>{`
+              [data-novu-cn="popover-content"]:not([data-novu-cn="bell"]),
+              .novu-notification-center-popover-content:not(.bell):not([class*="bell"]) {
+                position: fixed !important;
+                bottom: 120px !important;
+                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
+                transform: none !important;
+                top: auto !important;
+                z-index: 9999 !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+              }
+              
+              .nv-popoverContent:not(.nv-bell):not([class*="bell"]) {
+                position: fixed !important;
+                bottom: 120px !important;
+                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
+                transform: none !important;
+                top: auto !important;
+                z-index: 9999 !important;
+                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
+              }
+            `}</style>
+            <NovuProvider
+              subscriberId={userInfo?.id || ""}
+              applicationIdentifier={
+                import.meta.env.VITE_NOVU_APP_IDENTIFIER || ""
+              }
+            >
+              <Inbox />
+            </NovuProvider>
+          </div>
           {/* Credits Display */}
           {credits && !creditsError && (
             <div
@@ -400,7 +442,6 @@ export function ResizableSidebar({
               </span>
             </div>
           )}
-
           <UserMenu
             showUserName={!isCollapsed}
             className={cn("w-full", isCollapsed ? "justify-center" : "")}

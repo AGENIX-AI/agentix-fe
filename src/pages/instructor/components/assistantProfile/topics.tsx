@@ -8,6 +8,7 @@ import type {
   InstructorConversation,
   GetInstructorConversationsResponse,
 } from "@/api/instructor";
+import { Large } from "@/components/ui/typography";
 // Types
 interface Personality {
   id: string;
@@ -73,7 +74,7 @@ function ConversationList({
         </div>
       ) : (
         conversationData && (
-          <div className="space-y-3 mt-2">
+          <div className="space-y-3 mt-3">
             {Object.entries(conversationData.conversations).map(
               ([category, conversations]) => (
                 <ConversationCategory
@@ -135,7 +136,7 @@ function ConversationCategory({
     <>
       <div className="mb-5 h-full">
         <div className="flex items-center mb-2 px-6">
-          <h3 className="text-base font-semibold">{getCategoryTitle()}</h3>
+          <Large className="font-bold">{getCategoryTitle()}</Large>
         </div>
 
         {conversations && conversations.length > 0 ? (

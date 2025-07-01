@@ -83,6 +83,8 @@ const enTranslation: Record<string, any> = {
       invalidLink: "This link is invalid or has already been used.",
       tooManyRequests: "Too many attempts. Please try again later.",
       magicLinkFailed: "Failed to send magic link. Please try again.",
+      emailNotConfirmed:
+        "Please verify your email address before signing in. Check your email for a confirmation link.",
       invalidCredentials:
         "Invalid credentials. Please check your email and password.",
       defaultError: "An error occurred. Please try again.",

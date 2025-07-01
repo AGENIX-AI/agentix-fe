@@ -3,6 +3,7 @@ import { useStudent } from "@/contexts/StudentContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
+import { BuyCredits } from "./buyCredits/BuyCredits";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -36,6 +37,12 @@ export default function RightPanel({}) {
       return (
         <div>
           <InstructorFinder />
+        </div>
+      );
+    case "buyCredits":
+      return (
+        <div>
+          <BuyCredits />
         </div>
       );
     case "empty":

@@ -49,7 +49,7 @@ export function HistoryComponent({ className }: HistoryComponentProps) {
             <Separator orientation="horizontal" className="w-full my-1" />
           </div>
 
-          <div className="text-[10px] text-center mb-2">
+          <div className="text-[10px] text-center mb-1">
             {/* {renderDisclaimerText()} */}
             <span className="text-[9px] block font-normal text-xs truncate">
               v.{import.meta.env.VITE_APP_VERSION}.
