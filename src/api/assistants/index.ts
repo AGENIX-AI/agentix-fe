@@ -1,6 +1,7 @@
 // API functions for assistants
 
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 // Assistant interface based on the sample response
 export interface PersonalityStyle {
@@ -147,6 +148,9 @@ export const getAssistantById = async (
     );
 
     if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to fetch assistant: ${response.statusText}`)
+      );
       throw new Error(`Failed to fetch assistant: ${response.statusText}`);
     }
 
@@ -184,6 +188,9 @@ export async function generateAssistantCapabilities(
   const data = await response.json();
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to generate capabilities: ${response.statusText}`)
+    );
     console.error("Generate capabilities failed:", data);
     throw new Error(data.error || "Failed to generate capabilities");
   }
@@ -207,6 +214,9 @@ export async function updateAssistant(
   const data = await response.json();
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update assistant: ${response.statusText}`)
+    );
     console.error("Update assistant failed:", data);
     throw new Error(data.error || "Failed to update assistant");
   }
@@ -244,6 +254,9 @@ export async function uploadAssistantImage(
     const data = await response.json();
 
     if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to upload image: ${response.statusText}`)
+      );
       console.error("Upload failed:", data);
       throw new Error(data.error || "Image upload failed");
     }
@@ -273,6 +286,9 @@ export async function generateAssistantImage(
   const data = await response.json();
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to generate image: ${response.statusText}`)
+    );
     console.error("Generate image failed:", data);
     throw new Error(data.error || "Failed to generate image");
   }
@@ -295,6 +311,9 @@ export async function createAssistant(
   const data = await response.json();
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create assistant: ${response.statusText}`)
+    );
     console.error("Create assistant failed:", data);
     throw new Error(data.error || "Failed to create assistant");
   }

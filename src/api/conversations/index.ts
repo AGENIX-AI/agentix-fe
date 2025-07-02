@@ -1,6 +1,7 @@
 // API functions for conversations
 
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 // Types for getMessages function
 export interface MessageNarrowItem {
@@ -86,6 +87,9 @@ export const createFirstConversation = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create conversation: ${response.statusText}`)
+    );
     throw new Error(`Failed to create conversation: ${response.statusText}`);
   }
 
@@ -113,6 +117,11 @@ export const createInstructorFirstConversation = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to create instructor conversation: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to create instructor conversation: ${response.statusText}`
     );
@@ -139,6 +148,9 @@ export const getConversationById = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch conversation: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch conversation: ${response.statusText}`);
   }
 
@@ -172,6 +184,9 @@ export const getConversationHistory = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch conversation history: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch conversation history: ${response.statusText}`
     );
@@ -357,6 +372,9 @@ export const getConversations = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch conversations: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch conversations: ${response.statusText}`);
   }
 
@@ -393,6 +411,9 @@ export const sendMessage = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to send message: ${response.statusText}`)
+    );
     throw new Error(`Failed to send message: ${response.statusText}`);
   }
 
@@ -429,6 +450,9 @@ export const getConversationTasks = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch conversation tasks: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch conversation tasks: ${response.statusText}`
     );
@@ -451,6 +475,9 @@ export const getSpeech = async (message: string): Promise<any> => {
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch speech: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch speech: ${response.statusText}`);
   }
 
@@ -493,6 +520,11 @@ export const generateTutoringDiscuss = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to generate tutoring discussion: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to generate tutoring discussion: ${response.statusText}`
     );
@@ -537,6 +569,11 @@ export const refactorTutoringDiscuss = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to refactor tutoring discussion: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to refactor tutoring discussion: ${response.statusText}`
     );
@@ -579,6 +616,9 @@ export const createGenerateTask = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create new topic: ${response.statusText}`)
+    );
     throw new Error(`Failed to create new topic: ${response.statusText}`);
   }
 

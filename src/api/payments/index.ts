@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 // Helper function to get auth headers
 const getAuthHeaders = () => {
@@ -166,6 +167,9 @@ export const createPaymentIntent = async (
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to create payment intent: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message ||
           `Failed to create payment intent: ${response.statusText}`
@@ -212,6 +216,9 @@ export const checkPaymentStatus = async (
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to check payment status: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message ||
           `Failed to check payment status: ${response.statusText}`
@@ -259,6 +266,9 @@ export const getUserCredits = async (): Promise<{
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to get user credits: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message ||
           `Failed to get user credits: ${response.statusText}`
@@ -296,6 +306,9 @@ export const getCredits = async (): Promise<Credits> => {
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to get credits: ${response.statusText}`)
+    );
     throw new Error(`Failed to get credits: ${response.statusText}`);
   }
 
@@ -327,6 +340,9 @@ export const capturePayment = async (
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to capture payment: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message || `Failed to capture payment: ${response.statusText}`
       );
@@ -374,6 +390,9 @@ export const captureAndCheckPayment = async (
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to process payment: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message || `Failed to process payment: ${response.statusText}`
       );
@@ -413,6 +432,9 @@ export const getPaymentHistory = async (): Promise<{
 
     if (!response.ok) {
       const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to get payment history: ${response.statusText}`)
+      );
       throw new Error(
         errorData.message ||
           `Failed to get payment history: ${response.statusText}`

@@ -10,6 +10,7 @@ import { eventBus } from "@/lib/utils/event/eventBus";
 import { getConversationHistory, sendMessage } from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/ChatContext";
+import * as Sentry from "@sentry/react";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -121,6 +122,7 @@ export function ChatComponent() {
         }
       }, 100);
     } catch (error) {
+      Sentry.captureException(error);
       console.error("Error fetching messages:", error);
     } finally {
       setIsChatLoading(false);

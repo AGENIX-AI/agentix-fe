@@ -1,4 +1,4 @@
-// Fake API functions for student data
+import * as Sentry from "@sentry/react";
 
 interface Course {
   id: string;

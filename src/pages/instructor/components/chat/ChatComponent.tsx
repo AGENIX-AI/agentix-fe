@@ -11,6 +11,7 @@ import { getConversationHistory } from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/InstructorChatContext";
 import { sendInstructorMessage } from "@/api/instructor";
+import * as Sentry from "@sentry/react";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -123,6 +124,7 @@ export function ChatComponent() {
       }, 100);
     } catch (error) {
       console.error("Error fetching messages:", error);
+      Sentry.captureException(error);
     } finally {
       setIsChatLoading(false);
     }

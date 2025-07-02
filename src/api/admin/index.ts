@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
@@ -242,6 +243,9 @@ export const adminApi = {
       );
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch instructors: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch instructors: ${response.statusText}`);
       }
 
@@ -278,6 +282,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch students: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch students: ${response.statusText}`);
       }
 
@@ -323,6 +330,9 @@ export const adminApi = {
       );
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch assistants: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch assistants: ${response.statusText}`);
       }
 
@@ -346,6 +356,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch total revenue: ${response.statusText}`)
+        );
         throw new Error(
           `Failed to fetch total revenue: ${response.statusText}`
         );
@@ -387,6 +400,9 @@ export const adminApi = {
       );
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch transactions: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch transactions: ${response.statusText}`);
       }
 
@@ -410,6 +426,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch packages: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch packages: ${response.statusText}`);
       }
 
@@ -437,6 +456,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to create package: ${response.statusText}`)
+        );
         throw new Error(`Failed to create package: ${response.statusText}`);
       }
 
@@ -467,6 +489,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to update package: ${response.statusText}`)
+        );
         throw new Error(`Failed to update package: ${response.statusText}`);
       }
 
@@ -490,6 +515,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to delete package: ${response.statusText}`)
+        );
         throw new Error(`Failed to delete package: ${response.statusText}`);
       }
 
@@ -513,6 +541,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch count stats: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch count stats: ${response.statusText}`);
       }
 
@@ -536,6 +567,9 @@ export const adminApi = {
       });
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch waitlist: ${response.statusText}`)
+        );
         throw new Error(`Failed to fetch waitlist: ${response.statusText}`);
       }
 
@@ -562,6 +596,9 @@ export const adminApi = {
       );
 
       if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to approve waitlist: ${response.statusText}`)
+        );
         throw new Error(`Failed to approve waitlist: ${response.statusText}`);
       }
 

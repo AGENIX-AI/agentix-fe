@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 export interface MarkdownResponse {
   success: boolean;
@@ -70,6 +71,9 @@ export const getMarkdownFile = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch markdown file: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch markdown file: ${response.statusText}`);
   }
 
@@ -99,6 +103,9 @@ export const updateMarkdownFile = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update markdown file: ${response.statusText}`)
+    );
     throw new Error(`Failed to update markdown file: ${response.statusText}`);
   }
 
@@ -128,6 +135,9 @@ export const editDocument = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to edit document: ${response.statusText}`)
+    );
     throw new Error(`Failed to edit document: ${response.statusText}`);
   }
 
@@ -157,6 +167,9 @@ export const magicEditDocument = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to magic edit document: ${response.statusText}`)
+    );
     throw new Error(`Failed to magic edit document: ${response.statusText}`);
   }
 
@@ -176,16 +189,22 @@ export const submitLearningDocument = async (
   const baseUrl = getBaseUrl();
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/submit_learning_document`, {
-    method: "POST",
-    headers,
-    body: JSON.stringify({
-      conversation_id: conversationId,
-      document_path: documentPath,
-    }),
-  });
+  const response = await fetch(
+    `${baseUrl}/documents/submit_learning_document`,
+    {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        conversation_id: conversationId,
+        document_path: documentPath,
+      }),
+    }
+  );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to submit document: ${response.statusText}`)
+    );
     throw new Error(`Failed to submit document: ${response.statusText}`);
   }
 

@@ -1,6 +1,7 @@
 // API functions for instructor data
 
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 /**
  * Response for creating a learning discussion
@@ -181,6 +182,9 @@ export const getInstructors = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch instructors: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch instructors: ${response.statusText}`);
   }
 
@@ -208,6 +212,9 @@ export const getInstructorById = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch instructor: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch instructor: ${response.statusText}`);
   }
 
@@ -235,6 +242,9 @@ export const getInstructorAssistants = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch instructor assistants: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch instructor assistants: ${response.statusText}`
     );
@@ -265,6 +275,9 @@ export const createLearningDiscuss = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create learning discussion: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to create learning discussion: ${response.statusText}`
     );
@@ -295,6 +308,11 @@ export const createGenerateTasklistLearning = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to create and generate tasklist learning: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to create and generate tasklist learning: ${response.statusText}`
     );
@@ -331,6 +349,11 @@ export const getInstructorConversations = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to fetch instructor conversations: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to fetch instructor conversations: ${response.statusText}`
     );
@@ -372,6 +395,9 @@ export const sendInstructorMessage = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to send message: ${response.statusText}`)
+    );
     throw new Error(`Failed to send message: ${response.statusText}`);
   }
 
@@ -396,6 +422,9 @@ export const getInstructorProfile = async (): Promise<InstructorProfile> => {
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch instructor profile: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch instructor profile: ${response.statusText}`
     );
@@ -434,6 +463,9 @@ export const updateInstructorProfile = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update instructor profile: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to update instructor profile: ${response.statusText}`
     );
@@ -489,6 +521,7 @@ export async function uploadInstructorProfileImage(
 
     if (!response.ok) {
       console.error("Upload failed:", data);
+      Sentry.captureException(new Error(data.error || "Image upload failed"));
       throw new Error(data.error || "Image upload failed");
     }
 

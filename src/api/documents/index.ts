@@ -1,4 +1,5 @@
 import Cookies from "js-cookie";
+import * as Sentry from "@sentry/react";
 
 /**
  * Parameters for getting documents
@@ -128,6 +129,9 @@ export const getImageDocuments = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch image documents: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch image documents: ${response.statusText}`);
   }
 
@@ -165,6 +169,9 @@ export const getImageDocument = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch image document: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch image document: ${response.statusText}`);
   }
 
@@ -206,6 +213,9 @@ export const uploadImageDocument = async (
   if (!response.ok) {
     const data = await response.json();
     console.error("Upload failed:", data);
+    Sentry.captureException(
+      new Error(`Failed to upload image document: ${response.statusText}`)
+    );
     throw new Error(
       data.error || `Failed to upload image document: ${response.statusText}`
     );
@@ -254,6 +264,9 @@ export const uploadDocument = async (
   if (!response.ok) {
     const data = await response.json();
     console.error("Upload failed:", data);
+    Sentry.captureException(
+      new Error(`Failed to upload document: ${response.statusText}`)
+    );
     throw new Error(
       data.error || `Failed to upload document: ${response.statusText}`
     );
@@ -303,6 +316,9 @@ export const uploadDocumentFile = async (
   if (!response.ok) {
     const data = await response.json();
     console.error("Upload failed:", data);
+    Sentry.captureException(
+      new Error(`Failed to upload document: ${response.statusText}`)
+    );
     throw new Error(
       data.error || `Failed to upload document: ${response.statusText}`
     );
@@ -341,6 +357,9 @@ export const createImageIndex = async (
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create image index: ${response.statusText}`)
+    );
     throw new Error(`Failed to create image index: ${response.statusText}`);
   }
 
@@ -379,6 +398,9 @@ export const getAssistantDocuments = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch assistant documents: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch assistant documents: ${response.statusText}`
     );
@@ -418,6 +440,9 @@ export const getOwnDocuments = async (
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch own documents: ${response.statusText}`)
+    );
     throw new Error(`Failed to fetch own documents: ${response.statusText}`);
   }
 
@@ -442,6 +467,9 @@ export async function linkDocument(documentId: string, assistantId: string) {
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to link document: ${response.statusText}`)
+    );
     throw new Error(`Failed to link document: ${response.statusText}`);
   }
 
@@ -466,6 +494,9 @@ export async function unlinkDocument(documentId: string, assistantId: string) {
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to unlink document: ${response.statusText}`)
+    );
     throw new Error(`Failed to unlink document: ${response.statusText}`);
   }
 
@@ -503,6 +534,11 @@ export async function getTopicKnowledgeReferenceDocuments(
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to fetch topic knowledge reference documents: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to fetch topic knowledge reference documents: ${response.statusText}`
     );
@@ -551,6 +587,9 @@ export async function getTopicKnowledgeItems(
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch topic knowledge items: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to fetch topic knowledge items: ${response.statusText}`
     );
@@ -579,6 +618,9 @@ export async function createTopicKnowledge(data: {
   });
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create topic knowledge: ${response.statusText}`)
+    );
     throw new Error(`Failed to create topic knowledge: ${response.statusText}`);
   }
 
@@ -614,6 +656,11 @@ export async function createTopicKnowledgeManual(data: {
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to create manual topic knowledge: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to create manual topic knowledge: ${response.statusText}`
     );
@@ -651,6 +698,11 @@ export async function createTopicKnowledgeFramework(data: {
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to create framework topic knowledge: ${response.statusText}`
+      )
+    );
     throw new Error(
       `Failed to create framework topic knowledge: ${response.statusText}`
     );
@@ -690,6 +742,9 @@ export async function modifyTopicKnowledge(
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to modify topic knowledge: ${response.statusText}`)
+    );
     throw new Error(`Failed to modify topic knowledge: ${response.statusText}`);
   }
 
@@ -716,6 +771,9 @@ export async function deleteTopicKnowledge(chunkIndex: string): Promise<{
   );
 
   if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to delete knowledge component: ${response.statusText}`)
+    );
     throw new Error(
       `Failed to delete knowledge component: ${response.statusText}`
     );
