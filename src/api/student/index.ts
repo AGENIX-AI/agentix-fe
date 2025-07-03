@@ -1,5 +1,3 @@
-import * as Sentry from "@sentry/react";
-
 interface Course {
   id: string;
   title: string;

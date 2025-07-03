@@ -112,6 +112,7 @@ export interface InstructorProfile {
   created_at: string;
   updated_at: string;
   id: string;
+  accepted?: boolean;
 }
 
 export interface InstructorAssistant {
@@ -531,3 +532,42 @@ export async function uploadInstructorProfileImage(
     throw new Error("Error uploading instructor profile image");
   }
 }
+
+/**
+ * Sign up to become an instructor
+ * @param profileData - The instructor profile data for signup
+ * @returns The created instructor profile
+ */
+export interface SignToInstructorData {
+  instructor_name: string;
+  instructor_description: string;
+  profile_image: string;
+  background_image: string;
+  payment_info: string;
+}
+
+export const signToInstructor = async (
+  profileData: SignToInstructorData
+): Promise<InstructorProfile> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/instructor-profiles/sign-to-instructor`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(profileData),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to sign up as instructor: ${response.statusText}`)
+    );
+    throw new Error(`Failed to sign up as instructor: ${response.statusText}`);
+  }
+
+  return await response.json();
+};

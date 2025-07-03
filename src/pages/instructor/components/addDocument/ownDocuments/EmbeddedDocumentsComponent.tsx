@@ -31,7 +31,7 @@ export function EmbeddedDocumentsComponent({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  const [documentType, setDocumentType] = useState<DocumentType>("all");
+  const [documentType, setDocumentType] = useState<DocumentType>("document");
 
   // Fetch documents when page, search, document type, or refresh trigger changes
   useEffect(() => {

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { Toaster } from "sonner";
 
 // Pages
 
@@ -43,6 +44,7 @@ function App() {
           {/* Redirect any unknown routes to home */}
           <Route path="*" element={<Navigate to="/auth/login" replace />} />
         </Routes>
+        <Toaster />
       </BrowserRouter>
     </AuthProvider>
   );

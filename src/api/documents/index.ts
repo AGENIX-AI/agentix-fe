@@ -62,7 +62,7 @@ export interface GetDocumentsParams {
   sort_by?: string;
   sort_order?: number;
   search?: string;
-  type?: "document" | "image" | "topic_knowledge";
+  type?: "document" | "image" | "topic_knowledge" | "all";
   assistant_id?: string;
 }
 

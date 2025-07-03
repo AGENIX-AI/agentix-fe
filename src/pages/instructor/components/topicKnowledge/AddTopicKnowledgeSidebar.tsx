@@ -228,7 +228,7 @@ export function AddTopicKnowledgeSidebar({
           </div>
 
           {/* Framework Selection */}
-          <div className="space-y-2">
+          {/* <div className="space-y-2">
             <Label className="text-xs">Analytical Framework</Label>
             <Select
               value={framework}
@@ -253,7 +253,7 @@ export function AddTopicKnowledgeSidebar({
                 </SelectItem>
               </SelectContent>
             </Select>
-          </div>
+          </div> */}
 
           {/* Framework Description */}
           <div className="p-4 bg-muted/50 rounded-lg">
