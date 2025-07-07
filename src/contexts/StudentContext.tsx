@@ -38,8 +38,6 @@ interface AssistantInfo {
 }
 
 interface AppPageContextType {
-  isHistoryVisible: boolean;
-  toggleHistory: () => void;
   assistantId: string | null;
   setAssistantId: (id: string | null) => void;
   assistantInfo: AssistantInfo | null;
@@ -62,7 +60,6 @@ export function StudentContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  const [isHistoryVisible, setIsHistoryVisible] = useState(true);
   const [assistantId, setAssistantId] = useState<string | null>(null);
   const [assistantInfo, setAssistantInfo] = useState<AssistantInfo | null>(
     null
@@ -71,10 +68,6 @@ export function StudentContextProvider({
   const [rightPanel, setRightPanel] = useState("findInstructor");
   const [instructorId, setInstructorId] = useState<string | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
-
-  const toggleHistory = () => {
-    setIsHistoryVisible(!isHistoryVisible);
-  };
 
   // Define fetchAssistantData outside useEffect and memoize it with useCallback
   const fetchAssistantData = useCallback(async () => {
@@ -110,8 +103,6 @@ export function StudentContextProvider({
   return (
     <StudentContext.Provider
       value={{
-        isHistoryVisible,
-        toggleHistory,
         assistantId,
         setAssistantId,
         assistantInfo,

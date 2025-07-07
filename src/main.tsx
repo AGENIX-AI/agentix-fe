@@ -12,7 +12,6 @@ Sentry.init({
   tracesSampleRate: 1.0,
   sendDefaultPii: true,
   tunnel: "/sentry-tunnel", // forward events via same-origin proxy
-  debug: true,
 });
 
 createRoot(document.getElementById("root")!).render(

@@ -6,6 +6,7 @@ import {
   LayoutDashboard,
   FileText,
   Brain,
+  AlignJustify,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -36,6 +37,11 @@ export const sidebarData: SidebarData = {
     {
       title: "General",
       items: [
+        {
+          title: "Expand/Collapse",
+          url: "#",
+          icon: AlignJustify,
+        },
         {
           title: "Dashboard",
           url: "/instructor",

@@ -12,22 +12,33 @@ import { ConversationItem } from "./ConversationItem";
 interface UserConversationsBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
+  conversationsData: ConversationListItem[];
 }
 
 function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
+  conversationsData,
 }: UserConversationsBlockProps) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
-    []
+    conversationsData || []
   );
   const conversationsRef = useRef<ConversationListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(!conversationsData);
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 100;
+
+  // Update local state when prop changes
+  useEffect(() => {
+    if (conversationsData) {
+      setConversations(conversationsData);
+      conversationsRef.current = conversationsData;
+      setIsLoading(false);
+    }
+  }, [conversationsData]);
 
   // Display loading state for the history component
   const showLoadingState = isLoading && conversations.length === 0;
@@ -55,10 +66,12 @@ function UserConversationsBlockComponent({
     }
   };
 
-  // Initial fetch of conversations
+  // Initial fetch of conversations only if no data provided via props
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (!conversationsData || conversationsData.length === 0) {
+      fetchConversations();
+    }
+  }, [conversationsData]);
 
   // Handle search query changes
   useEffect(() => {

@@ -19,7 +19,6 @@ export interface ResizableSidebarProps {
   minWidth?: number;
   maxWidth?: number;
   storageKey?: string;
-  isCollapsed?: boolean;
 }
 
 export function ResizableSidebar({
@@ -28,9 +27,9 @@ export function ResizableSidebar({
   minWidth = 180,
   maxWidth = 400,
   storageKey = "edvara-sidebar-width",
-  isCollapsed = false,
 }: ResizableSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
@@ -355,6 +354,9 @@ export function ResizableSidebar({
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
                             }
+                            if (navItem.title === "Expand/Collapse") {
+                              setIsCollapsed(!isCollapsed);
+                            }
                           }}
                         >
                           {Icon && <Icon className="h-4 w-4" />}
@@ -387,8 +389,7 @@ export function ResizableSidebar({
           {/* Notification Center */}
           <div
             className={cn(
-              "w-full transition-colors relative",
-              isCollapsed ? "justify-center " : "justify-start "
+              "w-full transition-colors relative flex justify-center"
             )}
             style={{ zIndex: 9999 }}
           >

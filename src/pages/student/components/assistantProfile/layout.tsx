@@ -1,6 +1,5 @@
 import { ConversationTasks } from "./tasks";
 import { AssistantProfile } from "./profile";
-import { AssistantTopics } from "./topics";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useStudent } from "@/contexts/StudentContext";
@@ -8,7 +7,13 @@ import { useEffect, useState } from "react";
 import type { Assistant } from "@/api/assistants";
 import type { InstructorProfile } from "@/api/instructor";
 import { getInstructorById } from "@/api/instructor";
+import { getConversationById } from "@/api/conversations";
 import { LoadingState } from "@/components/ui/loading-state";
+
+interface ConversationData {
+  type?: string;
+  [key: string]: unknown;
+}
 
 interface AssistantBannerProps {
   assistant: Assistant | null;
@@ -96,10 +101,12 @@ function AssistantBanner({
   );
 }
 
-export function AssistantView({ page }: { page: string }) {
-  const { assistantId, instructorId } = useStudent();
+export function AssistantView() {
+  const { assistantId, instructorId, conversationId } = useStudent();
   const { assistantInfo } = useStudent();
   const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
+  const [conversationData, setConversationData] =
+    useState<ConversationData | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -114,6 +121,12 @@ export function AssistantView({ page }: { page: string }) {
             const instructorData = await getInstructorById(instructorId);
             setInstructor(instructorData);
           }
+
+          // Fetch conversation data if conversationId is available
+          if (conversationId) {
+            const convData = await getConversationById(conversationId);
+            setConversationData(convData);
+          }
         } catch (error) {
           console.error("Error fetching data:", error);
           setError("Failed to load data. Please try again later.");
@@ -124,7 +137,13 @@ export function AssistantView({ page }: { page: string }) {
 
       fetchData();
     }
-  }, [assistantId, instructorId]);
+  }, [assistantId, instructorId, conversationId]);
+
+  // Determine if we should show the Tasks tab
+  const shouldShowTasksTab = conversationData?.type !== "General";
+
+  // Default to Profile tab
+  const defaultTab = "agentCapabilityStatement";
 
   return (
     <div className="flex flex-col h-full max-h-screen">
@@ -141,38 +160,35 @@ export function AssistantView({ page }: { page: string }) {
       )}
 
       <div className="overflow-y-auto flex-1 pb-1">
-        <Tabs defaultValue={page} className="w-full mt-2">
-          <TabsList className="w-full bg-transparent border-none flex gap-2 p-5">
-            <TabsTrigger
-              value="tasks"
-              className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
-            >
-              Tasks
-            </TabsTrigger>
-            <TabsTrigger
-              value="agentCapabilityStatement"
-              className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
-            >
-              Profile
-            </TabsTrigger>
-            <TabsTrigger
-              value="assistantTopics"
-              className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
-            >
-              Topics
-            </TabsTrigger>
-          </TabsList>
+        {shouldShowTasksTab ? (
+          <Tabs defaultValue={defaultTab} className="w-full mt-2">
+            <TabsList className="w-full bg-transparent border-none flex gap-2 p-5">
+              <TabsTrigger
+                value="tasks"
+                className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
+              >
+                Tasks
+              </TabsTrigger>
+              <TabsTrigger
+                value="agentCapabilityStatement"
+                className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
+              >
+                Profile
+              </TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="tasks">
-            <ConversationTasks />
-          </TabsContent>
-          <TabsContent value="agentCapabilityStatement">
+            <TabsContent value="tasks">
+              <ConversationTasks />
+            </TabsContent>
+            <TabsContent value="agentCapabilityStatement">
+              <AssistantProfile />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          <div className="w-full mt-2">
             <AssistantProfile />
-          </TabsContent>
-          <TabsContent value="assistantTopics">
-            <AssistantTopics />
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
     </div>
   );

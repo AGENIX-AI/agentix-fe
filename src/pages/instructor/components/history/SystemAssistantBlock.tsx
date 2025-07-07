@@ -1,4 +1,4 @@
-import { useState, useEffect, memo } from "react";
+import { useState, useEffect, useCallback, memo } from "react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
@@ -11,17 +11,27 @@ import { ConversationItem } from "./ConversationItem";
 
 function SystemAssistantBlockComponent({
   setIsChatLoading,
+  systemAssistantData,
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
+  systemAssistantData: SystemAssistantResponse | null;
 }) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
   const [systemAssistant, setSystemAssistant] =
-    useState<SystemAssistantResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+    useState<SystemAssistantResponse | null>(systemAssistantData);
+  const [isLoading, setIsLoading] = useState(!systemAssistantData);
 
-  const fetchSystemAssistant = async () => {
+  // Update local state when prop changes
+  useEffect(() => {
+    if (systemAssistantData) {
+      setSystemAssistant(systemAssistantData);
+      setIsLoading(false);
+    }
+  }, [systemAssistantData]);
+
+  const fetchSystemAssistant = useCallback(async () => {
     try {
       setIsLoading(true);
       const response = await getSystemAssistantConversation();
@@ -45,11 +55,14 @@ function SystemAssistantBlockComponent({
     } catch (error) {
       console.error("Failed to fetch system assistant:", error);
     }
-  };
+  }, [setIsChatLoading, setConversationId, setAssistantId, setRightPanel]);
 
+  // Only fetch if no data provided via props
   useEffect(() => {
-    fetchSystemAssistant();
-  }, []);
+    if (!systemAssistantData) {
+      fetchSystemAssistant();
+    }
+  }, [systemAssistantData, fetchSystemAssistant]);
 
   const handleSystemAssistantClick = async () => {
     if (isChatLoading) {

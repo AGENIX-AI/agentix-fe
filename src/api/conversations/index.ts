@@ -141,11 +141,14 @@ export const getConversationById = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/conversations/${conversationId}`, {
-    method: "GET",
-    credentials: "include",
-    headers,
-  });
+  const response = await fetch(
+    `${baseUrl}/conversations/get_by_id/${conversationId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
 
   if (!response.ok) {
     Sentry.captureException(

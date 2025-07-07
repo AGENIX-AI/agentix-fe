@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Small } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { useStudent } from "@/contexts/StudentContext";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
@@ -52,16 +51,12 @@ export default function LeftPanel({
 }: {
   onMiniappToggle?: (isVisible: boolean) => void;
 }) {
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [localMiniappVisible, setLocalMiniappVisible] = useState(true);
+  // Add local state for history visibility to prevent automatic expansion
+  const [localHistoryVisible, setLocalHistoryVisible] = useState(true);
 
-  // Use StudentContext for history visibility
-  const { isHistoryVisible } = useStudent();
-
-  // This function is now unused since we're using the miniapp toggle instead
-  const toggleSidebar = () => {
-    setIsSidebarCollapsed((prev) => !prev);
-  };
+  // Use local state instead of StudentContext for layout control
+  const isHistoryVisible = localHistoryVisible;
 
   // Use local state for miniapp visibility
   const isMinimappVisibleValue = localMiniappVisible;
@@ -76,19 +71,16 @@ export default function LeftPanel({
     }
   };
 
+  // Local toggle function for history visibility
+  const toggleLocalHistory = () => {
+    setLocalHistoryVisible((prev) => !prev);
+  };
+
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
       <header className="flex h-18 items-center border bg-background z-30 px-3">
         {/* Left section */}
         <div className="flex items-center cursor-pointer">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="mr-4 border border-border"
-            onClick={toggleSidebar}
-          >
-            <AlignJustify className="h-4 w-4" />
-          </Button>
           <Logo className="w-20 h-10" />
         </div>
 
@@ -140,15 +132,17 @@ export default function LeftPanel({
         {/* Layout container with resizable sidebar and content */}
         <div className="flex w-full h-full">
           {/* Sidebar - Show only if miniapp is visible */}
-          <ResizableSidebar
-            className="bg-transparent h-[calc(100vh-4.5rem)]"
-            isCollapsed={isSidebarCollapsed}
-          />
+          <ResizableSidebar className="bg-transparent h-[calc(100vh-4.5rem)]" />
           {/* Main content area */}
           <div className="flex-1 h-full overflow-hidden">
             <div className="flex h-full overflow-hidden">
               <ModifiedResizableLayout
-                leftPane={<HistoryComponent />}
+                leftPane={
+                  <HistoryComponent
+                    isHistoryVisible={isHistoryVisible}
+                    toggleHistory={toggleLocalHistory}
+                  />
+                }
                 rightPane={<ChatComponent />}
                 initialLeftWidth={30}
                 minLeftWidth={30}

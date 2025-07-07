@@ -79,7 +79,7 @@ export function ModifiedResizableLayout({
       // Save current width before hiding
       setSavedLeftWidth(leftWidth);
     }
-  }, [isHistoryVisible]);
+  }, [isHistoryVisible, leftWidth, savedLeftWidth]);
 
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
@@ -209,19 +209,23 @@ export function ModifiedResizableLayout({
       className="flex flex-col md:flex-row w-full h-full relative"
       style={{ cursor: isDragging ? "col-resize" : "auto" }}
     >
-      {isHistoryVisible && (
-        <>
-          <Pane width={`${leftWidth}%`}>{leftPane}</Pane>
+      {/* Always show left pane, but with different widths */}
+      <Pane width={isHistoryVisible ? `${leftWidth}%` : "64px"}>
+        {leftPane}
+      </Pane>
 
-          <Divider
-            leftWidth={leftWidth}
-            onMouseDown={handleMouseDown}
-            onTouchStart={handleTouchStart}
-          />
-        </>
+      {/* Only show divider when history is visible and resizable */}
+      {isHistoryVisible && (
+        <Divider
+          leftWidth={leftWidth}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+        />
       )}
 
-      <Pane width={isHistoryVisible ? `${100 - leftWidth}%` : "100%"}>
+      <Pane
+        width={isHistoryVisible ? `${100 - leftWidth}%` : "calc(100% - 64px)"}
+      >
         {rightPane}
       </Pane>
     </div>

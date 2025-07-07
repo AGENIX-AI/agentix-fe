@@ -11,15 +11,17 @@ import { ConversationItem } from "./ConversationItem";
 
 function SystemAssistantBlockComponent({
   setIsChatLoading,
+  systemAssistantData,
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
+  systemAssistantData?: SystemAssistantResponse | null;
 }) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useStudent();
 
   const [systemAssistant, setSystemAssistant] =
-    useState<SystemAssistantResponse | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+    useState<SystemAssistantResponse | null>(systemAssistantData || null);
+  const [isLoading, setIsLoading] = useState(!systemAssistantData);
 
   const fetchSystemAssistant = async () => {
     try {
@@ -31,7 +33,7 @@ function SystemAssistantBlockComponent({
       if (response.id) {
         setConversationId(response.id);
         setAssistantId(response.assistants?.id);
-        setRightPanel("assistantTopics");
+        setRightPanel("helps");
       } else {
         if (response.assistants?.id) {
           setIsChatLoading(true);
@@ -40,7 +42,7 @@ function SystemAssistantBlockComponent({
           );
           setConversationId(firstConversationResponse.conversation_id);
           setAssistantId(response.assistants.id);
-          setRightPanel("assistantTopics");
+          setRightPanel("helps");
 
           setIsChatLoading(false);
         }
@@ -53,8 +55,19 @@ function SystemAssistantBlockComponent({
   };
 
   useEffect(() => {
-    fetchSystemAssistant();
-  }, []);
+    // Only fetch if data wasn't provided via props
+    if (!systemAssistantData) {
+      fetchSystemAssistant();
+    }
+  }, [systemAssistantData]);
+
+  // Update local state when props change
+  useEffect(() => {
+    if (systemAssistantData) {
+      setSystemAssistant(systemAssistantData);
+      setIsLoading(false);
+    }
+  }, [systemAssistantData]);
 
   const handleSystemAssistantClick = async () => {
     if (isChatLoading) {
@@ -66,7 +79,7 @@ function SystemAssistantBlockComponent({
       // If system assistant already has a conversation ID, use it
       setConversationId(systemAssistant.id);
       setAssistantId(systemAssistant.assistants?.id);
-      setRightPanel("assistantTopics");
+      setRightPanel("helps");
     } else if (systemAssistant?.assistants?.id) {
       console.log("createFirstConversation");
       // If no conversation ID exists, create a new one
@@ -76,7 +89,7 @@ function SystemAssistantBlockComponent({
         );
         setConversationId(response.conversation_id);
         setAssistantId(systemAssistant.assistants.id);
-        setRightPanel("assistantTopics");
+        setRightPanel("helps");
       } catch (error) {
         console.error("Failed to create conversation:", error);
       }

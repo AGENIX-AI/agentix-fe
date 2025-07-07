@@ -82,8 +82,6 @@ interface Message {
 // Main Component
 export function ChatComponent() {
   const {
-    isHistoryVisible,
-    toggleHistory,
     assistantId,
     assistantInfo,
     setConversationId,
@@ -433,8 +431,6 @@ export function ChatComponent() {
     return (
       <div className="h-full w-full flex flex-col bg-background">
         <ChatHeader
-          isHistoryVisible={isHistoryVisible}
-          toggleHistory={toggleHistory}
           disabled={true}
           agentName={assistantInfo?.name}
           tagline={assistantInfo?.tagline}
@@ -456,8 +452,6 @@ export function ChatComponent() {
     >
       <div className="h-full w-full flex flex-col bg-background">
         <ChatHeader
-          isHistoryVisible={isHistoryVisible}
-          toggleHistory={toggleHistory}
           agentName={assistantInfo?.name}
           tagline={assistantInfo?.tagline}
           agentImage={assistantInfo?.image}

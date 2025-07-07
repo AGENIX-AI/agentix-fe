@@ -4,6 +4,7 @@ import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
 import { BuyCredits } from "./buyCredits/BuyCredits";
+import { Helps } from "./helps/Helps";
 
 export default function RightPanel({}) {
   //   const { rightPanel } = useAppPage();
@@ -18,19 +19,19 @@ export default function RightPanel({}) {
     case "assistantTopics":
       return (
         <div>
-          <AssistantView page="assistantTopics" />
+          <AssistantView />
         </div>
       );
     case "tasks":
       return (
         <div>
-          <AssistantView page="tasks" />
+          <AssistantView />
         </div>
       );
     case "agentCapabilityStatement":
       return (
         <div>
-          <AssistantView page="agentCapabilityStatement" />
+          <AssistantView />
         </div>
       );
     case "findInstructor":
@@ -43,6 +44,12 @@ export default function RightPanel({}) {
       return (
         <div>
           <BuyCredits />
+        </div>
+      );
+    case "helps":
+      return (
+        <div>
+          <Helps />
         </div>
       );
     case "empty":

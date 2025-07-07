@@ -19,7 +19,6 @@ export interface ResizableSidebarProps {
   minWidth?: number;
   maxWidth?: number;
   storageKey?: string;
-  isCollapsed?: boolean;
 }
 
 export function ResizableSidebar({
@@ -28,9 +27,10 @@ export function ResizableSidebar({
   minWidth = 180,
   maxWidth = 400,
   storageKey = "edvara-sidebar-width",
-  isCollapsed = false,
 }: ResizableSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
+
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
@@ -356,6 +356,9 @@ export function ResizableSidebar({
                             }
                             if (navItem.title === "Knowledge Components") {
                               setRightPanel("topicKnowledge");
+                            }
+                            if (navItem.title === "Expand/Collapse") {
+                              setIsCollapsed(!isCollapsed);
                             }
                           }}
                         >

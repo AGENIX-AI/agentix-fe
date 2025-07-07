@@ -9,11 +9,13 @@ import { ConversationItem } from "./ConversationItem";
 interface UserConversationsBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
+  conversationsData?: ConversationListItem[];
 }
 
 function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
+  conversationsData,
 }: UserConversationsBlockProps) {
   const {
     setAssistantId,
@@ -24,10 +26,12 @@ function UserConversationsBlockComponent({
   } = useStudent();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
-    []
+    conversationsData || []
   );
-  const conversationsRef = useRef<ConversationListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const conversationsRef = useRef<ConversationListItem[]>(
+    conversationsData || []
+  );
+  const [isLoading, setIsLoading] = useState(!conversationsData);
 
   // Display loading state for the history component
   const showLoadingState = isLoading && conversations.length === 0;
@@ -47,10 +51,21 @@ function UserConversationsBlockComponent({
     }
   };
 
-  // Initial fetch of conversations
+  // Initial fetch of conversations - only if data not provided via props
   useEffect(() => {
-    fetchConversations();
-  }, []);
+    if (!conversationsData) {
+      fetchConversations();
+    }
+  }, [conversationsData]);
+
+  // Update local state when props change
+  useEffect(() => {
+    if (conversationsData) {
+      setConversations(conversationsData);
+      conversationsRef.current = conversationsData;
+      setIsLoading(false);
+    }
+  }, [conversationsData]);
 
   // Listen for conversation updates
   useEffect(() => {

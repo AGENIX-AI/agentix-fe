@@ -2,7 +2,8 @@ import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 const PrivateRoute = () => {
-  const { isAuthenticated, loading, needsApproval, needsWaitlistForm } = useAuth();
+  const { isAuthenticated, loading, needsApproval, needsWaitlistForm } =
+    useAuth();
   const location = useLocation();
 
   // If still loading, don't redirect yet, just show nothing or a loading indicator
@@ -18,7 +19,7 @@ const PrivateRoute = () => {
   if (needsApproval) {
     return <Navigate to="/auth/waitlist" replace />;
   }
-  
+
   // If user needs to fill in the waitlist form
   if (needsWaitlistForm) {
     return <Navigate to="/auth/waitlist/form" replace />;
@@ -30,9 +31,9 @@ const PrivateRoute = () => {
   return isAuthenticated ? (
     <Outlet />
   ) : (
-    <Navigate 
-      to={`/auth/login?redirectPath=${encodeURIComponent(location.pathname)}`} 
-      replace 
+    <Navigate
+      to={`/auth/login?redirectPath=${encodeURIComponent(location.pathname)}`}
+      replace
     />
   );
 };
