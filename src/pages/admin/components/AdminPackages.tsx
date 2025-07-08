@@ -166,7 +166,6 @@ export function AdminPackages() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-2xl font-semibold">Package Management</h1>
             <p className="text-xs text-muted-foreground">
               Manage credit packages and pricing
             </p>

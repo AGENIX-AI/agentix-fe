@@ -357,7 +357,7 @@ export function ResizableSidebar({
                             if (navItem.title === "Knowledge Components") {
                               setRightPanel("topicKnowledge");
                             }
-                            if (navItem.title === "Expand/Collapse") {
+                            if (navItem.title === "Toggle") {
                               setIsCollapsed(!isCollapsed);
                             }
                           }}

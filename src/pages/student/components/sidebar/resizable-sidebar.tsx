@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Menu, X, Gem } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/sidebar-data";
@@ -10,8 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { UserMenu } from "@/components/ui/user-menu";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
-import { NovuProvider, Inbox } from "@novu/react";
-import { useAuth } from "@/contexts/AuthContext";
+import { NotificationCenter } from "@/components/custom/NotificationCenter";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -33,7 +32,6 @@ export function ResizableSidebar({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
-  const { userInfo } = useAuth();
   const [width, setWidth] = useState<number>(initialWidth);
   const [isDragging, setIsDragging] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -354,7 +352,7 @@ export function ResizableSidebar({
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
                             }
-                            if (navItem.title === "Expand/Collapse") {
+                            if (navItem.title === "Toggle") {
                               setIsCollapsed(!isCollapsed);
                             }
                           }}
@@ -379,66 +377,63 @@ export function ResizableSidebar({
           ))}
         </div>
 
-        {/* Footer with Credits and UserMenu */}
+        {/* Footer with Notifications, Credits and UserMenu */}
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 border-border p-3 space-y-3",
-            isCollapsed ? "flex flex-col items-center" : ""
+            "absolute bottom-0 left-0 right-0 border-border p-2 space-y-1"
           )}
         >
           {/* Notification Center */}
           <div
             className={cn(
-              "w-full transition-colors relative flex justify-center"
+              "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200",
+              isCollapsed && "justify-center px-2"
             )}
-            style={{ zIndex: 9999 }}
+            title={isCollapsed ? "Notifications" : undefined}
           >
-            <style>{`
-              [data-novu-cn="popover-content"]:not([data-novu-cn="bell"]),
-              .novu-notification-center-popover-content:not(.bell):not([class*="bell"]) {
-                position: fixed !important;
-                bottom: 120px !important;
-                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
-                transform: none !important;
-                top: auto !important;
-                z-index: 9999 !important;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
-              }
-              
-              .nv-popoverContent:not(.nv-bell):not([class*="bell"]) {
-                position: fixed !important;
-                bottom: 120px !important;
-                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
-                transform: none !important;
-                top: auto !important;
-                z-index: 9999 !important;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
-              }
-            `}</style>
-            <NovuProvider
-              subscriberId={userInfo?.id || ""}
-              applicationIdentifier={
-                import.meta.env.VITE_NOVU_APP_IDENTIFIER || ""
-              }
-            >
-              <Inbox />
-            </NovuProvider>
+            <div className="relative">
+              <NotificationCenter
+                position={{
+                  bottom: "120px",
+                  left: isCollapsed ? "70px" : `${width + 10}px`,
+                }}
+              />
+            </div>
+            {!isCollapsed && (
+              <span className="ml-2 flex-1 truncate text-left">
+                Notifications
+              </span>
+            )}
           </div>
 
           {/* Credits Display */}
           {credits && !creditsError && (
             <div
-              className="flex flex-col items-center justify-center space-y-1"
-              title={`Credits: ${credits.balance.toLocaleString()}`}
+              className={cn(
+                "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200",
+                isCollapsed && "justify-center px-2"
+              )}
+              title={
+                isCollapsed
+                  ? `Credits: ${credits.balance.toLocaleString()}`
+                  : undefined
+              }
             >
-              <span className="text-xs font-medium text-center">
-                {isCollapsed
-                  ? credits.balance > 999
-                    ? `${Math.floor(credits.balance / 1000)}k`
-                    : credits.balance.toString()
-                  : credits.balance.toLocaleString()}{" "}
-                💎
-              </span>
+              <div className="relative">
+                <Gem className="h-4 w-4" />
+                {isCollapsed && (
+                  <span className="absolute -top-1 -right-1 text-xs font-medium bg-primary text-primary-foreground rounded-full px-1 min-w-[16px] text-center leading-4">
+                    {credits.balance > 999
+                      ? `${Math.floor(credits.balance / 1000)}k`
+                      : credits.balance.toString()}
+                  </span>
+                )}
+              </div>
+              {!isCollapsed && (
+                <span className="ml-2 flex-1 truncate text-left">
+                  {credits.balance.toLocaleString()} Credits
+                </span>
+              )}
             </div>
           )}
 

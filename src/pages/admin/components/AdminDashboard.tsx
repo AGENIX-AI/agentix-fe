@@ -6,6 +6,7 @@ import {
   Users,
   Check,
   X,
+  MessageSquare,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
@@ -23,6 +24,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AdminFeedbacks } from "./AdminFeedbacks";
 
 export function AdminDashboard() {
   const [stats, setStats] = useState<CountStatsResponse | null>(null);
@@ -71,7 +73,7 @@ export function AdminDashboard() {
               ...prev,
               waitlist_false_count: prev.waitlist_false_count - 1,
             }
-          : null
+          : null,
       );
     } catch (err) {
       console.error("Failed to approve waitlist:", err);
@@ -216,14 +218,14 @@ export function AdminDashboard() {
                             variant="secondary"
                             className="text-xs h-5 px-2 capitalize font-medium"
                           >
-                            {entry.metadata.role}
+                            {entry.metadata?.role}
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs">
-                          {entry.metadata.field}
+                          {entry.metadata?.field}
                         </TableCell>
                         <TableCell className="text-xs">
-                          {entry.metadata.business}
+                          {entry.metadata?.business}
                         </TableCell>
                         <TableCell className="text-xs">
                           <div className="flex items-center gap-2">
@@ -263,6 +265,19 @@ export function AdminDashboard() {
               </Table>
             </div>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Feedback List */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-xs font-medium flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Feedback List
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AdminFeedbacks searchQuery="" />
         </CardContent>
       </Card>
     </div>

@@ -14,7 +14,7 @@ export function Divider({
   return (
     <div
       className={cn(
-        "absolute top-0 bottom-0 md:w-4 w-full h-4 md:h-full flex items-center justify-center z-10 ml-2"
+        "absolute top-0 bottom-0 md:w-4 md:h-full flex items-center justify-center z-10 h-[100vh] bg-foreground"
       )}
       style={{
         left: `${leftWidth}%`,

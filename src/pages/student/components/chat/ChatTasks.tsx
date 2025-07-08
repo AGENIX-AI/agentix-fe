@@ -4,6 +4,7 @@ import {
   CreateTopicForm,
   type CreateTopicFormData,
 } from "./chatTasks/CreateTopicForm";
+import { FeedbackForm, type FeedbackFormData } from "./chatTasks/FeedbackForm";
 import { ExtraSmall } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
@@ -17,7 +18,7 @@ import { useStudent } from "@/contexts/StudentContext";
 import { generateTutoringDiscuss } from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
 import { cn } from "@/lib/utils";
-import { Sparkles } from "lucide-react";
+import { Sparkles, MessageSquare } from "lucide-react";
 
 export interface TaskFormData {
   productName: string;
@@ -43,21 +44,39 @@ interface TaskData {
   icon: JSX.Element;
 }
 
-// Shared tasks array used by both TaskMenu and ChatTasks
-const tasks: TaskData[] = [
-  {
-    id: "create-topic",
-    title: "create_topic", // This is now a translation key
-    icon: (
-      <div className="w-4 h-4 flex items-center justify-center rounded">
-        <Sparkles className="h-4 w-4 text-secondary" />
-      </div>
-    ),
-  },
-];
+// Define tasks variable that will be set conditionally
+let tasks: TaskData[];
 
 export function TaskMenu({ onSelectTask }: TaskMenuProps) {
   const { t } = useTranslation();
+  const { assistantInfo } = useStudent();
+
+  if (assistantInfo?.role === "system") {
+    tasks = [
+      {
+        id: "feedback",
+        title: "feedback", // This is now a translation key
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <MessageSquare className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
+    ];
+  } else {
+    tasks = [
+      {
+        id: "create-topic",
+        title: "create_topic", // This is now a translation key
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <Sparkles className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
+    ];
+  }
+
   return (
     <div
       className={cn(
@@ -169,6 +188,11 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     }
   };
 
+  const handleSubmitFeedbackForm = (formData: FeedbackFormData) => {
+    // This function is passed to FeedbackForm but submission is handled internally
+    console.log("Feedback form data:", formData);
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     if (!taskId) {
@@ -194,6 +218,21 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
             <CreateTopicForm
               onClose={handleCloseModal}
               onSubmit={handleSubmitTaskForm}
+              taskTitle={selectedTaskTitle || ""}
+            />
+          </DialogContent>
+        </Dialog>
+      );
+    case "feedback":
+      return (
+        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>{selectedTaskTitle}</DialogTitle>
+            </DialogHeader>
+            <FeedbackForm
+              onClose={handleCloseModal}
+              onSubmit={handleSubmitFeedbackForm}
               taskTitle={selectedTaskTitle || ""}
             />
           </DialogContent>

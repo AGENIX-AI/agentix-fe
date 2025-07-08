@@ -3,7 +3,6 @@ import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Logo } from "@/components/ui/Logo";
-import { UserMenu } from "@/components/ui/user-menu";
 import { adminSidebarData } from "@/lib/utils/admin-sidebar-data";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
@@ -96,9 +95,6 @@ export function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProps) {
       </nav>
 
       {/* User Menu */}
-      <div className="p-4 border-t border-border">
-        <UserMenu />
-      </div>
     </div>
   );
 }

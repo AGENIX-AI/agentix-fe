@@ -3,6 +3,7 @@ import { X } from "lucide-react";
 import { getHelpContent } from "@/api/systems";
 import type { HelpContent } from "@/api/systems";
 import ReactMarkdown from "react-markdown";
+import { Large } from "@/components/ui/typography";
 
 interface HelpContentSidebarProps {
   isVisible: boolean;
@@ -46,12 +47,10 @@ export const HelpContentSidebar = ({
   }
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-96 bg-white shadow-lg border-l border-gray-200 flex flex-col">
+    <div className="fixed inset-y-0 right-0 z-50 w-170 bg-white shadow-lg border-l border-gray-200 flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between p-4">
-        <h2 className="font-medium text-xs">
-          {content?.show_text || "Help Content"}
-        </h2>
+      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between p-4 h-18">
+        <Large className="">{content?.show_text || "Help Content"}</Large>
         <button
           onClick={onClose}
           className="p-1 rounded-full hover:bg-gray-100 transition-colors"
@@ -69,8 +68,59 @@ export const HelpContentSidebar = ({
         ) : error ? (
           <div className="text-red-500 text-xs">{error}</div>
         ) : content ? (
-          <div className="prose prose-sm max-w-none">
-            <ReactMarkdown>{content.content}</ReactMarkdown>
+          <div className="text-xs space-y-2">
+            <ReactMarkdown
+              components={{
+                h1: ({ children }) => (
+                  <h1 className="text-xs font-bold mb-2">{children}</h1>
+                ),
+                h2: ({ children }) => (
+                  <h2 className="text-xs font-bold mb-2">{children}</h2>
+                ),
+                h3: ({ children }) => (
+                  <h3 className="text-xs font-bold mb-1">{children}</h3>
+                ),
+                h4: ({ children }) => (
+                  <h4 className="text-xs font-bold mb-1">{children}</h4>
+                ),
+                h5: ({ children }) => (
+                  <h5 className="text-xs font-bold mb-1">{children}</h5>
+                ),
+                h6: ({ children }) => (
+                  <h6 className="text-xs font-bold mb-1">{children}</h6>
+                ),
+                p: ({ children }) => <p className="text-xs mb-2">{children}</p>,
+                ul: ({ children }) => (
+                  <ul className="text-xs list-disc pl-4 mb-2 space-y-1">
+                    {children}
+                  </ul>
+                ),
+                ol: ({ children }) => (
+                  <ol className="text-xs list-decimal pl-4 mb-2 space-y-1">
+                    {children}
+                  </ol>
+                ),
+                li: ({ children }) => <li className="text-xs">{children}</li>,
+                strong: ({ children }) => (
+                  <strong className="text-xs font-bold">{children}</strong>
+                ),
+                em: ({ children }) => (
+                  <em className="text-xs italic">{children}</em>
+                ),
+                code: ({ children }) => (
+                  <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                    {children}
+                  </code>
+                ),
+                blockquote: ({ children }) => (
+                  <blockquote className="text-xs border-l-2 border-gray-300 pl-3 italic">
+                    {children}
+                  </blockquote>
+                ),
+              }}
+            >
+              {content.content}
+            </ReactMarkdown>
           </div>
         ) : (
           <div className="text-gray-500 text-xs">

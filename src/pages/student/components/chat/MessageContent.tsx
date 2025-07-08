@@ -112,7 +112,11 @@ function MessageContentComponent({
     <div className="!p-0 !m-0" style={{ padding: 0, margin: 0 }}>
       {/* Render message card if present */}
       {card && (
-        <MessageCardRenderer card={card} invocation_id={invocation_id} />
+        <MessageCardRenderer
+          card={card}
+          invocation_id={invocation_id}
+          className="mt-1"
+        />
       )}
 
       {/* Render content with inline images, lists, and LaTeX */}

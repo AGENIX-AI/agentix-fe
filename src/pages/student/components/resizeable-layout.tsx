@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { Divider } from "../../../components/custom/ResizableLayout/Divider";
 import { Pane } from "../../../components/custom/ResizableLayout/Pane";
+import { Separator } from "@/components/custom/ResizableLayout/Separator";
 
 export interface ModifiedResizableLayoutProps {
   leftPane: React.ReactNode;
@@ -216,7 +216,7 @@ export function ModifiedResizableLayout({
 
       {/* Only show divider when history is visible and resizable */}
       {isHistoryVisible && (
-        <Divider
+        <Separator
           leftWidth={leftWidth}
           onMouseDown={handleMouseDown}
           onTouchStart={handleTouchStart}

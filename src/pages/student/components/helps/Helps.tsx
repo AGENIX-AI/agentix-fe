@@ -4,7 +4,6 @@ import type { HelpDocument } from "@/api/systems";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HelpContentSidebar } from "./HelpContentSidebar";
-import { Large } from "@/components/ui/typography";
 
 export const Helps = () => {
   const [helpDocuments, setHelpDocuments] = useState<HelpDocument[]>([]);
@@ -56,10 +55,6 @@ export const Helps = () => {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
-        <Large className=" font-bold">Help Center</Large>
-      </div>
-
       <div className="overflow-y-auto p-4 flex-1">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">

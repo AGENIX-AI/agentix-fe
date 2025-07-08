@@ -2,7 +2,7 @@ import { SearchIcon, AlignJustify } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { H5 } from "@/components/ui/typography";
+import { Large } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -220,7 +220,7 @@ export function HistoryComponent({
                     Collapse history
                   </TooltipContent>
                 </Tooltip>
-                <H5>Chat History</H5>
+                <Large>Chats</Large>
               </div>
             </div>
           </div>

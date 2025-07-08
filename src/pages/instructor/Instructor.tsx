@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { Loader2 } from "lucide-react";
 
 import { InstructorContextProvider } from "@/contexts/InstructorContext";
-import { ResizableLayoutWithToggle } from "@/components/custom/ResizableLayoutWithToggle";
 import LeftPanel from "./components/left-panel";
 import RightPanel from "./components/right-panel";
 import { InstructorSignupForm } from "./components/InstructorSignupForm";
 import { InstructorPendingApproval } from "./components/InstructorPendingApproval";
 import { getInstructorProfile } from "@/api/instructor";
+import { ResizableLayout } from "@/components/custom/ResizableLayout/ResizableLayout";
 
 // Profile status types
 type ProfileStatus = "loading" | "not_found" | "pending" | "approved";
@@ -20,14 +20,14 @@ type ProfileStatus = "loading" | "not_found" | "pending" | "approved";
 //   tagline: string;
 // }
 export default function AppStartPage() {
-  const [isMiniappVisible, setIsMiniappVisible] = useState(true);
+  const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
   const [profileStatus, setProfileStatus] = useState<ProfileStatus>("loading");
   // These will be used in future implementations
   // const [selectedCharacterInfo, setSelectedCharacterInfo] =
   //   useState<CharacterInfo | null>(null);
 
-  const handleMiniappToggle = (isVisible: boolean) => {
-    setIsMiniappVisible(isVisible);
+  const handleRightPanelToggle = (isCollapsed: boolean) => {
+    setIsRightPanelCollapsed(isCollapsed);
   };
 
   const fetchProfile = async () => {
@@ -95,15 +95,21 @@ export default function AppStartPage() {
   // Approved - show main instructor interface
   return (
     <InstructorContextProvider>
-      <div className="flex h-screen">
-        <ResizableLayoutWithToggle
-          leftPane={<LeftPanel onMiniappToggle={handleMiniappToggle} />}
-          rightPane={<RightPanel />}
+      <div className="flex h-screen w-full overflow-hidden">
+        <ResizableLayout
+          leftPane={<LeftPanel />}
+          rightPane={
+            <RightPanel
+              onToggle={handleRightPanelToggle}
+              isCollapsed={isRightPanelCollapsed}
+            />
+          }
+          // Width settings only apply when expanded (not disabled)
           initialLeftWidth={55}
           minLeftWidth={50}
           maxLeftWidth={65}
           storageKey="edvara-mainpage-width"
-          isRightPaneVisible={isMiniappVisible}
+          disabled={isRightPanelCollapsed}
         />
       </div>
     </InstructorContextProvider>

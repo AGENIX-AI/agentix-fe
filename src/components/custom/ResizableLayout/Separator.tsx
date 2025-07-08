@@ -4,13 +4,19 @@ export interface SeparatorProps {
   leftWidth: number;
   onMouseDown: (e: React.MouseEvent) => void;
   onTouchStart: (e: React.TouchEvent) => void;
+  disabled?: boolean;
 }
 
 export function Separator({
   leftWidth,
   onMouseDown,
   onTouchStart,
+  disabled = false,
 }: SeparatorProps) {
+  if (disabled) {
+    return null;
+  }
+
   return (
     <div
       className={cn(

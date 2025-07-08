@@ -38,7 +38,7 @@ export const sidebarData: SidebarData = {
       title: "General",
       items: [
         {
-          title: "Expand/Collapse",
+          title: "Toggle",
           url: "#",
           icon: AlignJustify,
         },

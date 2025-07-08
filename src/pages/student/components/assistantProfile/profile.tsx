@@ -1,6 +1,4 @@
-import { Badge } from "@/components/ui/badge";
 import { ExtraSmall, Large } from "@/components/ui/typography";
-import { Separator } from "@/components/ui/separator";
 import { useStudent } from "@/contexts/StudentContext";
 import { useEffect, useState, useCallback } from "react";
 import type { Conversation as ConversationType } from "@/services/conversation";
@@ -90,68 +88,52 @@ export function AssistantProfile() {
   if (!assistantInfo) return null;
 
   return (
-    <div className="px-6 py-3">
-      {/* Profile Header */}
-      <div className="flex items-center">
-        <div className="flex-1 min-w-0 space-y-3">
-          <Large className="font-bold">{assistantInfo.name}</Large>
-          <ExtraSmall className="text-muted-foreground block">
-            {assistantInfo.tagline}
-          </ExtraSmall>
-          <div className="flex items-center gap-6">
-            <Badge className="flex items-center px-2 py-1">
-              <ExtraSmall>{assistantInfo.language}</ExtraSmall>
-            </Badge>
-            <Badge className="flex items-center px-2 py-1">
-              <ExtraSmall>
-                Created{" "}
-                {new Date(assistantInfo.created_at).toLocaleDateString()}
-              </ExtraSmall>
-            </Badge>
-          </div>
+    <div className="px-6 py-3 space-y-3">
+      {/* Assistant Basic Info */}
+      <div className="space-y-2">
+        <Large className="font-bold">{assistantInfo.name}</Large>
+        <ExtraSmall className="text-muted-foreground">
+          {assistantInfo.tagline}
+        </ExtraSmall>
+        <div className="flex items-center gap-4 text-xs text-muted-foreground">
+          <span>{assistantInfo.language}</span>
+          <span>•</span>
+          <span>
+            Created {new Date(assistantInfo.created_at).toLocaleDateString()}
+          </span>
         </div>
       </div>
 
-      <Separator className="my-3" />
-
-      <div className="mb-3">
-        <div className="flex items-center gap-6 mb-3">
-          <Badge>About</Badge>
-        </div>
-        <div className="mb-3 flex items-center gap-6">
-          <ExtraSmall>{assistantInfo.description}</ExtraSmall>
-        </div>
+      {/* Description */}
+      <div className="space-y-1">
+        <ExtraSmall className="font-semibold text-foreground">
+          About:{" "}
+        </ExtraSmall>
+        <ExtraSmall className="">{assistantInfo.description}</ExtraSmall>
       </div>
-      <Separator className="my-3" />
 
-      {/* Capabilities Section */}
-      <div className="mb-3">
-        <div className="flex items-center gap-6 mb-3">
-          <Badge>Capabilities</Badge>
-        </div>
-        <div className="mb-3 flex items-center gap-6">
-          <ExtraSmall className="font-semibold">Specialty:</ExtraSmall>
-          <ExtraSmall>
-            {assistantInfo?.speciality || "General Assistant"}
-          </ExtraSmall>
-        </div>
+      {/* Specialty */}
+      <div className="space-y-1">
+        <ExtraSmall className="font-semibold text-foreground">
+          Specialty:{" "}
+        </ExtraSmall>
+        <ExtraSmall className="">
+          {assistantInfo?.speciality || "General Assistant"}
+        </ExtraSmall>
       </div>
-      <Separator className="my-3" />
 
-      {/* Topics Section */}
-      <div className="mb-3">
-        <div className="flex items-center gap-6 mb-3">
-          <Badge>Topics</Badge>
-        </div>
+      {/* Topics */}
+      <div className="space-y-2">
+        <ExtraSmall className="font-semibold text-foreground">
+          Topics:{" "}
+        </ExtraSmall>
 
         {isLoading ? (
           <LoadingState message="Loading topics..." size="small" />
         ) : hasError ? (
-          <div className="bg-destructive/10 rounded-md text-center p-4">
-            <p className="text-xs text-destructive">
-              Failed to load conversation data
-            </p>
-          </div>
+          <ExtraSmall className="text-destructive">
+            Failed to load conversation data
+          </ExtraSmall>
         ) : conversationData ? (
           <div className="space-y-2">
             <Table>
@@ -222,9 +204,9 @@ export function AssistantProfile() {
             </Table>
           </div>
         ) : (
-          <div className="text-sm text-muted-foreground">
+          <ExtraSmall className="text-muted-foreground">
             No topics available
-          </div>
+          </ExtraSmall>
         )}
       </div>
     </div>

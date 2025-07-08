@@ -207,11 +207,43 @@ export interface CountStatsResponse {
 export interface WaitlistEntry {
   user_id: string;
   approved: boolean;
-  metadata: {
+  metadata?: {
     role: string;
     field: string;
     business: string;
   };
+}
+
+export interface FeedbackUser {
+  id: string;
+  email: string;
+  full_name: string;
+  avatar_url: string;
+}
+
+export interface FeedbackData {
+  id: number;
+  user_id: string;
+  feedback_type: string;
+  description: string;
+  screenshot_urls: string[];
+  created_at: string;
+  rating: number;
+  is_response: boolean;
+  user: FeedbackUser;
+}
+
+export interface FeedbacksResponse {
+  success: boolean;
+  feedbacks: FeedbackData[];
+  total_count: number;
+  page_number: number;
+  page_size: number;
+}
+
+export interface FeedbackFetchParams extends FetchParams {
+  sort_by?: string;
+  sort_order?: number;
 }
 
 export const adminApi = {
@@ -239,12 +271,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        }
+        },
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch instructors: ${response.statusText}`)
+          new Error(`Failed to fetch instructors: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch instructors: ${response.statusText}`);
       }
@@ -283,7 +315,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch students: ${response.statusText}`)
+          new Error(`Failed to fetch students: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch students: ${response.statusText}`);
       }
@@ -326,12 +358,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        }
+        },
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch assistants: ${response.statusText}`)
+          new Error(`Failed to fetch assistants: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch assistants: ${response.statusText}`);
       }
@@ -357,10 +389,10 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch total revenue: ${response.statusText}`)
+          new Error(`Failed to fetch total revenue: ${response.statusText}`),
         );
         throw new Error(
-          `Failed to fetch total revenue: ${response.statusText}`
+          `Failed to fetch total revenue: ${response.statusText}`,
         );
       }
 
@@ -396,12 +428,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        }
+        },
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch transactions: ${response.statusText}`)
+          new Error(`Failed to fetch transactions: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch transactions: ${response.statusText}`);
       }
@@ -427,7 +459,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch packages: ${response.statusText}`)
+          new Error(`Failed to fetch packages: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch packages: ${response.statusText}`);
       }
@@ -457,7 +489,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to create package: ${response.statusText}`)
+          new Error(`Failed to create package: ${response.statusText}`),
         );
         throw new Error(`Failed to create package: ${response.statusText}`);
       }
@@ -472,7 +504,7 @@ export const adminApi = {
 
   async updatePackage(
     id: string,
-    packageData: UpdatePackageRequest
+    packageData: UpdatePackageRequest,
   ): Promise<Package> {
     const baseUrl = import.meta.env.VITE_API_URL || "";
     const headers = getAuthHeaders();
@@ -490,7 +522,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to update package: ${response.statusText}`)
+          new Error(`Failed to update package: ${response.statusText}`),
         );
         throw new Error(`Failed to update package: ${response.statusText}`);
       }
@@ -516,7 +548,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to delete package: ${response.statusText}`)
+          new Error(`Failed to delete package: ${response.statusText}`),
         );
         throw new Error(`Failed to delete package: ${response.statusText}`);
       }
@@ -542,7 +574,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch count stats: ${response.statusText}`)
+          new Error(`Failed to fetch count stats: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch count stats: ${response.statusText}`);
       }
@@ -568,7 +600,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch waitlist: ${response.statusText}`)
+          new Error(`Failed to fetch waitlist: ${response.statusText}`),
         );
         throw new Error(`Failed to fetch waitlist: ${response.statusText}`);
       }
@@ -592,12 +624,12 @@ export const adminApi = {
           method: "POST",
           credentials: "include",
           headers,
-        }
+        },
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to approve waitlist: ${response.statusText}`)
+          new Error(`Failed to approve waitlist: ${response.statusText}`),
         );
         throw new Error(`Failed to approve waitlist: ${response.statusText}`);
       }
@@ -606,6 +638,49 @@ export const adminApi = {
       return data;
     } catch (error) {
       console.error("Error approving waitlist:", error);
+      throw error;
+    }
+  },
+
+  async getFeedbacks({
+    page_size = 10,
+    page_number = 1,
+    search = "",
+    sort_by = "created_at",
+    sort_order = -1,
+  }: FeedbackFetchParams = {}): Promise<FeedbacksResponse> {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const params = new URLSearchParams({
+      page_size: page_size.toString(),
+      page_number: page_number.toString(),
+      sort_by,
+      sort_order: sort_order.toString(),
+    });
+
+    if (search) {
+      params.append("search", search);
+    }
+
+    try {
+      const response = await fetch(`${baseUrl}/admin/get_feedbacks?${params}`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch feedbacks: ${response.statusText}`),
+        );
+        throw new Error(`Failed to fetch feedbacks: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching feedbacks:", error);
       throw error;
     }
   },

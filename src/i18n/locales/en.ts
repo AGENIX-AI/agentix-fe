@@ -157,6 +157,8 @@ const enTranslation: Record<string, any> = {
       title: "Task",
       select_task: "Select a task to get started",
       create_topic: "Create a tutoring topic",
+      feedback: "Feedback",
+      feedback_placeholder: "Feedback functionality coming soon...",
     },
     create_topic_form: {
       title: "Create a tutoring topic",

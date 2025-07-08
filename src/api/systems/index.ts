@@ -35,6 +35,41 @@ export interface HelpContent {
   content: string;
 }
 
+/**
+ * Feedback type constants
+ */
+export const FeedbackType = {
+  BUG: "Bug report",
+  FEATURE_REQUEST: "Feature request",
+  IMPROVEMENT: "Improvement",
+  GENERAL: "General feedback",
+} as const;
+
+export type FeedbackType = (typeof FeedbackType)[keyof typeof FeedbackType];
+
+/**
+ * Feedback request interface
+ */
+export interface FeedbackRequest {
+  feedback_type: FeedbackType;
+  description: string;
+  rating?: number;
+}
+
+/**
+ * Feedback response interface
+ */
+export interface FeedbackResponse {
+  id: string;
+  feedback_type: string;
+  description: string;
+  rating?: number;
+  screenshot_urls: string[];
+  user_id: string;
+  created_at: string;
+  message: string;
+}
+
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
   const accessToken = Cookies.get("edvara_access_token");
@@ -114,6 +149,82 @@ export const getHelpContent = async (topic: string): Promise<HelpContent> => {
   } catch (error) {
     Sentry.captureException(error);
     console.error(`Error fetching help content for ${topic}:`, error);
+    throw error;
+  }
+};
+
+/**
+ * Submit feedback
+ * @param feedbackData The feedback data to submit
+ * @param screenshots Optional screenshot files
+ * @returns Promise with the feedback response
+ */
+export const submitFeedback = async (
+  feedbackData: FeedbackRequest,
+  screenshots?: File[]
+): Promise<FeedbackResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8002";
+  const headers = getAuthHeaders();
+
+  try {
+    const formData = new FormData();
+
+    // Add feedback data
+    formData.append("feedback_type", feedbackData.feedback_type);
+    formData.append("description", feedbackData.description);
+
+    if (feedbackData.rating) {
+      formData.append("rating", feedbackData.rating.toString());
+    }
+
+    // Add screenshots if provided
+    if (screenshots && screenshots.length > 0) {
+      screenshots.forEach((file) => {
+        formData.append("screenshots", file);
+      });
+    }
+
+    // Debug log
+    console.log("Submitting feedback with data:", {
+      feedback_type: feedbackData.feedback_type,
+      description: feedbackData.description,
+      rating: feedbackData.rating,
+      screenshots_count: screenshots?.length || 0,
+    });
+
+    // Remove Content-Type header for FormData (browser will set it automatically with boundary)
+    const formHeaders: Record<string, string> = {};
+    Object.entries(headers).forEach(([key, value]) => {
+      if (key !== "Content-Type") {
+        formHeaders[key] = value as string;
+      }
+    });
+
+    const response = await fetch(`${baseUrl}/systems/feedback`, {
+      method: "POST",
+      credentials: "include",
+      headers: formHeaders,
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error("Feedback submission failed:", {
+        status: response.status,
+        statusText: response.statusText,
+        response: errorText,
+      });
+      Sentry.captureException(
+        new Error(`Failed to submit feedback: ${response.statusText}`)
+      );
+      throw new Error(`Failed to submit feedback: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result;
+  } catch (error) {
+    Sentry.captureException(error);
+    console.error("Error submitting feedback:", error);
     throw error;
   }
 };

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Divider } from "./Divider";
 import { Pane } from "./Pane";
+import { Separator } from "./Separator";
 
 export interface ResizableLayoutProps {
   leftPane: React.ReactNode;
@@ -9,6 +9,7 @@ export interface ResizableLayoutProps {
   minLeftWidth?: number;
   maxLeftWidth?: number;
   storageKey?: string;
+  disabled?: boolean;
 }
 
 export function ResizableLayout({
@@ -18,6 +19,7 @@ export function ResizableLayout({
   minLeftWidth = 20, // minimum percentage width for left pane
   maxLeftWidth = 80, // maximum percentage width for left pane
   storageKey = "edvara-chat-layout-width", // localStorage key for persisting width
+  disabled = false,
 }: ResizableLayoutProps) {
   const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
   const [isDragging, setIsDragging] = useState(false);
@@ -41,14 +43,34 @@ export function ResizableLayout({
         ) {
           setLeftWidth(parsed);
           lastWidthRef.current = parsed;
+          return;
         }
       }
     } catch (error) {
       console.error("Failed to read from localStorage:", error);
     }
 
+    // If no valid saved width, use initialLeftWidth
+    setLeftWidth(initialLeftWidth);
+    lastWidthRef.current = initialLeftWidth;
     initializedRef.current = true;
-  }, [storageKey, minLeftWidth, maxLeftWidth]);
+  }, [storageKey, minLeftWidth, maxLeftWidth, initialLeftWidth]);
+
+  // Update width when constraints change (e.g., when toggling collapse state)
+  useEffect(() => {
+    if (!initializedRef.current) return;
+
+    // Ensure current width is within new constraints
+    const currentWidth = lastWidthRef.current;
+    if (currentWidth < minLeftWidth || currentWidth > maxLeftWidth) {
+      const newWidth = Math.max(
+        minLeftWidth,
+        Math.min(maxLeftWidth, initialLeftWidth)
+      );
+      setLeftWidth(newWidth);
+      lastWidthRef.current = newWidth;
+    }
+  }, [minLeftWidth, maxLeftWidth, initialLeftWidth]); // Using lastWidthRef.current instead of leftWidth to prevent infinite loop
 
   // Save width to localStorage when it changes, but debounced
   useEffect(() => {
@@ -65,15 +87,23 @@ export function ResizableLayout({
     return () => clearTimeout(timeoutId);
   }, [leftWidth, storageKey]);
 
-  const handleMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+  const handleMouseDown = useCallback(
+    (e: React.MouseEvent) => {
+      if (disabled) return; // Don't start dragging if disabled
+      e.preventDefault();
+      setIsDragging(true);
+    },
+    [disabled]
+  );
 
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    e.preventDefault();
-    setIsDragging(true);
-  }, []);
+  const handleTouchStart = useCallback(
+    (e: React.TouchEvent) => {
+      if (disabled) return; // Don't start dragging if disabled
+      e.preventDefault();
+      setIsDragging(true);
+    },
+    [disabled]
+  );
 
   const updateWidth = useCallback((newWidth: number) => {
     // Only update if the change is significant (more than 0.5%)
@@ -128,8 +158,10 @@ export function ResizableLayout({
 
   // Handle touch events for mobile support
   const handleTouchMove = useCallback(
-    (e: TouchEvent) => {
-      if (!isDragging || !containerRef.current || !e.touches[0]) return;
+    (e: Event) => {
+      const touchEvent = e as TouchEvent;
+      if (!isDragging || !containerRef.current || !touchEvent.touches[0])
+        return;
 
       // Cancel any existing animation frame
       if (rafRef.current) {
@@ -138,11 +170,11 @@ export function ResizableLayout({
 
       // Schedule a new animation frame
       rafRef.current = requestAnimationFrame(() => {
-        if (!containerRef.current || !e.touches[0]) return;
+        if (!containerRef.current || !touchEvent.touches[0]) return;
 
         const containerRect = containerRef.current.getBoundingClientRect();
         const containerWidth = containerRect.width;
-        const touchX = e.touches[0].clientX - containerRect.left;
+        const touchX = touchEvent.touches[0].clientX - containerRect.left;
 
         // Calculate percentage width
         let newLeftWidth = (touchX / containerWidth) * 100;
@@ -164,19 +196,19 @@ export function ResizableLayout({
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("touchmove", handleTouchMove as any);
+      document.addEventListener("touchmove", handleTouchMove);
       document.addEventListener("touchend", handleMouseUp);
     } else {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleTouchMove as any);
+      document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleMouseUp);
     }
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleTouchMove as any);
+      document.removeEventListener("touchmove", handleTouchMove);
       document.removeEventListener("touchend", handleMouseUp);
 
       // Clean up any animation frame on unmount
@@ -192,15 +224,26 @@ export function ResizableLayout({
       className="flex flex-col md:flex-row w-full h-full relative "
       style={{ cursor: isDragging ? "col-resize" : "auto" }}
     >
-      <Pane width={`${leftWidth}%`}>{leftPane}</Pane>
+      <Pane
+        width={disabled ? "" : `${leftWidth}%`}
+        style={disabled ? { flex: 1 } : undefined}
+      >
+        {leftPane}
+      </Pane>
 
-      <Divider
+      <Separator
         leftWidth={leftWidth}
         onMouseDown={handleMouseDown}
         onTouchStart={handleTouchStart}
+        disabled={disabled}
       />
 
-      <Pane width={`${100 - leftWidth}%`}>{rightPane}</Pane>
+      <Pane
+        width={disabled ? "" : `${100 - leftWidth}%`}
+        style={disabled ? { width: "48px", flexShrink: 0 } : undefined}
+      >
+        {rightPane}
+      </Pane>
     </div>
   );
 }
