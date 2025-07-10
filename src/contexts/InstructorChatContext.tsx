@@ -4,9 +4,9 @@ import type { ReactNode } from "react";
 interface ChatContextType {
   handleSendMessage: (content: string) => Promise<void>;
   handleNewMessage: (newMessage: {
-    sender: "agent_response" | "user";
+    sender: "agent" | "student" | "instructor";
     content: string;
-    invocation_id: string;
+    invocation_id?: string;
   }) => void;
 }
 
@@ -27,9 +27,9 @@ interface ChatProviderProps {
   children: ReactNode;
   handleSendMessage: (content: string) => Promise<void>;
   handleNewMessage: (newMessage: {
-    sender: "agent_response" | "user";
+    sender: "agent" | "student" | "instructor";
     content: string;
-    invocation_id: string;
+    invocation_id?: string;
   }) => void;
 }
 

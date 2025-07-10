@@ -86,6 +86,17 @@ export interface CaptureAndCheckPaymentResponse {
   message?: string;
 }
 
+export interface RedeemVoucherRequest {
+  voucher_code: string;
+}
+
+export interface RedeemVoucherResponse {
+  success: boolean;
+  message?: string;
+  credits_added?: number;
+  new_balance?: number;
+}
+
 /**
  * Get list of available packages
  * @returns Promise with the list of packages
@@ -455,6 +466,52 @@ export const getPaymentHistory = async (): Promise<{
         error instanceof Error
           ? error.message
           : "Failed to get payment history",
+    };
+  }
+};
+
+/**
+ * Redeem a voucher code to get credits
+ * @param voucherCode - The voucher code to redeem
+ * @returns Promise with the redemption response including credits added and new balance
+ */
+export const redeemVoucher = async (
+  voucherCode: string
+): Promise<RedeemVoucherResponse> => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(`${baseUrl}/credits/redeem_voucher`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify({ voucher_code: voucherCode }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to redeem voucher: ${response.statusText}`)
+      );
+      throw new Error(
+        errorData.message || `Failed to redeem voucher: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      message: data.message,
+      credits_added: data.credits_added,
+      new_balance: data.new_balance,
+    };
+  } catch (error) {
+    console.error("Error redeeming voucher:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to redeem voucher",
     };
   }
 };

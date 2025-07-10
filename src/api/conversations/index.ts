@@ -163,17 +163,38 @@ export const getConversationById = async (
 /**
  * Get chat history for a conversation
  * @param conversationId - The ID of the conversation to fetch history for
- * @returns Array of chat messages with sender, content, and timestamp
+ * @returns Conversation history with messages and user info
  */
 export interface ChatMessage {
-  sender: "user" | "agent_response";
+  invocation_id?: string;
+  sender: "agent" | "student" | "instructor";
   content: string;
   time: number;
 }
 
+export interface UserInfo {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
+
+export interface AssistantInfo {
+  id: string;
+  name: string;
+  tagline: string;
+  image: string;
+}
+
+export interface ConversationHistoryResponse {
+  history: ChatMessage[];
+  student_info?: UserInfo;
+  instructor_info?: UserInfo;
+  assistant: AssistantInfo;
+}
+
 export const getConversationHistory = async (
   conversationId: string
-): Promise<ChatMessage[]> => {
+): Promise<ConversationHistoryResponse> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -501,7 +522,7 @@ export interface GenerateTutoringDiscussData {
 }
 
 export interface GenerateTutoringDiscussResponse {
-  sender: "user" | "agent_response";
+  sender: "agent" | "student" | "instructor";
   new_message: string;
   invocation_id: string;
 }
@@ -550,7 +571,7 @@ export interface RefactorTutoringDiscussData {
 }
 
 export interface RefactorTutoringDiscussResponse {
-  sender: "user" | "agent_response";
+  sender: "student" | "instructor" | "agent";
   new_message: string;
   invocation_id: string;
 }
@@ -623,6 +644,172 @@ export const createGenerateTask = async (
       new Error(`Failed to create new topic: ${response.statusText}`)
     );
     throw new Error(`Failed to create new topic: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Request to share a conversation with an instructor
+ * @param conversationId - The ID of the conversation to share
+ * @returns Response with the sharing request details
+ */
+export interface ConversationSharingResponse {
+  success: boolean;
+  message: string;
+  conversation_sharing: {
+    id: string;
+    instructor_id: string;
+    student_id: string;
+    conversation_id: string;
+    created_at: string;
+    status: string;
+  };
+}
+
+export const shareConversationWithInstructor = async (
+  conversationId: string
+): Promise<ConversationSharingResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/sharing/request/${conversationId}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    // Handle specific error cases like already requested
+    if (response.status === 400) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Failed to share conversation");
+    }
+
+    Sentry.captureException(
+      new Error(`Failed to share conversation: ${response.statusText}`)
+    );
+    throw new Error(`Failed to share conversation: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Types for sharing list functionality
+ */
+export interface StudentInfo {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url: string;
+}
+
+export interface SharingStudent {
+  student_id: string;
+  student_info: StudentInfo;
+  last_sharing_request: string;
+}
+
+export interface SharingListResponse {
+  success: boolean;
+  students: SharingStudent[];
+  total_students: number;
+  page_number: number;
+  page_size: number;
+}
+
+/**
+ * Get list of sharing students
+ * @returns List of students with sharing information
+ */
+export const getListSharing = async (): Promise<SharingListResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/sharing/get_list_sharing`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch sharing list: ${response.statusText}`)
+    );
+    throw new Error(`Failed to fetch sharing list: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Types for student sharing topics functionality
+ */
+export interface StudentSharingConversation {
+  id: string;
+  instructor_id: string;
+  student_id: string;
+  conversation_id: string;
+  created_at: string;
+  status: string;
+  conversations: {
+    assistants: {
+      id: string;
+      name: string;
+      image: string;
+    };
+    conversation_name: string;
+    conversation_description: string;
+  };
+}
+
+export interface StudentSharingTopicsResponse {
+  success: boolean;
+  student_info: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string;
+  };
+  conversations: StudentSharingConversation[];
+}
+
+/**
+ * Get student sharing topics/conversations for a specific student
+ * @param studentId - The ID of the student to fetch sharing topics for
+ * @returns Student info and their shared conversations
+ */
+export const getStudentSharingTopics = async (
+  studentId: string
+): Promise<StudentSharingTopicsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/sharing/get_student_sharing/${studentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to fetch student sharing topics: ${response.statusText}`
+      )
+    );
+    throw new Error(
+      `Failed to fetch student sharing topics: ${response.statusText}`
+    );
   }
 
   return await response.json();

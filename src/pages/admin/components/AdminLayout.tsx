@@ -8,6 +8,7 @@ import { AdminInstructors } from "./AdminInstructors";
 import { AdminStudents } from "./AdminStudents";
 import { AdminRevenue } from "./AdminRevenue";
 import { AdminPackages } from "./AdminPackages";
+import { AdminVouchers } from "./AdminVouchers";
 import { AdminSettings } from "./AdminSettings";
 
 interface AdminLayoutProps {
@@ -29,6 +30,7 @@ export default function AdminLayout({
     if (path.includes("/students")) return "Students";
     if (path.includes("/revenue")) return "Revenue & Transactions";
     if (path.includes("/packages")) return "Package Management";
+    if (path.includes("/vouchers")) return "Voucher Management";
     if (path.includes("/settings")) return "Settings";
     return "Dashboard";
   };
@@ -38,7 +40,8 @@ export default function AdminLayout({
     return (
       path.includes("/assistants") ||
       path.includes("/instructors") ||
-      path.includes("/students")
+      path.includes("/students") ||
+      path.includes("/vouchers")
     );
   };
 
@@ -47,6 +50,7 @@ export default function AdminLayout({
     if (path.includes("/assistants")) return "New Assistant";
     if (path.includes("/instructors")) return "New Instructor";
     if (path.includes("/students")) return "New Student";
+    if (path.includes("/vouchers")) return "New Voucher";
     return "New";
   };
 
@@ -87,6 +91,10 @@ export default function AdminLayout({
             />
             <Route path="/revenue" element={<AdminRevenue />} />
             <Route path="/packages" element={<AdminPackages />} />
+            <Route
+              path="/vouchers"
+              element={<AdminVouchers searchQuery={searchQuery} />}
+            />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/" element={<AdminDashboard />} />
           </Routes>

@@ -246,6 +246,33 @@ export interface FeedbackFetchParams extends FetchParams {
   sort_order?: number;
 }
 
+// Voucher interfaces
+export interface VoucherData {
+  id: number;
+  code: string;
+  expired_at: string;
+  credit: number;
+  created_at: string;
+}
+
+export interface VouchersResponse {
+  success: boolean;
+  data: VoucherData[];
+  total_count: number;
+  page_number: number;
+  page_size: number;
+}
+
+export interface CreateVoucherRequest {
+  credit: number;
+  expired_at: string;
+}
+
+export interface UpdateVoucherRequest {
+  credit: number;
+  expired_at: string;
+}
+
 export const adminApi = {
   async getInstructors({
     page_size = 10,
@@ -271,12 +298,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        },
+        }
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch instructors: ${response.statusText}`),
+          new Error(`Failed to fetch instructors: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch instructors: ${response.statusText}`);
       }
@@ -315,7 +342,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch students: ${response.statusText}`),
+          new Error(`Failed to fetch students: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch students: ${response.statusText}`);
       }
@@ -358,12 +385,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        },
+        }
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch assistants: ${response.statusText}`),
+          new Error(`Failed to fetch assistants: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch assistants: ${response.statusText}`);
       }
@@ -389,10 +416,10 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch total revenue: ${response.statusText}`),
+          new Error(`Failed to fetch total revenue: ${response.statusText}`)
         );
         throw new Error(
-          `Failed to fetch total revenue: ${response.statusText}`,
+          `Failed to fetch total revenue: ${response.statusText}`
         );
       }
 
@@ -428,12 +455,12 @@ export const adminApi = {
           method: "GET",
           credentials: "include",
           headers,
-        },
+        }
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch transactions: ${response.statusText}`),
+          new Error(`Failed to fetch transactions: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch transactions: ${response.statusText}`);
       }
@@ -459,7 +486,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch packages: ${response.statusText}`),
+          new Error(`Failed to fetch packages: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch packages: ${response.statusText}`);
       }
@@ -489,7 +516,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to create package: ${response.statusText}`),
+          new Error(`Failed to create package: ${response.statusText}`)
         );
         throw new Error(`Failed to create package: ${response.statusText}`);
       }
@@ -504,7 +531,7 @@ export const adminApi = {
 
   async updatePackage(
     id: string,
-    packageData: UpdatePackageRequest,
+    packageData: UpdatePackageRequest
   ): Promise<Package> {
     const baseUrl = import.meta.env.VITE_API_URL || "";
     const headers = getAuthHeaders();
@@ -522,7 +549,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to update package: ${response.statusText}`),
+          new Error(`Failed to update package: ${response.statusText}`)
         );
         throw new Error(`Failed to update package: ${response.statusText}`);
       }
@@ -548,7 +575,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to delete package: ${response.statusText}`),
+          new Error(`Failed to delete package: ${response.statusText}`)
         );
         throw new Error(`Failed to delete package: ${response.statusText}`);
       }
@@ -574,7 +601,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch count stats: ${response.statusText}`),
+          new Error(`Failed to fetch count stats: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch count stats: ${response.statusText}`);
       }
@@ -600,7 +627,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch waitlist: ${response.statusText}`),
+          new Error(`Failed to fetch waitlist: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch waitlist: ${response.statusText}`);
       }
@@ -624,12 +651,12 @@ export const adminApi = {
           method: "POST",
           credentials: "include",
           headers,
-        },
+        }
       );
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to approve waitlist: ${response.statusText}`),
+          new Error(`Failed to approve waitlist: ${response.statusText}`)
         );
         throw new Error(`Failed to approve waitlist: ${response.statusText}`);
       }
@@ -672,7 +699,7 @@ export const adminApi = {
 
       if (!response.ok) {
         Sentry.captureException(
-          new Error(`Failed to fetch feedbacks: ${response.statusText}`),
+          new Error(`Failed to fetch feedbacks: ${response.statusText}`)
         );
         throw new Error(`Failed to fetch feedbacks: ${response.statusText}`);
       }
@@ -681,6 +708,132 @@ export const adminApi = {
       return data;
     } catch (error) {
       console.error("Error fetching feedbacks:", error);
+      throw error;
+    }
+  },
+
+  // Voucher API methods
+  async getVouchers({
+    page_size = 10,
+    page_number = 1,
+  }: FetchParams = {}): Promise<VouchersResponse> {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const params = new URLSearchParams({
+      page_size: page_size.toString(),
+      page_number: page_number.toString(),
+    });
+
+    try {
+      const response = await fetch(`${baseUrl}/admin/vouchers?${params}`, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to fetch vouchers: ${response.statusText}`)
+        );
+        throw new Error(`Failed to fetch vouchers: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching vouchers:", error);
+      throw error;
+    }
+  },
+
+  async createVoucher(voucherData: CreateVoucherRequest): Promise<VoucherData> {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    try {
+      const response = await fetch(`${baseUrl}/admin/vouchers`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(voucherData),
+      });
+
+      if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to create voucher: ${response.statusText}`)
+        );
+        throw new Error(`Failed to create voucher: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Error creating voucher:", error);
+      throw error;
+    }
+  },
+
+  async updateVoucher(
+    id: number,
+    voucherData: UpdateVoucherRequest
+  ): Promise<VoucherData> {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    try {
+      const response = await fetch(`${baseUrl}/admin/vouchers/${id}`, {
+        method: "PUT",
+        credentials: "include",
+        headers: {
+          ...headers,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(voucherData),
+      });
+
+      if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to update voucher: ${response.statusText}`)
+        );
+        throw new Error(`Failed to update voucher: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      return result.data;
+    } catch (error) {
+      console.error("Error updating voucher:", error);
+      throw error;
+    }
+  },
+
+  async deleteVoucher(
+    id: number
+  ): Promise<{ success: boolean; message: string }> {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    try {
+      const response = await fetch(`${baseUrl}/admin/vouchers/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+        headers,
+      });
+
+      if (!response.ok) {
+        Sentry.captureException(
+          new Error(`Failed to delete voucher: ${response.statusText}`)
+        );
+        throw new Error(`Failed to delete voucher: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error deleting voucher:", error);
       throw error;
     }
   },

@@ -6,6 +6,7 @@ import {
   Settings,
   DollarSign,
   Package,
+  Ticket,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -55,6 +56,11 @@ export const adminSidebarData: SidebarData = {
           title: "Packages",
           url: "/admin/packages",
           icon: Package,
+        },
+        {
+          title: "Vouchers",
+          url: "/admin/vouchers",
+          icon: Ticket,
         },
         {
           title: "Settings",

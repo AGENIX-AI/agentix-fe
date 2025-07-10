@@ -10,7 +10,7 @@ interface TrainingTopicRefCardProps {
   card: TrainingTopicRefMessageCard;
   className?: string;
   handleNewMessage?: (newMessage: {
-    sender: "agent_response" | "user";
+    sender: "student" | "instructor" | "agent";
     content: string;
     invocation_id: string;
   }) => void;

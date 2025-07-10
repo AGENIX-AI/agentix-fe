@@ -8,6 +8,7 @@ import {
   getPackages,
   createPaymentIntent,
   captureAndCheckPayment,
+  redeemVoucher,
   type Package,
 } from "@/api/payments";
 
@@ -22,6 +23,13 @@ export function BuyCredits() {
   const [paymentStatus, setPaymentStatus] = useState<
     "pending" | "capturing" | "completed" | "failed"
   >("pending");
+
+  // Voucher redemption states
+  const [voucherCode, setVoucherCode] = useState("");
+  const [isRedeemingVoucher, setIsRedeemingVoucher] = useState(false);
+  const [voucherRedemptionStatus, setVoucherRedemptionStatus] = useState<
+    "idle" | "success" | "failed"
+  >("idle");
 
   // Fetch packages on component mount
   useEffect(() => {
@@ -110,7 +118,7 @@ export function BuyCredits() {
     }
   };
 
-  const onApprove = async (data: any) => {
+  const onApprove = async (data: { orderID: string }) => {
     try {
       setIsProcessing(true);
 
@@ -126,7 +134,7 @@ export function BuyCredits() {
     }
   };
 
-  const onError = (err: any) => {
+  const onError = (err: unknown) => {
     console.error("PayPal error:", err);
     toast.error("Payment failed. Please try again.");
     setPaymentStatus("failed");
@@ -143,6 +151,40 @@ export function BuyCredits() {
   const onCancel = () => {
     toast.info("Payment cancelled");
     resetPaymentState();
+  };
+
+  const handleVoucherRedeem = async () => {
+    if (!voucherCode.trim()) {
+      toast.error("Please enter a voucher code");
+      return;
+    }
+
+    try {
+      setIsRedeemingVoucher(true);
+      setVoucherRedemptionStatus("idle");
+
+      const response = await redeemVoucher(voucherCode.trim());
+
+      if (response.success) {
+        toast.success(
+          `${
+            response.message
+          } (${response.credits_added?.toLocaleString()} credits added)`
+        );
+        setVoucherRedemptionStatus("success");
+        setVoucherCode("");
+      } else {
+        throw new Error(response.message || "Failed to redeem voucher");
+      }
+    } catch (error) {
+      console.error("Error redeeming voucher:", error);
+      setVoucherRedemptionStatus("failed");
+      toast.error(
+        error instanceof Error ? error.message : "Failed to redeem voucher"
+      );
+    } finally {
+      setIsRedeemingVoucher(false);
+    }
   };
 
   return (
@@ -193,6 +235,69 @@ export function BuyCredits() {
                   capabilities
                 </p>
               </div>
+
+              {/* Voucher Redemption Section */}
+              <Card className="p-6 mb-8">
+                <div className="text-center mb-4">
+                  <h3 className="text-lg font-semibold mb-2">
+                    Have a Voucher Code?
+                  </h3>
+                  <p className="text-sm text-muted-foreground">
+                    Redeem your voucher code to get free credits instantly
+                  </p>
+                </div>
+
+                <div className="max-w-md mx-auto">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={voucherCode}
+                      onChange={(e) =>
+                        setVoucherCode(e.target.value.toUpperCase())
+                      }
+                      placeholder="Enter voucher code (e.g., EDVARA-123456)"
+                      className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      disabled={isRedeemingVoucher}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          handleVoucherRedeem();
+                        }
+                      }}
+                    />
+                    <Button
+                      onClick={handleVoucherRedeem}
+                      disabled={isRedeemingVoucher || !voucherCode.trim()}
+                      size="sm"
+                    >
+                      {isRedeemingVoucher ? (
+                        <>
+                          <Loader2 className="size-4 mr-1 animate-spin" />
+                          Redeeming...
+                        </>
+                      ) : (
+                        "Redeem"
+                      )}
+                    </Button>
+                  </div>
+
+                  {voucherRedemptionStatus === "success" && (
+                    <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
+                      <p className="text-sm text-green-600 dark:text-green-400 text-center">
+                        ✅ Voucher redeemed successfully!
+                      </p>
+                    </div>
+                  )}
+
+                  {voucherRedemptionStatus === "failed" && (
+                    <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
+                      <p className="text-sm text-red-600 dark:text-red-400 text-center">
+                        ❌ Failed to redeem voucher. Please check the code and
+                        try again.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </Card>
 
               {/* Credit Packages */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">

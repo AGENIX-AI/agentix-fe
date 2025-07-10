@@ -1,8 +1,13 @@
-import { SearchIcon, AlignJustify } from "lucide-react";
+import {
+  SearchIcon,
+  AlignJustify,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react";
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { H5 } from "@/components/ui/typography";
+import { Large } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import {
   Tooltip,
@@ -10,17 +15,22 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { useInstructor } from "@/contexts/InstructorContext";
 import { SystemAssistantBlock } from "./SystemAssistantBlock";
 import { UserConversationsBlock } from "./UserConversationsBlock";
+import { SharingBlock } from "../../../instructor/components/history/SharingBlock";
 import { Separator } from "@/components/ui/separator";
 import {
   getSystemAssistantConversation,
-  getInstructorListConversations,
-  createInstructorFirstConversation,
+  getListConversations,
+  createFirstConversation,
+  getListSharing,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
-import type { SystemAssistantResponse } from "@/api/conversations";
+import type {
+  SystemAssistantResponse,
+  SharingStudent,
+} from "@/api/conversations";
+import { useInstructor } from "@/contexts/InstructorContext";
 
 interface HistoryComponentProps {
   className?: string;
@@ -46,12 +56,17 @@ export function HistoryComponent({
   const isHistoryVisible = propIsHistoryVisible;
   const toggleHistory = propToggleHistory;
 
+  // State for section visibility
+  const [isChatsExpanded, setIsChatsExpanded] = useState(true);
+  const [isSharingExpanded, setIsSharingExpanded] = useState(true);
+
   // State for collapsed view avatars
   const [systemAssistant, setSystemAssistant] =
     useState<SystemAssistantResponse | null>(null);
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     []
   );
+  const [sharingStudents, setSharingStudents] = useState<SharingStudent[]>([]);
   const [dataFetched, setDataFetched] = useState(false);
 
   // Fetch data once when component mounts - NOT on every visibility change
@@ -65,14 +80,15 @@ export function HistoryComponent({
         setSystemAssistant(systemResponse);
 
         // Fetch user conversations
-        const conversationsResponse = await getInstructorListConversations(
-          1,
-          100,
-          "created_at",
-          1
-        );
+        const conversationsResponse = await getListConversations();
         if (conversationsResponse.success) {
           setConversations(conversationsResponse.conversations);
+        }
+
+        // Fetch sharing data
+        const sharingResponse = await getListSharing();
+        if (sharingResponse.success) {
+          setSharingStudents(sharingResponse.students);
         }
 
         setDataFetched(true); // Mark as fetched
@@ -83,7 +99,7 @@ export function HistoryComponent({
 
     // Fetch data only once when component mounts
     fetchAvatarData();
-  }, [dataFetched]); // Include dataFetched dependency
+  }, []); // Empty dependency array - only run once
 
   // Handle avatar click in collapsed view - DON'T auto-expand
   const handleAvatarClick = async (
@@ -99,14 +115,14 @@ export function HistoryComponent({
         if (systemAssistant.id) {
           setConversationId(systemAssistant.id);
           setAssistantId(systemAssistant.assistants?.id);
-          setRightPanel("assistantTopics");
+          setRightPanel("helps");
         } else if (systemAssistant.assistants?.id) {
-          const response = await createInstructorFirstConversation(
+          const response = await createFirstConversation(
             systemAssistant.assistants.id
           );
           setConversationId(response.conversation_id);
           setAssistantId(systemAssistant.assistants.id);
-          setRightPanel("assistantTopics");
+          setRightPanel("helps");
         }
       } else {
         const conv = conversation as ConversationListItem;
@@ -126,12 +142,9 @@ export function HistoryComponent({
   if (!isHistoryVisible) {
     return (
       <div className={cn(className, "border-r border-border w-16")}>
-        <div className="bg-background h-[calc(100vh-3.5rem)]">
+        <div className="bg-background h-[calc(100vh-4.5rem)] flex flex-col">
           {/* Navigation section */}
-          <div
-            className="p-2 overflow-y-auto no-scrollbar"
-            style={{ maxHeight: "calc(100vh - 200px)" }}
-          >
+          <div className="p-2 overflow-y-auto flex-1 no-scrollbar h-full">
             <div className="mb-4">
               <ul className="space-y-1 mt-1">
                 {/* Expand button */}
@@ -173,7 +186,7 @@ export function HistoryComponent({
                 )}
 
                 {/* User Conversations Avatars */}
-                {conversations.slice(0, 10).map((conversation) => (
+                {conversations.slice(0, 8).map((conversation) => (
                   <li key={conversation.id}>
                     <button
                       className={cn(
@@ -192,6 +205,27 @@ export function HistoryComponent({
                     </button>
                   </li>
                 ))}
+
+                {/* Sharing Students Avatars */}
+                {sharingStudents.slice(0, 5).map((student) => (
+                  <li key={student.student_id}>
+                    <button
+                      className={cn(
+                        "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                        "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                        "justify-center"
+                      )}
+                      onClick={() =>
+                        console.log("Sharing student clicked:", student)
+                      }
+                      title={student.student_info.name}
+                    >
+                      <Avatar className="overflow-hidden">
+                        <AvatarImage src={student.student_info.avatar_url} />
+                      </Avatar>
+                    </button>
+                  </li>
+                ))}
               </ul>
             </div>
           </div>
@@ -202,12 +236,12 @@ export function HistoryComponent({
 
   // Expanded state - show full history component
   return (
-    <div className={cn(className, "border-r border-border")}>
-      <div className="bg-background text-sm h-[calc(100vh-3.5rem)] p-4 ">
-        <div className="flex flex-col h-full bg-background">
+    <div className={cn(className, "border-r border-border ")}>
+      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.5rem)]">
+        <div className="flex flex-col flex-grow min-h-0 w-full h-full">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between h-full p-0 pb-6">
+            <div className="flex items-center justify-between p-0 pb-6">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -225,12 +259,12 @@ export function HistoryComponent({
                     Collapse history
                   </TooltipContent>
                 </Tooltip>
-                <H5>Your Assistants</H5>
+                <Large>Chats</Large>
               </div>
             </div>
           </div>
 
-          <div className="relative flex items-center gap-2 pb-4">
+          <div className="relative flex items-center gap-2 pb-4 shrink-0 ">
             <SearchIcon className="absolute left-4 h-4 text-muted-foreground" />
             <Input
               className="h-8 pl-10"
@@ -240,23 +274,75 @@ export function HistoryComponent({
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex flex-col h-full">
-            {/* BLOCK 1: System Assistant */}
-            <SystemAssistantBlock
-              setIsChatLoading={setIsChatLoading}
-              systemAssistantData={systemAssistant}
-            />
 
-            {/* BLOCK 2: User Conversations */}
-            <UserConversationsBlock
-              searchQuery={searchQuery}
-              setIsChatLoading={setIsChatLoading}
-              conversationsData={conversations}
-            />
-            <Separator orientation="horizontal" className="w-full my-1" />
+          {/* Scrollable content area with flex-grow to take available space */}
+          <div className="flex-grow overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {/* ZONE 1: Chats */}
+              <div className="mb-4">
+                {/* Chats Section Header */}
+                <div
+                  className="flex items-center justify-between px-1 py-2 hover:bg-accent/30 rounded-md cursor-pointer transition-colors"
+                  onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    {isChatsExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="font-medium text-sm">Chats</span>
+                  </div>
+                </div>
+
+                {/* Chats Content */}
+                {isChatsExpanded && (
+                  <div className="ml-1">
+                    {/* BLOCK 1: System Assistant */}
+                    <SystemAssistantBlock
+                      setIsChatLoading={setIsChatLoading}
+                      systemAssistantData={systemAssistant}
+                    />
+
+                    {/* BLOCK 2: User Conversations */}
+                    <UserConversationsBlock
+                      searchQuery={searchQuery}
+                      setIsChatLoading={setIsChatLoading}
+                      conversationsData={conversations}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* ZONE 2: Sharing */}
+              <div className="mb-4">
+                {/* Sharing Section Header */}
+                <div
+                  className="flex items-center justify-between px-1 py-2 hover:bg-accent/30 rounded-md cursor-pointer transition-colors"
+                  onClick={() => setIsSharingExpanded(!isSharingExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    {isSharingExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="font-medium text-sm">Sharing</span>
+                  </div>
+                </div>
+
+                {/* Sharing Content */}
+                {isSharingExpanded && (
+                  <SharingBlock searchQuery={searchQuery} />
+                )}
+              </div>
+
+              <Separator orientation="horizontal" className="w-full my-1" />
+            </div>
           </div>
 
-          <div className="text-[10px] text-center mb-3">
+          {/* Fixed footer that always stays at the bottom */}
+          <div className="text-center bg-background w-full ">
             {/* {renderDisclaimerText()} */}
             <span className="text-[9px] block font-normal text-xs truncate">
               v.{import.meta.env.VITE_APP_VERSION}.

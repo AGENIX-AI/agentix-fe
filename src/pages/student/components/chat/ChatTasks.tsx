@@ -15,10 +15,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useStudent } from "@/contexts/StudentContext";
-import { generateTutoringDiscuss } from "@/api/conversations";
+import {
+  generateTutoringDiscuss,
+  shareConversationWithInstructor,
+} from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
 import { cn } from "@/lib/utils";
-import { Sparkles, MessageSquare } from "lucide-react";
+import { Sparkles, MessageSquare, Share2 } from "lucide-react";
+import { toast } from "sonner";
 
 export interface TaskFormData {
   productName: string;
@@ -71,6 +75,15 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
+          </div>
+        ),
+      },
+      {
+        id: "share-with-instructor",
+        title: "share_with_instructor", // Translation key
+        icon: (
+          <div className="w-4 h-4 flex items-center justify-center rounded">
+            <Share2 className="h-4 w-4 text-secondary" />
           </div>
         ),
       },
@@ -151,6 +164,7 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     taskId
   );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!!taskId);
+  const [isSharing, setIsSharing] = useState(false);
 
   const handleSelectTask = (id: string) => {
     setSelectedTaskTitle(t(`chat.tasks.${id.replace("-", "_")}`));
@@ -188,57 +202,155 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     }
   };
 
-  const handleSubmitFeedbackForm = (formData: FeedbackFormData) => {
+  const handleFeedbackForm = (formData: FeedbackFormData) => {
     // This function is passed to FeedbackForm but submission is handled internally
     console.log("Feedback form data:", formData);
   };
 
+  const handleShareWithInstructor = async () => {
+    if (!conversationId) {
+      toast.error(
+        t("chat.tasks.error_no_conversation", "No active conversation to share")
+      );
+      return;
+    }
+
+    try {
+      setIsSharing(true);
+      await shareConversationWithInstructor(conversationId);
+
+      // Show success toast with translated message
+      toast.success(
+        t("chat.tasks.share_success", "Sharing request sent successfully")
+      );
+
+      // Show a second toast with additional information
+      toast(
+        t(
+          "chat.tasks.share_info",
+          "The instructor will be notified of your request"
+        )
+      );
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error sharing conversation:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to share conversation";
+
+      // Check for specific error messages
+      if (errorMessage.includes("already requested")) {
+        toast.error(
+          t(
+            "chat.tasks.error_already_shared",
+            "You have already requested to share this conversation"
+          )
+        );
+      } else if (errorMessage.includes("instructor of this conversation")) {
+        toast.error(
+          t(
+            "chat.tasks.error_you_are_instructor",
+            "You are the instructor of this conversation"
+          )
+        );
+      } else {
+        toast.error(
+          t(
+            "chat.tasks.error_generic",
+            "Failed to share conversation: {error}",
+            { error: errorMessage }
+          )
+        );
+      }
+    } finally {
+      setIsSharing(false);
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setIsSharing(false);
     if (!taskId) {
       setSelectedTaskId(undefined);
       setSelectedTaskTitle(undefined);
     }
   };
 
-  // Only show dialog when a task is selected, otherwise show the task menu
-  if (!selectedTaskId) {
-    return <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />;
-  }
+  return (
+    <>
+      {/* <Toaster position="top-center" /> */}
+      {!selectedTaskId ? (
+        <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />
+      ) : (
+        <>
+          {selectedTaskId === "create-topic" && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>{selectedTaskTitle}</DialogTitle>
+                </DialogHeader>
+                <CreateTopicForm
+                  onClose={handleCloseModal}
+                  onSubmit={handleSubmitTaskForm}
+                  taskTitle={selectedTaskTitle || ""}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
 
-  // When a task is selected, show the appropriate dialog based on task ID
-  switch (selectedTaskId) {
-    case "create-topic":
-      return (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>{selectedTaskTitle}</DialogTitle>
-            </DialogHeader>
-            <CreateTopicForm
-              onClose={handleCloseModal}
-              onSubmit={handleSubmitTaskForm}
-              taskTitle={selectedTaskTitle || ""}
-            />
-          </DialogContent>
-        </Dialog>
-      );
-    case "feedback":
-      return (
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{selectedTaskTitle}</DialogTitle>
-            </DialogHeader>
-            <FeedbackForm
-              onClose={handleCloseModal}
-              onSubmit={handleSubmitFeedbackForm}
-              taskTitle={selectedTaskTitle || ""}
-            />
-          </DialogContent>
-        </Dialog>
-      );
-    default:
-      return <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />;
-  }
+          {selectedTaskId === "feedback" && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{selectedTaskTitle}</DialogTitle>
+                </DialogHeader>
+                <FeedbackForm
+                  onClose={handleCloseModal}
+                  onSubmit={handleFeedbackForm}
+                  taskTitle={selectedTaskTitle || ""}
+                />
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {selectedTaskId === "share-with-instructor" && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>{selectedTaskTitle}</DialogTitle>
+                </DialogHeader>
+
+                <div className="py-4 space-y-4">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    {t(
+                      "chat.tasks.share_with_instructor_description",
+                      "Share this conversation with your instructor. The instructor will be able to view the conversation history."
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" onClick={handleCloseModal}>
+                      {t("common.cancel", "Cancel")}
+                    </Button>
+                    <Button
+                      onClick={handleShareWithInstructor}
+                      disabled={isSharing}
+                    >
+                      {isSharing
+                        ? t("common.sharing", "Sharing...")
+                        : t("common.share", "Share")}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {!["create-topic", "feedback", "share-with-instructor"].includes(
+            selectedTaskId
+          ) && <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />}
+        </>
+      )}
+    </>
+  );
 }

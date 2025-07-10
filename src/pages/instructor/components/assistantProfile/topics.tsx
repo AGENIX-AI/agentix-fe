@@ -107,7 +107,7 @@ function ConversationCategory({
     switch (category) {
       case "general":
         return "General Topics";
-      case "training":
+      case "learning":
         return "Training Topics";
       case "archived":
         return "Archived Topics";

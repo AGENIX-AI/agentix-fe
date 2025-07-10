@@ -8,7 +8,12 @@ import { useInstructor } from "@/contexts/InstructorContext";
 import { TypingIndicator } from "./TypingIndicator";
 
 export interface ChatBoxProps {
-  messages?: any[];
+  messages?: Array<{
+    sender: "agent" | "student" | "instructor";
+    content: string;
+    time: number;
+    invocation_id?: string;
+  }>;
   onSendMessageWithImage?: (message: string, imageData: string) => void;
   onFileUpload?: (file: File, textInput?: string) => void;
   className?: string;
@@ -16,6 +21,16 @@ export interface ChatBoxProps {
   avatar_url?: string;
   inputRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
   isAgentResponding?: boolean;
+  conversationData?: {
+    studentInfo?: { id: string; name: string; avatar_url: string };
+    instructorInfo?: { id: string; name: string; avatar_url: string };
+    assistantInfo?: {
+      id: string;
+      name: string;
+      tagline: string;
+      image: string;
+    };
+  };
 }
 
 export function ChatBox({
@@ -27,6 +42,7 @@ export function ChatBox({
   avatar_url,
   inputRef,
   isAgentResponding,
+  conversationData,
 }: ChatBoxProps) {
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -62,18 +78,45 @@ export function ChatBox({
         className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-6"
       >
         <div className="space-y-3">
-          {messages.map((message, index) => (
-            <MessageBubble
-              key={index}
-              message={message}
-              index={index}
-              isCurrentUser={message.sender === "user"}
-              currentUserName={user?.metadata.full_name || ""}
-              currentUserImage={user?.metadata.avatar_url || ""}
-              agentName={name}
-              agentImage={avatar_url || ""}
-            />
-          ))}
+          {messages.map((message, index) => {
+            // Determine user info based on sender type
+            let currentUserName = "";
+            let currentUserImage = "";
+            let displayName = "";
+            let displayImage = "";
+
+            if (message.sender === "instructor") {
+              currentUserName =
+                conversationData?.instructorInfo?.name ||
+                user?.metadata.full_name ||
+                "";
+              currentUserImage =
+                conversationData?.instructorInfo?.avatar_url ||
+                user?.metadata.avatar_url ||
+                "";
+              displayName = currentUserName;
+              displayImage = currentUserImage;
+            } else if (message.sender === "student") {
+              displayName = conversationData?.studentInfo?.name || "Student";
+              displayImage = conversationData?.studentInfo?.avatar_url || "";
+            } else if (message.sender === "agent") {
+              displayName = name;
+              displayImage = avatar_url || "";
+            }
+
+            return (
+              <MessageBubble
+                key={index}
+                message={message}
+                index={index}
+                isCurrentUser={message.sender === "instructor"}
+                currentUserName={currentUserName}
+                currentUserImage={currentUserImage}
+                agentName={displayName}
+                agentImage={displayImage}
+              />
+            );
+          })}
 
           {isAgentResponding && typingIndicator}
 

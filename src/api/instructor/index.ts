@@ -7,7 +7,7 @@ import * as Sentry from "@sentry/react";
  * Response for creating a learning discussion
  */
 export interface CreateLearningDiscussResponse {
-  sender: "agent_response" | "user";
+  sender: "student" | "instructor" | "agent";
   new_message: string;
   invocation_id: string;
 }

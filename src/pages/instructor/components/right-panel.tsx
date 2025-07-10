@@ -11,6 +11,7 @@ import TopicKnowledge from "./topicKnowledge/topic-knowledge";
 import TopicKnowledgeDetails from "./topicKnowledge/topic-knowledge-details";
 import { EditProfile } from "./editProfile/EditProfile";
 import { BuyCredits } from "./buyCredits/BuyCredits";
+import { SharingTopics } from "./history/SharingTopics";
 import { Large } from "@/components/ui/typography";
 import { memo } from "react";
 import {
@@ -177,6 +178,8 @@ export default function RightPanel({
         return "Edit Profile";
       case "buyCredits":
         return "Buy Credits";
+      case "sharing_topics":
+        return "Sharing Topics";
       case "empty":
         return "Home Page";
       default:
@@ -330,6 +333,16 @@ export default function RightPanel({
         <div className="flex flex-col h-full">
           <RightPanelHeader title="Buy Credits" toggleMiniapp={toggleMiniapp} />
           <BuyCredits />
+        </div>
+      );
+    case "sharing_topics":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Sharing Topics"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <SharingTopics />
         </div>
       );
     case "empty":

@@ -12,7 +12,7 @@ interface CreateDocumentFromChatCardProps {
   card: CreateDocumentFromChatMessageCard;
   className?: string;
   handleNewMessage?: (message: {
-    sender: "agent_response" | "user";
+    sender: "student" | "instructor" | "agent";
     content: string;
     invocation_id: string;
   }) => void;
@@ -68,7 +68,7 @@ export function CreateDocumentFromChatCard({
     // Logic for submitting the document
     if (handleNewMessage && invocation_id) {
       handleNewMessage({
-        sender: "user",
+        sender: "instructor",
         content: `Document at ${card.filepath} has been submitted.`,
         invocation_id: invocation_id,
       });

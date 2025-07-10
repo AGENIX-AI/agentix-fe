@@ -7,7 +7,12 @@ import { Small, Muted } from "@/components/ui/typography";
 import { useStudent } from "@/contexts/StudentContext";
 
 import { eventBus } from "@/lib/utils/event/eventBus";
-import { getConversationHistory, sendMessage } from "@/api/conversations";
+import {
+  getConversationHistory,
+  sendMessage,
+  type UserInfo,
+  type AssistantInfo,
+} from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/ChatContext";
 import * as Sentry from "@sentry/react";
@@ -74,7 +79,7 @@ const TypingIndicator = memo(
 TypingIndicator.displayName = "TypingIndicator";
 
 interface Message {
-  sender: "user" | "agent_response";
+  sender: "student" | "instructor" | "agent";
   content: string;
   time: number;
   invocation_id?: string;
@@ -93,6 +98,11 @@ export function ChatComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [conversationData, setConversationData] = useState<{
+    studentInfo?: UserInfo;
+    instructorInfo?: UserInfo;
+    assistantInfo?: AssistantInfo;
+  }>({});
   const inputRef = useRef<HTMLTextAreaElement>(null);
   console.log(isUploadingFile);
   // Add effect to focus input when isAgentResponding changes from true to false
@@ -108,8 +118,13 @@ export function ChatComponent() {
     try {
       if (!conversationId) return;
       setIsChatLoading(true);
-      const messages = await getConversationHistory(conversationId);
-      setMessages(messages);
+      const response = await getConversationHistory(conversationId);
+      setMessages(response.history);
+      setConversationData({
+        studentInfo: response.student_info,
+        instructorInfo: response.instructor_info,
+        assistantInfo: response.assistant,
+      });
       // Scroll to the bottom of the chat after messages are loaded
       setTimeout(() => {
         const chatContainer = document.querySelector(
@@ -151,7 +166,7 @@ export function ChatComponent() {
 
       // Add user message to the chat immediately
       const userMessage: Message = {
-        sender: "user",
+        sender: "student",
         content: content,
         time: Math.floor(Date.now() / 1000),
         invocation_id: "",
@@ -166,7 +181,7 @@ export function ChatComponent() {
         lastMessage: {
           content: content,
           time: new Date().toISOString(),
-          sender: "user",
+          sender: "student",
         },
       });
 
@@ -188,10 +203,10 @@ export function ChatComponent() {
         return;
       }
 
-      if (response.success) {
+      if (response.success && response.message) {
         // Add agent response to the chat
         const agentMessage: Message = {
-          sender: "agent_response",
+          sender: "agent",
           content: response.message,
           time: Math.floor(Date.now() / 1000),
           invocation_id: response.invocation_id,
@@ -206,7 +221,7 @@ export function ChatComponent() {
           lastMessage: {
             content: response.message,
             time: new Date().toISOString(),
-            sender: "agent_response",
+            sender: "agent",
           },
         });
       }
@@ -220,7 +235,7 @@ export function ChatComponent() {
   };
 
   const handleNewMessage = (newMessage: {
-    sender: "agent_response" | "user";
+    sender: "student" | "instructor" | "agent";
     content: string;
     invocation_id?: string;
   }) => {
@@ -244,7 +259,7 @@ export function ChatComponent() {
       lastMessage: {
         content: newMessage.content,
         time: new Date().toISOString(),
-        sender: "agent_response",
+        sender: "agent",
       },
     });
   };
@@ -271,7 +286,7 @@ export function ChatComponent() {
 
       // Add user message with image to the chat immediately
       const userMessage: Message = {
-        sender: "user",
+        sender: "student",
         content: messageWithImage,
         time: Math.floor(Date.now() / 1000),
         invocation_id: "",
@@ -286,7 +301,7 @@ export function ChatComponent() {
         lastMessage: {
           content: content, // Using the text content without the image for history display
           time: new Date().toISOString(),
-          sender: "user",
+          sender: "student",
         },
       });
 
@@ -306,7 +321,7 @@ export function ChatComponent() {
       if (response.success) {
         // Add agent response to the chat
         const agentMessage: Message = {
-          sender: "agent_response",
+          sender: "agent",
           content: response.message,
           time: Math.floor(Date.now() / 1000),
           invocation_id: response.invocation_id,
@@ -321,7 +336,7 @@ export function ChatComponent() {
           lastMessage: {
             content: response.message,
             time: new Date().toISOString(),
-            sender: "agent_response",
+            sender: "agent",
           },
         });
       }
@@ -354,7 +369,7 @@ export function ChatComponent() {
 
             // Add user message with image to the chat immediately
             const userMessage: Message = {
-              sender: "user",
+              sender: "student",
               content: messageWithImage,
               time: Math.floor(Date.now() / 1000),
               invocation_id: "",
@@ -369,7 +384,7 @@ export function ChatComponent() {
               lastMessage: {
                 content: textInput || "[Image uploaded]", // Use text input if provided, otherwise a placeholder
                 time: new Date().toISOString(),
-                sender: "user",
+                sender: "student",
               },
             });
 
@@ -385,7 +400,7 @@ export function ChatComponent() {
             if (response.success) {
               // Add agent response to the chat
               const agentMessage: Message = {
-                sender: "agent_response",
+                sender: "agent",
                 content: response.message,
                 time: Math.floor(Date.now() / 1000),
                 invocation_id: response.invocation_id,
@@ -400,7 +415,7 @@ export function ChatComponent() {
                 lastMessage: {
                   content: response.message,
                   time: new Date().toISOString(),
-                  sender: "agent_response",
+                  sender: "agent```",
                 },
               });
             }
@@ -462,10 +477,17 @@ export function ChatComponent() {
             onSendMessageWithImage={handleSendMessageWithImage}
             onFileUpload={handleFileUpload}
             className="h-full border-0 rounded-none shadow-none bg-background"
-            name={assistantInfo?.name ?? ""}
-            avatar_url={assistantInfo?.image ?? ""}
+            name={
+              conversationData.assistantInfo?.name ?? assistantInfo?.name ?? ""
+            }
+            avatar_url={
+              conversationData.assistantInfo?.image ??
+              assistantInfo?.image ??
+              ""
+            }
             inputRef={inputRef}
             isAgentResponding={isAgentResponding}
+            conversationData={conversationData}
           />
         </div>
       </div>

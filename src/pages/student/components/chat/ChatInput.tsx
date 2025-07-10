@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useTranslation } from "react-i18next";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useStudent } from "@/contexts/StudentContext";
+import { useDebouncedLocalStorage } from "@/hooks/useDebouncedLocalStorage";
 
 interface ChatInputProps {
   onSendMessageWithImage?: (message: string, imageData: string) => void;
@@ -29,7 +30,6 @@ export function ChatInput({
   className,
 }: ChatInputProps) {
   const { t } = useTranslation();
-  const [input, setInput] = useState("");
   const [pastedImage, setPastedImage] = useState<string | null>(null);
   const [pastedImageBlob, setPastedImageBlob] = useState<File | null>(null);
   const [showTaskMenu, setShowTaskMenu] = useState(false);
@@ -38,6 +38,16 @@ export function ChatInput({
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
   const { handleSendMessage } = useChatContext();
   const { isChatLoading, assistantInfo } = useStudent();
+
+  // Generate a storage key based on conversation ID
+  const storageKey = `chat-input`;
+
+  // Use debounced localStorage for chat input
+  const [input, setInput] = useDebouncedLocalStorage<string>(
+    storageKey,
+    "",
+    500
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -57,7 +67,15 @@ export function ChatInput({
       handleSendMessage(input);
     }
 
+    // Clear input after sending
     setInput("");
+
+    // Also clear from localStorage to prevent showing it again in this conversation
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(""));
+    } catch (error) {
+      console.error("Error clearing localStorage:", error);
+    }
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
