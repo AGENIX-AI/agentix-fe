@@ -84,6 +84,16 @@ interface Message {
   time: number;
   invocation_id?: string;
 }
+
+// WebSocket message interface
+interface WebSocketMessage {
+  content: string;
+  invocation_id: string;
+  sender: "instructor" | "agent";
+  conversation_id: string;
+  timestamp: string;
+}
+
 // Main Component
 export function ChatComponent() {
   const {
@@ -104,7 +114,104 @@ export function ChatComponent() {
     assistantInfo?: AssistantInfo;
   }>({});
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const wsRef = useRef<WebSocket | null>(null);
+
   console.log(isUploadingFile);
+
+  // WebSocket connection effect
+  useEffect(() => {
+    const connectWebSocket = () => {
+      if (!conversationId) return;
+
+      // Disconnect existing WebSocket if any
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8002";
+        // Convert HTTP URL to WebSocket URL (HTTP -> WS, HTTPS -> WSS)
+        const wsUrl = baseUrl
+          .replace(/^https:\/\//, "wss://")
+          .replace(/^http:\/\//, "ws://");
+        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}`;
+
+        const ws = new WebSocket(websocketUrl);
+        wsRef.current = ws;
+
+        ws.onopen = () => {
+          console.log("WebSocket connected to:", websocketUrl);
+        };
+
+        ws.onmessage = (event) => {
+          try {
+            const wsMessage: WebSocketMessage = JSON.parse(event.data);
+            console.log("Received WebSocket message:", wsMessage);
+
+            // Only render messages from instructor or agent
+            if (
+              wsMessage.sender === "instructor" ||
+              wsMessage.sender === "agent"
+            ) {
+              // Convert timestamp to Unix timestamp
+              const timestamp = new Date(wsMessage.timestamp).getTime() / 1000;
+
+              const newMessage: Message = {
+                sender: wsMessage.sender,
+                content: wsMessage.content,
+                time: Math.floor(timestamp),
+                invocation_id: wsMessage.invocation_id,
+              };
+
+              setMessages((prevMessages) => [...prevMessages, newMessage]);
+
+              // Emit event to update history
+              eventBus.emit("conversation-update", {
+                assistantId: assistantId,
+                conversationId: conversationId,
+                lastMessage: {
+                  content: wsMessage.content,
+                  time: wsMessage.timestamp,
+                  sender: wsMessage.sender,
+                },
+              });
+
+              // If it was an agent response, stop the typing indicator
+              if (wsMessage.sender === "agent") {
+                setIsAgentResponding(false);
+              }
+            }
+          } catch (error) {
+            console.error("Error parsing WebSocket message:", error);
+          }
+        };
+
+        ws.onclose = (event) => {
+          console.log("WebSocket closed:", event.code, event.reason);
+          wsRef.current = null;
+        };
+
+        ws.onerror = (error) => {
+          console.error("WebSocket error:", error);
+          wsRef.current = null;
+        };
+      } catch (error) {
+        console.error("Error creating WebSocket connection:", error);
+      }
+    };
+
+    connectWebSocket();
+
+    // Cleanup function
+    return () => {
+      if (wsRef.current) {
+        wsRef.current.close();
+        wsRef.current = null;
+      }
+    };
+  }, [conversationId, assistantId]);
+
   // Add effect to focus input when isAgentResponding changes from true to false
   useEffect(() => {
     if (!isAgentResponding && inputRef.current) {
@@ -203,28 +310,7 @@ export function ChatComponent() {
         return;
       }
 
-      if (response.success && response.message) {
-        // Add agent response to the chat
-        const agentMessage: Message = {
-          sender: "agent",
-          content: response.message,
-          time: Math.floor(Date.now() / 1000),
-          invocation_id: response.invocation_id,
-        };
-
-        setMessages((prevMessages) => [...prevMessages, agentMessage]);
-
-        // Emit event to update history
-        eventBus.emit("conversation-update", {
-          assistantId: assistantId,
-          conversationId: conversationId,
-          lastMessage: {
-            content: response.message,
-            time: new Date().toISOString(),
-            sender: "agent",
-          },
-        });
-      }
+      // Agent response will come through WebSocket, no need to handle it here
     } catch (error) {
       console.error("Error sending message:", error);
       // Optionally show an error message to the user
@@ -234,13 +320,15 @@ export function ChatComponent() {
     }
   };
 
+  // Handle locally generated messages (from message cards, tasks, etc.)
+  // Note: External messages from instructor/agent come through WebSocket
   const handleNewMessage = (newMessage: {
     sender: "student" | "instructor" | "agent";
     content: string;
     invocation_id?: string;
   }) => {
     if (!conversationId) return;
-    console.log("handleNewMessage", newMessage);
+    console.log("handleNewMessage (local):", newMessage);
 
     // Add the new message to the chat
     const agentMessage: Message = {
@@ -318,28 +406,7 @@ export function ChatComponent() {
         return;
       }
 
-      if (response.success) {
-        // Add agent response to the chat
-        const agentMessage: Message = {
-          sender: "agent",
-          content: response.message,
-          time: Math.floor(Date.now() / 1000),
-          invocation_id: response.invocation_id,
-        };
-
-        setMessages((prevMessages) => [...prevMessages, agentMessage]);
-
-        // Emit event to update history
-        eventBus.emit("conversation-update", {
-          assistantId: assistantId,
-          conversationId: conversationId,
-          lastMessage: {
-            content: response.message,
-            time: new Date().toISOString(),
-            sender: "agent",
-          },
-        });
-      }
+      // Agent response will come through WebSocket, no need to handle it here
     } catch (error) {
       console.error("Error sending message with image:", error);
       // Optionally show an error message to the user
@@ -392,33 +459,9 @@ export function ChatComponent() {
             setIsAgentResponding(true);
 
             // Send message to API
-            const response = await sendMessage(
-              conversationId,
-              messageWithImage
-            );
+            await sendMessage(conversationId, messageWithImage);
 
-            if (response.success) {
-              // Add agent response to the chat
-              const agentMessage: Message = {
-                sender: "agent",
-                content: response.message,
-                time: Math.floor(Date.now() / 1000),
-                invocation_id: response.invocation_id,
-              };
-
-              setMessages((prevMessages) => [...prevMessages, agentMessage]);
-
-              // Emit event to update history
-              eventBus.emit("conversation-update", {
-                assistantId: assistantId,
-                conversationId: conversationId,
-                lastMessage: {
-                  content: response.message,
-                  time: new Date().toISOString(),
-                  sender: "agent```",
-                },
-              });
-            }
+            // Agent response will come through WebSocket, no need to handle it here
           }
         } catch (error) {
           console.error("Error processing file:", error);

@@ -159,6 +159,7 @@ const enTranslation: Record<string, any> = {
       create_topic: "Create a tutoring topic",
       feedback: "Feedback",
       feedback_placeholder: "Feedback functionality coming soon...",
+      share_with_instructor: "Share with instructor",
     },
     create_topic_form: {
       title: "Create a tutoring topic",
