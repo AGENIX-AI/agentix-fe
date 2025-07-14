@@ -21,7 +21,6 @@ import { SharingBlock } from "../../../instructor/components/history/SharingBloc
 import { Separator } from "@/components/ui/separator";
 import {
   getSystemAssistantConversation,
-  getListConversations,
   createFirstConversation,
   getListSharing,
   getInstructorListConversations,

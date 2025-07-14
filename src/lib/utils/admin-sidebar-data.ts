@@ -7,6 +7,7 @@ import {
   DollarSign,
   Package,
   Ticket,
+  HelpCircle,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -61,6 +62,11 @@ export const adminSidebarData: SidebarData = {
           title: "Vouchers",
           url: "/admin/vouchers",
           icon: Ticket,
+        },
+        {
+          title: "Help Center",
+          url: "/admin/help-center",
+          icon: HelpCircle,
         },
         {
           title: "Settings",

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { getHelpContent } from "@/api/systems";
-import type { HelpContent } from "@/api/systems";
+import { fetchHelpTopic } from "@/api/admin/helpCenter";
+import type { HelpTopic } from "@/api/admin/helpCenter";
 import ReactMarkdown from "react-markdown";
 import { Large } from "@/components/ui/typography";
 
@@ -16,7 +16,7 @@ export const HelpContentSidebar = ({
   onClose,
   topicId,
 }: HelpContentSidebarProps) => {
-  const [content, setContent] = useState<HelpContent | null>(null);
+  const [content, setContent] = useState<HelpTopic | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -27,7 +27,7 @@ export const HelpContentSidebar = ({
       try {
         setIsLoading(true);
         setError(null);
-        const helpContent = await getHelpContent(topicId);
+        const helpContent = await fetchHelpTopic(topicId);
         setContent(helpContent);
       } catch (err) {
         setError("Failed to load help content. Please try again later.");
@@ -50,7 +50,7 @@ export const HelpContentSidebar = ({
     <div className="fixed inset-y-0 right-0 z-50 w-170 bg-white shadow-lg border-l border-gray-200 flex flex-col">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between p-4 h-18">
-        <Large className="">{content?.show_text || "Help Content"}</Large>
+        <Large className="">{content?.title || "Help Content"}</Large>
         <button
           onClick={onClose}
           className="p-1 rounded-full hover:bg-gray-100 transition-colors"

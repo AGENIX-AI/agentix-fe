@@ -10,6 +10,7 @@ import { AdminRevenue } from "./AdminRevenue";
 import { AdminPackages } from "./AdminPackages";
 import { AdminVouchers } from "./AdminVouchers";
 import { AdminSettings } from "./AdminSettings";
+import { AdminHelpCenter } from "./AdminHelpCenter";
 
 interface AdminLayoutProps {
   onSidebarToggle: (collapsed: boolean) => void;
@@ -31,6 +32,7 @@ export default function AdminLayout({
     if (path.includes("/revenue")) return "Revenue & Transactions";
     if (path.includes("/packages")) return "Package Management";
     if (path.includes("/vouchers")) return "Voucher Management";
+    if (path.includes("/help-center")) return "Help Center";
     if (path.includes("/settings")) return "Settings";
     return "Dashboard";
   };
@@ -95,6 +97,7 @@ export default function AdminLayout({
               path="/vouchers"
               element={<AdminVouchers searchQuery={searchQuery} />}
             />
+            <Route path="/help-center" element={<AdminHelpCenter />} />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/" element={<AdminDashboard />} />
           </Routes>
