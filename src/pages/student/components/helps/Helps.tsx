@@ -142,7 +142,7 @@ export const Helps = () => {
               <div key={mainTopic.id} className="border rounded-lg">
                 <button
                   onClick={() => toggleTopic(mainTopic.id)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-gray-50 transition-colors"
+                  className="w-full p-4 flex items-center justify-between transition-colors cursor-pointer"
                 >
                   <span className="text-xs font-medium text-left">
                     {mainTopic.title}
@@ -166,7 +166,7 @@ export const Helps = () => {
                         <button
                           key={topic.id}
                           onClick={() => handleChildTopicClick(topic.id)}
-                          className="w-full p-3 text-left hover:bg-gray-100 transition-colors border-b last:border-b-0"
+                          className="w-full p-3 text-left hover:bg-gray-100 transition-colors border-b last:border-b-0 cursor-pointer"
                         >
                           <span className="text-xs text-gray-700">
                             {topic.title}

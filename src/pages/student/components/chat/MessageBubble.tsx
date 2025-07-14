@@ -82,7 +82,6 @@ export function MessageBubble({
   const onPlayButtonClick = () => {
     handlePlayAudio();
   };
-  console.log(message);
 
   return (
     <div className={cn("flex flex-col mt-1 items-start")}>

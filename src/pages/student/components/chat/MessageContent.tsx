@@ -23,9 +23,7 @@ function MessageContentComponent({
   const { card, remainingContent } = parseMessageCard(content);
 
   // Process the remaining content (or all content if no card)
-  let { cleanedContent, imageUrls } = processMessageContent(
-    remainingContent || content
-  );
+  let { cleanedContent } = processMessageContent(remainingContent || content);
 
   // Remove any margin classes from ul elements
   if (cleanedContent) {
@@ -35,7 +33,6 @@ function MessageContentComponent({
     );
   }
 
-  console.log(imageUrls);
   // Reference to the content div
   const contentRef = useRef<HTMLDivElement>(null);
 

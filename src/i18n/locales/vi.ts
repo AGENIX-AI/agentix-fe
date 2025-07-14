@@ -147,6 +147,13 @@ const viTranslation = {
   language_en: "Tiếng Anh",
   language_vi: "Tiếng Việt",
 
+  // Common
+  common: {
+    cancel: "Hủy",
+    share: "Chia sẻ",
+    sharing: "Đang chia sẻ...",
+  },
+
   // Chat Components
   chat: {
     input: {
@@ -157,6 +164,17 @@ const viTranslation = {
       title: "Nhiệm vụ",
       select_task: "Chọn một nhiệm vụ để bắt đầu",
       create_topic: "Tạo một chủ đề học tập",
+      feedback: "Phản hồi",
+      feedback_placeholder: "Chức năng phản hồi sẽ sớm ra mắt...",
+      share_with_instructor: "Chia sẻ với giảng viên",
+      share_with_instructor_description:
+        "Chia sẻ cuộc trò chuyện này với giảng viên của bạn. Giảng viên sẽ có thể xem lịch sử cuộc trò chuyện.",
+      share_success: "Yêu cầu chia sẻ đã được gửi thành công",
+      share_info: "Giảng viên sẽ được thông báo về yêu cầu của bạn",
+      error_no_conversation: "Không có cuộc trò chuyện nào để chia sẻ",
+      error_already_shared: "Bạn đã yêu cầu chia sẻ cuộc trò chuyện này rồi",
+      error_you_are_instructor: "Bạn là giảng viên của cuộc trò chuyện này",
+      error_generic: "Không thể chia sẻ cuộc trò chuyện: {{error}}",
     },
     create_topic_form: {
       title: "Tạo một chủ đề học tập",

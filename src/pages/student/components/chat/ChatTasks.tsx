@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useState, type JSX } from "react";
+import { useEffect, useState, type JSX } from "react";
 import {
   CreateTopicForm,
   type CreateTopicFormData,
@@ -17,12 +17,14 @@ import {
 import { useStudent } from "@/contexts/StudentContext";
 import {
   generateTutoringDiscuss,
+  getConversationById,
   shareConversationWithInstructor,
 } from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
 import { cn } from "@/lib/utils";
 import { Sparkles, MessageSquare, Share2 } from "lucide-react";
 import { toast } from "sonner";
+import type { Conversation } from "@/services/conversation";
 
 export interface TaskFormData {
   productName: string;
@@ -53,7 +55,16 @@ let tasks: TaskData[];
 
 export function TaskMenu({ onSelectTask }: TaskMenuProps) {
   const { t } = useTranslation();
-  const { assistantInfo } = useStudent();
+  const { assistantInfo, conversationId } = useStudent();
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+
+  useEffect(() => {
+    if (conversationId) {
+      getConversationById(conversationId).then((res) => {
+        setConversation(res);
+      });
+    }
+  }, [conversationId]);
 
   if (assistantInfo?.role === "system") {
     tasks = [
@@ -78,15 +89,19 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
           </div>
         ),
       },
-      {
-        id: "share-with-instructor",
-        title: "share_with_instructor", // Translation key
-        icon: (
-          <div className="w-4 h-4 flex items-center justify-center rounded">
-            <Share2 className="h-4 w-4 text-secondary" />
-          </div>
-        ),
-      },
+      ...(conversation && conversation?.type !== "General"
+        ? [
+            {
+              id: "share-with-instructor",
+              title: "share_with_instructor",
+              icon: (
+                <div className="w-4 h-4 flex items-center justify-center rounded">
+                  <Share2 className="h-4 w-4 text-secondary" />
+                </div>
+              ),
+            },
+          ]
+        : []),
     ];
   }
 
@@ -135,7 +150,7 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
             >
               {task.icon}
               <ExtraSmall className="text-foreground">
-                {t(`chat.tasks.${task.id.replace("-", "_")}`).toUpperCase()}
+                {t(`chat.tasks.${task.id.replace(/-/g, "_")}`).toUpperCase()}
               </ExtraSmall>
             </Button>
           ))}

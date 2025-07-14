@@ -147,6 +147,13 @@ const enTranslation: Record<string, any> = {
   language_en: "English",
   language_vi: "Vietnamese",
 
+  // Common
+  common: {
+    cancel: "Cancel",
+    share: "Share",
+    sharing: "Sharing...",
+  },
+
   // Chat Components
   chat: {
     input: {
@@ -160,6 +167,15 @@ const enTranslation: Record<string, any> = {
       feedback: "Feedback",
       feedback_placeholder: "Feedback functionality coming soon...",
       share_with_instructor: "Share with instructor",
+      share_with_instructor_description:
+        "Share this conversation with your instructor. The instructor will be able to view the conversation history.",
+      share_success: "Sharing request sent successfully",
+      share_info: "The instructor will be notified of your request",
+      error_no_conversation: "No active conversation to share",
+      error_already_shared:
+        "You have already requested to share this conversation",
+      error_you_are_instructor: "You are the instructor of this conversation",
+      error_generic: "Failed to share conversation: {{error}}",
     },
     create_topic_form: {
       title: "Create a tutoring topic",

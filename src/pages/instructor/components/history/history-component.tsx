@@ -149,91 +149,103 @@ export function HistoryComponent({
   if (!isHistoryVisible) {
     return (
       <div className={cn(className, "border-r border-border w-16")}>
-        <div className="bg-background h-[calc(100vh-4.5rem)] flex flex-col">
-          {/* Navigation section */}
-          <div className="p-2 overflow-y-auto flex-1 no-scrollbar h-full">
-            <div className="mb-4">
-              <ul className="space-y-1 mt-1">
-                {/* Expand button */}
-                <li>
-                  <button
-                    className={cn(
-                      "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                      "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                      "justify-center"
-                    )}
-                    onClick={toggleHistory}
-                    title="Expand history"
-                  >
-                    <AlignJustify className="h-4 w-4" />
-                  </button>
-                </li>
-
-                {/* System Assistant Avatar */}
-                {systemAssistant && (
-                  <li>
-                    <button
-                      className={cn(
-                        "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                        "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                        "justify-center"
-                      )}
-                      onClick={() => handleAvatarClick(systemAssistant, true)}
-                      title={
-                        systemAssistant.assistants?.name || "Edvara Assistant"
-                      }
+        <div className="bg-background h-[calc(100vh-3.5rem)] p-4 pt-3 mt-[4px]">
+          <div className="flex flex-col h-full">
+            {/* Header - matching expanded state */}
+            <div>
+              <div className="flex items-center justify-center pb-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 transition-all duration-300"
+                      onClick={toggleHistory}
+                      aria-label="Expand history"
                     >
-                      <Avatar className="overflow-hidden">
-                        <AvatarImage
-                          src={systemAssistant.assistants?.image || ""}
-                        />
-                      </Avatar>
-                    </button>
-                  </li>
-                )}
+                      <AlignJustify className="h-4 w-4" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom">Expand history</TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
 
-                {/* User Conversations Avatars */}
-                {conversations.slice(0, 8).map((conversation) => (
-                  <li key={conversation.id}>
-                    <button
-                      className={cn(
-                        "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                        "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                        "justify-center"
-                      )}
-                      onClick={() => handleAvatarClick(conversation, false)}
-                      title={conversation.assistants?.name || "Assistant"}
-                    >
-                      <Avatar className="overflow-hidden">
-                        <AvatarImage
-                          src={conversation.assistants?.image || ""}
-                        />
-                      </Avatar>
-                    </button>
-                  </li>
-                ))}
+            {/* Navigation section */}
+            <div
+              className="overflow-y-auto no-scrollbar"
+              style={{ maxHeight: "calc(100vh - 200px)" }}
+            >
+              <div className="mb-4">
+                <ul className="space-y-1">
+                  {/* Avatar buttons */}
 
-                {/* Sharing Students Avatars */}
-                {sharingStudents.slice(0, 5).map((student) => (
-                  <li key={student.student_id}>
-                    <button
-                      className={cn(
-                        "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                        "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                        "justify-center"
-                      )}
-                      onClick={() =>
-                        console.log("Sharing student clicked:", student)
-                      }
-                      title={student.student_info.name}
-                    >
-                      <Avatar className="overflow-hidden">
-                        <AvatarImage src={student.student_info.avatar_url} />
-                      </Avatar>
-                    </button>
-                  </li>
-                ))}
-              </ul>
+                  {/* System Assistant Avatar */}
+                  {systemAssistant && (
+                    <li>
+                      <button
+                        className={cn(
+                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                          "justify-center"
+                        )}
+                        onClick={() => handleAvatarClick(systemAssistant, true)}
+                        title={
+                          systemAssistant.assistants?.name || "Edvara Assistant"
+                        }
+                      >
+                        <Avatar className="overflow-hidden">
+                          <AvatarImage
+                            src={systemAssistant.assistants?.image || ""}
+                          />
+                        </Avatar>
+                      </button>
+                    </li>
+                  )}
+
+                  {/* User Conversations Avatars */}
+                  {conversations.slice(0, 8).map((conversation) => (
+                    <li key={conversation.id}>
+                      <button
+                        className={cn(
+                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                          "justify-center"
+                        )}
+                        onClick={() => handleAvatarClick(conversation, false)}
+                        title={conversation.assistants?.name || "Assistant"}
+                      >
+                        <Avatar className="overflow-hidden">
+                          <AvatarImage
+                            src={conversation.assistants?.image || ""}
+                          />
+                        </Avatar>
+                      </button>
+                    </li>
+                  ))}
+
+                  {/* Sharing Students Avatars */}
+                  {sharingStudents.slice(0, 5).map((student) => (
+                    <li key={student.student_id}>
+                      <button
+                        className={cn(
+                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                          "justify-center"
+                        )}
+                        onClick={() =>
+                          console.log("Sharing student clicked:", student)
+                        }
+                        title={student.student_info.name}
+                      >
+                        <Avatar className="overflow-hidden">
+                          <AvatarImage src={student.student_info.avatar_url} />
+                        </Avatar>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
           </div>
         </div>
@@ -244,11 +256,11 @@ export function HistoryComponent({
   // Expanded state - show full history component
   return (
     <div className={cn(className, "border-r border-border ")}>
-      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.5rem)]">
+      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] p-4 pt-3 pb-2 mt-[2px]">
         <div className="flex flex-col flex-grow min-h-0 w-full h-full">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between p-0 pb-6">
+            <div className="flex items-center justify-between p-0 pb-6 px-1">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -351,10 +363,9 @@ export function HistoryComponent({
             </div>
           </div>
 
-          {/* Fixed footer that always stays at the bottom */}
-          <div className="text-center bg-background w-full ">
+          <div className="text-[10px] text-center">
             {/* {renderDisclaimerText()} */}
-            <span className="text-[9px] block font-normal text-xs truncate">
+            <span className="text-[9px] block font-normal text-xs truncate pb-[4px]">
               v.{import.meta.env.VITE_APP_VERSION}.
               {import.meta.env.VITE_APP_LAST_BUILD_DATE}
             </span>

@@ -9,7 +9,7 @@ import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Waitlist from "./pages/auth/waitlist/Waitlist";
 import WaitlistForm from "./pages/auth/waitlist/WaitlistForm";
-import Instructor from "./pages/instructor/Instructor";
+import Instructor from "./pages/instructor/instructor";
 import AdminPortal from "./pages/admin/admin";
 
 // Components
