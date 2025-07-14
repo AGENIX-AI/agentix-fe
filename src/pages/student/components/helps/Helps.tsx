@@ -61,33 +61,35 @@ export const Helps = () => {
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
           </div>
         ) : error ? (
-          <div className="text-red-500 text-center p-4">{error}</div>
+          <div className="text-destructive text-center p-4">{error}</div>
         ) : (
-          <div className="border border-gray-200 rounded-lg overflow-hidden">
+          <div className="border border-border rounded-lg overflow-hidden">
             {helpDocuments.map((doc, index) => (
               <div
                 key={doc.main_topic}
-                className={index !== 0 ? "border-t border-gray-200" : ""}
+                className={index !== 0 ? "border-t border-border" : ""}
               >
                 <button
-                  className="w-full flex items-center justify-between p-4 bg-white hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 bg-card hover:bg-accent transition-colors"
                   onClick={() => toggleTopic(doc.main_topic)}
                 >
-                  <span className="font-medium text-xs">{doc.show_text}</span>
+                  <span className="font-medium text-xs text-card-foreground">
+                    {doc.show_text}
+                  </span>
                   <ChevronDown
                     className={cn(
-                      "h-5 w-5 text-gray-500 transition-transform duration-200",
+                      "h-5 w-5 text-muted-foreground transition-transform duration-200",
                       expandedTopics[doc.main_topic] && "transform rotate-180"
                     )}
                   />
                 </button>
 
                 {expandedTopics[doc.main_topic] && (
-                  <div className="bg-blue-50 px-4 py-4 space-y-4">
+                  <div className="bg-muted px-4 py-4 space-y-4">
                     {doc.children_topic.map((child) => (
                       <div
                         key={child.topic}
-                        className="py-2 px-4 bg-transparent cursor-pointer transition-colors hover:text-blue-600 text-xs"
+                        className="py-2 px-4 bg-transparent cursor-pointer transition-colors hover:text-primary text-xs text-muted-foreground"
                         onClick={() => handleChildTopicClick(child.topic)}
                       >
                         {child.show_text}

@@ -7,12 +7,26 @@ import { useInstructor } from "@/contexts/InstructorContext";
 
 interface SharingBlockProps {
   searchQuery: string;
+  sharingData?: SharingStudent[];
 }
 
-function SharingBlockComponent({ searchQuery }: SharingBlockProps) {
-  const [sharingStudents, setSharingStudents] = useState<SharingStudent[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+function SharingBlockComponent({
+  searchQuery,
+  sharingData,
+}: SharingBlockProps) {
+  const [sharingStudents, setSharingStudents] = useState<SharingStudent[]>(
+    sharingData || []
+  );
+  const [isLoading, setIsLoading] = useState(!sharingData);
   const { setRightPanel, setMetaData, metaData } = useInstructor();
+
+  // Update local state when prop changes
+  useEffect(() => {
+    if (sharingData) {
+      setSharingStudents(sharingData);
+      setIsLoading(false);
+    }
+  }, [sharingData]);
 
   const fetchSharingData = async () => {
     try {
@@ -28,9 +42,12 @@ function SharingBlockComponent({ searchQuery }: SharingBlockProps) {
     }
   };
 
+  // Only fetch if no data provided via props
   useEffect(() => {
-    fetchSharingData();
-  }, []);
+    if (!sharingData) {
+      fetchSharingData();
+    }
+  }, [sharingData]);
 
   // Filter sharing students based on search query
   const filteredStudents = sharingStudents.filter((student) => {

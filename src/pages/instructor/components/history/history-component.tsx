@@ -24,6 +24,7 @@ import {
   getListConversations,
   createFirstConversation,
   getListSharing,
+  getInstructorListConversations,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import type {
@@ -78,9 +79,16 @@ export function HistoryComponent({
         // Fetch system assistant
         const systemResponse = await getSystemAssistantConversation();
         setSystemAssistant(systemResponse);
+        handleAvatarClick(systemResponse, true);
 
         // Fetch user conversations
-        const conversationsResponse = await getListConversations();
+        const conversationsResponse = await getInstructorListConversations(
+          1,
+          100,
+          "",
+          1,
+          ""
+        );
         if (conversationsResponse.success) {
           setConversations(conversationsResponse.conversations);
         }
@@ -99,7 +107,7 @@ export function HistoryComponent({
 
     // Fetch data only once when component mounts
     fetchAvatarData();
-  }, []); // Empty dependency array - only run once
+  }, [dataFetched]); // Include dataFetched in dependencies
 
   // Handle avatar click in collapsed view - DON'T auto-expand
   const handleAvatarClick = async (
@@ -291,7 +299,7 @@ export function HistoryComponent({
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium text-sm">Chats</span>
+                    <span className="font-medium text-sm">Assistants</span>
                   </div>
                 </div>
 
@@ -333,7 +341,10 @@ export function HistoryComponent({
 
                 {/* Sharing Content */}
                 {isSharingExpanded && (
-                  <SharingBlock searchQuery={searchQuery} />
+                  <SharingBlock
+                    searchQuery={searchQuery}
+                    sharingData={sharingStudents}
+                  />
                 )}
               </div>
 

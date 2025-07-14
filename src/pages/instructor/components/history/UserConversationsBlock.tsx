@@ -27,7 +27,7 @@ function UserConversationsBlockComponent({
     conversationsData || []
   );
   const conversationsRef = useRef<ConversationListItem[]>([]);
-  const [isLoading, setIsLoading] = useState(!conversationsData);
+  const [isLoading, setIsLoading] = useState(false); // Changed to false since data comes from props
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 100;
 
@@ -66,21 +66,23 @@ function UserConversationsBlockComponent({
     }
   };
 
-  // Initial fetch of conversations only if no data provided via props
+  // Remove initial fetch since data comes from props
+  // Only fetch when there's a search query
   useEffect(() => {
-    if (!conversationsData || conversationsData.length === 0) {
-      fetchConversations();
+    if (searchQuery) {
+      const timeoutId = setTimeout(() => {
+        fetchConversations(searchQuery, 1);
+      }, 300); // Debounce search requests
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      // If no search query, use the data from props
+      if (conversationsData) {
+        setConversations(conversationsData);
+        conversationsRef.current = conversationsData;
+      }
     }
-  }, [conversationsData]);
-
-  // Handle search query changes
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchConversations(searchQuery, 1);
-    }, 300); // Debounce search requests
-
-    return () => clearTimeout(timeoutId);
-  }, [searchQuery]);
+  }, [searchQuery, conversationsData]);
 
   // Listen for conversation updates
   useEffect(() => {

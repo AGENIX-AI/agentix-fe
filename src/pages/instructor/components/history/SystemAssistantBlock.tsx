@@ -1,10 +1,7 @@
-import { useState, useEffect, useCallback, memo } from "react";
+import { useState, useEffect, memo } from "react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
-import {
-  getSystemAssistantConversation,
-  createInstructorFirstConversation,
-} from "@/api/conversations";
+import { createInstructorFirstConversation } from "@/api/conversations";
 import type { SystemAssistantResponse } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { ConversationItem } from "./ConversationItem";
@@ -31,38 +28,7 @@ function SystemAssistantBlockComponent({
     }
   }, [systemAssistantData]);
 
-  const fetchSystemAssistant = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await getSystemAssistantConversation();
-      setSystemAssistant(response);
-      setIsLoading(false);
-      if (response.id) {
-        setConversationId(response.id);
-        setAssistantId(response.assistants?.id);
-        setRightPanel("assistantTopics");
-      } else {
-        if (response.assistants?.id) {
-          setIsChatLoading(true);
-          const firstConversationResponse =
-            await createInstructorFirstConversation(response.assistants.id);
-
-          setConversationId(firstConversationResponse.conversation_id);
-          setAssistantId(response.assistants.id);
-          setIsChatLoading(false);
-        }
-      }
-    } catch (error) {
-      console.error("Failed to fetch system assistant:", error);
-    }
-  }, [setIsChatLoading, setConversationId, setAssistantId, setRightPanel]);
-
-  // Only fetch if no data provided via props
-  useEffect(() => {
-    if (!systemAssistantData) {
-      fetchSystemAssistant();
-    }
-  }, [systemAssistantData, fetchSystemAssistant]);
+  // Remove the fetchSystemAssistant function and its useEffect since data should come from props
 
   const handleSystemAssistantClick = async () => {
     if (isChatLoading) {
