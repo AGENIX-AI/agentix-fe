@@ -5,7 +5,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatBox } from "./ChatBox";
 import { Small, Muted } from "@/components/ui/typography";
 import { useStudent } from "@/contexts/StudentContext";
-
+import Cookies from "js-cookie";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import {
   getConversationHistory,
@@ -119,7 +119,7 @@ export function ChatComponent() {
   console.log(isUploadingFile);
 
   // WebSocket connection effect
-  useEffect(() => {
+    useEffect(() => {
     const connectWebSocket = () => {
       if (!conversationId) return;
 
@@ -135,21 +135,43 @@ export function ChatComponent() {
         const wsUrl = baseUrl
           .replace(/^https:\/\//, "wss://")
           .replace(/^http:\/\//, "ws://");
-        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}`;
+        
+        // Get access token from cookies
+        const accessToken = Cookies.get("edvara_access_token");
+        if (!accessToken) {
+          console.error("No access token found in cookies");
+          return;
+        }
 
+        console.log("Access token found:", accessToken ? "yes" : "no");
+        console.log("Token length:", accessToken?.length);
+
+        // Construct WebSocket URL with token parameter
+        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}?token=${encodeURIComponent(accessToken)}`;
+        console.log("Attempting WebSocket connection to:", websocketUrl.replace(accessToken, "***TOKEN***"));
+
+        // Create WebSocket with token in query parameter
         const ws = new WebSocket(websocketUrl);
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log("WebSocket connected to:", websocketUrl);
+          console.log("WebSocket connected successfully to:", websocketUrl.replace(accessToken, "***TOKEN***"));
+          // Send a ping to test the connection
+          ws.send("ping");
         };
 
         ws.onmessage = (event) => {
           try {
+            // Handle pong response
+            if (event.data === "pong") {
+              console.log("WebSocket ping-pong successful");
+              return;
+            }
+
             const wsMessage: WebSocketMessage = JSON.parse(event.data);
             console.log("Received WebSocket message:", wsMessage);
 
-            // Only render messages from instructor or agent
+            // Only render messages from student or agent
             if (
               wsMessage.sender === "instructor" ||
               wsMessage.sender === "agent"
@@ -188,14 +210,44 @@ export function ChatComponent() {
         };
 
         ws.onclose = (event) => {
-          console.log("WebSocket closed:", event.code, event.reason);
+          console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
+          
+          // Handle specific error codes
+          if (event.code === 1008) {
+            console.error("WebSocket authentication failed - token may be invalid or expired");
+          } else if (event.code === 1011) {
+            console.error("WebSocket internal server error");
+          }
+          
           wsRef.current = null;
+
+          // Attempt to reconnect after a delay if it wasn't a manual close
+          if (event.code !== 1000 && conversationId) {
+            console.log("Attempting to reconnect WebSocket in 5 seconds...");
+            setTimeout(() => {
+              connectWebSocket();
+            }, 5000);
+          }
         };
 
         ws.onerror = (error) => {
           console.error("WebSocket error:", error);
           wsRef.current = null;
         };
+
+        // Set a timeout to handle connection issues
+        const connectionTimeout = setTimeout(() => {
+          if (ws.readyState === WebSocket.CONNECTING) {
+            console.error("WebSocket connection timeout");
+            ws.close();
+          }
+        }, 10000); // 10 second timeout
+
+        // Clear timeout when connection opens
+        ws.addEventListener('open', () => {
+          clearTimeout(connectionTimeout);
+        });
+
       } catch (error) {
         console.error("Error creating WebSocket connection:", error);
       }
