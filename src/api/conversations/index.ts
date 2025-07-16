@@ -722,6 +722,33 @@ export interface SharingListResponse {
   page_size: number;
 }
 
+export interface InstructorSharedConversationItem {
+  id: string;
+  student_info: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string;
+  };
+  conversation_info?: {
+    id: string;
+    assistants: {
+      id: string;
+      name: string;
+      image: string;
+    };
+    conversation_name: string;
+    conversation_description: string;
+  };
+  status: string;
+  created_at: string;
+}
+
+export interface InstructorSharedConversationsResponse {
+  success: boolean;
+  conversations: InstructorSharedConversationItem[];
+}
+
 /**
  * Get list of sharing students
  * @returns List of students with sharing information
@@ -744,6 +771,33 @@ export const getListSharing = async (): Promise<SharingListResponse> => {
       new Error(`Failed to fetch sharing list: ${response.statusText}`)
     );
     throw new Error(`Failed to fetch sharing list: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get instructor shared conversations
+ * @returns List of shared conversations from students
+ */
+export const getInstructorSharedConversations = async (): Promise<InstructorSharedConversationsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/instructor/get_sharing`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch instructor shared conversations: ${response.statusText}`)
+    );
+    throw new Error(`Failed to fetch instructor shared conversations: ${response.statusText}`);
   }
 
   return await response.json();
@@ -814,3 +868,136 @@ export const getStudentSharingTopics = async (
 
   return await response.json();
 };
+
+/**
+ * Interface for student conversation item returned by get_last_conversations
+ */
+export interface StudentConversationItem {
+  id: string;
+  conversation_name: string;
+  conversation_description: string;
+  assistants: {
+    id: string;
+    name: string;
+    image: string;
+  };
+}
+
+/**
+ * Interface for the response from get_last_conversations
+ */
+export interface StudentLastConversationsResponse {
+  success: boolean;
+  conversations: StudentConversationItem[];
+  total_items: number;
+  page_number: number;
+  page_size: number;
+}
+
+/**
+ * Get last student conversations with pagination
+ * @param pageNumber - Page number for pagination (default: 1)
+ * @param pageSize - Page size for pagination (default: 100)
+ * @param sortOrder - Sort order: 1 for ascending, -1 for descending (default: 1)
+ * @returns List of student conversations with pagination info
+ */
+export const getStudentLastConversations = async (
+  pageNumber: number = 1,
+  pageSize: number = 100,
+  sortOrder: number = 1
+): Promise<StudentLastConversationsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  // Build query parameters
+  const params = new URLSearchParams({
+    page_number: pageNumber.toString(),
+    page_size: pageSize.toString(),
+    sort_order: sortOrder.toString(),
+  });
+
+  const response = await fetch(
+    `${baseUrl}/conversations/student/get_last_conversations?${params.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch student conversations: ${response.statusText}`)
+    );
+    throw new Error(
+      `Failed to fetch student conversations: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Interface for shared conversations
+ */
+export interface SharedConversationItem {
+  id: string;
+  instructor_info: {
+    id: string;
+    name: string;
+    email: string;
+    avatar_url: string;
+  };
+  conversation_info: {
+    id: string;
+    assistants: {
+      id: string;
+      name: string;
+      image: string;
+    };
+    conversation_name: string;
+    conversation_description: string;
+  };
+  status: string;
+  created_at: string;
+}
+
+/**
+ * Interface for the response from get_sharing API
+ */
+export interface StudentSharedConversationsResponse {
+  success: boolean;
+  conversations: SharedConversationItem[];
+}
+
+/**
+ * Get student shared conversations
+ * @returns List of shared conversations
+ */
+export const getStudentSharedConversations =
+  async (): Promise<StudentSharedConversationsResponse> => {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(
+      `${baseUrl}/conversations/student/get_sharing`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(
+          `Failed to fetch shared conversations: ${response.statusText}`
+        )
+      );
+      throw new Error(
+        `Failed to fetch shared conversations: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  };

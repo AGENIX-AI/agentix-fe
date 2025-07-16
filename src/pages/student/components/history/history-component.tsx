@@ -13,11 +13,19 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { useStudent } from "@/contexts/StudentContext";
 import { SystemAssistantBlock } from "./SystemAssistantBlock";
 import { UserConversationsBlock } from "./UserConversationsBlock";
-import { Separator } from "@/components/ui/separator";
+import { TutoringConversationsBlock } from "./TutoringConversationsBlock";
+import { CollapsedTutoringView } from "./CollapsedTutoringView";
+import { CollaborativeChatsBlock } from "./CollaborativeChatsBlock";
+import { CollapsedCollaborativeView } from "./CollapsedCollaborativeView";
 import {
   getSystemAssistantConversation,
   getListConversations,
-  createFirstConversation,
+  getStudentLastConversations,
+  getStudentSharedConversations,
+} from "@/api/conversations";
+import type {
+  StudentConversationItem,
+  SharedConversationItem,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import type { SystemAssistantResponse } from "@/api/conversations";
@@ -40,6 +48,7 @@ export function HistoryComponent({
     setRightPanel,
     isChatLoading,
     assistantId,
+    conversationId,
   } = useStudent();
   const [searchQuery] = useState("");
 
@@ -53,83 +62,112 @@ export function HistoryComponent({
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     []
   );
+  const [tutoringConversations, setTutoringConversations] = useState<
+    StudentConversationItem[]
+  >([]);
+  const [sharedConversations, setSharedConversations] = useState<
+    SharedConversationItem[]
+  >([]);
   const [dataFetched, setDataFetched] = useState(false);
 
   // State for section visibility
   const [isChatsExpanded, setIsChatsExpanded] = useState(true);
+  const [isTutoringExpanded, setIsTutoringExpanded] = useState(true);
+  const [isCollaborativeExpanded, setIsCollaborativeExpanded] = useState(true);
 
   // Fetch data once when component mounts - NOT on every visibility change
   useEffect(() => {
-    const fetchAvatarData = async () => {
-      if (dataFetched) return; // Prevent re-fetching
-
+    const fetchData = async () => {
+      if (dataFetched) return;
       try {
-        // Fetch system assistant
-        const systemResponse = await getSystemAssistantConversation();
+        const [
+          systemResponse,
+          conversationsResponse,
+          tutoringResponse,
+          sharedResponse,
+        ] = await Promise.all([
+          getSystemAssistantConversation(),
+          getListConversations(),
+          getStudentLastConversations(1, 100, 1),
+          getStudentSharedConversations(),
+        ]);
+
         setSystemAssistant(systemResponse);
 
-        // Fetch user conversations
-        const conversationsResponse = await getListConversations();
         if (conversationsResponse.success) {
           setConversations(conversationsResponse.conversations);
         }
 
-        setDataFetched(true); // Mark as fetched
+        if (tutoringResponse && tutoringResponse.success) {
+          setTutoringConversations(tutoringResponse.conversations);
+        }
+
+        if (sharedResponse?.success) {
+          setSharedConversations(sharedResponse.conversations);
+        }
+
+        setDataFetched(true);
       } catch (error) {
-        console.error("Failed to fetch avatar data:", error);
+        console.error("Failed to fetch data:", error);
       }
     };
 
-    // Fetch data only once when component mounts
-    fetchAvatarData();
-  }, []); // Empty dependency array - only run once
+    fetchData();
+  }, [dataFetched]);
 
   // Handle avatar click in collapsed view - DON'T auto-expand
   const handleAvatarClick = async (
-    conversation: ConversationListItem | SystemAssistantResponse,
-    isSystem = false
+    conversation:
+      | ConversationListItem
+      | SystemAssistantResponse
+      | StudentConversationItem
+      | SharedConversationItem,
+    isSystem = false,
+    isTutoring = false,
+    isCollaborative = false
   ) => {
     if (isChatLoading) return;
-
     setIsChatLoading(true);
 
-    try {
-      if (isSystem && systemAssistant) {
-        if (systemAssistant.id) {
-          setConversationId(systemAssistant.id);
-          setAssistantId(systemAssistant.assistants?.id);
-          setRightPanel("helps");
-        } else if (systemAssistant.assistants?.id) {
-          const response = await createFirstConversation(
-            systemAssistant.assistants.id
-          );
-          setConversationId(response.conversation_id);
-          setAssistantId(systemAssistant.assistants.id);
-          setRightPanel("helps");
-        }
-      } else {
-        const conv = conversation as ConversationListItem;
-        setAssistantId(conv.assistants?.id);
-        setConversationId(conv.id);
-        setRightPanel("assistantTopics");
-      }
+    console.log(conversation);
 
-      // DON'T auto-expand - let user manually expand if they want
-      // toggleHistory();  // <-- Removed this line
-    } finally {
-      setIsChatLoading(false);
+    if (isSystem && systemAssistant) {
+      setAssistantId(systemAssistant.assistants?.id || "");
+      setConversationId(systemAssistant.id || "");
+      setRightPanel("topics");
+    } else if (isTutoring) {
+      const tutoring = conversation as StudentConversationItem;
+      setAssistantId(tutoring.assistants?.id || "");
+      setConversationId(tutoring.id || "");
+      setRightPanel("tasks");
+    } else if (isCollaborative) {
+      const collaborative = conversation as SharedConversationItem;
+      setAssistantId(collaborative.conversation_info.assistants?.id || "");
+      setConversationId(collaborative.conversation_info.id || "");
+      setRightPanel("tasks");
     }
+    // Set loading state back to false after handling click
+    setIsChatLoading(false);
+  };
+
+  // Handler for tutoring conversation clicks
+  const handleTutoringClick = (conversation: StudentConversationItem) => {
+    handleAvatarClick(conversation, false, true, false);
+  };
+
+  const handleCollaborativeClick = (conversation: SharedConversationItem) => {
+    handleAvatarClick(conversation, false, false, true);
   };
 
   // Collapsed state - show avatars and expand button
   if (!isHistoryVisible) {
     return (
-      <div className={cn(className, "border-r border-border")}>
-        <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-5.5rem)] p-4 pt-3 pb-2 mt-[2px]">
+      <div className={cn(className, "border-r border-border w-16")}>
+        <div className="bg-background h-[calc(100vh-3.5rem)] p-4 pt-3 mt-[4px]">
           <div className="flex flex-col h-full">
             {/* Header - matching expanded state */}
             <div>
-              <div className="flex items-center justify-center pb-4">
+              <div className="flex items-center justify-center pb-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -147,56 +185,114 @@ export function HistoryComponent({
               </div>
             </div>
 
-            {/* Navigation section */}
-            <div className="overflow-y-auto no-scrollbar h-[calc(100vh-200px)]">
-              <div className="mb-4">
-                <ul className="space-y-1">
-                  {/* Avatar buttons */}
-
-                  {/* System Assistant Avatar */}
-                  {systemAssistant && (
-                    <li>
-                      <button
+            <div className="px-0">
+              <div className="flex flex-col">
+                {/* Assistants section */}
+                <div>
+                  <div
+                    className={cn(
+                      "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                      "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                      "justify-center"
+                    )}
+                  >
+                    {/* System Assistant */}
+                    {systemAssistant?.assistants?.image && (
+                      <Avatar
                         className={cn(
-                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                          "justify-center"
+                          "h-5 w-5 cursor-pointer border overflow-hidden",
+                          assistantId === systemAssistant.assistants.id
+                            ? "border-primary"
+                            : "border-accent"
                         )}
                         onClick={() => handleAvatarClick(systemAssistant, true)}
-                        title={
-                          systemAssistant.assistants?.name || "Edvara Assistant"
-                        }
                       >
-                        <Avatar className="overflow-hidden">
-                          <AvatarImage
-                            src={systemAssistant.assistants?.image || ""}
-                          />
-                        </Avatar>
-                      </button>
-                    </li>
-                  )}
+                        <AvatarImage
+                          src={systemAssistant.assistants.image || ""}
+                          alt="Avatar"
+                        />
+                      </Avatar>
+                    )}
+                  </div>
+                </div>
+                <div
+                  className="overflow-y-auto no-scrollbar"
+                  style={{ maxHeight: "calc(100vh - 200px)" }}
+                >
+                  <div className="">
+                    <ul className="flex flex-col items-center space-y-1">
+                      {conversations.map((conversation) => (
+                        <li key={conversation.id}>
+                          <button
+                            className={cn(
+                              "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                              "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                              "justify-center"
+                            )}
+                            onClick={() => handleAvatarClick(conversation)}
+                          >
+                            <Avatar
+                              className={cn(
+                                "h-5 w-5 cursor-pointer border overflow-hidden",
+                                assistantId === conversation.assistants?.id
+                                  ? "border-primary"
+                                  : "border-accent"
+                              )}
+                            >
+                              <AvatarImage
+                                src={conversation.assistants?.image || ""}
+                                alt="Avatar"
+                              />
+                            </Avatar>
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
-                  {/* User Conversations Avatars */}
-                  {conversations.slice(0, 10).map((conversation) => (
-                    <li key={conversation.id}>
-                      <button
+                  {/* Separator between sections */}
+                  {(tutoringConversations.length > 0 ||
+                    sharedConversations.length > 0) && (
+                    <div className="flex justify-center">
+                      <div
                         className={cn(
                           "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
                           "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                           "justify-center"
                         )}
-                        onClick={() => handleAvatarClick(conversation, false)}
-                        title={conversation.assistants?.name || "Assistant"}
-                      >
-                        <Avatar className="overflow-hidden">
-                          <AvatarImage
-                            src={conversation.assistants?.image || ""}
-                          />
-                        </Avatar>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
+                      ></div>
+                    </div>
+                  )}
+
+                  {/* Tutoring conversations */}
+                  <CollapsedTutoringView
+                    conversations={tutoringConversations}
+                    assistantId={assistantId}
+                    handleTutoringClick={handleTutoringClick}
+                  />
+
+                  {/* Separator between tutoring and collaborative */}
+                  {tutoringConversations.length > 0 &&
+                    sharedConversations.length > 0 && (
+                      <div className="flex justify-center">
+                        <div
+                          className={cn(
+                            "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                            "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                            "justify-center"
+                          )}
+                        ></div>
+                      </div>
+                    )}
+
+                  {/* Collaborative chats */}
+                  <CollapsedCollaborativeView
+                    conversations={sharedConversations}
+                    conversationId={conversationId}
+                    handleCollaborativeClick={handleCollaborativeClick}
+                  />
+                </div>
+                {/* Regular conversations */}
               </div>
             </div>
           </div>
@@ -212,7 +308,7 @@ export function HistoryComponent({
         <div className="flex flex-col h-full bg-background">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between p-0 ">
+            <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -235,22 +331,12 @@ export function HistoryComponent({
             </div>
           </div>
 
-          {/* <div className="relative flex items-center gap-2 pb-4">
-            <SearchIcon className="absolute left-4 h-4 text-muted-foreground" />
-            <Input
-              className="h-8 pl-10"
-              type="search"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div> */}
           {/* Scrollable content area with flex-grow to take available space */}
-          <div className="flex-grow overflow-hidden">
+          <div className="flex-grow overflow-hidden ml-[3px]">
             <div className="h-full overflow-y-auto">
-              {/* ZONE 1: Chats */}
+              {/* ZONE 1: Assistants */}
               <div className="mb-3">
-                {/* Chats Section Header */}
+                {/* Assistants Section Header */}
                 <div
                   className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
                   onClick={() => setIsChatsExpanded(!isChatsExpanded)}
@@ -261,11 +347,13 @@ export function HistoryComponent({
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium text-xs">Assistants</span>
+                    <span className="font-medium text-xs">
+                      Chats with Assistants
+                    </span>
                   </div>
                 </div>
 
-                {/* Chats Content */}
+                {/* Assistants Content */}
                 {isChatsExpanded && (
                   <div className="ml-1">
                     {/* BLOCK 1: System Assistant */}
@@ -285,7 +373,78 @@ export function HistoryComponent({
                   </div>
                 )}
               </div>
-              <Separator orientation="horizontal" className="w-full my-1" />
+
+              {/* ZONE 2: Tutoring */}
+              <div className="mb-3">
+                {/* Tutoring Section Header */}
+                <div
+                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                  onClick={() => setIsTutoringExpanded(!isTutoringExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    {isTutoringExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="font-medium text-xs">Tutoring Topics</span>
+                  </div>
+                </div>
+
+                {/* Tutoring Content */}
+                {isTutoringExpanded && (
+                  <div className="ml-1">
+                    <TutoringConversationsBlock
+                      tutoringConversations={tutoringConversations}
+                      conversationId={conversationId}
+                      setIsChatLoading={setIsChatLoading}
+                      onConversationClick={handleTutoringClick}
+                      searchQuery={searchQuery}
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* ZONE 3: Collaborative Chats */}
+              <div className="mb-3">
+                {/* Collaborative Chats Section Header */}
+                <div
+                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                  onClick={() =>
+                    setIsCollaborativeExpanded(!isCollaborativeExpanded)
+                  }
+                >
+                  <div className="flex items-center gap-2">
+                    {isCollaborativeExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="font-medium text-xs">
+                      Collaborative Chats
+                    </span>
+                  </div>
+                </div>
+
+                {/* Collaborative Chats Content */}
+                {isCollaborativeExpanded && (
+                  <div className="ml-1">
+                    {sharedConversations.length > 0 ? (
+                      <CollaborativeChatsBlock
+                        sharedConversations={sharedConversations}
+                        conversationId={conversationId}
+                        setIsChatLoading={setIsChatLoading}
+                        onConversationClick={handleCollaborativeClick}
+                        searchQuery={searchQuery}
+                      />
+                    ) : (
+                      <div className="text-xs text-muted-foreground p-2">
+                        No collaborative conversations found.
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 

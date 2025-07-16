@@ -5,7 +5,7 @@ import {
   type CreateTopicFormData,
 } from "./chatTasks/CreateTopicForm";
 import { FeedbackForm, type FeedbackFormData } from "./chatTasks/FeedbackForm";
-import { ExtraSmall } from "@/components/ui/typography";
+import { ExtraSmall, Large } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 import {
@@ -121,9 +121,9 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
         <div className="text-primary">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center">
-              <ExtraSmall className="text-primary font-bold">
+              <Large className="text-primary font-bold">
                 {t("chat.tasks.title")}
-              </ExtraSmall>
+              </Large>
             </div>
             <ExtraSmall className="text-muted-foreground">
               {t("chat.tasks.select_task")}

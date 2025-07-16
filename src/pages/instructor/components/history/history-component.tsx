@@ -16,13 +16,13 @@ import { Separator } from "@/components/ui/separator";
 import {
   getSystemAssistantConversation,
   createFirstConversation,
-  getListSharing,
+  getInstructorSharedConversations,
   getInstructorListConversations,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import type {
   SystemAssistantResponse,
-  SharingStudent,
+  InstructorSharedConversationItem,
 } from "@/api/conversations";
 import { useInstructor } from "@/contexts/InstructorContext";
 
@@ -61,7 +61,9 @@ export function HistoryComponent({
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     []
   );
-  const [sharingStudents, setSharingStudents] = useState<SharingStudent[]>([]);
+  const [sharedConversations, setSharedConversations] = useState<
+    InstructorSharedConversationItem[]
+  >([]);
   const [dataFetched, setDataFetched] = useState(false);
 
   // Fetch data once when component mounts - NOT on every visibility change
@@ -88,9 +90,9 @@ export function HistoryComponent({
         }
 
         // Fetch sharing data
-        const sharingResponse = await getListSharing();
+        const sharingResponse = await getInstructorSharedConversations();
         if (sharingResponse.success) {
-          setSharingStudents(sharingResponse.students);
+          setSharedConversations(sharingResponse.conversations);
         }
 
         setDataFetched(true); // Mark as fetched
@@ -221,21 +223,20 @@ export function HistoryComponent({
                   <Separator />
 
                   {/* Sharing Students Avatars */}
-                  {sharingStudents.slice(0, 5).map((student) => (
-                    <li key={student.student_id}>
+                  {sharedConversations.slice(0, 5).map((conversation) => (
+                    <li key={conversation.id}>
                       <button
                         className={cn(
                           "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
                           "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                           "justify-center"
                         )}
-                        onClick={() =>
-                          console.log("Sharing student clicked:", student)
-                        }
-                        title={student.student_info.name}
+                        title={conversation.student_info.name}
                       >
                         <Avatar className="overflow-hidden h-5 w-5">
-                          <AvatarImage src={student.student_info.avatar_url} />
+                          <AvatarImage
+                            src={conversation.student_info.avatar_url}
+                          />
                         </Avatar>
                       </button>
                     </li>
@@ -256,7 +257,7 @@ export function HistoryComponent({
         <div className="flex flex-col flex-grow min-h-0 w-full h-full">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between p-0 pb-3 px-1">
+            <div className="flex items-center justify-between pb-3">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -279,22 +280,11 @@ export function HistoryComponent({
             </div>
           </div>
 
-          {/* <div className="relative flex items-center gap-2 pb-4 shrink-0 ">
-            <SearchIcon className="absolute left-4 h-4 text-muted-foreground" />
-            <Input
-              className="h-8 pl-10"
-              type="search"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div> */}
-
           {/* Scrollable content area with flex-grow to take available space */}
-          <div className="flex-grow overflow-hidden">
+          <div className="flex-grow overflow-hidden ml-[3px]">
             <div className="h-full overflow-y-auto">
               {/* ZONE 1: Chats */}
-              <div className="mb-3">
+              <div className="mb-3 ">
                 {/* Chats Section Header */}
                 <div
                   className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
@@ -354,7 +344,7 @@ export function HistoryComponent({
                 {isSharingExpanded && (
                   <SharingBlock
                     searchQuery={searchQuery}
-                    sharingData={sharingStudents}
+                    sharingData={sharedConversations}
                   />
                 )}
               </div>
