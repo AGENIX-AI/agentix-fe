@@ -119,7 +119,7 @@ export function ChatComponent() {
   console.log(isUploadingFile);
 
   // WebSocket connection effect
-    useEffect(() => {
+  useEffect(() => {
     const connectWebSocket = () => {
       if (!conversationId) return;
 
@@ -135,7 +135,7 @@ export function ChatComponent() {
         const wsUrl = baseUrl
           .replace(/^https:\/\//, "wss://")
           .replace(/^http:\/\//, "ws://");
-        
+
         // Get access token from cookies
         const accessToken = Cookies.get("edvara_access_token");
         if (!accessToken) {
@@ -147,15 +147,23 @@ export function ChatComponent() {
         console.log("Token length:", accessToken?.length);
 
         // Construct WebSocket URL with token parameter
-        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}?token=${encodeURIComponent(accessToken)}`;
-        console.log("Attempting WebSocket connection to:", websocketUrl.replace(accessToken, "***TOKEN***"));
+        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}?token=${encodeURIComponent(
+          accessToken
+        )}`;
+        console.log(
+          "Attempting WebSocket connection to:",
+          websocketUrl.replace(accessToken, "***TOKEN***")
+        );
 
         // Create WebSocket with token in query parameter
         const ws = new WebSocket(websocketUrl);
         wsRef.current = ws;
 
         ws.onopen = () => {
-          console.log("WebSocket connected successfully to:", websocketUrl.replace(accessToken, "***TOKEN***"));
+          console.log(
+            "WebSocket connected successfully to:",
+            websocketUrl.replace(accessToken, "***TOKEN***")
+          );
           // Send a ping to test the connection
           ws.send("ping");
         };
@@ -210,15 +218,22 @@ export function ChatComponent() {
         };
 
         ws.onclose = (event) => {
-          console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
-          
+          console.log(
+            "WebSocket closed with code:",
+            event.code,
+            "reason:",
+            event.reason
+          );
+
           // Handle specific error codes
           if (event.code === 1008) {
-            console.error("WebSocket authentication failed - token may be invalid or expired");
+            console.error(
+              "WebSocket authentication failed - token may be invalid or expired"
+            );
           } else if (event.code === 1011) {
             console.error("WebSocket internal server error");
           }
-          
+
           wsRef.current = null;
 
           // Attempt to reconnect after a delay if it wasn't a manual close
@@ -244,10 +259,9 @@ export function ChatComponent() {
         }, 10000); // 10 second timeout
 
         // Clear timeout when connection opens
-        ws.addEventListener('open', () => {
+        ws.addEventListener("open", () => {
           clearTimeout(connectionTimeout);
         });
-
       } catch (error) {
         console.error("Error creating WebSocket connection:", error);
       }

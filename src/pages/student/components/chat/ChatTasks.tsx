@@ -143,7 +143,7 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
               onClick={() =>
                 onSelectTask(
                   task.id,
-                  t(`chat.tasks.${task.id.replace("-", "_")}`)
+                  t(`chat.tasks.${task.id.replace(/-/g, "_")}`)
                 )
               }
               variant="ghost"

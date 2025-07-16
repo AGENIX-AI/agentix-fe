@@ -19,31 +19,26 @@ function MessageContentComponent({
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
-  // Parse message card if present
-  const { card, remainingContent: originalRemainingContent } = parseMessageCard(content);
-
-  // Create modifiable copies of the content
-  let modifiedContent = content;
-  let modifiedRemainingContent = originalRemainingContent;
-
-  // Remove [Instructor] and [Student] prefixes if present
-  if (modifiedRemainingContent) {
-    if (modifiedRemainingContent.trim().startsWith("[Instructor]")) {
-      modifiedRemainingContent = modifiedRemainingContent.replace(/^\s*\[Instructor\]\s*/, "");
-    } else if (modifiedRemainingContent.trim().startsWith("[Student]")) {
-      modifiedRemainingContent = modifiedRemainingContent.replace(/^\s*\[Student\]\s*/, "");
-    }
-  } else if (modifiedContent) {
-    if (modifiedContent.trim().startsWith("[Instructor]")) {
-      modifiedContent = modifiedContent.replace(/^\s*\[Instructor\]\s*/, "");
-    } else if (modifiedContent.trim().startsWith("[Student]")) {
-      modifiedContent = modifiedContent.replace(/^\s*\[Student\]\s*/, "");
-    }
+  // Remove [Instructor] and [Student] prefixes from the original content BEFORE parsing message card
+  let cleanedOriginalContent = content;
+  if (cleanedOriginalContent.trim().startsWith("[Instructor")) {
+    cleanedOriginalContent = cleanedOriginalContent.replace(
+      /^\s*\[Instructor\s*:\s*[^\]]+\]\s*:\s*/,
+      ""
+    );
+  } else if (cleanedOriginalContent.trim().startsWith("[Student")) {
+    cleanedOriginalContent = cleanedOriginalContent.replace(
+      /^\s*\[Student\s*:\s*[^\]]+\]\s*:\s*/,
+      ""
+    );
   }
+
+  // Parse message card from the cleaned content
+  const { card, remainingContent } = parseMessageCard(cleanedOriginalContent);
 
   // Process the remaining content (or all content if no card)
   const { cleanedContent, imageUrls } = processMessageContent(
-    modifiedRemainingContent || modifiedContent
+    remainingContent || cleanedOriginalContent
   );
   console.log(imageUrls);
   // Reference to the content div
