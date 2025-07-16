@@ -32,7 +32,7 @@ export function AdminSidebar({ isCollapsed, onToggle }: AdminSidebarProps) {
   return (
     <div
       className={cn(
-        "flex flex-col h-full bg-card border-r border-border transition-all duration-300 h-screen",
+        "flex flex-col h-full bg-card border-r border-border transition-all duration-300",
         isCollapsed ? "w-16" : "w-64"
       )}
     >

@@ -1,6 +1,6 @@
-import { SearchIcon, AlignJustify } from "lucide-react";
+import { AlignJustify, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+
 import { cn } from "@/lib/utils";
 import { Large } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
@@ -39,8 +39,9 @@ export function HistoryComponent({
     setConversationId,
     setRightPanel,
     isChatLoading,
+    assistantId,
   } = useStudent();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
 
   // Use props if provided, otherwise fall back to context
   const isHistoryVisible = propIsHistoryVisible;
@@ -53,6 +54,9 @@ export function HistoryComponent({
     []
   );
   const [dataFetched, setDataFetched] = useState(false);
+
+  // State for section visibility
+  const [isChatsExpanded, setIsChatsExpanded] = useState(true);
 
   // Fetch data once when component mounts - NOT on every visibility change
   useEffect(() => {
@@ -204,11 +208,11 @@ export function HistoryComponent({
   // Expanded state - show full history component
   return (
     <div className={cn(className, "border-r border-border")}>
-      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] p-4 pt-3 pb-2 mt-[2px]">
+      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] pt-3 pb-2 mt-[2px]">
         <div className="flex flex-col h-full bg-background">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between p-0 pb-6 px-1">
+            <div className="flex items-center justify-between p-0 ">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -231,7 +235,7 @@ export function HistoryComponent({
             </div>
           </div>
 
-          <div className="relative flex items-center gap-2 pb-4">
+          {/* <div className="relative flex items-center gap-2 pb-4">
             <SearchIcon className="absolute left-4 h-4 text-muted-foreground" />
             <Input
               className="h-8 pl-10"
@@ -240,21 +244,49 @@ export function HistoryComponent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
-          <div className="flex flex-col h-full">
-            {/* BLOCK 1: System Assistant */}
-            <SystemAssistantBlock
-              setIsChatLoading={setIsChatLoading}
-              systemAssistantData={systemAssistant}
-            />
+          </div> */}
+          {/* Scrollable content area with flex-grow to take available space */}
+          <div className="flex-grow overflow-hidden">
+            <div className="h-full overflow-y-auto">
+              {/* ZONE 1: Chats */}
+              <div className="mb-3">
+                {/* Chats Section Header */}
+                <div
+                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                  onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+                >
+                  <div className="flex items-center gap-2">
+                    {isChatsExpanded ? (
+                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    )}
+                    <span className="font-medium text-xs">Assistants</span>
+                  </div>
+                </div>
 
-            {/* BLOCK 2: User Conversations */}
-            <UserConversationsBlock
-              searchQuery={searchQuery}
-              setIsChatLoading={setIsChatLoading}
-              conversationsData={conversations}
-            />
-            <Separator orientation="horizontal" className="w-full my-1" />
+                {/* Chats Content */}
+                {isChatsExpanded && (
+                  <div className="ml-1">
+                    {/* BLOCK 1: System Assistant */}
+                    <SystemAssistantBlock
+                      setIsChatLoading={setIsChatLoading}
+                      systemAssistantData={systemAssistant}
+                      assistantId={assistantId}
+                    />
+
+                    {/* BLOCK 2: User Conversations */}
+                    <UserConversationsBlock
+                      searchQuery={searchQuery}
+                      setIsChatLoading={setIsChatLoading}
+                      conversationsData={conversations}
+                      assistantId={assistantId}
+                    />
+                  </div>
+                )}
+              </div>
+              <Separator orientation="horizontal" className="w-full my-1" />
+            </div>
           </div>
 
           <div className="text-[10px] text-center pb-[4px]">

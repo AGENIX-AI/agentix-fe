@@ -32,6 +32,7 @@ export function ResizableSidebar({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
+  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [width, setWidth] = useState<number>(initialWidth);
   const [isDragging, setIsDragging] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -341,7 +342,7 @@ export function ResizableSidebar({
                         <Link
                           to={(navItem as any).url || "#"}
                           className={cn(
-                            "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                            "flex items-center px-2 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                             isCollapsed && "justify-center px-2"
                           )}
                           title={isCollapsed ? navItem.title : undefined}
@@ -357,7 +358,13 @@ export function ResizableSidebar({
                             }
                           }}
                         >
-                          {Icon && <Icon className="h-4 w-4" />}
+                          {Icon && (
+                            <Icon
+                              className={`h-4 w-4 ${
+                                !isCollapsed ? "ml-2" : ""
+                              }`}
+                            />
+                          )}
                           {!isCollapsed && (
                             <span className="ml-2 flex-1 truncate text-left">
                               {navItem.title}
@@ -386,10 +393,11 @@ export function ResizableSidebar({
           {/* Notification Center */}
           <div
             className={cn(
-              "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200",
+              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground cursor-pointer",
               isCollapsed && "justify-center px-2"
             )}
             title={isCollapsed ? "Notifications" : undefined}
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
           >
             <div className="relative">
               <NotificationCenter
@@ -397,6 +405,8 @@ export function ResizableSidebar({
                   bottom: "120px",
                   left: isCollapsed ? "70px" : `${width + 10}px`,
                 }}
+                onToggle={() => setNotificationsOpen(!notificationsOpen)}
+                isOpen={notificationsOpen}
               />
             </div>
             {!isCollapsed && (
@@ -410,7 +420,7 @@ export function ResizableSidebar({
           {credits && !creditsError && (
             <div
               className={cn(
-                "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200",
+                "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200",
                 isCollapsed && "justify-center px-2"
               )}
               title={
@@ -422,7 +432,10 @@ export function ResizableSidebar({
               <div className="relative">
                 <Gem className="h-4 w-4" />
                 {isCollapsed && (
-                  <span className="absolute -top-1 -right-1 text-xs font-medium bg-primary text-primary-foreground rounded-full px-1 min-w-[16px] text-center leading-4">
+                  <span
+                    className="
+                  "
+                  >
                     {credits.balance > 999
                       ? `${Math.floor(credits.balance / 1000)}k`
                       : credits.balance.toString()}

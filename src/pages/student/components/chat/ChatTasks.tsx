@@ -150,7 +150,7 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
             >
               {task.icon}
               <ExtraSmall className="text-foreground">
-                {t(`chat.tasks.${task.id.replace(/-/g, "_")}`).toUpperCase()}
+                {t(`chat.tasks.${task.id.replace(/-/g, "_")}`)}
               </ExtraSmall>
             </Button>
           ))}

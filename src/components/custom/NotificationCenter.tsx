@@ -30,10 +30,15 @@ interface NotificationCenterProps {
     bottom: string;
     left: string;
   };
+  onToggle?: () => void;
+  isOpen?: boolean; // Optional external control of open state
 }
 
-export function NotificationCenter({ position }: NotificationCenterProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen }: NotificationCenterProps) {
+  // Use internal state if no external state is provided
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  // Use external state if provided, otherwise use internal state
+  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -79,7 +84,14 @@ export function NotificationCenter({ position }: NotificationCenterProps) {
   }, [loadNotifications]);
 
   const handleToggle = () => {
-    setIsOpen(!isOpen);
+    // Only update internal state if no external control is provided
+    if (externalIsOpen === undefined) {
+      setInternalIsOpen(!internalIsOpen);
+    }
+    // Call external onToggle if provided
+    if (onToggle) {
+      onToggle();
+    }
   };
 
   const handleMarkAsRead = async (notificationId: string) => {
@@ -151,7 +163,7 @@ export function NotificationCenter({ position }: NotificationCenterProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="w-4 h-4 p-0 hover:bg-transparent"
+          className="w-4 h-4 p-0 hover:bg-transparent notification-bell-button"
           onClick={handleToggle}
         >
           <Bell className="h-4 w-4" />
@@ -169,7 +181,14 @@ export function NotificationCenter({ position }: NotificationCenterProps) {
           {/* Backdrop */}
           <div
             className="fixed inset-0 z-40"
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              if (externalIsOpen === undefined) {
+                setInternalIsOpen(false);
+              }
+              if (onToggle) {
+                onToggle();
+              }
+            }}
           />
 
           {/* Panel */}
@@ -209,7 +228,14 @@ export function NotificationCenter({ position }: NotificationCenterProps) {
                   variant="ghost"
                   size="icon"
                   className="h-6 w-6"
-                  onClick={() => setIsOpen(false)}
+                  onClick={() => {
+                    if (externalIsOpen === undefined) {
+                      setInternalIsOpen(false);
+                    }
+                    if (onToggle) {
+                      onToggle();
+                    }
+                  }}
                 >
                   <X className="h-3 w-3" />
                 </Button>

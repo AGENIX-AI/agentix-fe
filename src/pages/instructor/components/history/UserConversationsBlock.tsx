@@ -13,12 +13,14 @@ interface UserConversationsBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
   conversationsData: ConversationListItem[];
+  assistantId: string | null;
 }
 
 function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
   conversationsData,
+  assistantId,
 }: UserConversationsBlockProps) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
@@ -218,12 +220,13 @@ function UserConversationsBlockComponent({
   }
 
   return (
-    <div className="space-y-2">
+    <div className="">
       {conversations.map((conversation: ConversationListItem) => (
         <div key={conversation.id}>
           <ConversationItem
             conversation={conversation}
             onClick={handleConversationClick}
+            assistantId={assistantId}
           />
         </div>
       ))}

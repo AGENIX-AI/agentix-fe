@@ -1,11 +1,5 @@
-import {
-  SearchIcon,
-  AlignJustify,
-  ChevronDown,
-  ChevronRight,
-} from "lucide-react";
+import { AlignJustify, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
 import { Large } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
@@ -49,8 +43,9 @@ export function HistoryComponent({
     setConversationId,
     setRightPanel,
     isChatLoading,
+    assistantId,
   } = useInstructor();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery] = useState("");
 
   // Use props if provided, otherwise fall back to context
   const isHistoryVisible = propIsHistoryVisible;
@@ -194,7 +189,7 @@ export function HistoryComponent({
                           systemAssistant.assistants?.name || "Edvara Assistant"
                         }
                       >
-                        <Avatar className="overflow-hidden">
+                        <Avatar className="overflow-hidden h-5 w-5">
                           <AvatarImage
                             src={systemAssistant.assistants?.image || ""}
                           />
@@ -215,7 +210,7 @@ export function HistoryComponent({
                         onClick={() => handleAvatarClick(conversation, false)}
                         title={conversation.assistants?.name || "Assistant"}
                       >
-                        <Avatar className="overflow-hidden">
+                        <Avatar className="overflow-hidden h-5 w-5">
                           <AvatarImage
                             src={conversation.assistants?.image || ""}
                           />
@@ -223,6 +218,7 @@ export function HistoryComponent({
                       </button>
                     </li>
                   ))}
+                  <Separator />
 
                   {/* Sharing Students Avatars */}
                   {sharingStudents.slice(0, 5).map((student) => (
@@ -238,7 +234,7 @@ export function HistoryComponent({
                         }
                         title={student.student_info.name}
                       >
-                        <Avatar className="overflow-hidden">
+                        <Avatar className="overflow-hidden h-5 w-5">
                           <AvatarImage src={student.student_info.avatar_url} />
                         </Avatar>
                       </button>
@@ -256,11 +252,11 @@ export function HistoryComponent({
   // Expanded state - show full history component
   return (
     <div className={cn(className, "border-r border-border ")}>
-      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] p-4 pt-3 pb-2 mt-[2px]">
+      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] pt-3 pb-2 mt-[2px]">
         <div className="flex flex-col flex-grow min-h-0 w-full h-full">
           {/* Header */}
           <div>
-            <div className="flex items-center justify-between p-0 pb-6 px-1">
+            <div className="flex items-center justify-between p-0 pb-3 px-1">
               <div className="flex items-center gap-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -283,7 +279,7 @@ export function HistoryComponent({
             </div>
           </div>
 
-          <div className="relative flex items-center gap-2 pb-4 shrink-0 ">
+          {/* <div className="relative flex items-center gap-2 pb-4 shrink-0 ">
             <SearchIcon className="absolute left-4 h-4 text-muted-foreground" />
             <Input
               className="h-8 pl-10"
@@ -292,16 +288,16 @@ export function HistoryComponent({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
-          </div>
+          </div> */}
 
           {/* Scrollable content area with flex-grow to take available space */}
           <div className="flex-grow overflow-hidden">
             <div className="h-full overflow-y-auto">
               {/* ZONE 1: Chats */}
-              <div className="mb-4">
+              <div className="mb-3">
                 {/* Chats Section Header */}
                 <div
-                  className="flex items-center justify-between px-1 py-2 hover:bg-accent/30 rounded-md cursor-pointer transition-colors"
+                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
                   onClick={() => setIsChatsExpanded(!isChatsExpanded)}
                 >
                   <div className="flex items-center gap-2">
@@ -310,7 +306,7 @@ export function HistoryComponent({
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium text-sm">Assistants</span>
+                    <span className="font-medium text-xs">Assistants</span>
                   </div>
                 </div>
 
@@ -321,6 +317,7 @@ export function HistoryComponent({
                     <SystemAssistantBlock
                       setIsChatLoading={setIsChatLoading}
                       systemAssistantData={systemAssistant}
+                      assistantId={assistantId}
                     />
 
                     {/* BLOCK 2: User Conversations */}
@@ -328,16 +325,17 @@ export function HistoryComponent({
                       searchQuery={searchQuery}
                       setIsChatLoading={setIsChatLoading}
                       conversationsData={conversations}
+                      assistantId={assistantId}
                     />
                   </div>
                 )}
               </div>
 
               {/* ZONE 2: Sharing */}
-              <div className="mb-4">
+              <div className="">
                 {/* Sharing Section Header */}
                 <div
-                  className="flex items-center justify-between px-1 py-2 hover:bg-accent/30 rounded-md cursor-pointer transition-colors"
+                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
                   onClick={() => setIsSharingExpanded(!isSharingExpanded)}
                 >
                   <div className="flex items-center gap-2">
@@ -346,7 +344,9 @@ export function HistoryComponent({
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium text-sm">Sharing</span>
+                    <span className="font-medium text-xs ">
+                      Collaborative Topics
+                    </span>
                   </div>
                 </div>
 
@@ -358,8 +358,6 @@ export function HistoryComponent({
                   />
                 )}
               </div>
-
-              <Separator orientation="horizontal" className="w-full my-1" />
             </div>
           </div>
 

@@ -93,10 +93,10 @@ function SharingBlockComponent({
       {filteredStudents.map((student: SharingStudent) => (
         <div
           key={student.student_id}
-          className="flex items-center gap-3 cursor-pointer py-2 "
+          className="flex items-center gap-2 py-1 cursor-pointer hover:bg-accent/30 transition-all duration-200 rounded-2xl"
           onClick={() => handleSharingClick(student)}
         >
-          <Avatar className="overflow-hidden">
+          <Avatar className="overflow-hidden h-5 w-5 ml-2">
             <AvatarImage
               src={student.student_info.avatar_url}
               alt={student.student_info.name}
@@ -104,12 +104,12 @@ function SharingBlockComponent({
           </Avatar>
 
           <div className="flex-1 min-w-0">
-            <div className="font-medium text-sm truncate">
+            <div className="font-medium text-xs truncate">
               {student.student_info.name}
             </div>
-            <div className="text-xs text-muted-foreground truncate">
+            {/* <div className="text-xs text-muted-foreground truncate">
               {student.student_info.email}
-            </div>
+            </div> */}
           </div>
         </div>
       ))}

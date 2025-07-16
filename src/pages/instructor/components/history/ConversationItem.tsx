@@ -1,69 +1,37 @@
 import { memo } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-import { ExtraSmall } from "@/components/ui/typography";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 
 interface ConversationItemProps {
   conversation: ConversationListItem;
   isSystemAssistant?: boolean;
   onClick: (conversation: ConversationListItem) => void;
+  assistantId: string | null;
 }
-
-// Parse MessageCard content to extract fields like topics, goals, etc.
-const parseMessageCard = (content: string) => {
-  if (!content || !content.startsWith("MessageCard")) return null;
-
-  const result: Record<string, string> = {};
-
-  // Extract fields using regex
-  const fieldsRegex = /\|(\w+)=([^|]+)/g;
-  let match;
-
-  while ((match = fieldsRegex.exec(content)) !== null) {
-    const [, key, value] = match;
-    result[key] = value.trim();
-  }
-
-  return result;
-};
 
 function ConversationItemComponent({
   conversation,
-  isSystemAssistant = false,
   onClick,
+  assistantId,
 }: ConversationItemProps) {
-  const lastMessageContent = conversation.last_message?.content || "";
-  const messageCardData = parseMessageCard(lastMessageContent);
-
-  // Determine what to display in the conversation item
-  const displayContent = () => {
-    if (messageCardData && messageCardData.topics) {
-      return `Topic: ${messageCardData.topics}`;
-    }
-
-    return isSystemAssistant
-      ? conversation.assistants?.tagline ||
-          "Support you to use the App effectively"
-      : `${
-          conversation.last_message?.sender === "user" ? "You: " : ""
-        }${lastMessageContent}`;
-  };
-
   return (
     <div
-      className={`flex items-center gap-3 py-2 cursor-pointer`}
+      className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl ${
+        assistantId === conversation.assistants?.id
+          ? "bg-accent"
+          : "hover:bg-accent/30 "
+      }`}
       onClick={() => onClick(conversation)}
     >
-      <Avatar className="overflow-hidden">
+      <Avatar className="overflow-hidden h-5 w-5 ml-2">
         <AvatarImage src={conversation.assistants?.image || ""} />
       </Avatar>
       <div className="flex-1 overflow-hidden">
         <div className="flex items-center justify-between">
-          <p className="text-sm font-semibold">
+          <p className="text-xs">
             {conversation.assistants?.name || "Assistant"}
           </p>
         </div>
-        <ExtraSmall className="truncate">{displayContent()}</ExtraSmall>
       </div>
     </div>
   );

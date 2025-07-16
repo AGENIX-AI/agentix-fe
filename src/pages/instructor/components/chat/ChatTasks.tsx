@@ -3,7 +3,7 @@ import { useState, type JSX } from "react";
 
 import { CreateAssisstantForm } from "./chatTasks/CreateAssisstantForm";
 import { CreateLearningTopicForm } from "./chatTasks/CreateLearningTopicForm";
-import { ExtraSmall } from "@/components/ui/typography";
+import { ExtraSmall, Large } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { useTranslation } from "react-i18next";
 
@@ -50,7 +50,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-assisstant",
-        title: "CREATE YOUR ASSISTANT",
+        title: "Create your assistant",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -59,7 +59,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-knowledge-base",
-        title: "CREATE KNOWLEDGE BASE",
+        title: "Create knowledge base",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <FileText className="h-4 w-4 text-secondary" />
@@ -68,7 +68,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-topic-knowledge",
-        title: "CREATE KNOWLEDGE COMPONENT",
+        title: "Create knowledge component",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Brain className="h-4 w-4 text-secondary" />
@@ -89,7 +89,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "modify-assistant",
-        title: `MODIFY ${assistantInfo?.name.toUpperCase()}`,
+        title: `MODIFY ${assistantInfo?.name}`,
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <PenLine className="h-4 w-4 text-secondary" />
@@ -98,7 +98,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "manage-knowledge-space",
-        title: "MANAGE KNOWLEDGE BASE",
+        title: "Manage knowledge space",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Settings className="h-4 w-4 text-secondary" />
@@ -167,9 +167,9 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
           <div className="text-xs text-primary">
             <div className="flex flex-col space-y-1">
               <div className="flex items-center">
-                <ExtraSmall className="text-primary font-bold">
+                <Large className="text-primary font-bold">
                   {t("chat.tasks.title")}
-                </ExtraSmall>
+                </Large>
               </div>
               <ExtraSmall className="text-muted-foreground">
                 {t("chat.tasks.select_task")}

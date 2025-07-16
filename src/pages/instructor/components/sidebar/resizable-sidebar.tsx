@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronRight, Menu, X, Gem } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/instructor-sidebar-data";
@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { UserMenu } from "../userMenu/user-menu";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
-import { NovuProvider, Inbox } from "@novu/react";
+import { NotificationCenter } from "@/components/custom/NotificationCenter";
 import { useAuth } from "@/contexts/AuthContext";
 
 export interface ResizableSidebarProps {
@@ -30,6 +30,8 @@ export function ResizableSidebar({
 }: ResizableSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
+  // For notification center
+  const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
 
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
@@ -41,7 +43,7 @@ export function ResizableSidebar({
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
   const { setRightPanel } = useInstructor();
-  const { userInfo } = useAuth();
+  const { } = useAuth();
   // Poll credits every 5 seconds
   const { credits, error: creditsError } = useCreditsPolling(5000);
 
@@ -343,7 +345,7 @@ export function ResizableSidebar({
                         <Link
                           to={(navItem as any).url || "#"}
                           className={cn(
-                            "flex items-center px-3 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                            "flex items-center px-2 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
                             isCollapsed && "justify-center px-2"
                           )}
                           title={isCollapsed ? navItem.title : undefined}
@@ -362,7 +364,13 @@ export function ResizableSidebar({
                             }
                           }}
                         >
-                          {Icon && <Icon className="h-4 w-4" />}
+                          {Icon && (
+                            <Icon
+                              className={`h-4 w-4 ${
+                                !isCollapsed ? "ml-2" : ""
+                              }`}
+                            />
+                          )}
                           {!isCollapsed && (
                             <span className="ml-2 flex-1 truncate text-left">
                               {navItem.title}
@@ -385,64 +393,63 @@ export function ResizableSidebar({
         {/* Footer with Credits and UserMenu */}
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 border-border p-3 space-y-3",
-            isCollapsed ? "flex flex-col items-center" : ""
+            "absolute bottom-0 left-0 right-0 border-border p-2 space-y-1"
           )}
         >
-          {" "}
           {/* Notification Center */}
           <div
             className={cn(
-              "w-full transition-colors relative",
-              isCollapsed ? "justify-center" : "justify-start"
+              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+              isCollapsed && "justify-center px-2"
             )}
+            title={isCollapsed ? "Notifications" : undefined}
             style={{ zIndex: 9999 }}
+            onClick={() => setNotificationsOpen(!notificationsOpen)}
           >
-            <style>{`
-              [data-novu-cn="popover-content"]:not([data-novu-cn="bell"]),
-              .novu-notification-center-popover-content:not(.bell):not([class*="bell"]) {
-                position: fixed !important;
-                bottom: 120px !important;
-                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
-                transform: none !important;
-                top: auto !important;
-                z-index: 9999 !important;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
-              }
-              
-              .nv-popoverContent:not(.nv-bell):not([class*="bell"]) {
-                position: fixed !important;
-                bottom: 120px !important;
-                left: ${isCollapsed ? "70px" : `${width + 10}px`} !important;
-                transform: none !important;
-                top: auto !important;
-                z-index: 9999 !important;
-                box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2) !important;
-              }
-            `}</style>
-            <NovuProvider
-              subscriberId={userInfo?.id || ""}
-              applicationIdentifier={
-                import.meta.env.VITE_NOVU_APP_IDENTIFIER || ""
-              }
-            >
-              <Inbox />
-            </NovuProvider>
+            <div className="relative">
+              <NotificationCenter
+                position={{
+                  bottom: "120px",
+                  left: isCollapsed ? "70px" : `${width + 10}px`,
+                }}
+                onToggle={() => setNotificationsOpen(!notificationsOpen)}
+                isOpen={notificationsOpen}
+              />
+            </div>
+            {!isCollapsed && (
+              <span className="ml-2 flex-1 truncate text-left">
+                Notifications
+              </span>
+            )}
           </div>
           {/* Credits Display */}
           {credits && !creditsError && (
             <div
-              className="flex flex-col items-center justify-center space-y-1"
-              title={`Credits: ${credits.balance.toLocaleString()}`}
+              className={cn(
+                "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200",
+                isCollapsed && "justify-center px-2"
+              )}
+              title={
+                isCollapsed
+                  ? `Credits: ${credits.balance.toLocaleString()}`
+                  : undefined
+              }
             >
-              <span className="text-xs font-medium text-center">
-                {isCollapsed
-                  ? credits.balance > 999
-                    ? `${Math.floor(credits.balance / 1000)}k`
-                    : credits.balance.toString()
-                  : credits.balance.toLocaleString()}{" "}
-                💎
-              </span>
+              <div className="relative">
+                <Gem className="h-4 w-4" />
+                {isCollapsed && (
+                  <span>
+                    {credits.balance > 999
+                      ? `${Math.floor(credits.balance / 1000)}k`
+                      : credits.balance.toString()}
+                  </span>
+                )}
+              </div>
+              {!isCollapsed && (
+                <span className="ml-2 flex-1 truncate text-left">
+                  {credits.balance.toLocaleString()} Credits
+                </span>
+              )}
             </div>
           )}
           <UserMenu

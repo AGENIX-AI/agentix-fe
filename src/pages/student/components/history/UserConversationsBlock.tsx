@@ -10,12 +10,14 @@ interface UserConversationsBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
   conversationsData?: ConversationListItem[];
+  assistantId: string | null;
 }
 
 function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
   conversationsData,
+  assistantId,
 }: UserConversationsBlockProps) {
   const {
     setAssistantId,
@@ -190,6 +192,7 @@ function UserConversationsBlockComponent({
           <ConversationItem
             conversation={conversation}
             onClick={handleConversationClick}
+            assistantId={assistantId}
           />
         </div>
       ))}

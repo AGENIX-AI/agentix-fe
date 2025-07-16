@@ -34,16 +34,26 @@ export default function LeftPanel() {
 
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
-      <header className="flex h-18 items-center border border-r-0 bg-background z-30 px-3">
+      <header className="flex h-18 items-center justify-between border border-r-0 bg-background z-30 px-6">
         {/* Left section */}
         <div className="flex items-center cursor-pointer" onClick={resetState}>
           <Logo className="w-30 h-15" />
         </div>
 
+        <div className="flex items-center justify-center flex-grow mx-8">
+          <div className="relative w-full max-w-md">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />
+            <Input
+              className="h-8 pl-8 w-full transition-all duration-300"
+              type="search"
+              placeholder="Search"
+            />
+          </div>
+        </div>
         {/* Middle section - navigation */}
-        <nav className="flex gap-4 text-sm mx-auto font-semibold mt-1">
+        <nav className="flex gap-6 text-sm font-semibold mr-3">
           <Link
-            to="/student"
+            to="student"
             className="transition-colors hover:text-foreground/80"
           >
             <Small>Student</Small>
@@ -52,27 +62,11 @@ export default function LeftPanel() {
           <Link to="#" className="text-[#007E85] hover:text-foreground/80">
             <Small>Instructor</Small>
           </Link>
-          <Separator orientation="vertical" className="h-6 w p-0" />
-          <Link to="#" className="transition-colors hover:text-foreground/80">
-            <Small>Blogs</Small>
-          </Link>
-          <Separator orientation="vertical" className="h-6 w p-0" />
+          <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
           <Link to="#" className="transition-colors hover:text-foreground/80">
             <Small>About</Small>
           </Link>
         </nav>
-
-        {/* Right section */}
-        <div className="flex items-center gap-3">
-          <div className="relative flex-grow">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />
-            <Input
-              className="h-8 pl-8 w-full transition-all duration-300 md:w-[12vw] lg:w-[15vw]"
-              type="search"
-              placeholder="Search"
-            />
-          </div>
-        </div>
       </header>
 
       <div className="flex w-full" style={{ height: "calc(100vh - 4.5rem)" }}>

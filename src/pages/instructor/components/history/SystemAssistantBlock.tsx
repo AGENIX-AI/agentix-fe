@@ -9,9 +9,11 @@ import { ConversationItem } from "./ConversationItem";
 function SystemAssistantBlockComponent({
   setIsChatLoading,
   systemAssistantData,
+  assistantId,
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
   systemAssistantData: SystemAssistantResponse | null;
+  assistantId: string | null;
 }) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
@@ -87,6 +89,7 @@ function SystemAssistantBlockComponent({
         conversation={systemAssistantConversation}
         isSystemAssistant={true}
         onClick={handleSystemAssistantClick}
+        assistantId={assistantId}
       />
     </div>
   );

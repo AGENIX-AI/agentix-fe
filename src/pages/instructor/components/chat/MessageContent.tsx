@@ -20,11 +20,30 @@ function MessageContentComponent({
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
   // Parse message card if present
-  const { card, remainingContent } = parseMessageCard(content);
+  const { card, remainingContent: originalRemainingContent } = parseMessageCard(content);
+
+  // Create modifiable copies of the content
+  let modifiedContent = content;
+  let modifiedRemainingContent = originalRemainingContent;
+
+  // Remove [Instructor] and [Student] prefixes if present
+  if (modifiedRemainingContent) {
+    if (modifiedRemainingContent.trim().startsWith("[Instructor]")) {
+      modifiedRemainingContent = modifiedRemainingContent.replace(/^\s*\[Instructor\]\s*/, "");
+    } else if (modifiedRemainingContent.trim().startsWith("[Student]")) {
+      modifiedRemainingContent = modifiedRemainingContent.replace(/^\s*\[Student\]\s*/, "");
+    }
+  } else if (modifiedContent) {
+    if (modifiedContent.trim().startsWith("[Instructor]")) {
+      modifiedContent = modifiedContent.replace(/^\s*\[Instructor\]\s*/, "");
+    } else if (modifiedContent.trim().startsWith("[Student]")) {
+      modifiedContent = modifiedContent.replace(/^\s*\[Student\]\s*/, "");
+    }
+  }
 
   // Process the remaining content (or all content if no card)
   const { cleanedContent, imageUrls } = processMessageContent(
-    remainingContent || content
+    modifiedRemainingContent || modifiedContent
   );
   console.log(imageUrls);
   // Reference to the content div

@@ -1,4 +1,3 @@
-import { Large } from "@/components/ui/typography";
 import { useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Check, AlertCircle } from "lucide-react";
@@ -216,10 +215,6 @@ export default function AddDocument() {
 
   return (
     <div className="flex flex-col h-full">
-      <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-6 flex-shrink-0">
-        <Large className="font-bold tracking-tight">Add Document</Large>
-      </div>
-
       <div className="flex-1 overflow-y-auto">
         <div className="space-y-3 px-6 py-4">
           {successMessage && (
