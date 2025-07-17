@@ -32,7 +32,6 @@ export function ResizableSidebar({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
-  const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [width, setWidth] = useState<number>(initialWidth);
   const [isDragging, setIsDragging] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
@@ -353,7 +352,7 @@ export function ResizableSidebar({
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
                             }
-                            if (navItem.title === "Toggle") {
+                            if (navItem.title === "Navigation") {
                               setIsCollapsed(!isCollapsed);
                             }
                           }}
@@ -393,21 +392,13 @@ export function ResizableSidebar({
           {/* Notification Center */}
           <div
             className={cn(
-              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
               isCollapsed && "justify-center px-2"
             )}
             title={isCollapsed ? "Notifications" : undefined}
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
           >
             <div className="relative">
-              <NotificationCenter
-                position={{
-                  bottom: "120px",
-                  left: isCollapsed ? "70px" : `${width + 10}px`,
-                }}
-                onToggle={() => setNotificationsOpen(!notificationsOpen)}
-                isOpen={notificationsOpen}
-              />
+              <NotificationCenter />
             </div>
             {!isCollapsed && (
               <span className="ml-2 flex-1 truncate text-left">
@@ -429,11 +420,12 @@ export function ResizableSidebar({
                   : undefined
               }
             >
+              {" "}
+              <Gem className="h-4 w-4" />
               <div className="relative">
-                <Gem className="h-4 w-4" />
                 {isCollapsed && (
                   <span
-                    className="
+                    className="text-xs
                   "
                   >
                     {credits.balance > 999

@@ -108,7 +108,7 @@ function ConversationCategory({
       case "mentor":
         return "Mentoring Topics";
       case "tutorial":
-        return "Tutoring Topics";
+        return "Private Topics";
       case "archived":
         return "Archived Topics";
       default:

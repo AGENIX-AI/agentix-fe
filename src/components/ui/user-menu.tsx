@@ -93,35 +93,43 @@ export function UserMenu({
         <button
           type="button"
           className={cn(
-            "flex cursor-pointer w-full items-center justify-between gap-2 outline-hidden focus-visible:ring-2 focus-visible:ring-primary md:py-1.5",
+            "flex cursor-pointer w-full items-center gap-2 outline-hidden focus-visible:ring-2 focus-visible:ring-primary md:py-1.5",
+            showUserName ? "justify-between" : "justify-center",
             className
           )}
           aria-label="User menu"
         >
-          <span className="flex items-center gap-1">
+          {showUserName ? (
+            <>
+              <span className="flex items-center gap-1 flex-1 min-w-0">
+                <UserAvatar
+                  name={userInfo.metadata.full_name ?? ""}
+                  avatarUrl={userInfo.metadata.avatar_url}
+                />
+                <span className="text-left leading-tight flex-1 min-w-0">
+                  <span className="font-medium text-xs block truncate">
+                    {userInfo.metadata.full_name}
+                  </span>
+                  <span className="block text-xs opacity-70 truncate">
+                    {userInfo.metadata.email}
+                  </span>
+                </span>
+              </span>
+              <MoreVerticalIcon className="size-4" />
+            </>
+          ) : (
             <UserAvatar
               name={userInfo.metadata.full_name ?? ""}
               avatarUrl={userInfo.metadata.avatar_url}
             />
-            {showUserName && (
-              <span className="text-left leading-tight">
-                <span className="font-medium text-xs">
-                  {userInfo.metadata.full_name}
-                </span>
-                <span className="block text-xs opacity-70 truncate max-w-[120px]">
-                  {userInfo.metadata.email}
-                </span>
-              </span>
-            )}
-          </span>
-          {showUserName && <MoreVerticalIcon className="size-4" />}
+          )}
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[240px] p-3 ml-0">
+      <DropdownMenuContent align="end" className="w-[320px] p-3 ml-2">
         <DropdownMenuLabel className="text-xs">
           {userInfo.metadata.full_name}
-          <span className="block font-normal text-xs truncate">
+          <span className="block font-normal text-xs break-words">
             {userInfo.metadata.email}
           </span>
         </DropdownMenuLabel>

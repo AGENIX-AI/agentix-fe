@@ -152,12 +152,15 @@ const enTranslation: Record<string, any> = {
     cancel: "Cancel",
     share: "Share",
     sharing: "Sharing...",
+    send: "Send",
+    sending: "Sending...",
   },
 
   // Chat Components
   chat: {
     input: {
       placeholder: "Type a message...",
+      archived_placeholder: "This conversation is archived",
       send: "Send",
     },
     tasks: {
@@ -171,11 +174,16 @@ const enTranslation: Record<string, any> = {
         "Share this conversation with your instructor. The instructor will be able to view the conversation history.",
       share_success: "Sharing request sent successfully",
       share_info: "The instructor will be notified of your request",
-      error_no_conversation: "No active conversation to share",
+      archived: "Archived",
+      archive_description:
+        "Send achievement notification for this tutoring conversation. This will notify your instructor about your learning progress.",
+      archive_success: "Achievement sent successfully",
+      error_no_conversation: "No active conversation to archive",
       error_already_shared:
         "You have already requested to share this conversation",
       error_you_are_instructor: "You are the instructor of this conversation",
       error_generic: "Failed to share conversation: {{error}}",
+      error_archive_generic: "Failed to send achievement: {{error}}",
     },
     create_topic_form: {
       title: "Create a tutoring topic",

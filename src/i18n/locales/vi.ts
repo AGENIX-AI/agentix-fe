@@ -152,12 +152,15 @@ const viTranslation = {
     cancel: "Hủy",
     share: "Chia sẻ",
     sharing: "Đang chia sẻ...",
+    send: "Gửi",
+    sending: "Đang gửi...",
   },
 
   // Chat Components
   chat: {
     input: {
       placeholder: "Nhập tin nhắn...",
+      archived_placeholder: "Cuộc trò chuyện này đã được lưu trữ",
       send: "Gửi",
     },
     tasks: {
@@ -171,10 +174,15 @@ const viTranslation = {
         "Chia sẻ cuộc trò chuyện này với giảng viên của bạn. Giảng viên sẽ có thể xem lịch sử cuộc trò chuyện.",
       share_success: "Yêu cầu chia sẻ đã được gửi thành công",
       share_info: "Giảng viên sẽ được thông báo về yêu cầu của bạn",
-      error_no_conversation: "Không có cuộc trò chuyện nào để chia sẻ",
+      archived: "Lưu trữ",
+      archive_description:
+        "Gửi thông báo thành tựu cho cuộc trò chuyện học tập này. Điều này sẽ thông báo cho giảng viên về tiến trình học tập của bạn.",
+      archive_success: "Thành tựu đã được gửi thành công",
+      error_no_conversation: "Không có cuộc trò chuyện nào để lưu trữ",
       error_already_shared: "Bạn đã yêu cầu chia sẻ cuộc trò chuyện này rồi",
       error_you_are_instructor: "Bạn là giảng viên của cuộc trò chuyện này",
       error_generic: "Không thể chia sẻ cuộc trò chuyện: {{error}}",
+      error_archive_generic: "Không thể gửi thành tựu: {{error}}",
     },
     create_topic_form: {
       title: "Tạo một chủ đề học tập",

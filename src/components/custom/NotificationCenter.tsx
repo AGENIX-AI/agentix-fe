@@ -1,11 +1,17 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { Bell, X, Check, Info, AlertCircle, CheckCircle } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { Bell, Check, Info, AlertCircle, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { Separator } from "@/components/ui/separator";
 import { formatDistanceToNow } from "date-fns";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import {
   fetchNotifications,
   markNotificationAsRead,
@@ -26,23 +32,13 @@ export interface Notification {
 }
 
 interface NotificationCenterProps {
-  position: {
-    bottom: string;
-    left: string;
-  };
-  onToggle?: () => void;
-  isOpen?: boolean; // Optional external control of open state
+  className?: string;
 }
 
-export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen }: NotificationCenterProps) {
-  // Use internal state if no external state is provided
-  const [internalIsOpen, setInternalIsOpen] = useState(false);
-  // Use external state if provided, otherwise use internal state
-  const isOpen = externalIsOpen !== undefined ? externalIsOpen : internalIsOpen;
+export function NotificationCenter({ className }: NotificationCenterProps) {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const panelRef = useRef<HTMLDivElement>(null);
   const { userInfo } = useAuth();
 
   const loadNotifications = useCallback(async () => {
@@ -65,7 +61,6 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
       }
     } catch (err) {
       console.error("Error loading notifications:", err);
-      // setError("Failed to load notifications");
     } finally {
       setLoading(false);
     }
@@ -83,17 +78,6 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
     return () => clearInterval(interval);
   }, [loadNotifications]);
 
-  const handleToggle = () => {
-    // Only update internal state if no external control is provided
-    if (externalIsOpen === undefined) {
-      setInternalIsOpen(!internalIsOpen);
-    }
-    // Call external onToggle if provided
-    if (onToggle) {
-      onToggle();
-    }
-  };
-
   const handleMarkAsRead = async (notificationId: string) => {
     if (!userInfo?.id) return;
 
@@ -108,6 +92,7 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
             n.id === notificationId ? { ...n, isRead: true } : n
           )
         );
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
     } catch (error) {
       console.error("Failed to mark notification as read:", error);
@@ -121,6 +106,7 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
       const response = await markAllNotificationsAsRead(userInfo.id);
       if (response.success) {
         setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
+        setUnreadCount(0);
       }
     } catch (error) {
       console.error("Failed to mark all notifications as read:", error);
@@ -143,28 +129,24 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
   // Don't render if no user info
   if (!userInfo?.id) {
     return (
-      <div className="relative">
-        <Button
-          variant="ghost"
-          size="icon"
-          className="w-4 h-4 p-0 hover:bg-transparent opacity-50"
-          disabled
-        >
-          <Bell className="h-4 w-4" />
-        </Button>
-      </div>
+      <Button
+        variant="ghost"
+        size="icon"
+        className={cn("w-4 h-4 p-0 hover:bg-transparent opacity-50", className)}
+        disabled
+      >
+        <Bell className="h-4 w-4" />
+      </Button>
     );
   }
 
   return (
-    <>
-      {/* Notification Trigger */}
-      <div className="relative">
+    <DropdownMenu modal={false}>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           size="icon"
-          className="w-4 h-4 p-0 hover:bg-transparent notification-bell-button"
-          onClick={handleToggle}
+          className={cn("w-4 h-4 p-0 hover:bg-transparent relative", className)}
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
@@ -173,143 +155,109 @@ export function NotificationCenter({ position, onToggle, isOpen: externalIsOpen 
             </span>
           )}
         </Button>
-      </div>
+      </DropdownMenuTrigger>
 
-      {/* Notification Panel */}
-      {isOpen && (
-        <>
-          {/* Backdrop */}
-          <div
-            className="fixed inset-0 z-40"
-            onClick={() => {
-              if (externalIsOpen === undefined) {
-                setInternalIsOpen(false);
-              }
-              if (onToggle) {
-                onToggle();
-              }
-            }}
-          />
-
-          {/* Panel */}
-          <div
-            ref={panelRef}
-            className="fixed z-50 w-80 bg-background border border-border rounded-lg shadow-lg"
-            style={{
-              bottom: position.bottom,
-              left: position.left,
-              maxHeight: "400px",
-            }}
-          >
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border">
-              <div className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                <span className="font-medium text-sm">Notifications</span>
-                {unreadCount > 0 && (
-                  <Badge variant="secondary" className="text-xs">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </div>
-              <div className="flex items-center gap-1">
-                {unreadCount > 0 && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-6 px-2"
-                    onClick={handleMarkAllAsRead}
-                  >
-                    <Check className="h-3 w-3 mr-1" />
-                    Mark all read
-                  </Button>
-                )}
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => {
-                    if (externalIsOpen === undefined) {
-                      setInternalIsOpen(false);
-                    }
-                    if (onToggle) {
-                      onToggle();
-                    }
-                  }}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              </div>
-            </div>
-
-            {/* Content */}
-            <ScrollArea className="max-h-80">
-              {loading ? (
-                <div className="flex items-center justify-center p-8">
-                  <div className="text-sm text-muted-foreground">
-                    Loading notifications...
-                  </div>
-                </div>
-              ) : notifications.length === 0 ? (
-                <div className="flex flex-col items-center justify-center p-8 text-center">
-                  <Bell className="h-8 w-8 text-muted-foreground mb-2" />
-                  <div className="text-sm text-muted-foreground">
-                    No notifications yet
-                  </div>
-                </div>
-              ) : (
-                <div className="divide-y divide-border">
-                  {notifications.map((notification) => (
-                    <div
-                      key={notification.id}
-                      className={cn(
-                        "p-4 hover:bg-accent/50 cursor-pointer transition-colors",
-                        !notification.isRead && "bg-accent/20"
-                      )}
-                      onClick={() => handleMarkAsRead(notification.id)}
-                    >
-                      <div className="flex items-start gap-3">
-                        {getNotificationIcon(notification.type)}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium truncate">
-                              {notification.title}
-                            </p>
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
-                            )}
-                          </div>
-                          <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
-                            {notification.message}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {formatDistanceToNow(
-                              new Date(notification.createdAt),
-                              { addSuffix: true }
-                            )}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </ScrollArea>
-
-            {/* Footer */}
-            {notifications.length > 0 && (
-              <>
-                <Separator />
-                <div className="p-3 text-center">
-                  <Button variant="ghost" size="sm" className="text-xs">
-                    View all notifications
-                  </Button>
-                </div>
-              </>
+      <DropdownMenuContent
+        align="start"
+        className="w-[320px] p-3 mb-3 ml-2"
+        side="bottom"
+        sideOffset={5}
+        alignOffset={-300}
+      >
+        <DropdownMenuLabel className="text-xs flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Bell className="h-4 w-4" />
+            <span>Notifications</span>
+            {unreadCount > 0 && (
+              <Badge variant="secondary" className="text-xs">
+                {unreadCount}
+              </Badge>
             )}
           </div>
-        </>
-      )}
-    </>
+          {unreadCount > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-xs h-6 px-2 hover:bg-accent"
+              onClick={handleMarkAllAsRead}
+            >
+              <Check className="h-3 w-3 mr-1" />
+              Mark all read
+            </Button>
+          )}
+        </DropdownMenuLabel>
+
+        <DropdownMenuSeparator />
+
+        {/* Content */}
+        <div className="max-h-[300px] overflow-y-auto">
+          {loading ? (
+            <div className="flex items-center justify-center p-8">
+              <div className="text-xs text-muted-foreground">
+                Loading notifications...
+              </div>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-8 text-center">
+              <Bell className="h-8 w-8 text-muted-foreground mb-2" />
+              <div className="text-xs text-muted-foreground">
+                No notifications yet
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-1">
+              {notifications.map((notification, index) => (
+                <div key={notification.id}>
+                  <DropdownMenuItem
+                    className={cn(
+                      "flex items-start gap-3 p-3 cursor-pointer text-xs py-2",
+                      !notification.isRead && "bg-accent/20"
+                    )}
+                    onClick={() => handleMarkAsRead(notification.id)}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">
+                      {getNotificationIcon(notification.type)}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs font-medium truncate">
+                          {notification.title}
+                        </p>
+                        {!notification.isRead && (
+                          <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0" />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+                        {notification.message}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        {formatDistanceToNow(new Date(notification.createdAt), {
+                          addSuffix: true,
+                        })}
+                      </p>
+                    </div>
+                  </DropdownMenuItem>
+                  {index < notifications.length - 1 && (
+                    <DropdownMenuSeparator />
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        {notifications.length > 0 && (
+          <>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem className="text-xs py-2 cursor-pointer justify-center">
+              <Button variant="ghost" size="sm" className="text-xs">
+                View all notifications
+              </Button>
+            </DropdownMenuItem>
+          </>
+        )}
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

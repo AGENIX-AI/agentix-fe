@@ -1,4 +1,4 @@
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import "./ChatBox.css";
@@ -6,6 +6,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils/cn";
 import { useStudent } from "@/contexts/StudentContext";
 import { TypingIndicator } from "./TypingIndicator";
+import { getConversationById } from "@/api/conversations";
+import type { Conversation } from "@/services/conversation";
 
 export interface ChatBoxProps {
   messages?: Array<{
@@ -47,7 +49,17 @@ export function ChatBox({
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
-  const { isChatLoading } = useStudent();
+  const { isChatLoading, conversationId } = useStudent();
+  const [conversation, setConversation] = useState<Conversation | null>(null);
+
+  // Fetch conversation data
+  useEffect(() => {
+    if (conversationId) {
+      getConversationById(conversationId).then((res) => {
+        setConversation(res);
+      });
+    }
+  }, [conversationId]);
 
   // Scroll to bottom whenever messages change
   useEffect(() => {
@@ -57,6 +69,13 @@ export function ChatBox({
         messagesContainerRef.current.scrollHeight;
     }
   }, [messages]);
+
+  const handleArchiveComplete = () => {
+    // Update conversation state to reflect archived status
+    if (conversation) {
+      setConversation({ ...conversation, type: "Archived" });
+    }
+  };
 
   const placeholder = isAgentResponding
     ? "Agent is typing..."
@@ -132,6 +151,8 @@ export function ChatBox({
         disabled={disabled}
         textareaRef={inputRef}
         className="px-6 py-3"
+        conversation={conversation}
+        onArchiveComplete={handleArchiveComplete}
       />
     </div>
   );

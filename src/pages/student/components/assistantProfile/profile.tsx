@@ -67,7 +67,7 @@ export function AssistantProfile() {
       case "mentor":
         return "Mentoring Topics";
       case "tutorial":
-        return "Tutoring Topics";
+        return "Private Topics";
       case "archived":
         return "Archived Topics";
       default:
@@ -140,8 +140,8 @@ export function AssistantProfile() {
               <TableHeader>
                 <TableRow className="text-xs">
                   <TableHead className="w-8"></TableHead>
-                  <TableHead>Category</TableHead>
-                  <TableHead>Count</TableHead>
+                  <TableHead className="w-full">Category</TableHead>
+                  <TableHead className="w-16 text-right">Count</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -153,19 +153,19 @@ export function AssistantProfile() {
                         className="cursor-pointer hover:bg-muted/50"
                         onClick={() => toggleCategory(category)}
                       >
-                        <TableCell>
+                        <TableCell className="w-8">
                           {expandedCategories[category] ? (
                             <ChevronDown className="h-4 w-4" />
                           ) : (
                             <ChevronRight className="h-4 w-4" />
                           )}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-full">
                           <ExtraSmall className="font-medium">
                             {getCategoryTitle(category)}
                           </ExtraSmall>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="w-16 text-right">
                           <ExtraSmall>{conversations.length}</ExtraSmall>
                         </TableCell>
                       </TableRow>
@@ -176,8 +176,8 @@ export function AssistantProfile() {
                             className="cursor-pointer hover:bg-muted/20 bg-muted/10"
                             onClick={() => handleConversationClick(conv)}
                           >
-                            <TableCell></TableCell>
-                            <TableCell className=" max-w-0 w-full">
+                            <TableCell className="w-8"></TableCell>
+                            <TableCell className="w-full">
                               <div className="flex flex-col space-y-1">
                                 <ExtraSmall className="break-words whitespace-normal">
                                   {conv.conversation_name}
@@ -194,7 +194,7 @@ export function AssistantProfile() {
                                   )}
                               </div>
                             </TableCell>
-                            <TableCell></TableCell>
+                            <TableCell className="w-16 text-right"></TableCell>
                           </TableRow>
                         ))}
                     </>

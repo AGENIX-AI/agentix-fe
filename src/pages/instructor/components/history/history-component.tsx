@@ -142,6 +142,23 @@ export function HistoryComponent({
     }
   };
 
+  // Handle collaborative conversation click
+  const handleCollaborativeClick = (
+    conversation: InstructorSharedConversationItem
+  ) => {
+    if (isChatLoading || !conversation.conversation_info) return;
+
+    setIsChatLoading(true);
+
+    try {
+      setConversationId(conversation.conversation_info.id);
+      setAssistantId(conversation.conversation_info.assistants?.id);
+      setRightPanel("assistantTopics");
+    } finally {
+      setIsChatLoading(false);
+    }
+  };
+
   // Collapsed state - show avatars and expand button
   if (!isHistoryVisible) {
     return (
@@ -232,12 +249,25 @@ export function HistoryComponent({
                           "justify-center"
                         )}
                         title={conversation.student_info.name}
+                        onClick={() => handleCollaborativeClick(conversation)}
                       >
-                        <Avatar className="overflow-hidden h-5 w-5">
-                          <AvatarImage
-                            src={conversation.student_info.avatar_url}
-                          />
-                        </Avatar>
+                        <div className="relative flex items-center justify-center h-8 w-8">
+                          <Avatar className="h-5 w-5 absolute left-0 bottom-0 cursor-pointer border border-accent overflow-hidden">
+                            <AvatarImage
+                              src={conversation.student_info.avatar_url}
+                              alt={conversation.student_info.name}
+                            />
+                          </Avatar>
+                          <Avatar className="h-5 w-5 absolute right-0 top-0 cursor-pointer border border-accent overflow-hidden">
+                            <AvatarImage
+                              src={
+                                conversation.conversation_info?.assistants
+                                  ?.image || ""
+                              }
+                              alt="Assistant"
+                            />
+                          </Avatar>
+                        </div>
                       </button>
                     </li>
                   ))}

@@ -29,6 +29,7 @@ import type {
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import type { SystemAssistantResponse } from "@/api/conversations";
+import { Separator } from "@/components/ui/separator";
 
 interface HistoryComponentProps {
   className?: string;
@@ -227,7 +228,7 @@ export function HistoryComponent({
                             className={cn(
                               "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
                               "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                              "justify-center"
+                              "justify-center my-1"
                             )}
                             onClick={() => handleAvatarClick(conversation)}
                           >
@@ -251,18 +252,7 @@ export function HistoryComponent({
                   </div>
 
                   {/* Separator between sections */}
-                  {(tutoringConversations.length > 0 ||
-                    sharedConversations.length > 0) && (
-                    <div className="flex justify-center">
-                      <div
-                        className={cn(
-                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                          "justify-center"
-                        )}
-                      ></div>
-                    </div>
-                  )}
+                  <Separator />
 
                   {/* Tutoring conversations */}
                   <CollapsedTutoringView
@@ -270,20 +260,7 @@ export function HistoryComponent({
                     assistantId={assistantId}
                     handleTutoringClick={handleTutoringClick}
                   />
-
-                  {/* Separator between tutoring and collaborative */}
-                  {tutoringConversations.length > 0 &&
-                    sharedConversations.length > 0 && (
-                      <div className="flex justify-center">
-                        <div
-                          className={cn(
-                            "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                            "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                            "justify-center"
-                          )}
-                        ></div>
-                      </div>
-                    )}
+                  <Separator />
 
                   {/* Collaborative chats */}
                   <CollapsedCollaborativeView
@@ -303,7 +280,7 @@ export function HistoryComponent({
 
   // Expanded state - show full history component
   return (
-    <div className={cn(className, "border-r border-border")}>
+    <div className={cn(className, "")}>
       <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] pt-3 pb-2 mt-[2px]">
         <div className="flex flex-col h-full bg-background">
           {/* Header */}
@@ -387,7 +364,7 @@ export function HistoryComponent({
                     ) : (
                       <ChevronRight className="h-4 w-4 text-muted-foreground" />
                     )}
-                    <span className="font-medium text-xs">Tutoring Topics</span>
+                    <span className="font-medium text-xs">Private Topics</span>
                   </div>
                 </div>
 

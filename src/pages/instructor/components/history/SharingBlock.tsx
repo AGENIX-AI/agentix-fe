@@ -18,7 +18,8 @@ function SharingBlockComponent({
     InstructorSharedConversationItem[]
   >(sharingData || []);
   const [isLoading, setIsLoading] = useState(!sharingData);
-  const { setRightPanel, setConversationId } = useInstructor();
+  const { setRightPanel, setConversationId, setAssistantId, conversationId } =
+    useInstructor();
 
   // Update local state when prop changes
   useEffect(() => {
@@ -69,15 +70,8 @@ function SharingBlockComponent({
   const handleSharingClick = (
     conversation: InstructorSharedConversationItem
   ) => {
-    // console.log("Clicked on shared conversation:", conversation);
-    // setMetaData({
-    //   ...metaData,
-    //   student_id: conversation.student_info.id,
-    //   conversation_id: conversation.conversation_info?.id,
-    //   sharing_id: conversation.id,
-    // });
-    // setRightPanel("sharing_topics");
     setConversationId(conversation.conversation_info?.id || null);
+    setAssistantId(conversation.conversation_info?.assistants?.id || null);
     setRightPanel("tasks");
   };
 
@@ -108,7 +102,11 @@ function SharingBlockComponent({
           (conversation: InstructorSharedConversationItem) => (
             <li key={conversation.id}>
               <div
-                className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl`}
+                className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl ${
+                  conversationId === conversation.conversation_info?.id
+                    ? "bg-accent"
+                    : "hover:bg-accent/30"
+                }`}
                 onClick={() => handleSharingClick(conversation)}
               >
                 <div className="flex -space-x-2 ml-1">

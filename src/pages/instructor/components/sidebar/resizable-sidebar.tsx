@@ -30,8 +30,6 @@ export function ResizableSidebar({
 }: ResizableSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(true);
-  // For notification center
-  const [notificationsOpen, setNotificationsOpen] = useState<boolean>(false);
 
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
@@ -43,7 +41,7 @@ export function ResizableSidebar({
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
   const { setRightPanel } = useInstructor();
-  const { } = useAuth();
+  const {} = useAuth();
   // Poll credits every 5 seconds
   const { credits, error: creditsError } = useCreditsPolling(5000);
 
@@ -359,7 +357,7 @@ export function ResizableSidebar({
                             if (navItem.title === "Knowledge Components") {
                               setRightPanel("topicKnowledge");
                             }
-                            if (navItem.title === "Toggle") {
+                            if (navItem.title === "Navigation") {
                               setIsCollapsed(!isCollapsed);
                             }
                           }}
@@ -399,23 +397,12 @@ export function ResizableSidebar({
           {/* Notification Center */}
           <div
             className={cn(
-              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground cursor-pointer",
+              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200",
               isCollapsed && "justify-center px-2"
             )}
             title={isCollapsed ? "Notifications" : undefined}
-            style={{ zIndex: 9999 }}
-            onClick={() => setNotificationsOpen(!notificationsOpen)}
           >
-            <div className="relative">
-              <NotificationCenter
-                position={{
-                  bottom: "120px",
-                  left: isCollapsed ? "70px" : `${width + 10}px`,
-                }}
-                onToggle={() => setNotificationsOpen(!notificationsOpen)}
-                isOpen={notificationsOpen}
-              />
-            </div>
+            <NotificationCenter />
             {!isCollapsed && (
               <span className="ml-2 flex-1 truncate text-left">
                 Notifications

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { useEffect, useState, type JSX } from "react";
+import { useState, type JSX } from "react";
 import {
   CreateTopicForm,
   type CreateTopicFormData,
@@ -17,12 +17,12 @@ import {
 import { useStudent } from "@/contexts/StudentContext";
 import {
   generateTutoringDiscuss,
-  getConversationById,
   shareConversationWithInstructor,
+  sendAchievement,
 } from "@/api/conversations";
 import { useChatContext } from "@/contexts/ChatContext";
 import { cn } from "@/lib/utils";
-import { Sparkles, MessageSquare, Share2 } from "lucide-react";
+import { Sparkles, MessageSquare, Share2, Archive } from "lucide-react";
 import { toast } from "sonner";
 import type { Conversation } from "@/services/conversation";
 
@@ -42,6 +42,7 @@ export interface TaskFormProps {
 export interface TaskMenuProps {
   onClose: () => void;
   onSelectTask: (taskId: string, taskTitle: string) => void;
+  conversation?: Conversation | null;
 }
 
 interface TaskData {
@@ -53,18 +54,9 @@ interface TaskData {
 // Define tasks variable that will be set conditionally
 let tasks: TaskData[];
 
-export function TaskMenu({ onSelectTask }: TaskMenuProps) {
+export function TaskMenu({ onSelectTask, conversation }: TaskMenuProps) {
   const { t } = useTranslation();
-  const { assistantInfo, conversationId } = useStudent();
-  const [conversation, setConversation] = useState<Conversation | null>(null);
-
-  useEffect(() => {
-    if (conversationId) {
-      getConversationById(conversationId).then((res) => {
-        setConversation(res);
-      });
-    }
-  }, [conversationId]);
+  const { assistantInfo } = useStudent();
 
   if (assistantInfo?.role === "system") {
     tasks = [
@@ -97,6 +89,19 @@ export function TaskMenu({ onSelectTask }: TaskMenuProps) {
               icon: (
                 <div className="w-4 h-4 flex items-center justify-center rounded">
                   <Share2 className="h-4 w-4 text-secondary" />
+                </div>
+              ),
+            },
+          ]
+        : []),
+      ...(conversation && conversation?.type === "Tutoring"
+        ? [
+            {
+              id: "archived",
+              title: "archived",
+              icon: (
+                <div className="w-4 h-4 flex items-center justify-center rounded">
+                  <Archive className="h-4 w-4 text-secondary" />
                 </div>
               ),
             },
@@ -166,9 +171,17 @@ export interface ChatTasksProps {
   onClose: () => void;
   taskId?: string;
   taskTitle?: string;
+  conversation?: Conversation | null;
+  onArchiveComplete?: () => void;
 }
 
-export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
+export function ChatTasks({
+  onClose,
+  taskId,
+  taskTitle,
+  conversation,
+  onArchiveComplete,
+}: ChatTasksProps) {
   const { t } = useTranslation();
   const { conversationId, assistantId } = useStudent();
   const { handleNewMessage } = useChatContext();
@@ -180,6 +193,7 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
   );
   const [isModalOpen, setIsModalOpen] = useState<boolean>(!!taskId);
   const [isSharing, setIsSharing] = useState(false);
+  const [isArchiving, setIsArchiving] = useState(false);
 
   const handleSelectTask = (id: string) => {
     setSelectedTaskTitle(t(`chat.tasks.${id.replace("-", "_")}`));
@@ -282,20 +296,69 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
     }
   };
 
+  const handleArchiveConversation = async () => {
+    if (!conversationId) {
+      toast.error(
+        t(
+          "chat.tasks.error_no_conversation",
+          "No active conversation to archive"
+        )
+      );
+      return;
+    }
+
+    try {
+      setIsArchiving(true);
+      await sendAchievement(conversationId);
+
+      // Show success toast with translated message
+      toast.success(
+        t("chat.tasks.archive_success", "Achievement sent successfully")
+      );
+
+      // Call the archive complete callback to update conversation state
+      if (onArchiveComplete) {
+        onArchiveComplete();
+      }
+
+      handleCloseModal();
+    } catch (error) {
+      console.error("Error sending achievement:", error);
+      const errorMessage =
+        error instanceof Error ? error.message : "Failed to send achievement";
+
+      toast.error(
+        t(
+          "chat.tasks.error_archive_generic",
+          "Failed to send achievement: {error}",
+          { error: errorMessage }
+        )
+      );
+    } finally {
+      setIsArchiving(false);
+    }
+  };
+
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setIsSharing(false);
+    setIsArchiving(false);
     if (!taskId) {
       setSelectedTaskId(undefined);
       setSelectedTaskTitle(undefined);
     }
+    onClose(); // Also call the parent's onClose to disable ChatInput after archiving
   };
 
   return (
     <>
       {/* <Toaster position="top-center" /> */}
       {!selectedTaskId ? (
-        <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />
+        <TaskMenu
+          onClose={onClose}
+          onSelectTask={handleSelectTask}
+          conversation={conversation}
+        />
       ) : (
         <>
           {selectedTaskId === "create-topic" && (
@@ -361,9 +424,51 @@ export function ChatTasks({ onClose, taskId, taskTitle }: ChatTasksProps) {
             </Dialog>
           )}
 
-          {!["create-topic", "feedback", "share-with-instructor"].includes(
-            selectedTaskId
-          ) && <TaskMenu onClose={onClose} onSelectTask={handleSelectTask} />}
+          {selectedTaskId === "archived" && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+              <DialogContent className="sm:max-w-[500px]">
+                <DialogHeader>
+                  <DialogTitle>{selectedTaskTitle}</DialogTitle>
+                </DialogHeader>
+
+                <div className="py-4 space-y-4">
+                  <div className="text-sm text-muted-foreground mb-4">
+                    {t(
+                      "chat.tasks.archive_description",
+                      "Send achievement notification for this tutoring conversation. This will notify your instructor about your learning progress."
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-2 mt-4">
+                    <Button variant="outline" onClick={handleCloseModal}>
+                      {t("common.cancel", "Cancel")}
+                    </Button>
+                    <Button
+                      onClick={handleArchiveConversation}
+                      disabled={isArchiving}
+                    >
+                      {isArchiving
+                        ? t("common.sending", "Sending...")
+                        : t("common.send", "Send")}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          )}
+
+          {![
+            "create-topic",
+            "feedback",
+            "share-with-instructor",
+            "archived",
+          ].includes(selectedTaskId) && (
+            <TaskMenu
+              onClose={onClose}
+              onSelectTask={handleSelectTask}
+              conversation={conversation}
+            />
+          )}
         </>
       )}
     </>

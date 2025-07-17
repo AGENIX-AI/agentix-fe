@@ -2,9 +2,11 @@ import {
   type MessageCard,
   isTopicMessageCard,
   isTutoringTopicMessageCard,
+  isSummaryMessageCard,
 } from "./types";
 import { TopicCard } from "./TopicCard";
 import { TutoringTopicCard } from "./TutoringTopicCard";
+import { SummaryCard } from "./SummaryCard";
 import { Small } from "@/components/ui/typography";
 import { useChatContext } from "@/contexts/ChatContext";
 
@@ -32,6 +34,8 @@ export function MessageCardRenderer({
         invocation_id={invocation_id || ""}
       />
     );
+  } else if (isSummaryMessageCard(card)) {
+    return <SummaryCard card={card} className={className} />;
   }
 
   // Default case - unknown card type

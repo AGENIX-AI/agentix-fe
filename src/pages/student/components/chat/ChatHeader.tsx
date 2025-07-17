@@ -18,7 +18,7 @@ export function ChatHeader({
 
   return (
     <div className="">
-      <div className="flex items-center justify-start h-full py-3 px-4">
+      <div className="flex items-center justify-start h-full py-3 px-4 ">
         <div className="relative w-full flex items-center gap-2 pl-2">
           <Avatar className="h-8 w-8 overflow-hidden flex-shrink-0">
             <AvatarImage src={agentImage} alt={agentName} />

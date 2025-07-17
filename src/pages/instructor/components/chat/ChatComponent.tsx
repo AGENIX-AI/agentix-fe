@@ -5,7 +5,6 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ChatBox } from "./ChatBox";
 import { Small, Muted } from "@/components/ui/typography";
 import { useInstructor } from "@/contexts/InstructorContext";
-
 import { eventBus } from "@/lib/utils/event/eventBus";
 import {
   getConversationHistory,
@@ -16,7 +15,7 @@ import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/InstructorChatContext";
 import { sendInstructorMessage } from "@/api/instructor";
 import * as Sentry from "@sentry/react";
-import Cookies from "js-cookie";
+import { Separator } from "@/components/ui/separator";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -86,12 +85,13 @@ interface Message {
   invocation_id?: string;
 }
 
-// WebSocket message interface
-interface WebSocketMessage {
-  content: string;
-  invocation_id: string;
-  sender: "student" | "agent";
+// WebSocket event interface
+interface WebSocketEvent {
+  user_id: string;
   conversation_id: string;
+  content: string;
+  sender: string;
+  invocation_id?: string;
   timestamp: string;
 }
 
@@ -115,154 +115,83 @@ export function ChatComponent() {
     assistantInfo?: AssistantInfo;
   }>({});
   const inputRef = useRef<HTMLTextAreaElement>(null);
-  const wsRef = useRef<WebSocket | null>(null);
+  const processedMessageIds = useRef<Set<string>>(new Set()); // Track processed message IDs
 
   console.log(isUploadingFile);
 
-  // WebSocket connection effect
+  // Event listener for WebSocket messages from left-panel
   useEffect(() => {
-    const connectWebSocket = () => {
-      if (!conversationId) return;
-
-      // Disconnect existing WebSocket if any
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
+    const handleWebSocketMessage = (event: WebSocketEvent) => {
+      console.log("handleWebSocketMessage", event);
+      // Only handle messages for the current conversation
+      if (!conversationId || event.conversation_id !== conversationId) {
+        return;
       }
 
-      try {
-        const baseUrl = import.meta.env.VITE_API_URL || "http://localhost:8002";
-        // Convert HTTP URL to WebSocket URL (HTTP -> WS, HTTPS -> WSS)
-        const wsUrl = baseUrl
-          .replace(/^https:\/\//, "wss://")
-          .replace(/^http:\/\//, "ws://");
-        
-        // Get access token from cookies
-        const accessToken = Cookies.get("edvara_access_token");
-        if (!accessToken) {
-          console.error("No access token found in cookies");
-          return;
+      // Create a unique key for message deduplication
+      const messageKey =
+        event.invocation_id ||
+        `${event.sender}-${event.content}-${event.timestamp}`;
+
+      // Skip messages that have already been processed (deduplication)
+      if (processedMessageIds.current.has(messageKey)) {
+        console.log("Message already processed, skipping:", messageKey);
+        return;
+      }
+
+      console.log(
+        "Handling WebSocket message for current conversation:",
+        event
+      );
+
+      // Only render messages from student or agent
+      if (event.sender === "student" || event.sender === "agent") {
+        // Add message key to processed set
+        processedMessageIds.current.add(messageKey);
+
+        // Limit the size of processed message IDs to prevent memory leaks
+        if (processedMessageIds.current.size > 1000) {
+          console.log(
+            "Clearing old processed message IDs to prevent memory leaks"
+          );
+          processedMessageIds.current.clear();
         }
 
-        console.log("Access token found:", accessToken ? "yes" : "no");
-        console.log("Token length:", accessToken?.length);
+        // Convert timestamp to Unix timestamp
+        const timestamp = new Date(event.timestamp).getTime() / 1000;
 
-        // Construct WebSocket URL with token parameter
-        const websocketUrl = `${wsUrl}/conversations/ws/${conversationId}?token=${encodeURIComponent(accessToken)}`;
-        console.log("Attempting WebSocket connection to:", websocketUrl.replace(accessToken, "***TOKEN***"));
-
-        // Create WebSocket with token in query parameter
-        const ws = new WebSocket(websocketUrl);
-        wsRef.current = ws;
-
-        ws.onopen = () => {
-          console.log("WebSocket connected successfully to:", websocketUrl.replace(accessToken, "***TOKEN***"));
-          // Send a ping to test the connection
-          ws.send("ping");
+        const newMessage: Message = {
+          sender: event.sender,
+          content: event.content,
+          time: Math.floor(timestamp),
+          invocation_id: event.invocation_id,
         };
 
-        ws.onmessage = (event) => {
-          try {
-            // Handle pong response
-            if (event.data === "pong") {
-              console.log("WebSocket ping-pong successful");
-              return;
-            }
+        setMessages((prevMessages) => [...prevMessages, newMessage]);
 
-            const wsMessage: WebSocketMessage = JSON.parse(event.data);
-            console.log("Received WebSocket message:", wsMessage);
-
-            // Only render messages from student or agent
-            if (
-              wsMessage.sender === "student" ||
-              wsMessage.sender === "agent"
-            ) {
-              // Convert timestamp to Unix timestamp
-              const timestamp = new Date(wsMessage.timestamp).getTime() / 1000;
-
-              const newMessage: Message = {
-                sender: wsMessage.sender,
-                content: wsMessage.content,
-                time: Math.floor(timestamp),
-                invocation_id: wsMessage.invocation_id,
-              };
-
-              setMessages((prevMessages) => [...prevMessages, newMessage]);
-
-              // Emit event to update history
-              eventBus.emit("conversation-update", {
-                assistantId: assistantId,
-                conversationId: conversationId,
-                lastMessage: {
-                  content: wsMessage.content,
-                  time: wsMessage.timestamp,
-                  sender: wsMessage.sender,
-                },
-              });
-
-              // If it was an agent response, stop the typing indicator
-              if (wsMessage.sender === "agent") {
-                setIsAgentResponding(false);
-              }
-            }
-          } catch (error) {
-            console.error("Error parsing WebSocket message:", error);
-          }
-        };
-
-        ws.onclose = (event) => {
-          console.log("WebSocket closed with code:", event.code, "reason:", event.reason);
-          
-          // Handle specific error codes
-          if (event.code === 1008) {
-            console.error("WebSocket authentication failed - token may be invalid or expired");
-          } else if (event.code === 1011) {
-            console.error("WebSocket internal server error");
-          }
-          
-          wsRef.current = null;
-
-          // Attempt to reconnect after a delay if it wasn't a manual close
-          if (event.code !== 1000 && conversationId) {
-            console.log("Attempting to reconnect WebSocket in 5 seconds...");
-            setTimeout(() => {
-              connectWebSocket();
-            }, 5000);
-          }
-        };
-
-        ws.onerror = (error) => {
-          console.error("WebSocket error:", error);
-          wsRef.current = null;
-        };
-
-        // Set a timeout to handle connection issues
-        const connectionTimeout = setTimeout(() => {
-          if (ws.readyState === WebSocket.CONNECTING) {
-            console.error("WebSocket connection timeout");
-            ws.close();
-          }
-        }, 10000); // 10 second timeout
-
-        // Clear timeout when connection opens
-        ws.addEventListener('open', () => {
-          clearTimeout(connectionTimeout);
+        // Emit event to update history
+        eventBus.emit("conversation-update", {
+          assistantId: assistantId,
+          conversationId: conversationId,
+          lastMessage: {
+            content: event.content,
+            time: event.timestamp,
+            sender: event.sender,
+          },
         });
 
-      } catch (error) {
-        console.error("Error creating WebSocket connection:", error);
+        // If it was an agent response, stop the typing indicator
+        if (event.sender === "agent") {
+          setIsAgentResponding(false);
+        }
       }
     };
 
-    connectWebSocket();
+    // Add event listener and get cleanup function
+    const cleanup = eventBus.on("websocket-message", handleWebSocketMessage);
 
-    // Cleanup function
-    return () => {
-      if (wsRef.current) {
-        wsRef.current.close();
-        wsRef.current = null;
-      }
-    };
+    // Return cleanup function
+    return cleanup;
   }, [conversationId, assistantId]);
 
   // Add effect to focus input when isAgentResponding changes from true to false
@@ -303,6 +232,8 @@ export function ChatComponent() {
   };
   useEffect(() => {
     if (conversationId) {
+      // Clear processed message IDs when conversation changes
+      processedMessageIds.current.clear();
       fetchMessages();
     }
   }, [conversationId]);
@@ -591,7 +522,10 @@ export function ChatComponent() {
           agentName={assistantInfo?.name}
           tagline={assistantInfo?.tagline}
           agentImage={assistantInfo?.image}
-        />
+        />{" "}
+        <div className="flex items-center justify-between px-4">
+          <Separator />
+        </div>
         <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] chat-messages-container">
           <ChatBox
             messages={messages}

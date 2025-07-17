@@ -25,17 +25,21 @@ function CollapsedCollaborativeViewComponent({
 
   return (
     <div>
-      <ul className="flex flex-col items-center space-y-2">
+      <ul className="">
         {conversations.map((conversation) => (
           <li key={conversation.id}>
             <button
-              className="p-0"
+              className={cn(
+                "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                "justify-center my-1"
+              )}
               onClick={() => handleCollaborativeClick(conversation)}
             >
               <div className="relative flex items-center justify-center h-8 w-8">
                 <Avatar
                   className={cn(
-                    "h-6 w-6 absolute left-0 bottom-0 cursor-pointer border overflow-hidden",
+                    "h-5 w-5 absolute left-0 bottom-0 cursor-pointer border overflow-hidden",
                     conversationId === conversation.id
                       ? "border-primary"
                       : "border-accent"
@@ -48,7 +52,7 @@ function CollapsedCollaborativeViewComponent({
                 </Avatar>
                 <Avatar
                   className={cn(
-                    "h-6 w-6 absolute right-0 top-0 cursor-pointer border overflow-hidden",
+                    "h-5 w-5 absolute right-0 top-0 cursor-pointer border overflow-hidden",
                     conversationId === conversation.id
                       ? "border-primary"
                       : "border-accent"

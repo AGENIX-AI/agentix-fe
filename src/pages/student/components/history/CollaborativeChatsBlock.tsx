@@ -51,7 +51,7 @@ function CollaborativeChatsBlockComponent({
           <li key={conversation.id}>
             <div
               className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl ${
-                conversationId === conversation.id
+                conversationId === conversation.conversation_info.id
                   ? "bg-accent"
                   : "hover:bg-accent/30"
               }`}
@@ -62,21 +62,22 @@ function CollaborativeChatsBlockComponent({
             >
               <div className="flex -space-x-2 ml-1">
                 <Avatar className="h-5 w-5 border-2 border-background">
-                  <AvatarImage 
-                    src={conversation.instructor_info?.avatar_url || ""} 
+                  <AvatarImage
+                    src={conversation.instructor_info?.avatar_url || ""}
                     alt={conversation.instructor_info?.name}
                   />
                 </Avatar>
                 <Avatar className="h-5 w-5 border-2 border-background">
-                  <AvatarImage 
-                    src={conversation.conversation_info.assistants?.image || ""} 
+                  <AvatarImage
+                    src={conversation.conversation_info.assistants?.image || ""}
                     alt={conversation.conversation_info.assistants?.name}
                   />
                 </Avatar>
               </div>
               <div className="flex-1 overflow-hidden">
                 <p className="text-xs truncate">
-                  {conversation.conversation_info.conversation_name || "Collaborative Chat"}
+                  {conversation.conversation_info.conversation_name ||
+                    "Collaborative Chat"}
                 </p>
               </div>
             </div>

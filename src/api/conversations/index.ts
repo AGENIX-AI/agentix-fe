@@ -780,28 +780,33 @@ export const getListSharing = async (): Promise<SharingListResponse> => {
  * Get instructor shared conversations
  * @returns List of shared conversations from students
  */
-export const getInstructorSharedConversations = async (): Promise<InstructorSharedConversationsResponse> => {
-  const baseUrl = import.meta.env.VITE_API_URL || "";
-  const headers = getAuthHeaders();
+export const getInstructorSharedConversations =
+  async (): Promise<InstructorSharedConversationsResponse> => {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
 
-  const response = await fetch(
-    `${baseUrl}/conversations/instructor/get_sharing`,
-    {
-      method: "GET",
-      credentials: "include",
-      headers,
-    }
-  );
-
-  if (!response.ok) {
-    Sentry.captureException(
-      new Error(`Failed to fetch instructor shared conversations: ${response.statusText}`)
+    const response = await fetch(
+      `${baseUrl}/conversations/instructor/get_sharing`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
     );
-    throw new Error(`Failed to fetch instructor shared conversations: ${response.statusText}`);
-  }
 
-  return await response.json();
-};
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(
+          `Failed to fetch instructor shared conversations: ${response.statusText}`
+        )
+      );
+      throw new Error(
+        `Failed to fetch instructor shared conversations: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  };
 
 /**
  * Types for student sharing topics functionality
@@ -1001,3 +1006,38 @@ export const getStudentSharedConversations =
 
     return await response.json();
   };
+
+/**
+ * Send achievement for a tutoring conversation
+ * @param conversationId - The ID of the conversation to send achievement for
+ * @returns Response with success status and message
+ */
+export interface SendAchievementResponse {
+  success: boolean;
+  message: string;
+}
+
+export const sendAchievement = async (
+  conversationId: string
+): Promise<SendAchievementResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/conversations/student/achievement/${conversationId}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to send achievement: ${response.statusText}`)
+    );
+    throw new Error(`Failed to send achievement: ${response.statusText}`);
+  }
+
+  return await response.json();
+};

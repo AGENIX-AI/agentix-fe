@@ -9,6 +9,7 @@ import { useTranslation } from "react-i18next";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useStudent } from "@/contexts/StudentContext";
 import { useDebouncedLocalStorage } from "@/hooks/useDebouncedLocalStorage";
+import type { Conversation } from "@/services/conversation";
 
 interface ChatInputProps {
   onSendMessageWithImage?: (message: string, imageData: string) => void;
@@ -18,6 +19,8 @@ interface ChatInputProps {
   allowImagePaste?: boolean;
   textareaRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
   className?: string;
+  conversation?: Conversation | null;
+  onArchiveComplete?: () => void;
 }
 
 export function ChatInput({
@@ -28,6 +31,8 @@ export function ChatInput({
   allowImagePaste = true,
   textareaRef,
   className,
+  conversation,
+  onArchiveComplete,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const [pastedImage, setPastedImage] = useState<string | null>(null);
@@ -38,6 +43,9 @@ export function ChatInput({
   const localTextareaRef = useRef<HTMLTextAreaElement>(null);
   const { handleSendMessage } = useChatContext();
   const { isChatLoading, assistantInfo } = useStudent();
+
+  // Check if conversation is archived
+  const isArchived = conversation?.type === "Archived";
 
   // Generate a storage key based on conversation ID
   const storageKey = `chat-input`;
@@ -53,6 +61,7 @@ export function ChatInput({
     e.preventDefault();
 
     if (!input.trim() && !pastedImage && !pastedImageBlob) return;
+    if (isArchived) return; // Prevent submission if archived
 
     if (pastedImageBlob && onFileUpload) {
       // If we have a blob and onFileUpload handler, use that
@@ -79,7 +88,7 @@ export function ChatInput({
   };
 
   const handlePaste = (e: ClipboardEvent<HTMLTextAreaElement>) => {
-    if (!allowImagePaste) return;
+    if (!allowImagePaste || isArchived) return;
 
     const items = e.clipboardData?.items;
     if (!items) return;
@@ -109,7 +118,13 @@ export function ChatInput({
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!onFileUpload || !e.target.files || e.target.files.length === 0) return;
+    if (
+      !onFileUpload ||
+      !e.target.files ||
+      e.target.files.length === 0 ||
+      isArchived
+    )
+      return;
 
     const file = e.target.files[0];
     onFileUpload(file, input);
@@ -126,6 +141,8 @@ export function ChatInput({
   };
 
   const handleTaskClick = () => {
+    if (isArchived) return; // Prevent task menu if archived
+
     if (showTaskForm) {
       setShowTaskForm(false);
     } else if (showTaskMenu) {
@@ -141,6 +158,14 @@ export function ChatInput({
     setShowTaskForm(true);
   };
 
+  const handleTaskClose = () => {
+    setShowTaskForm(false);
+    setShowTaskMenu(false);
+  };
+
+  // Determine if input should be disabled
+  const inputDisabled = disabled || isArchived;
+
   return (
     <div className={className}>
       {pastedImage && (
@@ -151,14 +176,17 @@ export function ChatInput({
           <TaskMenu
             onClose={() => setShowTaskMenu(false)}
             onSelectTask={handleTaskSelect}
+            conversation={conversation}
           />
         )}
 
         {showTaskForm && (
           <ChatTasks
-            onClose={() => setShowTaskForm(false)}
+            onClose={handleTaskClose}
             taskId={selectedTask.split(",")[0]}
             taskTitle={selectedTask.split(",")[1]}
+            conversation={conversation}
+            onArchiveComplete={onArchiveComplete}
           />
         )}
 
@@ -168,12 +196,16 @@ export function ChatInput({
           className="hover:bg-transparent"
           type="button"
           onClick={handleTaskClick}
+          disabled={inputDisabled}
         >
           <ClipboardList className="size-4" />
         </Button>
 
         {onFileUpload && (
-          <ImageInput onFileChange={handleFileChange} disabled={disabled} />
+          <ImageInput
+            onFileChange={handleFileChange}
+            disabled={inputDisabled}
+          />
         )}
 
         <Textarea
@@ -181,7 +213,14 @@ export function ChatInput({
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onPaste={handlePaste}
-          placeholder={placeholder || t("chat.input.placeholder")}
+          placeholder={
+            isArchived
+              ? t(
+                  "chat.input.archived_placeholder",
+                  "This conversation is archived"
+                )
+              : placeholder || t("chat.input.placeholder")
+          }
           className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-foreground"
           rows={1}
           onKeyDown={(e) => {
@@ -190,7 +229,7 @@ export function ChatInput({
               handleSubmit(e);
             }
           }}
-          disabled={disabled}
+          disabled={inputDisabled}
         />
 
         <Button
@@ -201,7 +240,7 @@ export function ChatInput({
           onClick={handleSubmit}
           disabled={
             isChatLoading ||
-            disabled ||
+            inputDisabled ||
             (!input.trim() && !pastedImage && !pastedImageBlob)
           }
         >

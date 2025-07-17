@@ -38,7 +38,7 @@ function MessageContentComponent({
 
   // Process the remaining content (or all content if no card)
   let { cleanedContent } = processMessageContent(
-    remainingContent || cleanedOriginalContent
+    card ? remainingContent : cleanedOriginalContent
   );
 
   // Remove any margin classes from ul elements

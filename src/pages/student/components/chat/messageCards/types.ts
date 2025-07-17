@@ -48,12 +48,30 @@ export function isTutoringTopicMessageCard(
 }
 
 /**
+ * Summary message card interface
+ */
+export interface SummaryMessageCard extends BaseMessageCard {
+  type: "achired_summary";
+  content: string;
+}
+
+/**
+ * Type guard to check if a message card is a SummaryMessageCard
+ */
+export function isSummaryMessageCard(
+  card: BaseMessageCard
+): card is SummaryMessageCard {
+  return card.type === "achired_summary";
+}
+
+/**
  * Union type of all message card types
  * Add new message card types to this union as they are created
  */
 export type MessageCard =
   | TopicMessageCard
   | TutoringTopicMessageCard
+  | SummaryMessageCard
   | (BaseMessageCard & { type: string });
 
 /**
@@ -71,10 +89,46 @@ export function parseMessageCard(content: string): {
 
   // Extract the message card part
   const parts = content.split("MessageCard|");
-  // const beforeCard = parts[0];
   const cardAndAfter = parts[1];
 
-  // Split the remaining content by the first empty line after the card data
+  // For summary cards, handle multiline content differently
+  if (cardAndAfter.startsWith("type=achired_summary|content=")) {
+    // Find the end marker (====)
+    const endMarker = "====";
+    const endIndex = cardAndAfter.indexOf(endMarker);
+
+    if (endIndex === -1) {
+      // No end marker found, treat rest as card content
+      const contentStart = cardAndAfter.indexOf("content=") + "content=".length;
+      const cardContent = cardAndAfter.substring(contentStart);
+
+      return {
+        card: {
+          type: "achired_summary",
+          content: cardContent.trim(),
+        } as unknown as MessageCard,
+        remainingContent: "",
+      };
+    }
+
+    const cardContent = cardAndAfter.substring(0, endIndex).trim();
+    const contentStart = cardContent.indexOf("content=") + "content=".length;
+    const actualContent = cardContent.substring(contentStart);
+
+    const afterCard = cardAndAfter
+      .substring(endIndex + endMarker.length)
+      .trim();
+
+    return {
+      card: {
+        type: "achired_summary",
+        content: actualContent.trim(),
+      } as unknown as MessageCard,
+      remainingContent: afterCard,
+    };
+  }
+
+  // Original parsing logic for other card types
   const cardParts = cardAndAfter.split(/\n\s*\n/);
   const cardData = cardParts[0];
   const afterCard = cardParts.slice(1).join("\n\n");
