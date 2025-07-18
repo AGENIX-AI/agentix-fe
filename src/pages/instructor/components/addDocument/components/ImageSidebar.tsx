@@ -38,7 +38,7 @@ export default function ImageSidebar({
       style={{ width: "700px" }}
     >
       <div className="sticky top-0 z-20 bg-background flex items-center justify-between h-18 border-b w-full px-6 py-3">
-        <div className="flex items-center space-x-4">
+        <div className="flex items-center space-x-4 h-18">
           <h3 className="text-sm font-bold">Document Images</h3>
           {images.length > 0 && (
             <div className="flex items-center space-x-2">

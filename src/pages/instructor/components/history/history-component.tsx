@@ -173,14 +173,18 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 transition-all duration-300"
+                      className={`transition-all duration-300 border border-border ${className}`}
                       onClick={toggleHistory}
-                      aria-label="Expand history"
+                      aria-label={
+                        isHistoryVisible ? "Collapse history" : "Expand history"
+                      }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">Expand history</TooltipContent>
+                  <TooltipContent side="bottom">
+                    {isHistoryVisible ? "Collapse history" : "Expand history"}
+                  </TooltipContent>
                 </Tooltip>
               </div>
             </div>
@@ -282,7 +286,7 @@ export function HistoryComponent({
 
   // Expanded state - show full history component
   return (
-    <div className={cn(className, "border-r border-border ")}>
+    <div className={cn(className, "")}>
       <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] pt-3 pb-2 mt-[2px]">
         <div className="flex flex-col flex-grow min-h-0 w-full h-full">
           {/* Header */}
@@ -294,15 +298,17 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 transition-all duration-300"
+                      className={`transition-all duration-300 border border-border ${className}`}
                       onClick={toggleHistory}
-                      aria-label="Collapse history"
+                      aria-label={
+                        isHistoryVisible ? "Collapse history" : "Expand history"
+                      }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    Collapse history
+                    {isHistoryVisible ? "Collapse history" : "Expand history"}
                   </TooltipContent>
                 </Tooltip>
                 <Large>Chats</Large>

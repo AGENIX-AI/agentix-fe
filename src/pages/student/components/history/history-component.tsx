@@ -174,14 +174,18 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 transition-all duration-300"
+                      className={`transition-all duration-300 border border-border ${className}`}
                       onClick={toggleHistory}
-                      aria-label="Expand history"
+                      aria-label={
+                        isHistoryVisible ? "Collapse history" : "Expand history"
+                      }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent side="bottom">Expand history</TooltipContent>
+                  <TooltipContent side="bottom">
+                    {isHistoryVisible ? "Collapse history" : "Expand history"}
+                  </TooltipContent>
                 </Tooltip>
               </div>
             </div>
@@ -292,15 +296,17 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 transition-all duration-300"
+                      className={`transition-all duration-300 border border-border ${className}`}
                       onClick={toggleHistory}
-                      aria-label="Collapse history"
+                      aria-label={
+                        isHistoryVisible ? "Collapse history" : "Expand history"
+                      }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    Collapse history
+                    {isHistoryVisible ? "Collapse history" : "Expand history"}
                   </TooltipContent>
                 </Tooltip>
                 <Large>Chats</Large>
@@ -415,7 +421,7 @@ export function HistoryComponent({
                         searchQuery={searchQuery}
                       />
                     ) : (
-                      <div className="text-xs text-muted-foreground p-2">
+                      <div className="text-[10px] text-muted-foreground p-2">
                         No collaborative conversations found.
                       </div>
                     )}

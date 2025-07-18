@@ -12,6 +12,7 @@ import { ChatComponent } from "./chat/ChatComponent";
 import { useAuth } from "@/contexts/AuthContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import Cookies from "js-cookie";
+import { cn } from "@/lib/utils";
 
 // WebSocket message interface for user-based subscription
 interface WebSocketMessage {
@@ -206,7 +207,11 @@ class WebSocketManager {
 
 const wsManager = WebSocketManager.getInstance();
 
-export default function LeftPanel() {
+export default function LeftPanel({
+  isRightPanelCollapsed,
+}: {
+  isRightPanelCollapsed: boolean;
+}) {
   // Add local state for history visibility to prevent automatic expansion
   const [localHistoryVisible, setLocalHistoryVisible] = useState(true);
   const { user } = useAuth();
@@ -270,16 +275,21 @@ export default function LeftPanel() {
 
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
-      <header className="flex h-18 items-center justify-between border border-r-0 border-t-0 bg-background z-30 px-6">
+      <header className="flex h-18 items-center border border-r-0 border-t-0 bg-background z-30 px-6">
         {/* Left section - Logo */}
-        <div className="flex items-center cursor-pointer">
+        <div className="flex items-center cursor-pointer flex-shrink-0">
           <Logo className="w-30 h-15" />
         </div>
 
-        {/* Right section - Search + Navigation */}
-        <div className="flex items-center gap-6">
-          {/* Search */}
-          <div className="relative w-80 mr-6">
+        {/* Right section - Search + Navigation - Pushed to the right */}
+        <div className="flex items-center gap-6 ml-auto min-w-0">
+          {/* Search - Made flexible to resize with header */}
+          <div
+            className={cn(
+              "relative w-full",
+              isRightPanelCollapsed ? "w-[300px]" : "w-[200px]"
+            )}
+          >
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />
             <Input
               className="h-8 pl-8 w-full transition-all duration-300"
@@ -289,7 +299,7 @@ export default function LeftPanel() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex gap-6 text-sm font-semibold mr-3">
+          <nav className="flex gap-6 text-sm font-semibold flex-shrink-0">
             <Link to="#" className="text-[#007E85] hover:text-foreground/80">
               <Small>Student</Small>
             </Link>

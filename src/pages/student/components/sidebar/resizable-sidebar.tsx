@@ -2,7 +2,14 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 
 import { cn } from "@/lib/utils";
-import { ChevronDown, ChevronRight, Menu, X, Gem } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  X,
+  Gem,
+  AlignJustify,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/sidebar-data";
@@ -11,6 +18,12 @@ import { UserMenu } from "@/components/ui/user-menu";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
 import { NotificationCenter } from "@/components/custom/NotificationCenter";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { Large } from "@/components/ui/typography";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -262,9 +275,33 @@ export function ResizableSidebar({
       >
         {/* Navigation groups */}
         <div
-          className="p-2 overflow-y-auto no-scrollbar"
+          className="overflow-y-auto no-scrollbar p-2"
           style={{ maxHeight: "calc(100vh - 240px)" }}
         >
+          <div className={cn("flex items-center gap-2 pb-0 p-1.5")}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`transition-all duration-300 border border-border`}
+                  onClick={() => setIsCollapsed(!isCollapsed)}
+                  aria-label={
+                    isCollapsed ? "Expand sidebar" : "Collapse sidebar"
+                  }
+                >
+                  <AlignJustify className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                {isCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              </TooltipContent>
+            </Tooltip>
+            {!isCollapsed && (
+              <Large className="font-semibold">Navigation</Large>
+            )}
+          </div>
+
           {sidebarData.navGroups.map((navGroup, groupIndex) => (
             <div key={groupIndex} className="mb-4">
               <ul className="space-y-1 mt-1">
@@ -351,9 +388,6 @@ export function ResizableSidebar({
                             }
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
-                            }
-                            if (navItem.title === "Navigation") {
-                              setIsCollapsed(!isCollapsed);
                             }
                           }}
                         >

@@ -13,7 +13,9 @@ export function ImageInput({
   return (
     <label
       htmlFor="file-upload"
-      className="cursor-pointer p-2 text-gray-500 hover:text-gray-700"
+      className={`p-2 text-gray-500 hover:text-gray-700 ${
+        disabled ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+      }`}
     >
       <input
         id="file-upload"

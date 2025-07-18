@@ -94,7 +94,7 @@ export function ChatBox({
     >
       <div
         ref={messagesContainerRef}
-        className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-6"
+        className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-6 mt-3"
       >
         <div className="space-y-3">
           {messages.map((message, index) => {

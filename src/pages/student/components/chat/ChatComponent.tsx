@@ -501,7 +501,7 @@ export function ChatComponent() {
         <div className="flex items-center justify-between px-4">
           <Separator />
         </div>
-        <div className="flex flex-col rounded-lg border-none h-[calc(100%-3rem)] chat-messages-container">
+        <div className="flex flex-col rounded-lg h-[calc(100%-3rem)] chat-messages-container">
           <ChatBox
             messages={messages}
             onSendMessageWithImage={handleSendMessageWithImage}

@@ -16,7 +16,7 @@ export default function AppStartPage() {
     <StudentContextProvider>
       <div className="flex h-screen w-full overflow-hidden">
         <ResizableLayout
-          leftPane={<LeftPanel />}
+          leftPane={<LeftPanel isRightPanelCollapsed={isRightPanelCollapsed} />}
           rightPane={
             <RightPanel
               onToggle={handleRightPanelToggle}

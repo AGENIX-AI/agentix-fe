@@ -61,9 +61,9 @@ const RightPanelHeader = ({
   toggleMiniapp: () => void;
 }) => {
   return (
-    <header className="sticky top-0 z-20 bg-background flex h-18 border-b border-l p-4 items-center justify-between w-full pb-5">
-      <Large className="font-bold">{title}</Large>
+    <header className="sticky top-0 z-20 bg-background flex h-18 border-b border-l p-4 items-center gap-3 w-full pb-5">
       <MiniappToggleButton isExpanded={true} toggleMiniapp={toggleMiniapp} />
+      <Large className="font-bold">{title}</Large>
     </header>
   );
 };

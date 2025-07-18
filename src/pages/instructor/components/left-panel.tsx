@@ -15,6 +15,7 @@ import { ModifiedResizableLayout } from "@/pages/student/components/resizeable-l
 import { useAuth } from "@/contexts/AuthContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import Cookies from "js-cookie";
+import { cn } from "@/lib/utils";
 
 // WebSocket message interface for user-based subscription
 interface WebSocketMessage {
@@ -209,7 +210,11 @@ class WebSocketManager {
 
 const wsManager = WebSocketManager.getInstance();
 
-export default function LeftPanel() {
+export default function LeftPanel({
+  isRightPanelCollapsed,
+}: {
+  isRightPanelCollapsed: boolean;
+}) {
   // Add local state for history visibility to prevent automatic expansion
   const [localHistoryVisible, setLocalHistoryVisible] = useState(true);
   const { user } = useAuth();
@@ -287,9 +292,14 @@ export default function LeftPanel() {
         </div>
 
         {/* Right section - Search + Navigation */}
-        <div className="flex items-center gap-6">
-          {/* Search */}
-          <div className="relative w-80 mr-6">
+        <div className="flex items-center gap-6 ml-auto min-w-0">
+          {/* Search - Made flexible to resize with header */}
+          <div
+            className={cn(
+              "relative w-full",
+              isRightPanelCollapsed ? "w-[300px]" : "w-[200px]"
+            )}
+          >
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />
             <Input
               className="h-8 pl-8 w-full transition-all duration-300"
@@ -299,7 +309,7 @@ export default function LeftPanel() {
           </div>
 
           {/* Navigation */}
-          <nav className="flex gap-6 text-sm font-semibold mr-3">
+          <nav className="flex gap-6 text-sm font-semibold flex-shrink-0">
             <Link
               to="student"
               className="transition-colors hover:text-foreground/80"

@@ -38,7 +38,7 @@ function CollaborativeChatsBlockComponent({
 
   if (filteredConversations.length === 0) {
     return (
-      <div className="text-xs text-muted-foreground p-2">
+      <div className="text-[10px] text-muted-foreground p-2">
         No collaborative conversations found.
       </div>
     );
