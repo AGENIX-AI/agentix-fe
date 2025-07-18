@@ -458,16 +458,7 @@ export function ResizableSidebar({
                   : undefined
               }
             >
-              <div className="relative">
-                <Gem className="h-4 w-4" />
-                {isCollapsed && (
-                  <span>
-                    {credits.balance > 999
-                      ? `${Math.floor(credits.balance / 1000)}k`
-                      : credits.balance.toString()}
-                  </span>
-                )}
-              </div>
+              <Gem className="h-4 w-4" />
               {!isCollapsed && (
                 <span className="ml-2 flex-1 truncate text-left">
                   {credits.balance.toLocaleString()} Credits

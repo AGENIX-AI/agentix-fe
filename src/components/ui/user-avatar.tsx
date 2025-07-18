@@ -1,3 +1,4 @@
+import { cn } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
 import { forwardRef, useMemo } from "react";
 
@@ -30,7 +31,7 @@ export const UserAvatar = forwardRef<
   );
 
   return (
-    <Avatar ref={ref} className={className}>
+    <Avatar ref={ref} className={cn(className, "w-5 h-5")}>
       <AvatarImage src={avatarSrc} />
       <AvatarFallback className="bg-secondary/10 text-secondary">
         {initials}

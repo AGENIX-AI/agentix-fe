@@ -110,13 +110,13 @@ function SharingBlockComponent({
                 onClick={() => handleSharingClick(conversation)}
               >
                 <div className="flex -space-x-2 ml-1">
-                  <Avatar className="h-5 w-5 border-2 border-background">
+                  <Avatar className="h-5 w-5">
                     <AvatarImage
                       src={conversation.student_info.avatar_url || ""}
                       alt={conversation.student_info.name}
                     />
                   </Avatar>
-                  <Avatar className="h-5 w-5 border-2 border-background">
+                  <Avatar className="h-5 w-5">
                     <AvatarImage
                       src={
                         conversation.conversation_info?.assistants?.image || ""

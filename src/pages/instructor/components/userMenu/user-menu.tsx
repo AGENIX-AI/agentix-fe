@@ -100,23 +100,31 @@ export function UserMenu({
           )}
           aria-label="User menu"
         >
-          <span className="flex items-center gap-1">
+          {showUserName ? (
+            <>
+              <span className="flex items-center gap-1 flex-1 min-w-0">
+                <UserAvatar
+                  name={userInfo.metadata.full_name ?? ""}
+                  avatarUrl={userInfo.metadata.avatar_url}
+                  className="ml-[14px]"
+                />
+                <span className="text-left leading-tight flex-1 min-w-0 ml-[2px]">
+                  <span className="font-medium text-xs block truncate">
+                    {userInfo.metadata.full_name}
+                  </span>
+                  <span className="block text-xs opacity-70 truncate">
+                    {userInfo.metadata.email}
+                  </span>
+                </span>
+              </span>
+              <MoreVerticalIcon className="size-4" />
+            </>
+          ) : (
             <UserAvatar
               name={userInfo.metadata.full_name ?? ""}
               avatarUrl={userInfo.metadata.avatar_url}
             />
-            {showUserName && (
-              <span className="text-left leading-tight">
-                <span className="font-medium text-sm">
-                  {userInfo.metadata.full_name}
-                </span>
-                <span className="block text-xs opacity-70 truncate max-w-[120px]">
-                  {userInfo.metadata.email}
-                </span>
-              </span>
-            )}
-          </span>
-          {showUserName && <MoreVerticalIcon className="size-4" />}
+          )}
         </button>
       </DropdownMenuTrigger>
 

@@ -105,8 +105,9 @@ export function UserMenu({
                 <UserAvatar
                   name={userInfo.metadata.full_name ?? ""}
                   avatarUrl={userInfo.metadata.avatar_url}
+                  className="ml-[14px]"
                 />
-                <span className="text-left leading-tight flex-1 min-w-0">
+                <span className="text-left leading-tight flex-1 min-w-0 ml-[2px]">
                   <span className="font-medium text-xs block truncate">
                     {userInfo.metadata.full_name}
                   </span>
