@@ -121,7 +121,7 @@ export const Helps = () => {
     <div className="flex flex-col h-full">
       <div className="p-4 space-y-4 overflow-y-auto">
         {error && (
-          <div className="text-red-500 text-xs p-2 bg-red-50 rounded">
+          <div className="text-destructive text-xs p-2 bg-destructive/10 rounded">
             {error}
             <button
               onClick={refreshHelpData}
@@ -156,7 +156,7 @@ export const Helps = () => {
                 </button>
 
                 {expandedTopics[mainTopic.id] && (
-                  <div className="border-t bg-gray-50">
+                  <div className="border-t bg-secondary/5 rounded-b-lg">
                     {loadingTopics[mainTopic.id] ? (
                       <div className="p-4 flex items-center justify-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-t-2 border-b-2 border-primary"></div>
@@ -166,15 +166,15 @@ export const Helps = () => {
                         <button
                           key={topic.id}
                           onClick={() => handleChildTopicClick(topic.id)}
-                          className="w-full p-3 text-left hover:bg-gray-100 transition-colors border-b last:border-b-0 cursor-pointer"
+                          className="w-full p-3 text-left hover:bg-muted transition-colors border-b last:border-b-0 last:rounded-lg cursor-pointer"
                         >
-                          <span className="text-xs text-gray-700">
+                          <span className="text-xs text-foreground">
                             {topic.title}
                           </span>
                         </button>
                       ))
                     ) : (
-                      <div className="p-4 text-xs text-gray-500 text-center">
+                      <div className="p-4 text-xs text-foreground text-center">
                         No topics available
                       </div>
                     )}

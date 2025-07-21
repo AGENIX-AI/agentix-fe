@@ -127,7 +127,7 @@ export function UserMenu({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[320px] p-3 ml-2">
+      <DropdownMenuContent align="end" className="w-[320px] p-3 ml-2 z-150">
         <DropdownMenuLabel className="text-xs">
           {userInfo.metadata.full_name}
           <span className="block font-normal text-xs break-words">
@@ -223,7 +223,7 @@ export function UserMenu({
         <DropdownMenuSeparator />
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
-          <a href="https://supastarter.dev/docs/nextjs">
+          <a href="https://edvara.net">
             <BookIcon className="mr-2 size-5" />
             <span className="text-xs">
               {t("app.userMenu.documentation", "Documentation")}

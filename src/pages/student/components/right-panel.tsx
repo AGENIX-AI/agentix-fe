@@ -37,7 +37,7 @@ const MiniappToggleButton = memo(
           <AlignJustify className="h-4 w-4" />
         </Button>
       </TooltipTrigger>
-      <TooltipContent side="bottom">
+      <TooltipContent side="bottom" className="text-xs">
         {isExpanded ? "Collapse miniapp" : "Expand miniapp"}
       </TooltipContent>
     </Tooltip>
@@ -82,13 +82,15 @@ const CollapsedVerticalBar = ({
         >
           {/* Expand button at top */}
           <div className="p-2 border-b border-border flex justify-center h-18 items-center">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`transition-all duration-300 border border-border`}
               onClick={handleButtonClick}
-              className="w-6 h-6 hover:bg-accent rounded transition-colors duration-200 flex items-center justify-center"
               aria-label="Expand miniapp"
             >
               <AlignJustify className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Vertical title */}
@@ -207,14 +209,14 @@ export default function RightPanel({
             title="Assistant Topics"
             toggleMiniapp={toggleMiniapp}
           />
-          <AssistantView />
+          <AssistantView defaultTab="tasks" />
         </div>
       );
     case "tasks":
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader title="Tasks" toggleMiniapp={toggleMiniapp} />
-          <AssistantView />
+          <AssistantView defaultTab="tasks" />
         </div>
       );
     case "agentCapabilityStatement":
@@ -224,7 +226,7 @@ export default function RightPanel({
             title="Agent Capability Statement"
             toggleMiniapp={toggleMiniapp}
           />
-          <AssistantView />
+          <AssistantView defaultTab="agentCapabilityStatement" />
         </div>
       );
     case "findInstructor":

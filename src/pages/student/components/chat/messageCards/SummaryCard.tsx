@@ -31,7 +31,7 @@ export function SummaryCard({ card, className }: SummaryCardProps) {
       <div className="p-3 rounded-t-xl">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
-            <Small className="font-bold">Tutoring Summary</Small>
+            <Small className="font-bold">Session Summary</Small>
             {card.language && (
               <ExtraSmall className="text-primary">
                 Language: {card.language}

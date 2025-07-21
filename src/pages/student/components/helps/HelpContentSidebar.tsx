@@ -47,20 +47,22 @@ export const HelpContentSidebar = ({
   }
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-170 bg-white shadow-lg border-l border-gray-200 flex flex-col">
+    <div className="fixed inset-y-0 right-0 z-130 w-170 bg-background border-l flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b border-gray-200 flex items-center justify-between p-4 h-18">
-        <Large className="">{content?.title || "Help Content"}</Large>
+      <div className="sticky top-0 z-10 bg-background border-b border-gray-200 flex items-center justify-between p-6 h-18">
+        <Large className="font-semibold">
+          {content?.title || "Help Content"}
+        </Large>
         <button
           onClick={onClose}
-          className="p-1 rounded-full hover:bg-gray-100 transition-colors"
+          className="p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
         >
           <X className="h-4 w-4" />
         </button>
       </div>
 
       {/* Content */}
-      <div className="flex-1 overflow-y-auto p-4">
+      <div className="flex-1 overflow-y-auto px-6 py-3">
         {isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>

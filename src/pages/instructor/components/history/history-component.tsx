@@ -163,7 +163,7 @@ export function HistoryComponent({
   if (!isHistoryVisible) {
     return (
       <div className={cn(className, "border-r border-border w-16")}>
-        <div className="bg-background h-[calc(100vh-3.5rem)] p-4 pt-3 mt-[4px]">
+        <div className="bg-background h-[calc(100vh-3.5rem)] p-4 pt-3 mt-[2px]">
           <div className="flex flex-col h-full">
             {/* Header - matching expanded state */}
             <div>

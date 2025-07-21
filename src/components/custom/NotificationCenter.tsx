@@ -150,7 +150,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
         >
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <span className="absolute -top-1 -right-1 text-xs font-medium bg-primary text-primary-foreground rounded-full px-1 min-w-[16px] text-center leading-4">
+            <span className="absolute -top-2 -right-2 text-xs font-medium bg-primary text-primary-foreground rounded-full px-1 min-w-[16px] text-center leading-4">
               {unreadCount > 9 ? "9+" : unreadCount}
             </span>
           )}
@@ -159,7 +159,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
       <DropdownMenuContent
         align="start"
-        className="w-[320px] p-3 mb-3 ml-2"
+        className="w-[320px] p-3 mb-3 ml-2 z-150"
         side="bottom"
         sideOffset={5}
         alignOffset={-300}

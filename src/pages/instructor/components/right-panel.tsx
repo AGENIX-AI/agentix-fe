@@ -89,13 +89,15 @@ const CollapsedVerticalBar = ({
         >
           {/* Expand button at top */}
           <div className="p-2 border-b border-border flex justify-center h-18 items-center">
-            <button
+            <Button
+              variant="ghost"
+              size="icon"
+              className={`transition-all duration-300 border border-border`}
               onClick={handleButtonClick}
-              className="w-6 h-6 hover:bg-accent rounded transition-colors duration-200 flex items-center justify-center"
               aria-label="Expand miniapp"
             >
               <AlignJustify className="h-4 w-4" />
-            </button>
+            </Button>
           </div>
 
           {/* Vertical title */}

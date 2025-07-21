@@ -282,11 +282,11 @@ export default function LeftPanel({
         </div>
 
         {/* Right section - Search + Navigation - Pushed to the right */}
-        <div className="flex items-center gap-6 ml-auto min-w-0">
+        <div className="flex items-center gap-6 ml-auto min-w-0 mx-6">
           {/* Search - Made flexible to resize with header */}
           <div
             className={cn(
-              "relative w-full",
+              "relative w-full mx-6",
               isRightPanelCollapsed ? "w-[300px]" : "w-[200px]"
             )}
           >

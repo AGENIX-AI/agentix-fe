@@ -55,17 +55,47 @@ interface AppPageContextType {
 
 const StudentContext = createContext<AppPageContextType | undefined>(undefined);
 
+interface StudentState {
+  assistantId: string | null;
+  conversationId: string | null;
+  rightPanel: string;
+}
+
 export function StudentContextProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [assistantId, setAssistantId] = useState<string | null>(null);
+  // Initialize state from localStorage if available
+  const getInitialState = () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("student_state");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+    }
+    return {
+      assistantId: null,
+      conversationId: null,
+      rightPanel: "findInstructor",
+    };
+  };
+  const initialState = getInitialState();
+
+  const [assistantId, setAssistantId] = useState<string | null>(
+    initialState.assistantId
+  );
   const [assistantInfo, setAssistantInfo] = useState<AssistantInfo | null>(
     null
   );
-  const [conversationId, setConversationId] = useState<string | null>(null);
-  const [rightPanel, setRightPanel] = useState("findInstructor");
+  const [conversationId, setConversationId] = useState<string | null>(
+    initialState.conversationId
+  );
+  const [rightPanel, setRightPanel] = useState<string>(initialState.rightPanel);
   const [instructorId, setInstructorId] = useState<string | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -99,6 +129,16 @@ export function StudentContextProvider({
       setAssistantInfo(null);
     }
   }, [assistantId, fetchAssistantData]);
+
+  useEffect(() => {
+    const state = {
+      assistantId,
+      conversationId,
+      rightPanel,
+    };
+    localStorage.setItem("student_state", JSON.stringify(state));
+    console.log("student_state", state);
+  }, [rightPanel, conversationId, assistantId]);
 
   return (
     <StudentContext.Provider

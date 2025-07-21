@@ -70,23 +70,56 @@ export function InstructorContextProvider({
 }: {
   children: React.ReactNode;
 }) {
-  // const savedState = getFromLocalStorage("edvara-app-state");
-  const [isHistoryVisible, setIsHistoryVisible] = useState(true);
-  const [assistantId, setAssistantId] = useState<string | null>(null);
+  // Initialize state from localStorage if available
+  const getInitialState = () => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("instructor_state");
+      if (stored) {
+        try {
+          return JSON.parse(stored);
+        } catch (e) {
+          // ignore parse error
+        }
+      }
+    }
+    return {
+      assistantId: null,
+      conversationId: null,
+      rightPanel: "dashboard",
+    };
+  };
+  const initialState = getInitialState();
+
+  const [assistantId, setAssistantId] = useState<string | null>(
+    initialState.assistantId
+  );
   const [assistantInfo, setAssistantInfo] = useState<AssistantInfo | null>(
     null
   );
-  const [conversationId, setConversationId] = useState<string | null>(null);
-
-  const [rightPanel, setRightPanel] = useState("dashboard");
+  const [conversationId, setConversationId] = useState<string | null>(
+    initialState.conversationId
+  );
+  const [rightPanel, setRightPanel] = useState<string>(initialState.rightPanel);
   const [instructorId, setInstructorId] = useState<string | null>(null);
-
   const [metaData, setMetaData] = useState<any>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
+  const [isHistoryVisible, setIsHistoryVisible] = useState(true);
 
   const toggleHistory = () => {
     setIsHistoryVisible(!isHistoryVisible);
   };
+
+  // Persist state to localStorage when relevant values change
+  useEffect(() => {
+    const state = {
+      assistantId,
+      conversationId,
+      rightPanel,
+    };
+    localStorage.setItem("instructor_state", JSON.stringify(state));
+    // Optionally, you can log for debugging
+    // console.log("instructor_state", state);
+  }, [rightPanel, conversationId, assistantId]);
 
   // Define fetchAssistantData outside useEffect and memoize it with useCallback
   const fetchAssistantData = useCallback(async () => {

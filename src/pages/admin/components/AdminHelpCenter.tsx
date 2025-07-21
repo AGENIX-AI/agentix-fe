@@ -500,6 +500,20 @@ export function AdminHelpCenter() {
                             <Trash className="h-4 w-4" />
                           </Button>
                           <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() =>
+                              setTopicFormSidebar({
+                                open: true,
+                                mode: "create",
+                                mainId: topic.id,
+                              })
+                            }
+                            title="Add New Topic"
+                          >
+                            <PlusCircle className="h-4 w-4" />
+                          </Button>
+                          <Button
                             variant="outline"
                             size="sm"
                             onClick={() => toggleExpand(topic.id)}
@@ -520,19 +534,6 @@ export function AdminHelpCenter() {
                           <div className="bg-muted/30 p-4 border-t">
                             <div className="flex justify-between items-center mb-3">
                               <div></div>
-                              <Button
-                                size="sm"
-                                onClick={() =>
-                                  setTopicFormSidebar({
-                                    open: true,
-                                    mode: "create",
-                                    mainId: topic.id,
-                                  })
-                                }
-                              >
-                                <PlusCircle className="h-4 w-4 mr-1" />
-                                New Topic
-                              </Button>
                             </div>
                             {topicsLoading[topic.id] ? (
                               <div className="flex justify-center py-4">

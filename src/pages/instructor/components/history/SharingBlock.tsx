@@ -87,7 +87,7 @@ function SharingBlockComponent({
 
   if (filteredConversations.length === 0) {
     return (
-      <div className="text-center text-muted-foreground py-4 text-sm">
+      <div className="text-center text-muted-foreground py-4 text-[10px]">
         {searchQuery
           ? "No collaborative topics found"
           : "No collaborative topics available"}

@@ -58,28 +58,11 @@ function AssistantBanner({
         />
       </div>
 
-      {/* Profile Section with Instructor on the left and Assistant on the right */}
-      <div className="flex w-full bg-secondary/5 p-4">
-        {/* Left side - Instructor */}
+      {/* Profile Section with Assistant on the left and Instructor on the right */}
+      <div className="flex w-full bg-secondary/5 px-6 py-4">
+        {/* Left side - Assistant */}
         <div className="flex flex-col items-center">
           <Avatar className="h-32 w-32 rounded-full border-4 border-white -mt-24">
-            <AvatarImage
-              src={
-                instructor.profile_image ||
-                "https://api-app.edvara.net/static/default-profile.png"
-              }
-              alt={instructor.instructor_name}
-            />
-          </Avatar>
-          <h2 className="text-lg font-semibold text-center">
-            {instructor.instructor_name}
-          </h2>
-          <p className="text-xs text-center">Instructor</p>
-        </div>
-
-        {/* Right side - Assistant */}
-        <div className="flex-1 flex items-start mt-2">
-          <Avatar className="h-12 w-12 rounded-full mr-3 ml-6">
             <AvatarImage
               src={
                 assistant.image ||
@@ -88,11 +71,31 @@ function AssistantBanner({
               alt={assistant.name}
             />
           </Avatar>
+          <h2 className="text-lg font-semibold text-center">
+            {assistant.name}
+          </h2>
+          <p className="text-xs text-center max-w-[150px]">
+            {assistant.tagline}
+          </p>
+        </div>
+
+        {/* Right side - Instructor */}
+        <div className="flex-1 flex items-start mt-2">
+          <Avatar className="h-12 w-12 rounded-full mr-3 ml-6">
+            <AvatarImage
+              src={
+                instructor.profile_image ||
+                "https://api-app.edvara.net/static/default-profile.png"
+              }
+              alt={instructor.instructor_name}
+            />
+          </Avatar>
           <div>
-            <h3 className="text-sm font-semibold">{assistant.name}</h3>
-            <p className="text-xs">{assistant.tagline}</p>
+            <h3 className="text-sm font-semibold">
+              {instructor.instructor_name}
+            </h3>
             <p className="text-xs">
-              Specialized in {assistant.speciality || "General Assistance"}
+              {instructor.instructor_description || "General Assistance"}
             </p>
           </div>
         </div>
@@ -101,7 +104,7 @@ function AssistantBanner({
   );
 }
 
-export function AssistantView() {
+export function AssistantView({ defaultTab }: { defaultTab: string }) {
   const { assistantId, instructorId, conversationId } = useStudent();
   const { assistantInfo } = useStudent();
   const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
@@ -143,7 +146,7 @@ export function AssistantView() {
   const shouldShowTasksTab = conversationData?.type !== "General";
 
   // Default to Profile tab
-  const defaultTab = "agentCapabilityStatement";
+  // const defaultTab = "agentCapabilityStatement";
 
   return (
     <div className="flex flex-col h-full max-h-screen">

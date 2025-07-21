@@ -389,6 +389,9 @@ export function ResizableSidebar({
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
                             }
+                            if (navItem.title === "Help Center") {
+                              setRightPanel("helps");
+                            }
                           }}
                         >
                           {Icon && (
@@ -420,13 +423,13 @@ export function ResizableSidebar({
         {/* Footer with Notifications, Credits and UserMenu */}
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 border-border p-2 space-y-1"
+            "absolute bottom-0 left-0 right-0 border-border p-2 space-y-3"
           )}
         >
           {/* Notification Center */}
           <div
             className={cn(
-              "flex items-center px-4 py-2 text-xs rounded-md transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+              "flex items-center px-4 text-xs ",
               isCollapsed && "justify-center px-2"
             )}
             title={isCollapsed ? "Notifications" : undefined}

@@ -131,9 +131,9 @@ function MessageContentComponent({
             font-['Inter',sans-serif] 
             [&_ol]:list-decimal 
             [&_ul]:list-disc 
-            [&_li]:!m-1 
+            [&_li]:!m-0
             [&_li]:!p-1
-            [&_li]:!ml-3 
+            [&_li]:!ml-3
             [&_p]:mb-1 
             [&_h1]:mb-1 
             [&_h2]:mb-1 
@@ -170,7 +170,6 @@ function MessageContentComponent({
           style={{
             fontFamily: "Inter, sans-serif",
             lineHeight: 1.5,
-            marginTop: 1,
           }}
           dangerouslySetInnerHTML={{ __html: cleanedContent }}
         />

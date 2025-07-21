@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import type { TutoringTopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
-import { ExtraSmall, Small } from "@/components/ui/typography";
+import { ExtraSmall, Large, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import {
@@ -177,9 +177,9 @@ export function TutoringTopicCard({
       {/* Header */}
       <div className="rounded-t-xl p-3">
         <div className="flex flex-col space-y-1">
-          <Small className="text-primary font-bold gap-3">
+          <Large className="text-primary font-bold gap-3">
             Create Tutoring Topic
-          </Small>
+          </Large>
           <ExtraSmall className="text-muted-foreground">
             {card.language ? `Language: ${card.language}` : ""}
           </ExtraSmall>
