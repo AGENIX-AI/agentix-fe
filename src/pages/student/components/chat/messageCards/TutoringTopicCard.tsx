@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import type { TutoringTopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
-import { ExtraSmall, Large, Small } from "@/components/ui/typography";
+import { ExtraSmall, Large } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import {

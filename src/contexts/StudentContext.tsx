@@ -55,12 +55,6 @@ interface AppPageContextType {
 
 const StudentContext = createContext<AppPageContextType | undefined>(undefined);
 
-interface StudentState {
-  assistantId: string | null;
-  conversationId: string | null;
-  rightPanel: string;
-}
-
 export function StudentContextProvider({
   children,
 }: {
