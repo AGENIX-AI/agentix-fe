@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
-import { fetchHelpTopic } from "@/api/admin/helpCenter";
-import type { HelpTopic } from "@/api/admin/helpCenter";
+import { fetchHelpTopic } from "@/api/admin/helpCenterInstructor";
+import type { HelpTopic } from "@/api/admin/helpCenterInstructor";
 import ReactMarkdown from "react-markdown";
 import { Large } from "@/components/ui/typography";
 

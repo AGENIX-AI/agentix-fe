@@ -393,8 +393,8 @@ export function ResizableSidebar({
                             if (navItem.title === "Knowledge Components") {
                               setRightPanel("topicKnowledge");
                             }
-                            if (navItem.title === "Navigation") {
-                              setIsCollapsed(!isCollapsed);
+                            if (navItem.title === "Help Center") {
+                              setRightPanel("helps");
                             }
                           }}
                         >

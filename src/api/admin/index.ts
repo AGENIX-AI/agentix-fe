@@ -1,6 +1,9 @@
 import Cookies from "js-cookie";
 import * as Sentry from "@sentry/react";
 
+// Re-export instructor help center API
+export * from "./helpCenterInstructor";
+
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
   const accessToken = Cookies.get("edvara_access_token");

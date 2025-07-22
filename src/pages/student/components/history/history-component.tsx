@@ -192,88 +192,105 @@ export function HistoryComponent({
 
             <div className="px-0">
               <div className="flex flex-col">
-                {/* Assistants section */}
-                <div>
-                  <div
-                    className={cn(
-                      "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                      "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                      "justify-center"
-                    )}
-                  >
-                    {/* System Assistant */}
-                    {systemAssistant?.assistants?.image && (
-                      <Avatar
-                        className={cn(
-                          "h-5 w-5 cursor-pointer border overflow-hidden",
-                          assistantId === systemAssistant.assistants.id
-                            ? "border-primary"
-                            : "border-accent"
-                        )}
-                        onClick={() => handleAvatarClick(systemAssistant, true)}
-                      >
-                        <AvatarImage
-                          src={systemAssistant.assistants.image || ""}
-                          alt="Avatar"
-                        />
-                      </Avatar>
-                    )}
+                {/* Assistants section - only show if has system assistant or conversations */}
+                {(systemAssistant?.assistants?.image ||
+                  conversations.length > 0) && (
+                  <div>
+                    <div
+                      className={cn(
+                        "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                        "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                        "justify-center"
+                      )}
+                    >
+                      {/* System Assistant */}
+                      {systemAssistant?.assistants?.image && (
+                        <Avatar
+                          className={cn(
+                            "h-5 w-5 cursor-pointer border overflow-hidden",
+                            assistantId === systemAssistant.assistants.id
+                              ? "border-primary"
+                              : "border-accent"
+                          )}
+                          onClick={() =>
+                            handleAvatarClick(systemAssistant, true)
+                          }
+                        >
+                          <AvatarImage
+                            src={systemAssistant.assistants.image || ""}
+                            alt="Avatar"
+                          />
+                        </Avatar>
+                      )}
+                    </div>
                   </div>
-                </div>
+                )}
+
                 <div
                   className="overflow-y-auto no-scrollbar"
                   style={{ maxHeight: "calc(100vh - 200px)" }}
                 >
-                  <div className="">
-                    <ul className="flex flex-col items-center space-y-1">
-                      {conversations.map((conversation) => (
-                        <li key={conversation.id}>
-                          <button
-                            className={cn(
-                              "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                              "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                              "justify-center my-1"
-                            )}
-                            onClick={() => handleAvatarClick(conversation)}
-                          >
-                            <Avatar
+                  {/* Regular conversations - only show if has conversations */}
+                  {conversations.length > 0 && (
+                    <div className="">
+                      <ul className="flex flex-col items-center space-y-1">
+                        {conversations.map((conversation) => (
+                          <li key={conversation.id}>
+                            <button
                               className={cn(
-                                "h-5 w-5 cursor-pointer border overflow-hidden",
-                                assistantId === conversation.assistants?.id
-                                  ? "border-primary"
-                                  : "border-accent"
+                                "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                                "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                                "justify-center my-1"
                               )}
+                              onClick={() => handleAvatarClick(conversation)}
                             >
-                              <AvatarImage
-                                src={conversation.assistants?.image || ""}
-                                alt="Avatar"
-                              />
-                            </Avatar>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+                              <Avatar
+                                className={cn(
+                                  "h-5 w-5 cursor-pointer border overflow-hidden",
+                                  assistantId === conversation.assistants?.id
+                                    ? "border-primary"
+                                    : "border-accent"
+                                )}
+                              >
+                                <AvatarImage
+                                  src={conversation.assistants?.image || ""}
+                                  alt="Avatar"
+                                />
+                              </Avatar>
+                            </button>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
-                  {/* Separator between sections */}
-                  <Separator />
+                  {/* Separator between sections - only show if there are sections above and below */}
+                  {(systemAssistant?.assistants?.image ||
+                    conversations.length > 0) &&
+                    tutoringConversations.length > 0 && <Separator />}
 
-                  {/* Tutoring conversations */}
-                  <CollapsedTutoringView
-                    conversations={tutoringConversations}
-                    assistantId={assistantId}
-                    handleTutoringClick={handleTutoringClick}
-                  />
-                  <Separator />
+                  {/* Tutoring conversations - only show if has tutoring conversations */}
+                  {tutoringConversations.length > 0 && (
+                    <CollapsedTutoringView
+                      conversations={tutoringConversations}
+                      assistantId={assistantId}
+                      handleTutoringClick={handleTutoringClick}
+                    />
+                  )}
 
-                  {/* Collaborative chats */}
-                  <CollapsedCollaborativeView
-                    conversations={sharedConversations}
-                    conversationId={conversationId}
-                    handleCollaborativeClick={handleCollaborativeClick}
-                  />
+                  {/* Separator between sections - only show if there are sections above and below */}
+                  {tutoringConversations.length > 0 &&
+                    sharedConversations.length > 0 && <Separator />}
+
+                  {/* Collaborative chats - only show if has shared conversations */}
+                  {sharedConversations.length > 0 && (
+                    <CollapsedCollaborativeView
+                      conversations={sharedConversations}
+                      conversationId={conversationId}
+                      handleCollaborativeClick={handleCollaborativeClick}
+                    />
+                  )}
                 </div>
-                {/* Regular conversations */}
               </div>
             </div>
           </div>
@@ -317,102 +334,108 @@ export function HistoryComponent({
           {/* Scrollable content area with flex-grow to take available space */}
           <div className="flex-grow overflow-hidden ml-[3px]">
             <div className="h-full overflow-y-auto">
-              {/* ZONE 1: Assistants */}
-              <div className="mb-3">
-                {/* Assistants Section Header */}
-                <div
-                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                  onClick={() => setIsChatsExpanded(!isChatsExpanded)}
-                >
-                  <div className="flex items-center gap-2">
-                    {isChatsExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="font-medium text-xs">
-                      Chats with Assistants
-                    </span>
+              {/* ZONE 1: Assistants - only show if has system assistant or conversations */}
+              {(systemAssistant || conversations.length > 0) && (
+                <div className="mb-3">
+                  {/* Assistants Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isChatsExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs">
+                        Chats with Assistants
+                      </span>
+                    </div>
                   </div>
+
+                  {/* Assistants Content */}
+                  {isChatsExpanded && (
+                    <div className="ml-1">
+                      {/* BLOCK 1: System Assistant */}
+                      <SystemAssistantBlock
+                        setIsChatLoading={setIsChatLoading}
+                        systemAssistantData={systemAssistant}
+                        assistantId={assistantId}
+                      />
+
+                      {/* BLOCK 2: User Conversations */}
+                      <UserConversationsBlock
+                        searchQuery={searchQuery}
+                        setIsChatLoading={setIsChatLoading}
+                        conversationsData={conversations}
+                        assistantId={assistantId}
+                      />
+                    </div>
+                  )}
                 </div>
+              )}
 
-                {/* Assistants Content */}
-                {isChatsExpanded && (
-                  <div className="ml-1">
-                    {/* BLOCK 1: System Assistant */}
-                    <SystemAssistantBlock
-                      setIsChatLoading={setIsChatLoading}
-                      systemAssistantData={systemAssistant}
-                      assistantId={assistantId}
-                    />
-
-                    {/* BLOCK 2: User Conversations */}
-                    <UserConversationsBlock
-                      searchQuery={searchQuery}
-                      setIsChatLoading={setIsChatLoading}
-                      conversationsData={conversations}
-                      assistantId={assistantId}
-                    />
+              {/* ZONE 2: Tutoring - only show if has tutoring conversations */}
+              {tutoringConversations.length > 0 && (
+                <div className="mb-3">
+                  {/* Tutoring Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() => setIsTutoringExpanded(!isTutoringExpanded)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isTutoringExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs">
+                        Private Topics
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* ZONE 2: Tutoring */}
-              <div className="mb-3">
-                {/* Tutoring Section Header */}
-                <div
-                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                  onClick={() => setIsTutoringExpanded(!isTutoringExpanded)}
-                >
-                  <div className="flex items-center gap-2">
-                    {isTutoringExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="font-medium text-xs">Private Topics</span>
-                  </div>
+                  {/* Tutoring Content */}
+                  {isTutoringExpanded && (
+                    <div className="ml-1">
+                      <TutoringConversationsBlock
+                        tutoringConversations={tutoringConversations}
+                        conversationId={conversationId}
+                        setIsChatLoading={setIsChatLoading}
+                        onConversationClick={handleTutoringClick}
+                        searchQuery={searchQuery}
+                      />
+                    </div>
+                  )}
                 </div>
+              )}
 
-                {/* Tutoring Content */}
-                {isTutoringExpanded && (
-                  <div className="ml-1">
-                    <TutoringConversationsBlock
-                      tutoringConversations={tutoringConversations}
-                      conversationId={conversationId}
-                      setIsChatLoading={setIsChatLoading}
-                      onConversationClick={handleTutoringClick}
-                      searchQuery={searchQuery}
-                    />
+              {/* ZONE 3: Collaborative Chats - only show if has shared conversations */}
+              {sharedConversations.length > 0 && (
+                <div className="mb-3">
+                  {/* Collaborative Chats Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() =>
+                      setIsCollaborativeExpanded(!isCollaborativeExpanded)
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      {isCollaborativeExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs">
+                        Collaborative Chats
+                      </span>
+                    </div>
                   </div>
-                )}
-              </div>
 
-              {/* ZONE 3: Collaborative Chats */}
-              <div className="mb-3">
-                {/* Collaborative Chats Section Header */}
-                <div
-                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                  onClick={() =>
-                    setIsCollaborativeExpanded(!isCollaborativeExpanded)
-                  }
-                >
-                  <div className="flex items-center gap-2">
-                    {isCollaborativeExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="font-medium text-xs">
-                      Collaborative Chats
-                    </span>
-                  </div>
-                </div>
-
-                {/* Collaborative Chats Content */}
-                {isCollaborativeExpanded && (
-                  <div className="ml-1">
-                    {sharedConversations.length > 0 ? (
+                  {/* Collaborative Chats Content */}
+                  {isCollaborativeExpanded && (
+                    <div className="ml-1">
                       <CollaborativeChatsBlock
                         sharedConversations={sharedConversations}
                         conversationId={conversationId}
@@ -420,14 +443,10 @@ export function HistoryComponent({
                         onConversationClick={handleCollaborativeClick}
                         searchQuery={searchQuery}
                       />
-                    ) : (
-                      <div className="text-[10px] text-muted-foreground p-2">
-                        No collaborative conversations found.
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
 

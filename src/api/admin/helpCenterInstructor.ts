@@ -39,14 +39,17 @@ export interface UpdateHelpTopicRequest {
 
 // Help Main Topics API
 export const fetchHelpMainTopics = async (): Promise<HelpMainTopic[]> => {
-  const response = await axiosInstance.get("/systems/student/help_main");
+  const response = await axiosInstance.get("/systems/instructor/help_main");
   return response.data;
 };
 
 export const createHelpMainTopic = async (
   data: CreateHelpMainTopicRequest
 ): Promise<HelpMainTopic> => {
-  const response = await axiosInstance.post("/systems/student/help_main", data);
+  const response = await axiosInstance.post(
+    "/systems/instructor/help_main",
+    data
+  );
   return response.data;
 };
 
@@ -55,14 +58,14 @@ export const updateHelpMainTopic = async (
   data: UpdateHelpMainTopicRequest
 ): Promise<HelpMainTopic> => {
   const response = await axiosInstance.put(
-    `/systems/student/help_main/${id}`,
+    `/systems/instructor/help_main/${id}`,
     data
   );
   return response.data;
 };
 
 export const deleteHelpMainTopic = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/systems/student/help_main/${id}`);
+  await axiosInstance.delete(`/systems/instructor/help_main/${id}`);
 };
 
 // Help Topics API
@@ -70,14 +73,14 @@ export const fetchHelpTopicsByMainId = async (
   mainId: string
 ): Promise<HelpTopic[]> => {
   const response = await axiosInstance.get(
-    `/systems/student/help_topics/main/${mainId}`
+    `/systems/instructor/help_topics/main/${mainId}`
   );
   return response.data;
 };
 
 export const fetchHelpTopic = async (id: string): Promise<HelpTopic> => {
   const response = await axiosInstance.get(
-    `/systems/student/help_topics/${id}`
+    `/systems/instructor/help_topics/${id}`
   );
   return response.data;
 };
@@ -86,7 +89,7 @@ export const createHelpTopic = async (
   data: CreateHelpTopicRequest
 ): Promise<HelpTopic> => {
   const response = await axiosInstance.post(
-    "/systems/student/help_topics",
+    "/systems/instructor/help_topics",
     data
   );
   return response.data;
@@ -97,14 +100,14 @@ export const updateHelpTopic = async (
   data: UpdateHelpTopicRequest
 ): Promise<HelpTopic> => {
   const response = await axiosInstance.put(
-    `/systems/student/help_topics/${id}`,
+    `/systems/instructor/help_topics/${id}`,
     data
   );
   return response.data;
 };
 
 export const deleteHelpTopic = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/systems/student/help_topics/${id}`);
+  await axiosInstance.delete(`/systems/instructor/help_topics/${id}`);
 };
 
 // Reorder API
@@ -112,7 +115,7 @@ export const reorderHelpMainTopic = async (
   mainId: string,
   newOrder: number
 ): Promise<void> => {
-  await axiosInstance.put("/systems/student/help_main/reorder", {
+  await axiosInstance.put("/systems/instructor/help_main/reorder", {
     main_id: mainId,
     new_order: newOrder,
   });
@@ -122,7 +125,7 @@ export const reorderHelpTopic = async (
   topicId: string,
   newOrder: number
 ): Promise<void> => {
-  await axiosInstance.put("/systems/student/help_topics/reorder", {
+  await axiosInstance.put("/systems/instructor/help_topics/reorder", {
     topic_id: topicId,
     new_order: newOrder,
   });

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
   Dialog,
@@ -15,17 +16,29 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { HelpMainTopic, HelpTopic } from "@/api/admin/helpCenter";
 import {
-  createHelpMainTopic,
-  deleteHelpMainTopic,
-  fetchHelpMainTopics,
-  updateHelpMainTopic,
-  fetchHelpTopicsByMainId,
-  createHelpTopic,
-  updateHelpTopic,
-  deleteHelpTopic,
-  reorderHelpMainTopic,
-  reorderHelpTopic,
+  createHelpMainTopic as createStudentHelpMainTopic,
+  deleteHelpMainTopic as deleteStudentHelpMainTopic,
+  fetchHelpMainTopics as fetchStudentHelpMainTopics,
+  updateHelpMainTopic as updateStudentHelpMainTopic,
+  fetchHelpTopicsByMainId as fetchStudentHelpTopicsByMainId,
+  createHelpTopic as createStudentHelpTopic,
+  updateHelpTopic as updateStudentHelpTopic,
+  deleteHelpTopic as deleteStudentHelpTopic,
+  reorderHelpMainTopic as reorderStudentHelpMainTopic,
+  reorderHelpTopic as reorderStudentHelpTopic,
 } from "@/api/admin/helpCenter";
+import {
+  createHelpMainTopic as createInstructorHelpMainTopic,
+  deleteHelpMainTopic as deleteInstructorHelpMainTopic,
+  fetchHelpMainTopics as fetchInstructorHelpMainTopics,
+  updateHelpMainTopic as updateInstructorHelpMainTopic,
+  fetchHelpTopicsByMainId as fetchInstructorHelpTopicsByMainId,
+  createHelpTopic as createInstructorHelpTopic,
+  updateHelpTopic as updateInstructorHelpTopic,
+  deleteHelpTopic as deleteInstructorHelpTopic,
+  reorderHelpMainTopic as reorderInstructorHelpMainTopic,
+  reorderHelpTopic as reorderInstructorHelpTopic,
+} from "@/api/admin/helpCenterInstructor";
 import {
   PlusCircle,
   Pencil,
@@ -48,7 +61,10 @@ import { HelpTopicDetailSidebar } from "./sidebars/HelpTopicDetailSidebar";
 import { Dialog as TopicDialog } from "@/components/ui/dialog";
 import { TopicFormSidebar } from "./sidebars/TopicFormSidebar";
 
+type UserType = "student" | "instructor";
+
 export function AdminHelpCenter() {
+  const [activeTab, setActiveTab] = useState<UserType>("student");
   const [mainTopics, setMainTopics] = useState<HelpMainTopic[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
@@ -91,13 +107,48 @@ export function AdminHelpCenter() {
 
   useEffect(() => {
     loadMainTopics();
-  }, []);
+  }, [activeTab]);
+
+  // API function getters based on active tab
+  const getApiFunctions = () => {
+    if (activeTab === "instructor") {
+      return {
+        fetchHelpMainTopics: fetchInstructorHelpMainTopics,
+        createHelpMainTopic: createInstructorHelpMainTopic,
+        updateHelpMainTopic: updateInstructorHelpMainTopic,
+        deleteHelpMainTopic: deleteInstructorHelpMainTopic,
+        fetchHelpTopicsByMainId: fetchInstructorHelpTopicsByMainId,
+        createHelpTopic: createInstructorHelpTopic,
+        updateHelpTopic: updateInstructorHelpTopic,
+        deleteHelpTopic: deleteInstructorHelpTopic,
+        reorderHelpMainTopic: reorderInstructorHelpMainTopic,
+        reorderHelpTopic: reorderInstructorHelpTopic,
+      };
+    } else {
+      return {
+        fetchHelpMainTopics: fetchStudentHelpMainTopics,
+        createHelpMainTopic: createStudentHelpMainTopic,
+        updateHelpMainTopic: updateStudentHelpMainTopic,
+        deleteHelpMainTopic: deleteStudentHelpMainTopic,
+        fetchHelpTopicsByMainId: fetchStudentHelpTopicsByMainId,
+        createHelpTopic: createStudentHelpTopic,
+        updateHelpTopic: updateStudentHelpTopic,
+        deleteHelpTopic: deleteStudentHelpTopic,
+        reorderHelpMainTopic: reorderStudentHelpMainTopic,
+        reorderHelpTopic: reorderStudentHelpTopic,
+      };
+    }
+  };
 
   const loadMainTopics = async () => {
     try {
       setLoading(true);
+      const { fetchHelpMainTopics } = getApiFunctions();
       const topics = await fetchHelpMainTopics();
       setMainTopics(topics);
+      // Reset expanded and topics map when switching tabs
+      setExpanded({});
+      setTopicsMap({});
     } catch (error) {
       console.error("Failed to load help main topics:", error);
       toast.error("Failed to load help categories");
@@ -114,6 +165,7 @@ export function AdminHelpCenter() {
       if (!topicsMap[mainId]) {
         setTopicsLoading((prev) => ({ ...prev, [mainId]: true }));
         try {
+          const { fetchHelpTopicsByMainId } = getApiFunctions();
           const topics = await fetchHelpTopicsByMainId(mainId);
           setTopicsMap((prev) => ({ ...prev, [mainId]: topics }));
         } catch (error) {
@@ -134,6 +186,7 @@ export function AdminHelpCenter() {
 
     try {
       const newOrder = mainTopics.length + 1;
+      const { createHelpMainTopic } = getApiFunctions();
       const newTopic = await createHelpMainTopic({
         title: newTopicTitle,
         order: newOrder,
@@ -157,6 +210,7 @@ export function AdminHelpCenter() {
     }
 
     try {
+      const { updateHelpMainTopic } = getApiFunctions();
       const updatedTopic = await updateHelpMainTopic(currentTopic.id, {
         title: newTopicTitle,
         order: newTopicOrder,
@@ -179,6 +233,7 @@ export function AdminHelpCenter() {
     if (!currentTopic) return;
 
     try {
+      const { deleteHelpMainTopic } = getApiFunctions();
       await deleteHelpMainTopic(currentTopic.id);
       setMainTopics(mainTopics.filter((topic) => topic.id !== currentTopic.id));
       setIsDeleteDialogOpen(false);
@@ -211,6 +266,7 @@ export function AdminHelpCenter() {
     const { mainId, topic } = topicDeleteDialog;
     if (!topic) return;
     try {
+      const { deleteHelpTopic } = getApiFunctions();
       await deleteHelpTopic(topic.id);
       setTopicsMap((prev) => ({
         ...prev,
@@ -279,6 +335,7 @@ export function AdminHelpCenter() {
 
     // Update in backend using reorder API
     try {
+      const { reorderHelpMainTopic } = getApiFunctions();
       await reorderHelpMainTopic(draggedMainTopic.id, targetIndex);
       toast.success("Categories reordered successfully");
     } catch (error) {
@@ -319,6 +376,7 @@ export function AdminHelpCenter() {
 
     // Update in backend using reorder API
     try {
+      const { reorderHelpTopic } = getApiFunctions();
       await reorderHelpTopic(draggedTopic.id, targetIndex);
       toast.success("Topics reordered successfully");
     } catch (error) {
@@ -338,6 +396,7 @@ export function AdminHelpCenter() {
       return;
     }
     try {
+      const { createHelpTopic, updateHelpTopic } = getApiFunctions();
       if (topic.id) {
         // Editing
         const updatedTopic = await updateHelpTopic(topic.id, {
@@ -382,8 +441,16 @@ export function AdminHelpCenter() {
     }
   };
 
-  return (
-    <div className="space-y-6">
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as UserType);
+    // Close any open sidebars when switching tabs
+    setSidebarVisible(false);
+    setTopicSidebar({ open: false, topic: null });
+    setTopicFormSidebar({ open: false, mode: "create", mainId: "" });
+  };
+
+  const renderHelpCenterContent = () => (
+    <>
       <div className="flex justify-between items-center">
         <div></div>
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
@@ -531,13 +598,10 @@ export function AdminHelpCenter() {
                     {expanded[topic.id] && (
                       <TableRow key={`${topic.id}-topics`}>
                         <TableCell colSpan={4} className="p-0">
-                          <div className="bg-muted/30 p-4 border-t">
-                            <div className="flex justify-between items-center mb-3">
-                              <div></div>
-                            </div>
+                          <div className="px-2">
                             {topicsLoading[topic.id] ? (
                               <div className="flex justify-center py-4">
-                                <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full"></div>
+                                <div className="animate-spin h-6 w-6 rounded-full"></div>
                               </div>
                             ) : topicsMap[topic.id]?.length > 0 ? (
                               <Table>
@@ -633,6 +697,29 @@ export function AdminHelpCenter() {
           </Table>
         </div>
       )}
+    </>
+  );
+
+  return (
+    <div className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={handleTabChange}
+        className="w-full"
+      >
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="student">Student Help Center</TabsTrigger>
+          <TabsTrigger value="instructor">Instructor Help Center</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="student" className="space-y-4">
+          {renderHelpCenterContent()}
+        </TabsContent>
+
+        <TabsContent value="instructor" className="space-y-4">
+          {renderHelpCenterContent()}
+        </TabsContent>
+      </Tabs>
 
       {/* Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>

@@ -174,7 +174,7 @@ const enTranslation: Record<string, any> = {
         "Share this conversation with your instructor. The instructor will be able to view the conversation history.",
       share_success: "Sharing request sent successfully",
       share_info: "The instructor will be notified of your request",
-      archived: "Archived",
+      archived: "Archive a topic",
       archive_description:
         "Send achievement notification for this tutoring conversation. This will notify your instructor about your learning progress.",
       archive_success: "Achievement sent successfully",
