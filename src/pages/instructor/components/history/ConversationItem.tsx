@@ -7,12 +7,14 @@ interface ConversationItemProps {
   isSystemAssistant?: boolean;
   onClick: (conversation: ConversationListItem) => void;
   assistantId: string | null;
+  isLearningTopic?: boolean;
 }
 
 function ConversationItemComponent({
   conversation,
   onClick,
   assistantId,
+  isLearningTopic,
 }: ConversationItemProps) {
   return (
     <div
@@ -28,8 +30,10 @@ function ConversationItemComponent({
       </Avatar>
       <div className="flex-1 overflow-hidden">
         <div className="flex items-center justify-between">
-          <p className="text-xs">
-            {conversation.assistants?.name || "Assistant"}
+          <p className="text-xs truncate">
+            {isLearningTopic
+              ? conversation.conversation_name
+              : conversation.assistants?.name || "Assistant"}
           </p>
         </div>
       </div>

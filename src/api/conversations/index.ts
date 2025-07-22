@@ -286,7 +286,8 @@ export const getInstructorListConversations = async (
   pageSize: number = 100,
   sortBy: string = "created_at",
   sortOrder: number = 1,
-  search?: string
+  search?: string,
+  type?: string
 ): Promise<InstructorConversationListResponse> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
@@ -301,6 +302,10 @@ export const getInstructorListConversations = async (
 
   if (search) {
     params.append("search", search);
+  }
+
+  if (type) {
+    params.append("type", type);
   }
 
   const response = await fetch(

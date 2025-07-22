@@ -8,6 +8,7 @@ import { useInstructor } from "@/contexts/InstructorContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import {
   getConversationHistory,
+  getConversationById,
   type UserInfo,
   type AssistantInfo,
 } from "@/api/conversations";
@@ -16,6 +17,7 @@ import { ChatProvider } from "@/contexts/InstructorChatContext";
 import { sendInstructorMessage } from "@/api/instructor";
 import * as Sentry from "@sentry/react";
 import { Separator } from "@/components/ui/separator";
+import type { Conversation } from "@/services/conversation";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -109,6 +111,7 @@ export function ChatComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  const [conversation, setConversation] = useState<Conversation | null>(null);
   const [conversationData, setConversationData] = useState<{
     studentInfo?: UserInfo;
     instructorInfo?: UserInfo;
@@ -207,13 +210,21 @@ export function ChatComponent() {
     try {
       if (!conversationId) return;
       setIsChatLoading(true);
-      const response = await getConversationHistory(conversationId);
-      setMessages(response.history);
+
+      // Fetch both conversation history and conversation details in parallel
+      const [historyResponse, conversationResponse] = await Promise.all([
+        getConversationHistory(conversationId),
+        getConversationById(conversationId),
+      ]);
+
+      setMessages(historyResponse.history);
       setConversationData({
-        studentInfo: response.student_info,
-        instructorInfo: response.instructor_info,
-        assistantInfo: response.assistant,
+        studentInfo: historyResponse.student_info,
+        instructorInfo: historyResponse.instructor_info,
+        assistantInfo: historyResponse.assistant,
       });
+      setConversation(conversationResponse);
+
       // Scroll to the bottom of the chat after messages are loaded
       setTimeout(() => {
         const chatContainer = document.querySelector(
@@ -542,6 +553,7 @@ export function ChatComponent() {
             }
             inputRef={inputRef}
             isAgentResponding={isAgentResponding}
+            conversation={conversation}
             conversationData={conversationData}
           />
         </div>

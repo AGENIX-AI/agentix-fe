@@ -1,6 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { H2, Muted } from "@/components/ui/typography";
-import { useTranslation } from "react-i18next";
 
 interface ChatHeaderProps {
   disabled?: boolean;
@@ -14,8 +13,6 @@ export function ChatHeader({
   tagline = "Powered by AI",
   agentImage,
 }: ChatHeaderProps) {
-  const { t } = useTranslation();
-
   return (
     <div className="">
       <div className="flex items-center justify-start h-full py-3 px-4 ">
@@ -25,10 +22,10 @@ export function ChatHeader({
             <AvatarFallback>{agentName[0] || "AI"}</AvatarFallback>
           </Avatar>
           <div className="">
-            <H2 className="text-sm font-medium text-foreground">{agentName}</H2>
-            <Muted className="text-xs">
-              {t("chat.header.powered_by", { name: tagline })}
-            </Muted>
+            <H2 className="text-sm font-semibold text-foreground">
+              {agentName}
+            </H2>
+            <Muted className="text-xs">{tagline}</Muted>
           </div>
         </div>
       </div>

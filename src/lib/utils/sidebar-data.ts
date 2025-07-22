@@ -5,7 +5,6 @@ import {
   HelpCircle,
   LayoutDashboard,
   UserSearch,
-  FileText,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -50,11 +49,6 @@ export const sidebarData: SidebarData = {
           title: "Find Instructor",
           url: "/student",
           icon: UserSearch,
-        },
-        {
-          title: "Posts",
-          url: "/student",
-          icon: FileText,
         },
       ],
     },

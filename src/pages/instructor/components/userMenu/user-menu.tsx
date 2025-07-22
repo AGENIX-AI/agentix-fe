@@ -128,7 +128,7 @@ export function UserMenu({
         </button>
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-[280px] p-3 ml-3 z-150">
+      <DropdownMenuContent align="end" className="w-[280px] p-3 ml-3">
         <DropdownMenuLabel className="text-sm">
           {userInfo.metadata.full_name}
           <span className="block font-normal text-xs truncate">

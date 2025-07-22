@@ -1,8 +1,7 @@
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { ExtraSmall, H4, Small } from "@/components/ui/typography";
+import { ExtraSmall, H4 } from "@/components/ui/typography";
 
 interface ProfileBannerProps {
   instructorName?: string;
@@ -45,13 +44,6 @@ export function ProfileBanner({
                 .slice(0, 2) || "IN"}
             </AvatarFallback>
           </Avatar>
-          <Button
-            variant="outline"
-            className="rounded-full border-2 border-border text-foreground hover:bg-muted px-6 w-full mt-3"
-          >
-            <span className="font-bold">+</span>
-            <Small className="ml-1">Follow</Small>
-          </Button>
         </div>
 
         {/* Right: Profile Info */}

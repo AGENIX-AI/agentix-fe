@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils/cn";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { TypingIndicator } from "./TypingIndicator";
+import type { Conversation } from "@/services/conversation";
 
 export interface ChatBoxProps {
   messages?: Array<{
@@ -21,6 +22,7 @@ export interface ChatBoxProps {
   avatar_url?: string;
   inputRef?: React.MutableRefObject<HTMLTextAreaElement | null>;
   isAgentResponding?: boolean;
+  conversation?: Conversation | null;
   conversationData?: {
     studentInfo?: { id: string; name: string; avatar_url: string };
     instructorInfo?: { id: string; name: string; avatar_url: string };
@@ -42,6 +44,7 @@ export function ChatBox({
   avatar_url,
   inputRef,
   isAgentResponding,
+  conversation,
   conversationData,
 }: ChatBoxProps) {
   const { user } = useAuth();
@@ -114,6 +117,7 @@ export function ChatBox({
                 currentUserImage={currentUserImage}
                 agentName={displayName}
                 agentImage={displayImage}
+                conversationData={conversationData}
               />
             );
           })}
@@ -131,6 +135,8 @@ export function ChatBox({
         disabled={disabled}
         textareaRef={inputRef}
         className="px-6 py-3"
+        conversation={conversation}
+        conversationData={conversationData}
       />
     </div>
   );

@@ -8,6 +8,12 @@ import { useTranslation } from "react-i18next";
 import { useState, useRef } from "react";
 import { getSpeech } from "@/api/conversations";
 
+interface UserInfo {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
+
 interface MessageBubbleProps {
   message: any;
   index: number;
@@ -16,6 +22,16 @@ interface MessageBubbleProps {
   currentUserImage?: string;
   agentName: string;
   agentImage?: string;
+  conversationData?: {
+    studentInfo?: UserInfo;
+    instructorInfo?: UserInfo;
+    assistantInfo?: {
+      id: string;
+      name: string;
+      tagline: string;
+      image: string;
+    };
+  };
 }
 
 export function MessageBubble({
@@ -26,6 +42,7 @@ export function MessageBubble({
   currentUserImage = "",
   agentName,
   agentImage,
+  conversationData,
 }: MessageBubbleProps) {
   const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -139,6 +156,7 @@ export function MessageBubble({
           content={message.content}
           messageIndex={index}
           invocation_id={message.invocation_id}
+          conversationData={conversationData}
         />
       </div>
     </div>

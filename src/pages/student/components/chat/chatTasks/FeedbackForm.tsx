@@ -152,7 +152,7 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
 
   if (submitSuccess) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 text-center">
+      <div className="flex flex-col items-center justify-center p-8 text-center max-w-xs mx-auto py-3 px-6 text-xs">
         <div className="text-green-500 mb-4">
           <svg
             className="w-16 h-16 mx-auto"
@@ -180,9 +180,9 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 py-3 text-xs">
       <div className="space-y-2">
-        <Label htmlFor="feedback_type">
+        <Label htmlFor="feedback_type" className="text-xs">
           {t("feedback.type.label", "Feedback Type")} *
         </Label>
         <Select
@@ -191,7 +191,7 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
             setFormData((prev) => ({ ...prev, feedback_type: value }))
           }
         >
-          <SelectTrigger>
+          <SelectTrigger className="text-xs min-h-8 h-8">
             <SelectValue
               placeholder={t(
                 "feedback.type.placeholder",
@@ -199,7 +199,7 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
               )}
             />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="text-xs">
             <SelectItem value={FeedbackType.BUG}>{FeedbackType.BUG}</SelectItem>
             <SelectItem value={FeedbackType.FEATURE_REQUEST}>
               {FeedbackType.FEATURE_REQUEST}
@@ -215,7 +215,7 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">
+        <Label htmlFor="description" className="text-xs">
           {t("feedback.description.label", "Description")} *
         </Label>
         <Textarea
@@ -228,16 +228,16 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
             "feedback.description.placeholder",
             "Please provide detailed feedback..."
           )}
-          className="min-h-[120px]"
+          className="min-h-[80px] text-xs"
           maxLength={2000}
         />
-        <div className="text-xs text-muted-foreground text-right">
+        <div className="text-[10px] text-muted-foreground text-right">
           {formData.description.length}/2000
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>
+        <Label className="text-xs">
           {t("feedback.rating.label", "Rating")} (
           {t("feedback.rating.optional", "optional")})
         </Label>
@@ -245,57 +245,81 @@ export function FeedbackForm({ onClose }: FeedbackFormProps) {
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="screenshots">
+        <Label htmlFor="screenshots" className="text-xs">
           {t("feedback.screenshots.label", "Screenshots")} (
           {t("feedback.screenshots.optional", "optional")})
         </Label>
         <div className="space-y-2">
-          <Input
-            id="screenshots"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileUpload}
-            className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
-          />
+          {/* Dropzone style */}
+          <label
+            htmlFor="screenshots"
+            className="flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-colors min-h-[60px] py-4 px-2 text-center"
+          >
+            <Upload className="h-5 w-5 mb-1 text-gray-400" />
+            <span className="text-xs text-gray-500">
+              {t(
+                "feedback.screenshots.drop",
+                "Click or drag images here to upload"
+              )}
+            </span>
+            <Input
+              id="screenshots"
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileUpload}
+              className="hidden"
+            />
+          </label>
           {formData.screenshots && formData.screenshots.length > 0 && (
-            <div className="space-y-2">
-              {formData.screenshots.map((file, index) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-2 bg-muted rounded"
-                >
-                  <div className="flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
-                    <span className="text-sm truncate">{file.name}</span>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeScreenshot(index)}
+            <div className="flex flex-wrap gap-2 mt-2">
+              {formData.screenshots.map((file, index) => {
+                const url = URL.createObjectURL(file);
+                return (
+                  <div
+                    key={index}
+                    className="relative w-14 h-14 rounded overflow-hidden border border-gray-200 bg-white flex items-center justify-center"
                   >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <img
+                      src={url}
+                      alt={file.name}
+                      className="object-cover w-full h-full"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeScreenshot(index)}
+                      className="absolute top-0 right-0 bg-white bg-opacity-80 rounded-bl px-1 py-0.5 text-gray-500 hover:text-red-500"
+                      aria-label="Remove screenshot"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
       </div>
 
       {submitError && (
-        <div className="text-sm text-red-500 bg-red-50 p-3 rounded">
+        <div className="text-xs text-red-500 bg-red-50 p-2 rounded">
           {submitError}
         </div>
       )}
 
-      <div className="flex justify-end gap-3">
-        <Button variant="outline" onClick={onClose} disabled={isSubmitting}>
+      <div className="flex justify-end gap-2">
+        <Button
+          variant="outline"
+          onClick={onClose}
+          disabled={isSubmitting}
+          className="text-xs min-h-7 h-7 px-3 py-1"
+        >
           {t("common.cancel", "Cancel")}
         </Button>
         <Button
           onClick={handleSubmit}
           disabled={isSubmitting || formData.description.length < 10}
+          className="text-xs min-h-7 h-7 px-3 py-1"
         >
           {isSubmitting
             ? t("feedback.submitting", "Submitting...")

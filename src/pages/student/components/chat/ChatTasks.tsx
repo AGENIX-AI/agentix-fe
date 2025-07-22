@@ -113,7 +113,7 @@ export function TaskMenu({ onSelectTask, conversation }: TaskMenuProps) {
   return (
     <div
       className={cn(
-        "w-full absolute bottom-[calc(100%+8px)] left-0 z-20 border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans"
+        "w-full absolute bottom-[calc(100%+8px)] left-0 border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans"
       )}
       style={
         {
@@ -260,6 +260,9 @@ export function ChatTasks({
           "The instructor will be notified of your request"
         )
       );
+
+      // Dispatch custom event to notify ChatInput that sharing was successful
+      window.dispatchEvent(new CustomEvent('conversation-shared'));
 
       handleCloseModal();
     } catch (error) {

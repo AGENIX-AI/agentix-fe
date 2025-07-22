@@ -287,7 +287,7 @@ export default function LeftPanel({
           <div
             className={cn(
               "relative w-full mx-6",
-              isRightPanelCollapsed ? "w-[300px]" : "w-[200px]"
+              isRightPanelCollapsed ? "min-w-[400px]" : "w-[250px]"
             )}
           >
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />

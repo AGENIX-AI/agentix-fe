@@ -159,7 +159,7 @@ export function NotificationCenter({ className }: NotificationCenterProps) {
 
       <DropdownMenuContent
         align="start"
-        className="w-[320px] p-3 mb-3 ml-2 z-150"
+        className="w-[320px] p-3 mb-3 ml-2 "
         side="bottom"
         sideOffset={5}
         alignOffset={-300}

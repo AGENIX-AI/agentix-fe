@@ -1,4 +1,4 @@
-import api from './api';
+import api from "./api";
 
 // Types
 export interface Conversation {
@@ -22,6 +22,7 @@ export interface Conversation {
     goal_title: string;
     goal_description: string;
   }[];
+  is_sharing: boolean;
 }
 
 export interface ConversationsByCategory {
@@ -52,7 +53,7 @@ export const getConversationsByAssistantId = async (
   assistantId: string,
   page: number = 1,
   pageSize: number = 100,
-  sortBy: string = 'created_at',
+  sortBy: string = "created_at",
   sortOrder: number = 1
 ): Promise<ConversationResponse> => {
   const response = await api.get(`/conversations`, {
@@ -61,8 +62,8 @@ export const getConversationsByAssistantId = async (
       page,
       page_size: pageSize,
       sort_by: sortBy,
-      sort_order: sortOrder
-    }
+      sort_order: sortOrder,
+    },
   });
   return response.data;
 };

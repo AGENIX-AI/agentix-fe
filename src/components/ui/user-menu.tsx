@@ -80,6 +80,10 @@ export function UserMenu({
   useEffect(() => {}, []);
 
   const onLogout = () => {
+    localStorage.removeItem("student_state");
+    localStorage.removeItem("student_rightPanel");
+    localStorage.removeItem("instructor_state");
+    localStorage.removeItem("chat-input");
     signOut();
   };
 

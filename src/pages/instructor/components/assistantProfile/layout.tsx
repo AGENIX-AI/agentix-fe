@@ -40,6 +40,15 @@ export function AssistantBanner({}: AssistantBannerProps) {
       </div>
     );
   }
+  if (!assistantInfo || !instructor) {
+    return (
+      <div className="sticky top-0 z-10 bg-card h-48 flex items-center justify-center">
+        <p className="text-sm text-muted-foreground">
+          No assistant information available
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="sticky top-0 z-10 bg-card">
@@ -55,11 +64,30 @@ export function AssistantBanner({}: AssistantBannerProps) {
         />
       </div>
 
-      {/* Profile Section with Instructor on the left and Assistant on the right */}
-      <div className="flex w-full bg-secondary/5 p-4">
-        {/* Left side - Instructor */}
+      {/* Profile Section with Assistant on the left and Instructor on the right */}
+      <div className="flex w-full bg-secondary/5 px-6 py-4">
+        {/* Left side - Assistant */}
         <div className="flex flex-col items-center">
           <Avatar className="h-32 w-32 rounded-full border-4 border-white -mt-24">
+            <AvatarImage
+              src={
+                assistantInfo.image ||
+                "https://api-app.edvara.net/static/default-assistant.png"
+              }
+              alt={assistantInfo.name}
+            />
+          </Avatar>
+          <h2 className="text-lg font-semibold text-center">
+            {assistantInfo.name}
+          </h2>
+          <p className="text-xs text-center max-w-[150px]">
+            {assistantInfo.tagline}
+          </p>
+        </div>
+
+        {/* Right side - Instructor */}
+        <div className="flex-1 flex items-start mt-2">
+          <Avatar className="h-12 w-12 rounded-full mr-3 ml-6">
             <AvatarImage
               src={
                 instructor.profile_image ||
@@ -68,28 +96,12 @@ export function AssistantBanner({}: AssistantBannerProps) {
               alt={instructor.instructor_name}
             />
           </Avatar>
-          <h2 className="text-lg font-semibold text-center">
-            {instructor.instructor_name}
-          </h2>
-          <p className="text-xs text-center">Instructor</p>
-        </div>
-
-        {/* Right side - Assistant */}
-        <div className="flex-1 flex items-start mt-2">
-          <Avatar className="h-12 w-12 rounded-full mr-3 ml-6">
-            <AvatarImage
-              src={
-                assistantInfo?.image ||
-                "https://api-app.edvara.net/static/default-assistant.png"
-              }
-              alt={assistantInfo?.name}
-            />
-          </Avatar>
           <div>
-            <h3 className="text-sm font-semibold">{assistantInfo?.name}</h3>
-            <p className="text-xs">{assistantInfo?.tagline}</p>
+            <h3 className="text-sm font-semibold">
+              {instructor.instructor_name}
+            </h3>
             <p className="text-xs">
-              Specialized in {assistantInfo?.speciality || "General Assistance"}
+              {instructor.instructor_description || "General Assistance"}
             </p>
           </div>
         </div>

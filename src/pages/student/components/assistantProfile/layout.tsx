@@ -28,7 +28,7 @@ function AssistantBanner({
 }: AssistantBannerProps) {
   if (loading) {
     return (
-      <div className="sticky top-0 z-10 bg-card h-48">
+      <div className="sticky top-0 bg-card h-48">
         <LoadingState message="Loading assistant profile..." size="medium" />
       </div>
     );
@@ -36,7 +36,7 @@ function AssistantBanner({
 
   if (!assistant || !instructor) {
     return (
-      <div className="sticky top-0 z-10 bg-card h-48 flex items-center justify-center">
+      <div className="sticky top-0 bg-card h-48 flex items-center justify-center">
         <p className="text-sm text-muted-foreground">
           No assistant information available
         </p>
@@ -45,7 +45,7 @@ function AssistantBanner({
   }
 
   return (
-    <div className="sticky top-0 z-10 bg-card">
+    <div className="sticky top-0 bg-card">
       {/* Banner Image */}
       <div className="h-40 w-full overflow-hidden">
         <img

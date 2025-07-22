@@ -254,7 +254,7 @@ export function ResizableSidebar({
       <Button
         variant="ghost"
         size="icon"
-        className="fixed top-4 left-4 z-50 md:hidden"
+        className="fixed top-4 left-4 md:hidden"
         onClick={toggleSidebar}
       >
         {isOpen ? <X size={20} /> : <Menu size={20} />}
@@ -264,7 +264,7 @@ export function ResizableSidebar({
       <aside
         ref={sidebarRef}
         className={cn(
-          "fixed inset-y-0 left-0 z-40 bg-background border-r border-border transition-transform duration-300 ease-in-out",
+          "fixed inset-y-0 left-0 bg-background border-r border-border transition-transform duration-300 ease-in-out",
           isDragging ? "" : "transition-width duration-150",
           "md:translate-x-0 md:relative",
           isOpen ? "translate-x-0" : "-translate-x-full",
@@ -457,7 +457,10 @@ export function ResizableSidebar({
                   : undefined
               }
             >
-              <Gem className="h-4 w-4" />
+              <Gem
+                className="h-4 w-4 cursor-pointer "
+                onClick={() => setRightPanel("buyCredits")}
+              />
               {!isCollapsed && (
                 <span className="ml-2 flex-1 truncate text-left">
                   {credits.balance.toLocaleString()} Credits

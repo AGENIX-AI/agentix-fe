@@ -56,6 +56,7 @@ export function ChatBox({
   useEffect(() => {
     if (conversationId) {
       getConversationById(conversationId).then((res) => {
+        console.log("Conversation data:", res);
         setConversation(res);
       });
     }
@@ -134,6 +135,7 @@ export function ChatBox({
                 currentUserImage={currentUserImage}
                 agentName={displayName}
                 agentImage={displayImage}
+                conversationData={conversationData}
               />
             );
           })}
@@ -153,6 +155,7 @@ export function ChatBox({
         className="px-6 py-3"
         conversation={conversation}
         onArchiveComplete={handleArchiveComplete}
+        conversationData={conversationData}
       />
     </div>
   );

@@ -5,7 +5,12 @@
 
 .chat-message-content p:last-child {
   margin-bottom: 0;
-} 
+}
+
+/* Simple chat input styling */
+.chat-input-container {
+  position: relative;
+}
 
 /* Scrolling container styles */
 .chat-scroll-container {
@@ -50,4 +55,4 @@
 .katex-enabled .base {
   display: inline-flex;
   align-items: baseline;
-} 
+}

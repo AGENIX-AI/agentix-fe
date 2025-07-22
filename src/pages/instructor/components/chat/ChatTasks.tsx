@@ -80,7 +80,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-training-topic",
-        title: "CREATE TRAINING TOPIC",
+        title: "Create training topic",
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -89,7 +89,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "modify-assistant",
-        title: `MODIFY ${assistantInfo?.name}`,
+        title: `Modify ${assistantInfo?.name}`,
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <PenLine className="h-4 w-4 text-secondary" />

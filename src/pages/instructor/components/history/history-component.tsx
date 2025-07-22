@@ -12,6 +12,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { SystemAssistantBlock } from "./SystemAssistantBlock";
 import { UserConversationsBlock } from "./UserConversationsBlock";
 import { SharingBlock } from "../../../instructor/components/history/SharingBlock";
+import { LearningTopicBlock } from "./LearningTopicBlock";
 import { Separator } from "@/components/ui/separator";
 import {
   getSystemAssistantConversation,
@@ -54,6 +55,8 @@ export function HistoryComponent({
   // State for section visibility
   const [isChatsExpanded, setIsChatsExpanded] = useState(true);
   const [isSharingExpanded, setIsSharingExpanded] = useState(true);
+  const [isLearningTopicsExpanded, setIsLearningTopicsExpanded] =
+    useState(true);
 
   // State for collapsed view avatars
   const [systemAssistant, setSystemAssistant] =
@@ -64,6 +67,9 @@ export function HistoryComponent({
   const [sharedConversations, setSharedConversations] = useState<
     InstructorSharedConversationItem[]
   >([]);
+  const [learningTopics, setLearningTopics] = useState<ConversationListItem[]>(
+    []
+  );
   const [dataFetched, setDataFetched] = useState(false);
 
   // Fetch data once when component mounts - NOT on every visibility change
@@ -87,6 +93,19 @@ export function HistoryComponent({
         );
         if (conversationsResponse.success) {
           setConversations(conversationsResponse.conversations);
+        }
+
+        // Fetch learning topics
+        const learningTopicsResponse = await getInstructorListConversations(
+          1,
+          100,
+          "",
+          1,
+          "",
+          "Learning Topic"
+        );
+        if (learningTopicsResponse.success) {
+          setLearningTopics(learningTopicsResponse.conversations);
         }
 
         // Fetch sharing data
@@ -320,70 +339,114 @@ export function HistoryComponent({
           <div className="flex-grow overflow-hidden ml-[3px]">
             <div className="h-full overflow-y-auto">
               {/* ZONE 1: Chats */}
-              <div className="mb-3 ">
-                {/* Chats Section Header */}
-                <div
-                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                  onClick={() => setIsChatsExpanded(!isChatsExpanded)}
-                >
-                  <div className="flex items-center gap-2">
-                    {isChatsExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="font-medium text-xs">Assistants</span>
+              {(systemAssistant || conversations.length > 0) && (
+                <div className="mb-3 ">
+                  {/* Chats Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() => setIsChatsExpanded(!isChatsExpanded)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isChatsExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs">Assistants</span>
+                    </div>
                   </div>
+
+                  {/* Chats Content */}
+                  {isChatsExpanded && (
+                    <div className="ml-1">
+                      {/* BLOCK 1: System Assistant */}
+                      {systemAssistant && (
+                        <SystemAssistantBlock
+                          setIsChatLoading={setIsChatLoading}
+                          systemAssistantData={systemAssistant}
+                          assistantId={assistantId}
+                        />
+                      )}
+
+                      {/* BLOCK 2: User Conversations */}
+                      {conversations.length > 0 && (
+                        <UserConversationsBlock
+                          searchQuery={searchQuery}
+                          setIsChatLoading={setIsChatLoading}
+                          conversationsData={conversations}
+                          assistantId={assistantId}
+                        />
+                      )}
+                    </div>
+                  )}
                 </div>
+              )}
 
-                {/* Chats Content */}
-                {isChatsExpanded && (
-                  <div className="ml-1">
-                    {/* BLOCK 1: System Assistant */}
-                    <SystemAssistantBlock
-                      setIsChatLoading={setIsChatLoading}
-                      systemAssistantData={systemAssistant}
-                      assistantId={assistantId}
-                    />
+              {/* ZONE 2: Learning Topics */}
+              {learningTopics.length > 0 && (
+                <div className="mb-3">
+                  {/* Learning Topics Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() =>
+                      setIsLearningTopicsExpanded(!isLearningTopicsExpanded)
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      {isLearningTopicsExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs">
+                        Training Topics
+                      </span>
+                    </div>
+                  </div>
 
-                    {/* BLOCK 2: User Conversations */}
-                    <UserConversationsBlock
+                  {/* Learning Topics Content */}
+                  {isLearningTopicsExpanded && (
+                    <div className="ml-1">
+                      <LearningTopicBlock
+                        searchQuery={searchQuery}
+                        setIsChatLoading={setIsChatLoading}
+                        learningTopicsData={learningTopics}
+                        assistantId={assistantId}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ZONE 3: Sharing */}
+              {sharedConversations.length > 0 && (
+                <div className="">
+                  {/* Sharing Section Header */}
+                  <div
+                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
+                    onClick={() => setIsSharingExpanded(!isSharingExpanded)}
+                  >
+                    <div className="flex items-center gap-2">
+                      {isSharingExpanded ? (
+                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                      ) : (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                      )}
+                      <span className="font-medium text-xs ">
+                        Collaborative Topics
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Sharing Content */}
+                  {isSharingExpanded && (
+                    <SharingBlock
                       searchQuery={searchQuery}
-                      setIsChatLoading={setIsChatLoading}
-                      conversationsData={conversations}
-                      assistantId={assistantId}
+                      sharingData={sharedConversations}
                     />
-                  </div>
-                )}
-              </div>
-
-              {/* ZONE 2: Sharing */}
-              <div className="">
-                {/* Sharing Section Header */}
-                <div
-                  className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                  onClick={() => setIsSharingExpanded(!isSharingExpanded)}
-                >
-                  <div className="flex items-center gap-2">
-                    {isSharingExpanded ? (
-                      <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                    )}
-                    <span className="font-medium text-xs ">
-                      Collaborative Topics
-                    </span>
-                  </div>
+                  )}
                 </div>
-
-                {/* Sharing Content */}
-                {isSharingExpanded && (
-                  <SharingBlock
-                    searchQuery={searchQuery}
-                    sharingData={sharedConversations}
-                  />
-                )}
-              </div>
+              )}
             </div>
           </div>
 

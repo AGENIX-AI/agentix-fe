@@ -202,7 +202,7 @@ const enTranslation: Record<string, any> = {
       new_chat: "New Chat",
       show_history: "Show history",
       hide_history: "Hide history",
-      powered_by: "Powered by {{name}}",
+      powered_by: "{{name}}",
     },
     message: {
       typing: "Typing...",

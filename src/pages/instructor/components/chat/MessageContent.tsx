@@ -4,23 +4,81 @@ import { ImageViewer } from "./ImageViewer";
 import { parseMessageCard } from "./messageCards/types";
 import { MessageCardRenderer } from "./messageCards/MessageCardRenderer";
 
+interface UserInfo {
+  id: string;
+  name: string;
+  avatar_url: string;
+}
+
 interface MessageContentProps {
   content: string;
   messageIndex: number;
   invocation_id: string;
+  conversationData?: {
+    studentInfo?: UserInfo;
+    instructorInfo?: UserInfo;
+    assistantInfo?: {
+      id: string;
+      name: string;
+      tagline: string;
+      image: string;
+    };
+  };
+}
+
+// Function to parse mentions and convert UUIDs to user names
+function parseMentions(
+  content: string,
+  conversationData?: MessageContentProps["conversationData"]
+): string {
+  if (!content || !conversationData) return content;
+
+  // Regex to match @<uuid> pattern
+  const mentionRegex = /@([a-f0-9-]{36})/g;
+
+  return content.replace(mentionRegex, (match, userId) => {
+    // Check if the UUID matches any user in conversation data
+    if (
+      conversationData.studentInfo &&
+      conversationData.studentInfo.id === userId
+    ) {
+      return `<strong>@${conversationData.studentInfo.name}</strong>`;
+    }
+
+    if (
+      conversationData.instructorInfo &&
+      conversationData.instructorInfo.id === userId
+    ) {
+      return `<strong>@${conversationData.instructorInfo.name}</strong>`;
+    }
+
+    if (
+      conversationData.assistantInfo &&
+      conversationData.assistantInfo.id === userId
+    ) {
+      return `<strong>@${conversationData.assistantInfo.name}</strong>`;
+    }
+
+    // If no match found, return original mention
+    return match;
+  });
 }
 
 function MessageContentComponent({
   content,
   messageIndex,
   invocation_id,
+  conversationData,
 }: MessageContentProps) {
   // State for image viewer
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
-  // Remove [Instructor] and [Student] prefixes from the original content BEFORE parsing message card
-  let cleanedOriginalContent = content;
+  // Parse mentions first, before any other processing
+  let parsedContent = parseMentions(content, conversationData);
+
+  // Remove [Instructor] and [Student] prefixes from the parsed content BEFORE parsing message card
+  let cleanedOriginalContent = parsedContent;
   if (cleanedOriginalContent.trim().startsWith("[Instructor")) {
     cleanedOriginalContent = cleanedOriginalContent.replace(
       /^\s*\[Instructor\s*:\s*[^\]]+\]\s*:\s*/,

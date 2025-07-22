@@ -47,9 +47,9 @@ export const HelpContentSidebar = ({
   }
 
   return (
-    <div className="fixed inset-y-0 right-0 z-130 w-170 bg-background border-l flex flex-col">
+    <div className="fixed inset-y-0 right-0 w-170 bg-background border-l flex flex-col">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-background border-b border-gray-200 flex items-center justify-between p-6 h-18">
+      <div className="sticky top-0 bg-background border-b border-gray-200 flex items-center justify-between p-6 h-18">
         <Large className="font-semibold">
           {content?.title || "Help Content"}
         </Large>
