@@ -22,6 +22,7 @@ import {
   getListConversations,
   getStudentLastConversations,
   getStudentSharedConversations,
+  createFirstConversation,
 } from "@/api/conversations";
 import type {
   StudentConversationItem,
@@ -108,6 +109,24 @@ export function HistoryComponent({
         }
 
         setDataFetched(true);
+
+        console.log("systemResponse", systemResponse);
+
+        if (systemResponse.id && !conversationId) {
+          setConversationId(systemResponse.id);
+          setAssistantId(systemResponse.assistants?.id);
+          setRightPanel("helps");
+        } else if (systemResponse.assistants?.id && !conversationId) {
+          setIsChatLoading(true);
+          const firstConversationResponse = await createFirstConversation(
+            systemResponse.assistants.id
+          );
+          setConversationId(firstConversationResponse.conversation_id);
+          setAssistantId(systemResponse.assistants.id);
+          setRightPanel("helps");
+
+          setIsChatLoading(false);
+        }
       } catch (error) {
         console.error("Failed to fetch data:", error);
       }

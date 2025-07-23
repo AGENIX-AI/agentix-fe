@@ -50,7 +50,7 @@ export const HelpContentSidebar = ({
     <div className="fixed inset-y-0 right-0 w-170 bg-background border-l flex flex-col z-50">
       {/* Header */}
       <div className="sticky top-0 bg-background border-b border-gray-200 flex items-center justify-between p-6 h-18">
-        <Large className="font-semibold">Help Center</Large>
+        <Large className="font-semibold">{content?.title}</Large>
         <button
           onClick={onClose}
           className="p-1 rounded-full hover:bg-gray-100 transition-colors cursor-pointer"
@@ -72,13 +72,13 @@ export const HelpContentSidebar = ({
             <ReactMarkdown
               components={{
                 h1: ({ children }) => (
-                  <h1 className="text-xs font-bold mb-2">{children}</h1>
+                  <h1 className="text-xl font-bold mb-2">{children}</h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-xs font-bold mb-2">{children}</h2>
+                  <h2 className="text-lg font-bold mb-2">{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className="text-xs font-bold mb-1">{children}</h3>
+                  <h3 className="text-sm font-bold mb-1">{children}</h3>
                 ),
                 h4: ({ children }) => (
                   <h4 className="text-xs font-bold mb-1">{children}</h4>

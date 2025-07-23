@@ -1,0 +1,10 @@
+export { TopicKnowledgeComponent } from "./TopicKnowledgeComponent";
+export { TopicKnowledgeTable } from "./TopicKnowledgeTable";
+export { TopicKnowledgeReferenceDocuments } from "./TopicKnowledgeReferenceDocuments";
+export { TopicKnowledgeItems } from "./TopicKnowledgeItems";
+export { TopicKnowledgeItemsTable } from "./TopicKnowledgeItemsTable";
+export { AddTopicKnowledgeSidebar } from "./AddTopicKnowledgeSidebar";
+export { AddKnowledgeChunkSidebar } from "./AddKnowledgeChunkSidebar";
+export { ViewEditKnowledgeChunkSidebar } from "./ViewEditKnowledgeChunkSidebar";
+export { DeleteConfirmDialog } from "./DeleteConfirmDialog";
+export { default as TopicKnowledge } from "./topic-knowledge";

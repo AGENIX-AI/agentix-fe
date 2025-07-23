@@ -45,6 +45,7 @@ export function HistoryComponent({
     setRightPanel,
     isChatLoading,
     assistantId,
+    conversationId,
   } = useInstructor();
   const [searchQuery] = useState("");
 
@@ -81,7 +82,23 @@ export function HistoryComponent({
         // Fetch system assistant
         const systemResponse = await getSystemAssistantConversation();
         setSystemAssistant(systemResponse);
-        handleAvatarClick(systemResponse, true);
+        console.log("systemResponse", systemResponse);
+
+        if (systemResponse.id && !conversationId) {
+          setConversationId(systemResponse.id);
+          setAssistantId(systemResponse.assistants?.id);
+          setRightPanel("helps");
+        } else if (systemResponse.assistants?.id && !conversationId) {
+          setIsChatLoading(true);
+          const firstConversationResponse = await createFirstConversation(
+            systemResponse.assistants.id
+          );
+          setConversationId(firstConversationResponse.conversation_id);
+          setAssistantId(systemResponse.assistants.id);
+          setRightPanel("helps");
+
+          setIsChatLoading(false);
+        }
 
         // Fetch user conversations
         const conversationsResponse = await getInstructorListConversations(
@@ -151,7 +168,7 @@ export function HistoryComponent({
         const conv = conversation as ConversationListItem;
         setAssistantId(conv.assistants?.id);
         setConversationId(conv.id);
-        setRightPanel("assistantTopics");
+        setRightPanel("tasks");
       }
 
       // DON'T auto-expand - let user manually expand if they want
@@ -302,7 +319,7 @@ export function HistoryComponent({
       </div>
     );
   }
-
+  console.log("conversationsssId", conversationId);
   // Expanded state - show full history component
   return (
     <div className={cn(className, "")}>
@@ -411,7 +428,7 @@ export function HistoryComponent({
                         searchQuery={searchQuery}
                         setIsChatLoading={setIsChatLoading}
                         learningTopicsData={learningTopics}
-                        assistantId={assistantId}
+                        conversationId={conversationId}
                       />
                     </div>
                   )}

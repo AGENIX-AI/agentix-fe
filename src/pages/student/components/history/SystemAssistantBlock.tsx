@@ -18,13 +18,8 @@ function SystemAssistantBlockComponent({
   systemAssistantData?: SystemAssistantResponse | null;
   assistantId: string | null;
 }) {
-  const {
-    setAssistantId,
-    setConversationId,
-    setRightPanel,
-    isChatLoading,
-    conversationId,
-  } = useStudent();
+  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
+    useStudent();
 
   const [systemAssistant, setSystemAssistant] =
     useState<SystemAssistantResponse | null>(systemAssistantData || null);
@@ -36,10 +31,6 @@ function SystemAssistantBlockComponent({
       const response = await getSystemAssistantConversation();
       setSystemAssistant(response);
       setIsLoading(false);
-
-      if (conversationId) {
-        return;
-      }
 
       if (response.id) {
         setConversationId(response.id);
@@ -139,6 +130,7 @@ function SystemAssistantBlockComponent({
         conversation={systemAssistantConversation}
         isSystemAssistant={true}
         assistantId={assistantId}
+        conversationId={systemAssistant.id || null}
         onClick={handleSystemAssistantClick}
       />
     </div>

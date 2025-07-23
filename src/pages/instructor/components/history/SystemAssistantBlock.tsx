@@ -90,6 +90,7 @@ function SystemAssistantBlockComponent({
         isSystemAssistant={true}
         onClick={handleSystemAssistantClick}
         assistantId={assistantId}
+        conversationId={systemAssistant.id || null}
       />
     </div>
   );

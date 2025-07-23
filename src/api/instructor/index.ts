@@ -571,3 +571,64 @@ export const signToInstructor = async (
 
   return await response.json();
 };
+
+/**
+ * Assistant knowledge document interface
+ */
+export interface AssistantKnowledgeDocument {
+  id: string;
+  url: string | null;
+  title: string;
+  created_at: string;
+}
+
+/**
+ * Assistant knowledge item interface
+ */
+export interface AssistantKnowledgeItem {
+  id: string;
+  name: string;
+  image: string;
+  tagline: string;
+  description: string;
+  created_at: string;
+  documents: AssistantKnowledgeDocument[];
+}
+
+/**
+ * Response for getting assistant knowledge
+ */
+export interface GetAssistantKnowledgeResponse {
+  success: boolean;
+  assistant_knowledge: AssistantKnowledgeItem[];
+}
+
+/**
+ * Get assistant knowledge
+ * @returns Response with assistant knowledge data
+ */
+export const getAssistantKnowledge =
+  async (): Promise<GetAssistantKnowledgeResponse> => {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(
+      `${baseUrl}/assistants/get_assistant_knowledge`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to fetch assistant knowledge: ${response.statusText}`)
+      );
+      throw new Error(
+        `Failed to fetch assistant knowledge: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  };

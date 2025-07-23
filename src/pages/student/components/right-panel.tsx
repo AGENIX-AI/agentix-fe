@@ -161,6 +161,8 @@ export default function RightPanel({
         return "Buy Credits";
       case "helps":
         return "Help Center";
+      case "documents":
+        return "Documents";
       case "empty":
         return "Home Page";
       default:

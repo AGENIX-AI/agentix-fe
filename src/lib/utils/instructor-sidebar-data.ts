@@ -5,7 +5,6 @@ import {
   HelpCircle,
   LayoutDashboard,
   FileText,
-  Brain,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -41,15 +40,20 @@ export const sidebarData: SidebarData = {
           url: "/instructor",
           icon: LayoutDashboard,
         },
+        // {
+        //   title: "Knowledge Base",
+        //   url: "/instructor",
+        //   icon: FileText,
+        // },
+        // {
+        //   title: "Knowledge Components",
+        //   url: "/instructor",
+        //   icon: Brain,
+        // },
         {
           title: "Knowledge Base",
           url: "/instructor",
           icon: FileText,
-        },
-        {
-          title: "Knowledge Components",
-          url: "/instructor",
-          icon: Brain,
         },
       ],
     },

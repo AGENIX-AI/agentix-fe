@@ -13,14 +13,14 @@ interface LearningTopicBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
   learningTopicsData?: ConversationListItem[];
-  assistantId: string | null;
+  conversationId: string | null;
 }
 
 function LearningTopicBlockComponent({
   searchQuery,
   setIsChatLoading,
   learningTopicsData,
-  assistantId,
+  conversationId,
 }: LearningTopicBlockProps) {
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
@@ -203,7 +203,7 @@ function LearningTopicBlockComponent({
     }
 
     // Change the right panel to assistantTopics
-    setRightPanel("assistantTopics");
+    setRightPanel("tasks");
     setIsChatLoading(false);
   };
 
@@ -216,7 +216,7 @@ function LearningTopicBlockComponent({
       />
     );
   }
-
+  console.log("sssss", conversationId);
   return (
     <div className="">
       {learningTopics.length > 0 ? (
@@ -225,7 +225,8 @@ function LearningTopicBlockComponent({
             <ConversationItem
               conversation={topic}
               onClick={handleTopicClick}
-              assistantId={assistantId}
+              assistantId={null}
+              conversationId={conversationId}
               isLearningTopic={true}
             />
           </div>

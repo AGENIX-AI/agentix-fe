@@ -72,15 +72,19 @@ export function TaskMenu({ onSelectTask, conversation }: TaskMenuProps) {
     ];
   } else {
     tasks = [
-      {
-        id: "create-topic",
-        title: "create_topic", // This is now a translation key
-        icon: (
-          <div className="w-4 h-4 flex items-center justify-center rounded">
-            <Sparkles className="h-4 w-4 text-secondary" />
-          </div>
-        ),
-      },
+      ...(conversation && conversation?.type === "General"
+        ? [
+            {
+              id: "create-topic",
+              title: "create_topic", // This is now a translation key
+              icon: (
+                <div className="w-4 h-4 flex items-center justify-center rounded">
+                  <Sparkles className="h-4 w-4 text-secondary" />
+                </div>
+              ),
+            },
+          ]
+        : []),
       ...(conversation && conversation?.type !== "General"
         ? [
             {
@@ -262,7 +266,7 @@ export function ChatTasks({
       );
 
       // Dispatch custom event to notify ChatInput that sharing was successful
-      window.dispatchEvent(new CustomEvent('conversation-shared'));
+      window.dispatchEvent(new CustomEvent("conversation-shared"));
 
       handleCloseModal();
     } catch (error) {

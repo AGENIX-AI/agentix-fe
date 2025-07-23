@@ -1,6 +1,7 @@
 import {
   AudioWaveform,
   Command,
+  FileText,
   GalleryVerticalEnd,
   HelpCircle,
   LayoutDashboard,
@@ -49,6 +50,11 @@ export const sidebarData: SidebarData = {
           title: "Find Instructor",
           url: "/student",
           icon: UserSearch,
+        },
+        {
+          title: "Documents",
+          url: "/student/documents",
+          icon: FileText,
         },
       ],
     },

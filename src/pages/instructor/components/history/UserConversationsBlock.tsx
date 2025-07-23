@@ -227,6 +227,7 @@ function UserConversationsBlockComponent({
             conversation={conversation}
             onClick={handleConversationClick}
             assistantId={assistantId}
+            conversationId={null}
           />
         </div>
       ))}

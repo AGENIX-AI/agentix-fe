@@ -116,7 +116,7 @@ export function AssistantView({ page }: { page: string }) {
       <AssistantBanner />
 
       <div className="overflow-y-auto flex-1 pb-1">
-        <Tabs defaultValue={page} className="w-full mt-2">
+        <Tabs defaultValue={page} value={page} className="w-full mt-2">
           <TabsList className="w-full bg-transparent border-none flex gap-2 p-5">
             <TabsTrigger
               value="tasks"

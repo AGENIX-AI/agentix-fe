@@ -396,6 +396,9 @@ export function ResizableSidebar({
                             if (navItem.title === "Help Center") {
                               setRightPanel("helps");
                             }
+                            if (navItem.title === "Knowledge Base") {
+                              setRightPanel("knowledgeBase");
+                            }
                           }}
                         >
                           {Icon && (

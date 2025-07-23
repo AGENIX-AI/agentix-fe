@@ -280,6 +280,7 @@ export const ConversationTasks = memo(
 
     // Function to fetch tasks with optimization to prevent unnecessary updates
     const fetchTasks = useCallback(async () => {
+      console.log("ConversationTasks - conversationId:", conversationId);
       if (!conversationId) return;
 
       // Only show loading state on initial load
@@ -361,8 +362,11 @@ export const ConversationTasks = memo(
 
     // Initial fetch when component mounts or conversation changes
     useEffect(() => {
-      fetchTasks();
-    }, [fetchTasks]);
+      if (conversationId) {
+        console.log("Fetching tasks for conversationId:", conversationId);
+        fetchTasks();
+      }
+    }, [fetchTasks, conversationId]);
 
     // Update the ref whenever tasks change
     useEffect(() => {
@@ -402,6 +406,24 @@ export const ConversationTasks = memo(
           ...tasks.completed_tasks,
         ].sort((a, b) => Number(a.step) - Number(b.step))
       : [];
+
+    // Check if there's no conversationId
+    if (!conversationId) {
+      return (
+        <div className={`${className}`}>
+          <div className="p-6">
+            <div className="flex flex-col items-center justify-center py-6 text-center">
+              <ListTodo size={48} className="text-muted-foreground mb-3" />
+              <H4 className="font-medium mb-3">No conversation selected</H4>
+              <P className="text-muted-foreground max-w-md">
+                Please select a conversation from the history panel to view
+                tasks.
+              </P>
+            </div>
+          </div>
+        </div>
+      );
+    }
 
     // Check if there are no tasks at all
     if (!tasks || isLoading || allTasks.length === 0) {
