@@ -231,8 +231,8 @@ export default function WebDerivedKnowledgeTab() {
                   </p>
                 </div>
               ) : (
-                <div className="w-full max-w-full overflow-hidden">
-                  <div className="w-full max-w-full overflow-x-auto">
+                <div className="w-full">
+                  <div className="w-full">
                     <WebDerivedKnowledgeTable
                       documents={documents}
                       getStatusColor={getStatusColor}

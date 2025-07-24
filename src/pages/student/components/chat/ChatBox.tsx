@@ -136,6 +136,7 @@ export function ChatBox({
                 agentName={displayName}
                 agentImage={displayImage}
                 conversationData={conversationData}
+                isSharing={conversation?.is_sharing}
               />
             );
           })}

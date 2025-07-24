@@ -25,11 +25,11 @@ export function DocumentsLayout({
       <Tabs
         defaultValue={activeTab}
         value={activeTab}
-        className="w-full h-full flex flex-col"
+        className="h-full flex flex-col w-full"
         onValueChange={(value) => setActiveTab(value as any)}
       >
         <div className="px-6 pt-4">
-          <TabsList className="grid grid-cols-4 mb-4">
+          <TabsList className="mb-4 w-full">
             <TabsTrigger value="documents">Documents</TabsTrigger>
             <TabsTrigger value="knowledge-notes">Knowledge Notes</TabsTrigger>
             {/* <TabsTrigger value="media">Media</TabsTrigger> */}

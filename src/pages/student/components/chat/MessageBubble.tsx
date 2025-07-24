@@ -22,6 +22,7 @@ interface MessageBubbleProps {
   currentUserImage?: string;
   agentName: string;
   agentImage?: string;
+  isSharing?: boolean;
   conversationData?: {
     studentInfo?: UserInfo;
     instructorInfo?: UserInfo;
@@ -42,6 +43,7 @@ export function MessageBubble({
   currentUserImage = "",
   agentName,
   agentImage,
+  isSharing,
   conversationData,
 }: MessageBubbleProps) {
   const { t } = useTranslation();
@@ -100,6 +102,33 @@ export function MessageBubble({
     handlePlayAudio();
   };
 
+  // Determine the role for display when sharing is enabled
+  const getRoleDisplay = () => {
+    if (!isSharing) return null;
+
+    if (isCurrentUser) {
+      return (
+        <span className="text-[10px] ml-1 text-muted-foreground">
+          (Student)
+        </span>
+      );
+    } else if (message.sender === "instructor") {
+      return (
+        <span className="text-[10px] ml-1 text-muted-foreground">
+          (Instructor)
+        </span>
+      );
+    } else if (message.sender === "agent") {
+      return (
+        <span className="text-[10px] ml-1 text-muted-foreground">
+          (Assistant)
+        </span>
+      );
+    }
+
+    return null;
+  };
+
   return (
     <div className={cn("flex flex-col mt-1 items-start")}>
       <div className="flex items-center gap-2">
@@ -118,8 +147,9 @@ export function MessageBubble({
             </AvatarFallback>
           </Avatar>
         )}
-        <span className="text-xs font-bold">
+        <span className="text-xs font-bold flex items-center">
           {isCurrentUser ? currentUserName : agentName}
+          {getRoleDisplay()}
         </span>
         <span className="text-[10px]">
           {message.time ? formatMessageDate(message.time) : ""}

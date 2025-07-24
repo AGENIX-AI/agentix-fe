@@ -41,7 +41,7 @@ function SystemAssistantBlockComponent({
       // If system assistant already has a conversation ID, use it
       setConversationId(systemAssistant.id);
       setAssistantId(systemAssistant.assistants?.id);
-      setRightPanel("assistantTopics");
+      setRightPanel("helps");
     } else if (systemAssistant?.assistants?.id) {
       // If no conversation ID exists, create a new one
       try {
@@ -50,7 +50,7 @@ function SystemAssistantBlockComponent({
         );
         setConversationId(response.conversation_id);
         setAssistantId(systemAssistant.assistants.id);
-        setRightPanel("assistantTopics");
+        setRightPanel("helps");
       } catch (error) {
         console.error("Failed to create conversation:", error);
       }

@@ -53,8 +53,8 @@ export function WebDerivedKnowledgeTable({
 
   return (
     <div className="relative w-full max-w-full">
-      <div className="border rounded-md w-full max-w-full overflow-hidden">
-        <div className="w-full overflow-x-auto">
+      <div className="border rounded-md overflow-hidden">
+        <div className="w-full">
           <Table className="w-full">
             <TableHeader>
               <TableRow>
