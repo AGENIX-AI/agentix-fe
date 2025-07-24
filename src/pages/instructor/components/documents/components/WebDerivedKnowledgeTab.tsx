@@ -112,8 +112,8 @@ export default function WebDerivedKnowledgeTab() {
       });
       // setShowDetails?.(true);
     } catch (error) {
-      console.error("Error selecting web derived knowledge:", error);
-      toast.error("Failed to select web derived knowledge");
+      console.error("Error selecting online sources:", error);
+      toast.error("Failed to select online sources");
     }
   };
 
@@ -122,7 +122,6 @@ export default function WebDerivedKnowledgeTab() {
     setRefreshDocuments((prev) => prev + 1);
     // Close the sidebar
     setShowAddSidebar(false);
-    toast.success("Web derived knowledge added successfully");
   };
 
   const handleEditSidebarSuccess = () => {
@@ -195,12 +194,12 @@ export default function WebDerivedKnowledgeTab() {
       <div className="flex-1 overflow-y-auto">
         <div className="my-3">
           <div className="mb-3 flex items-center justify-between">
-            <Small className="font-semibold">Web Derived Knowledge</Small>
+            <Small className="font-semibold">Online Sources</Small>
             <Button
               onClick={() => setShowAddSidebar(true)}
               className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
             >
-              Add Web Derived Knowledge
+              Add Online Sources
             </Button>
           </div>
 
@@ -208,7 +207,7 @@ export default function WebDerivedKnowledgeTab() {
           <div className="mb-4">
             <input
               type="text"
-              placeholder="Search web derived knowledge..."
+              placeholder="Search online sources..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -224,10 +223,10 @@ export default function WebDerivedKnowledgeTab() {
               {documents.length === 0 ? (
                 <div className="text-center py-8 border rounded-lg">
                   <h3 className="mt-2 text-xs font-medium">
-                    No web derived knowledge found
+                    No online sources found
                   </h3>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Add web derived knowledge by clicking the button above
+                    Add online sources by clicking the button above
                   </p>
                 </div>
               ) : (

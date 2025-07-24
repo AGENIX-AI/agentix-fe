@@ -361,39 +361,44 @@ export default function RightPanel({
           <Helps />
         </div>
       );
-    case "knowledgeBase":
+    case "documents":
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
             title="Knowledge Base"
             toggleMiniapp={toggleMiniapp}
           />
-          <DocumentsLayout />
+          <DocumentsLayout defaultTab="documents" />
         </div>
       );
-    case "empty":
+    case "knowledge-notes":
       return (
         <div className="flex flex-col h-full">
-          <div className="sticky top-0 z-20 bg-background flex h-18 border-b w-full p-4">
-            <div className="flex items-center justify-between w-full">
-              <h1 className="text-2xl font-bold">Home Page</h1>
-              <MiniappToggleButton
-                isExpanded={true}
-                toggleMiniapp={toggleMiniapp}
-              />
-            </div>
-          </div>
-          <div className="flex-1 w-full flex items-center justify-center p-5 bg-background border-r border-border">
-            <div className="flex items-center justify-center">
-              <img
-                src="https://api-app.edvara.net/static/Wavy_Tech-12_Single-01.jpg"
-                alt="Edvara"
-                className="w-240 h-240 object-contain"
-              />
-            </div>
-          </div>
+          <RightPanelHeader
+            title="Knowledge Notes"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <DocumentsLayout defaultTab="knowledge-notes" />
         </div>
       );
+    case "media":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader title="Media" toggleMiniapp={toggleMiniapp} />
+          <DocumentsLayout defaultTab="media" />
+        </div>
+      );
+    case "online-sources":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Online Sources"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <DocumentsLayout defaultTab="online-sources" />
+        </div>
+      );
+
     default:
       return (
         <div className="flex flex-col h-full">

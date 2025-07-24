@@ -397,7 +397,10 @@ export function ResizableSidebar({
                               setRightPanel("helps");
                             }
                             if (navItem.title === "Knowledge Base") {
-                              setRightPanel("knowledgeBase");
+                              setRightPanel("documents");
+                            }
+                            if (navItem.title === "Assistant Management") {
+                              setRightPanel("assistantManagement");
                             }
                           }}
                         >

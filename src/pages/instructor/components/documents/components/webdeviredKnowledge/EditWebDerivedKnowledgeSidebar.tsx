@@ -75,8 +75,8 @@ export function EditWebDerivedKnowledgeSidebar({
             title: document.title || "",
             url: document.url || "",
             is_parse: true,
-            depth: 2,
-            page_limit: 3,
+            depth: 0,
+            page_limit: 1,
           });
         }
       }
@@ -97,11 +97,11 @@ export function EditWebDerivedKnowledgeSidebar({
       // For now, we'll just simulate a successful update
       await new Promise((resolve) => setTimeout(resolve, 500));
 
-      toast.success("Web derived knowledge title updated successfully");
+      toast.success("Online sources title updated successfully");
       onSuccess();
     } catch (error) {
-      console.error("Error updating web derived knowledge title:", error);
-      toast.error("Failed to update web derived knowledge title");
+      console.error("Error updating online sources title:", error);
+      toast.error("Failed to update online sources title");
     } finally {
       setIsSubmitting(false);
     }
@@ -117,7 +117,7 @@ export function EditWebDerivedKnowledgeSidebar({
     <div className="fixed inset-y-0 right-0 w-80 bg-background border-l border-border shadow-lg z-50 overflow-y-auto">
       <div className="p-4">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Edit Web Derived Knowledge</h2>
+          <h2 className="text-lg font-semibold">Edit Online Sources</h2>
           <button
             onClick={onClose}
             className="text-muted-foreground hover:text-foreground"
@@ -140,7 +140,7 @@ export function EditWebDerivedKnowledgeSidebar({
                   name="title"
                   value={formData.title}
                   onChange={handleTitleChange}
-                  placeholder="e.g., Google Web Derived Knowledge"
+                  placeholder="e.g., Google Online Sources"
                   required
                 />
               </div>

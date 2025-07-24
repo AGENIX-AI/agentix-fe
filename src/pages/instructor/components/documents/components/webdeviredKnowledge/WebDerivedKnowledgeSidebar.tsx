@@ -5,7 +5,6 @@ import { X, HelpCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { createWebDerivedKnowledge } from "@/api/documents";
 import {
   Tooltip,
@@ -13,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 interface AddWebDerivedKnowledgeSidebarProps {
   isVisible: boolean;
@@ -41,9 +41,9 @@ export function AddWebDerivedKnowledgeSidebar({
   const [formData, setFormData] = useState<WebCrawlFormData>({
     title: "",
     url: "",
-    is_parse: true,
-    depth: 2,
-    page_limit: 3,
+    is_parse: true, // Always true now
+    depth: 0,
+    page_limit: 1,
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,19 +66,19 @@ export function AddWebDerivedKnowledgeSidebar({
           title: "",
           url: "",
           is_parse: true,
-          depth: 2,
-          page_limit: 3,
+          depth: 0,
+          page_limit: 1,
         });
 
-        toast.success("Web derived knowledge creation started");
+        toast.success("Online sources creation started");
         // Call success callback
         onSuccess();
       } else {
-        toast.error("Failed to create web derived knowledge");
+        toast.error("Failed to create online sources");
       }
     } catch (error) {
-      console.error("Error creating web derived knowledge:", error);
-      toast.error("Failed to create web derived knowledge");
+      console.error("Error creating online sources:", error);
+      toast.error("Failed to create online sources");
     } finally {
       setIsSubmitting(false);
     }
@@ -91,8 +91,8 @@ export function AddWebDerivedKnowledgeSidebar({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleCheckboxChange = (checked: boolean) => {
-    setFormData((prev) => ({ ...prev, is_parse: checked }));
+  const handleDepthChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, depth: parseInt(value) }));
   };
 
   const handleNumberChange = (name: string, value: string) => {
@@ -114,33 +114,38 @@ export function AddWebDerivedKnowledgeSidebar({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-80 bg-background border-l border-border shadow-lg z-50 overflow-y-auto">
-      <div className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Add Web Derived Knowledge</h2>
-          <button
-            onClick={onClose}
-            className="text-muted-foreground hover:text-foreground"
-          >
-            <X className="h-5 w-5" />
-          </button>
-        </div>
+    <div className="fixed inset-y-0 right-0 w-80 bg-background border-l border-border shadow-lg z-50 overflow-hidden flex flex-col h-screen">
+      {/* Header - fixed height h-18 */}
+      <div className="flex items-center justify-between h-18 border-b border-border px-6">
+        <h2 className="text-lg font-semibold">Add Online Sources</h2>
+        <button
+          onClick={onClose}
+          className="text-muted-foreground hover:text-foreground"
+        >
+          <X className="h-5 w-5" />
+        </button>
+      </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="space-y-3">
-            <div className="space-y-3">
+      {/* Content - takes remaining space between header and footer */}
+      <div className="flex-grow overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="flex flex-col h-full px-6 py-4"
+        >
+          <div className="space-y-4">
+            <div className="space-y-2">
               <Label htmlFor="title">Title</Label>
               <Input
                 id="title"
                 name="title"
                 value={formData.title}
                 onChange={handleChange}
-                placeholder="e.g., Google Web Derived Knowledge"
+                placeholder="e.g., Google Online Sources"
                 required
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Label htmlFor="url">URL</Label>
               <Input
                 id="url"
@@ -152,9 +157,9 @@ export function AddWebDerivedKnowledgeSidebar({
               />
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center space-x-1">
-                <Label htmlFor="depth">Crawl Depth</Label>
+                <Label>Crawl Depth</Label>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -162,29 +167,30 @@ export function AddWebDerivedKnowledgeSidebar({
                     </TooltipTrigger>
                     <TooltipContent>
                       <p className="max-w-xs text-xs">
-                        Crawl depth defines how many levels of links the crawler
-                        will follow from the initial URL. A depth of 1 means
-                        only the initial page, 2 includes all pages linked from
-                        the initial page, and so on.
+                        Choose whether to crawl only the current page (0) or
+                        follow links up to 3 levels deep.
                       </p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </div>
-              <Input
-                id="depth"
-                name="depth"
-                type="number"
-                min={1}
-                max={100}
-                value={formData.depth}
-                onChange={(e) => handleNumberChange("depth", e.target.value)}
-                className="mt-1"
-                required
-              />
+              <RadioGroup
+                value={formData.depth.toString()}
+                onValueChange={handleDepthChange}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="0" id="depth-0" />
+                  <Label htmlFor="depth-0">Current Page</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="3" id="depth-3" />
+                  <Label htmlFor="depth-3">Deep Crawl</Label>
+                </div>
+              </RadioGroup>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center space-x-1">
                 <Label htmlFor="page_limit">Page Limit</Label>
                 <TooltipProvider>
@@ -212,26 +218,23 @@ export function AddWebDerivedKnowledgeSidebar({
                 onChange={(e) =>
                   handleNumberChange("page_limit", e.target.value)
                 }
-                className="mt-1"
                 required
               />
             </div>
-            <div className="flex items-center space-x-2 my-3">
-              <Checkbox
-                id="is_parse"
-                checked={formData.is_parse}
-                onCheckedChange={handleCheckboxChange}
-                className="my-3"
-              />
-              <Label htmlFor="is_parse" className="my-3">
-                Parse content
-              </Label>
-            </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Adding..." : "Add Web Derived Knowledge"}
-            </Button>
           </div>
         </form>
+      </div>
+
+      {/* Footer - fixed height h-18 */}
+      <div className="h-18 border-t border-border px-6 flex items-center">
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={isSubmitting}
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? "Adding..." : "Add Online Sources"}
+        </Button>
       </div>
     </div>
   );
