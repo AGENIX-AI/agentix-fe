@@ -39,12 +39,17 @@ export interface Document {
   id: string;
   user_id: string;
   url: string;
-  upload_status: "completed" | "not_complete" | "failed" | "pending";
+  upload_status:
+    | "completed"
+    | "not_complete"
+    | "failed"
+    | "pending"
+    | "crawl_completed";
   created_at: string;
   updated_at: string;
   file_name: string;
   title: string;
-  type: "document" | "image" | "topic_knowledge";
+  type: "document" | "image" | "topic_knowledge" | "crawl_document";
   linked?: boolean;
   description?: string;
   path?: string;
@@ -62,7 +67,7 @@ export interface GetDocumentsParams {
   sort_by?: string;
   sort_order?: number;
   search?: string;
-  type?: "document" | "image" | "topic_knowledge" | "all";
+  type?: "document" | "image" | "topic_knowledge" | "crawl_document" | "all";
   assistant_id?: string;
 }
 
@@ -777,6 +782,110 @@ export async function deleteTopicKnowledge(chunkIndex: string): Promise<{
     throw new Error(
       `Failed to delete knowledge component: ${response.statusText}`
     );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Create web derived knowledge by crawling a website
+ * @param data The crawling configuration
+ * @returns Promise with the success status and document_id
+ */
+export async function createWebDerivedKnowledge(data: {
+  title: string;
+  url: string;
+  is_parse: boolean;
+  depth: number;
+  page_limit: number;
+}): Promise<{ success: boolean; document_id: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${baseUrl}/documents/crawl_document`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to create web derived knowledge: ${response.statusText}`
+      )
+    );
+    throw new Error(
+      `Failed to create web derived knowledge: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Get crawled documents from a web crawl
+ * @param documentId The ID of the crawl document
+ * @returns Promise with the list of crawled documents
+ */
+export async function getCrawlDocuments(documentId: string): Promise<any[]> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/get_crawl_document/${documentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to get crawl documents: ${response.statusText}`)
+    );
+    throw new Error(`Failed to get crawl documents: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Index crawled documents
+ * @param documentId The ID of the crawl document
+ * @param data The indexing configuration and documents to index
+ * @returns Promise with the success status and message
+ */
+export async function indexCrawlDocument(
+  documentId: string,
+  data: {
+    is_parse: boolean;
+    docs: Array<{
+      link: string;
+      summary: string;
+      markdown: string;
+    }>;
+  }
+): Promise<{ success: boolean; message: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/index_crawl_document/${documentId}`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to index crawl document: ${response.statusText}`)
+    );
+    throw new Error(`Failed to index crawl document: ${response.statusText}`);
   }
 
   return await response.json();
