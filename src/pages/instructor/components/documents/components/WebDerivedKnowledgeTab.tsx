@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { getOwnDocuments, linkDocument, unlinkDocument } from "@/api/documents";
@@ -192,13 +192,14 @@ export default function WebDerivedKnowledgeTab() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
-        <div className="my-3">
+        <div className="">
           <div className="mb-3 flex items-center justify-between">
             <Small className="font-semibold">Online Sources</Small>
             <Button
               onClick={() => setShowAddSidebar(true)}
               className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
             >
+              <Plus className="h-3 w-3 mr-1" />
               Add Online Sources
             </Button>
           </div>

@@ -75,7 +75,7 @@ function MessageContentComponent({
   const [currentImageUrl, setCurrentImageUrl] = useState("");
 
   // Parse mentions first, before any other processing
-  let parsedContent = parseMentions(content, conversationData);
+  const parsedContent = parseMentions(content, conversationData);
 
   // Remove [Instructor] and [Student] prefixes from the parsed content BEFORE parsing message card
   let cleanedOriginalContent = parsedContent;

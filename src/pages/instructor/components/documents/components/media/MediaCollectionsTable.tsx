@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/table";
 import type { Document } from "@/api/documents";
 
-export interface TopicKnowledgeTableProps {
+export interface MediaCollectionsTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
   onView?: (documentId: string) => void;
@@ -20,7 +20,7 @@ export interface TopicKnowledgeTableProps {
   loadingDocumentIds?: string[];
 }
 
-export function TopicKnowledgeTable({
+export function MediaCollectionsTable({
   documents,
   getStatusColor,
   onView,
@@ -28,7 +28,7 @@ export function TopicKnowledgeTable({
   onDelete,
   onRowClick,
   loadingDocumentIds = [],
-}: TopicKnowledgeTableProps) {
+}: MediaCollectionsTableProps) {
   return (
     <div className="relative w-full max-w-full">
       <div className="border rounded-md w-full max-w-full overflow-hidden">
@@ -39,10 +39,6 @@ export function TopicKnowledgeTable({
                 <TableHead className="text-xs max-w-[200px]">Title</TableHead>
                 <TableHead className="text-xs">Type</TableHead>
                 <TableHead className="text-xs">Status</TableHead>
-                <TableHead className="text-xs">Language</TableHead>
-                <TableHead className="text-xs max-w-[200px]">
-                  Base Documents
-                </TableHead>
                 <TableHead className="text-xs">Created</TableHead>
                 <TableHead className="text-right text-xs">Actions</TableHead>
               </TableRow>
@@ -62,7 +58,7 @@ export function TopicKnowledgeTable({
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-xs">Knowledge Component</TableCell>
+                  <TableCell className="text-xs">Media Collection</TableCell>
                   <TableCell>
                     <span
                       className={cn(
@@ -80,32 +76,6 @@ export function TopicKnowledgeTable({
                     </span>
                   </TableCell>
                   <TableCell className="text-xs">
-                    {document.language || "N/A"}
-                  </TableCell>
-                  <TableCell className="max-w-[200px]">
-                    {document.base_documents &&
-                    document.base_documents.length > 0 ? (
-                      <div className="text-xs">
-                        {document.base_documents
-                          .slice(0, 2)
-                          .map((doc, index) => (
-                            <div key={index} className="truncate">
-                              {doc}
-                            </div>
-                          ))}
-                        {document.base_documents.length > 2 && (
-                          <div className="text-muted-foreground">
-                            +{document.base_documents.length - 2} more
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">
-                        No base documents
-                      </span>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-xs">
                     {new Date(document.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right text-xs">
@@ -117,7 +87,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onView?.(document.id)}
                             className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                            title="View knowledge component"
+                            title="View media collection"
                           >
                             <Eye className="h-3 w-3" />
                             View
@@ -125,7 +95,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onEdit?.(document.id)}
                             className="text-xs text-amber-600 hover:underline flex items-center gap-1"
-                            title="Edit knowledge component"
+                            title="Edit media collection"
                           >
                             <Edit className="h-3 w-3" />
                             Edit
@@ -133,7 +103,7 @@ export function TopicKnowledgeTable({
                           <button
                             onClick={() => onDelete?.(document.id)}
                             className="text-xs text-red-600 hover:underline flex items-center gap-1"
-                            title="Delete knowledge component"
+                            title="Delete media collection"
                           >
                             <Trash2 className="h-3 w-3" />
                             Delete

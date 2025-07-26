@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { getOwnDocuments } from "@/api/documents";
@@ -62,20 +62,6 @@ export function TopicKnowledgeComponent({
     fetchDocuments();
   }, [currentPage, pageSize, searchQuery, refreshTrigger]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-green-600 bg-green-50 border-green-100 dark:bg-green-950/30 dark:border-green-900";
-      case "pending":
-      case "not_complete":
-        return "text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-950/30 dark:border-amber-900";
-      case "failed":
-        return "text-red-600 bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
-    }
-  };
-
   const handleViewDocument = async (documentId: string) => {
     try {
       // TODO: Implement view functionality
@@ -134,16 +120,17 @@ export function TopicKnowledgeComponent({
   };
 
   return (
-    <div className="my-3">
-      <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">Knowledge Components</Small>
+    <div className="">
+      <div className="flex items-center justify-between mb-3">
+        <Small className="font-semibold">Notes Collections</Small>
         <Button
           onClick={() => {
             onAddTopicKnowledge?.();
           }}
-          className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
+          className="px-3 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
         >
-          Add Knowledge Component
+          <Plus className="h-3 w-3 mr-1" />
+          Add Notes Collection
         </Button>
       </div>
 
@@ -151,7 +138,7 @@ export function TopicKnowledgeComponent({
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search knowledge components..."
+          placeholder="Search notes collections..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -178,7 +165,6 @@ export function TopicKnowledgeComponent({
               <div className="w-full max-w-full overflow-x-auto">
                 <TopicKnowledgeTable
                   documents={documents}
-                  getStatusColor={getStatusColor}
                   onView={handleViewDocument}
                   onEdit={handleEditDocument}
                   onDelete={handleDeleteDocument}

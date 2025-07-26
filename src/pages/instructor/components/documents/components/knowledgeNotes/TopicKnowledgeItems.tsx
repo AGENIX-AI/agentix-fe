@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { getTopicKnowledgeItems, deleteTopicKnowledge } from "@/api/documents";
@@ -171,13 +171,14 @@ export function TopicKnowledgeItems({
   return (
     <div className="my-3">
       <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">Knowledge Topic Details</Small>
+        <Small className="font-semibold">Knowledge Notes</Small>
         <Button
           onClick={() => setShowAddChunkSidebar(true)}
           className="px-3 py-1.5 text-xs"
           size="sm"
         >
-          Add Knowledge Chunk
+          <Plus className="h-3 w-3 mr-1" />
+          Add Notes
         </Button>
       </div>
 

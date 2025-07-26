@@ -82,7 +82,7 @@ export function AddKnowledgeChunkSidebar({
         });
 
         if (response.success) {
-          toast.success("Knowledge chunk created successfully!");
+          toast.success("Note created successfully!");
           handleClose();
           onSuccess?.();
         }
@@ -94,15 +94,15 @@ export function AddKnowledgeChunkSidebar({
 
         if (response.success) {
           toast.success(
-            `${response.output.length} knowledge chunks created using ${frameworkLabels[framework]} framework!`
+            `${response.output.length} notes created using ${frameworkLabels[framework]} framework!`
           );
           handleClose();
           onSuccess?.();
         }
       }
     } catch (error) {
-      console.error("Error creating knowledge chunk:", error);
-      toast.error("Failed to create knowledge chunk");
+      console.error("Error creating note:", error);
+      toast.error("Failed to create note");
     } finally {
       setIsSubmitting(false);
     }
@@ -137,7 +137,7 @@ export function AddKnowledgeChunkSidebar({
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
-          <h2 className="text-lg font-semibold">Add Knowledge Chunk</h2>
+          <h2 className="text-lg font-semibold">Add Notes</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -267,8 +267,7 @@ export function AddKnowledgeChunkSidebar({
               ) : (
                 <>
                   <Check className="h-4 w-4 mr-2" />
-                  Create {mode === "Framework" ? "Framework " : ""}Knowledge
-                  Chunk
+                  Create {mode === "Framework" ? "Framework " : ""}Notes
                 </>
               )}
             </Button>

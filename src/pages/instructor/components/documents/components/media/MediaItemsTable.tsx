@@ -7,23 +7,23 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { TopicKnowledgeItem } from "@/api/documents";
+import type { ImageDocument } from "@/api/documents";
 
-export interface TopicKnowledgeItemsTableProps {
-  items: TopicKnowledgeItem[];
+export interface MediaItemsTableProps {
+  items: ImageDocument[];
   onView?: (chunkIndex: string) => void;
   onEdit?: (chunkIndex: string) => void;
   onDelete?: (chunkIndex: string) => void;
   loadingItemIds?: string[];
 }
 
-export function TopicKnowledgeItemsTable({
+export function MediaItemsTable({
   items,
   onView,
   onEdit,
   onDelete,
   loadingItemIds = [],
-}: TopicKnowledgeItemsTableProps) {
+}: MediaItemsTableProps) {
   return (
     <div className="relative w-full max-w-full">
       <div className="border rounded-md w-full max-w-full overflow-hidden">
@@ -31,9 +31,9 @@ export function TopicKnowledgeItemsTable({
           <Table className="w-full min-w-[800px]">
             <TableHeader>
               <TableRow>
+                <TableHead className="text-xs max-w-[200px]">Image</TableHead>
                 <TableHead className="text-xs max-w-[250px]">Title</TableHead>
                 <TableHead className="text-xs max-w-[300px]">Summary</TableHead>
-                {/* <TableHead className="text-xs max-w-[400px]">Content</TableHead> */}
                 <TableHead className="text-right text-xs">Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -44,6 +44,13 @@ export function TopicKnowledgeItemsTable({
                   className="cursor-pointer hover:bg-muted/50"
                   onClick={() => onView?.(item.chunk_index)}
                 >
+                  <TableCell className="max-w-[200px]">
+                    <img
+                      src={item.url}
+                      alt={item.title}
+                      className="w-16 h-16 object-cover rounded-md"
+                    />
+                  </TableCell>
                   <TableCell className="max-w-[250px] truncate">
                     <div className="text-xs font-medium">{item.title}</div>
                   </TableCell>

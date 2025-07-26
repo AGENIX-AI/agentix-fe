@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { getOwnDocuments, linkDocument, unlinkDocument } from "@/api/documents";
@@ -8,20 +8,24 @@ import { useInstructor } from "@/contexts/InstructorContext";
 
 import { SearchFilterBar } from "./SearchFilterBar";
 import { Small } from "@/components/ui/typography";
-import { DocumentTable } from "@/pages/instructor/components/modifyDocument/shared/DocumentTable";
-import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/Pagination";
-import type { DocumentType } from "@/pages/instructor/components/modifyDocument/types";
+import { DocumentTable } from "./DocumentTable";
+import { Pagination } from "./Pagination";
+import { Button } from "@/components/ui/button";
 
 // Using DocumentType from types.ts
 
 interface EmbeddedDocumentsComponentProps {
   refreshAssistantDocuments?: () => Promise<void>;
   refreshTrigger?: number;
+  onAddDocument?: () => void;
+  onDocumentSelect?: (documentId: string) => void;
 }
 
 export function EmbeddedDocumentsComponent({
   refreshAssistantDocuments,
   refreshTrigger,
+  onAddDocument,
+  onDocumentSelect,
 }: EmbeddedDocumentsComponentProps) {
   const { assistantId } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
@@ -31,7 +35,6 @@ export function EmbeddedDocumentsComponent({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  const [documentType, setDocumentType] = useState<DocumentType>("document");
 
   // Fetch documents when page, search, document type, or refresh trigger changes
   useEffect(() => {
@@ -42,7 +45,7 @@ export function EmbeddedDocumentsComponent({
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || "",
-          type: documentType === "all" ? undefined : documentType,
+          type: "document",
           assistant_id: assistantId || undefined, // Provide undefined when no assistant selected
           sort_by: "created_at",
           sort_order: 1,
@@ -60,14 +63,7 @@ export function EmbeddedDocumentsComponent({
     };
 
     fetchDocuments();
-  }, [
-    assistantId,
-    currentPage,
-    pageSize,
-    searchQuery,
-    documentType,
-    refreshTrigger,
-  ]);
+  }, [assistantId, currentPage, pageSize, searchQuery, refreshTrigger]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,16 +139,30 @@ export function EmbeddedDocumentsComponent({
     }
   };
 
+  const handleViewDocument = (documentId: string) => {
+    if (onDocumentSelect) {
+      onDocumentSelect(documentId);
+    }
+  };
+
   return (
     <div className="my-3">
-      <div className="mb-3">
+      <div className="mb-3 flex justify-between items-center">
         <Small className="font-semibold">Your Documents</Small>
+        {onAddDocument && (
+          <Button
+            onClick={onAddDocument}
+            className="flex items-center space-x-1"
+            size="sm"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Add Document</span>
+          </Button>
+        )}
       </div>
       <SearchFilterBar
         searchQuery={searchQuery}
         setSearchQuery={setSearchQuery}
-        documentType={documentType}
-        setDocumentType={setDocumentType}
       />
 
       {isLoading ? (
@@ -179,6 +189,9 @@ export function EmbeddedDocumentsComponent({
                   onLinkDocument={handleLinkDocument}
                   onUnlinkDocument={handleUnlinkDocument}
                   loadingDocumentIds={loadingDocumentIds}
+                  onViewDocument={
+                    onDocumentSelect ? handleViewDocument : undefined
+                  }
                 />
               </div>
 

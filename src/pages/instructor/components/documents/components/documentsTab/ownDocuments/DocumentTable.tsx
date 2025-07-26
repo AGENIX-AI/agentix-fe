@@ -8,17 +8,29 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Loader2, Link, Unlink } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface DocumentTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
   getLinkStatus: (linked: boolean | undefined) => string;
+  showLinkedColumn?: boolean;
+  onLinkDocument?: (documentId: string) => void;
+  onUnlinkDocument?: (documentId: string) => void;
+  loadingDocumentIds?: string[];
+  onViewDocument?: (documentId: string) => void;
 }
 
-export function DocumentTable({ 
-  documents, 
+export function DocumentTable({
+  documents,
   getStatusColor,
-  getLinkStatus 
+  getLinkStatus,
+  showLinkedColumn = false,
+  onLinkDocument,
+  onUnlinkDocument,
+  loadingDocumentIds = [],
+  onViewDocument,
 }: DocumentTableProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -34,9 +46,11 @@ export function DocumentTable({
             <TableHead className="text-left p-2 text-xs font-medium">
               Status
             </TableHead>
-            <TableHead className="text-left p-2 text-xs font-medium">
-              Linked
-            </TableHead>
+            {showLinkedColumn && (
+              <TableHead className="text-left p-2 text-xs font-medium">
+                Linked
+              </TableHead>
+            )}
             <TableHead className="text-left p-2 text-xs font-medium">
               Created
             </TableHead>
@@ -54,9 +68,7 @@ export function DocumentTable({
                   {doc.file_name}
                 </div>
               </TableCell>
-              <TableCell className="p-2 text-xs">
-                {doc.type}
-              </TableCell>
+              <TableCell className="p-2 text-xs">{doc.type}</TableCell>
               <TableCell className="p-2 text-xs">
                 <span
                   className={cn(
@@ -68,28 +80,76 @@ export function DocumentTable({
                     doc.upload_status.slice(1).replace("_", " ")}
                 </span>
               </TableCell>
-              <TableCell className="p-2 text-xs">
-                <span
-                  className={cn(
-                    "px-2 py-1 rounded-md text-xs font-medium border",
-                    getLinkStatus(doc.linked)
-                  )}
-                >
-                  {doc.linked ? "Linked" : "Not Linked"}
-                </span>
-              </TableCell>
+              {showLinkedColumn && (
+                <TableCell className="p-2 text-xs">
+                  <span
+                    className={cn(
+                      "px-2 py-1 rounded-md text-xs font-medium border",
+                      getLinkStatus(doc.linked)
+                    )}
+                  >
+                    {doc.linked ? "Linked" : "Not Linked"}
+                  </span>
+                </TableCell>
+              )}
               <TableCell className="p-2 text-xs">
                 {new Date(doc.created_at).toLocaleDateString()}
               </TableCell>
-              <TableCell className="p-2 text-xs">
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
-                >
-                  View
-                </a>
+              <TableCell className="p-2 text-xs flex items-center space-x-2">
+                {onViewDocument && (
+                  <button
+                    onClick={() => onViewDocument(doc.id)}
+                    className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    View
+                  </button>
+                )}
+                {!onViewDocument && (
+                  <a
+                    href={doc.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
+                  >
+                    View
+                  </a>
+                )}
+
+                {showLinkedColumn && (
+                  <>
+                    {doc.linked
+                      ? onUnlinkDocument && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => onUnlinkDocument(doc.id)}
+                            disabled={loadingDocumentIds.includes(doc.id)}
+                          >
+                            {loadingDocumentIds.includes(doc.id) ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Unlink className="h-3 w-3" />
+                            )}
+                          </Button>
+                        )
+                      : onLinkDocument && (
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6"
+                            onClick={() => onLinkDocument(doc.id)}
+                            disabled={loadingDocumentIds.includes(doc.id)}
+                          >
+                            {loadingDocumentIds.includes(doc.id) ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Link className="h-3 w-3" />
+                            )}
+                          </Button>
+                        )}
+                  </>
+                )}
               </TableCell>
             </TableRow>
           ))}

@@ -1,28 +1,30 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { useInstructor } from "@/contexts/InstructorContext";
 
-import { Pagination } from "../modifyDocument/shared/Pagination";
-import { TopicKnowledgeTable } from "./TopicKnowledgeTable";
+import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/Pagination";
+import { MediaCollectionsTable } from "./MediaCollectionsTable";
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 
-export type TopicKnowledgeDocumentType = "topic_knowledge";
+export type MediaDocumentType = "image";
 
-interface TopicKnowledgeComponentProps {
+interface MediaCollectionsComponentProps {
   refreshTrigger?: number;
-  onAddTopicKnowledge?: () => void;
+  onAddMediaCollection?: () => void;
+  setShowDetails?: (show: boolean) => void;
 }
 
-export function TopicKnowledgeComponent({
+export function MediaCollectionsComponent({
   refreshTrigger,
-  onAddTopicKnowledge,
-}: TopicKnowledgeComponentProps) {
-  const { metaData, setMetaData, setRightPanel } = useInstructor();
+  onAddMediaCollection,
+  setShowDetails,
+}: MediaCollectionsComponentProps) {
+  const { metaData, setMetaData } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
@@ -40,7 +42,7 @@ export function TopicKnowledgeComponent({
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || "",
-          type: "topic_knowledge",
+          type: "image",
           sort_by: "created_at",
           sort_order: 1,
         });
@@ -50,8 +52,8 @@ export function TopicKnowledgeComponent({
           setTotalItems(response.total_items);
         }
       } catch (error) {
-        console.error("Error fetching knowledge components:", error);
-        toast.error("Failed to fetch knowledge components");
+        console.error("Error fetching media collections:", error);
+        toast.error("Failed to fetch media collections");
       } finally {
         setIsLoading(false);
       }
@@ -101,13 +103,13 @@ export function TopicKnowledgeComponent({
       // TODO: Implement delete API call
       // For now, just show a confirmation toast
       const confirmed = window.confirm(
-        "Are you sure you want to delete this knowledge component?"
+        "Are you sure you want to delete this media collection?"
       );
 
       if (confirmed) {
         // Remove from local state for now
         setDocuments(documents.filter((doc) => doc.id !== documentId));
-        toast.success("Knowledge component deleted successfully");
+        toast.success("Media collection deleted successfully");
       }
     } catch (error) {
       console.error("Error deleting document:", error);
@@ -119,38 +121,38 @@ export function TopicKnowledgeComponent({
 
   const handleRowClick = (documentId: string) => {
     try {
-      // Update metaData with currentTopicKnowledgeId
+      // Update metaData with currentMediaCollectionId
       setMetaData?.({
         ...metaData,
-        currentTopicKnowledgeId: documentId,
+        currentMediaCollectionId: documentId,
       });
-      setRightPanel("topicKnowledgeDetails");
-      toast.success("Knowledge component selected");
+      setShowDetails?.(true);
     } catch (error) {
-      console.error("Error selecting knowledge component:", error);
-      toast.error("Failed to select knowledge component");
+      console.error("Error selecting media collection:", error);
+      toast.error("Failed to select media collection");
     }
   };
 
   return (
-    <div className="my-3">
+    <div className="">
       <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">Knowledge Components</Small>
+        <Small className="font-semibold">Media Collections</Small>
         <Button
           onClick={() => {
-            onAddTopicKnowledge?.();
+            onAddMediaCollection?.();
           }}
           className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
         >
-          Add Knowledge Component
+          <Plus className="h-3 w-3 mr-1" />
+          Add Media Collection
         </Button>
       </div>
 
-      {/* Simple search bar without type filter since we only show knowledge components */}
+      {/* Simple search bar without type filter since we only show media collections */}
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search knowledge components..."
+          placeholder="Search media collections..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -166,16 +168,16 @@ export function TopicKnowledgeComponent({
           {documents.length === 0 ? (
             <div className="text-center py-8 border rounded-lg">
               <h3 className="mt-2 text-xs font-medium">
-                No knowledge components found
+                No media collections found
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                No knowledge components available
+                No media collections available
               </p>
             </div>
           ) : (
             <div className="w-full max-w-full overflow-hidden">
               <div className="w-full max-w-full overflow-x-auto">
-                <TopicKnowledgeTable
+                <MediaCollectionsTable
                   documents={documents}
                   getStatusColor={getStatusColor}
                   onView={handleViewDocument}

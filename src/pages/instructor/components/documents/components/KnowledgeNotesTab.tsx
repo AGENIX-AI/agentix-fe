@@ -18,18 +18,17 @@ export default function KnowledgeNotesTab() {
   };
 
   if (showDetails) {
-    return <TopicKnowledgeDetails />;
+    return <TopicKnowledgeDetails setShowDetails={setShowDetails} />;
   }
 
   return (
     <div className="flex flex-col h-full">
-      <div className="flex-1 overflow-y-auto py-3">
+      <div className="flex-1 overflow-y-auto">
         <TopicKnowledgeComponent
           refreshTrigger={refreshDocuments}
           onAddTopicKnowledge={() => setShowAddSidebar(true)}
           setShowDetails={setShowDetails}
         />
-        {/* <EmbeddedDocumentsComponent refreshTrigger={refreshDocuments} /> */}
       </div>
 
       <AddTopicKnowledgeSidebar

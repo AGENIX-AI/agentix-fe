@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 
-import { createTopicKnowledge, type Framework } from "@/api/documents";
+import { createMediaCollection } from "@/api/documents";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface AddTopicKnowledgeSidebarProps {
+interface AddMediaCollectionSidebarProps {
   isVisible: boolean;
   onClose: () => void;
   onSuccess?: () => void;
@@ -22,16 +22,15 @@ interface AddTopicKnowledgeSidebarProps {
   metaData: any;
 }
 
-export function AddTopicKnowledgeSidebar({
+export function AddMediaCollectionSidebar({
   isVisible,
   onClose,
   onSuccess,
   setMetaData,
   metaData,
-}: AddTopicKnowledgeSidebarProps) {
+}: AddMediaCollectionSidebarProps) {
   const [title, setTitle] = useState("");
   const [language, setLanguage] = useState<string>("");
-  const [framework, setFramework] = useState<Framework>("FWOH");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
@@ -47,25 +46,24 @@ export function AddTopicKnowledgeSidebar({
 
     setIsSubmitting(true);
     try {
-      // Create knowledge component with framework
-      const createResponse = await createTopicKnowledge({
+      // Create media collection
+      const createResponse = await createMediaCollection({
         title: title.trim(),
         language,
-        framework,
       });
 
       if (createResponse.document_id) {
-        toast.success("Knowledge component created successfully!");
+        toast.success("Media collection created successfully!");
         setMetaData({
           ...metaData,
-          currentTopicKnowledgeId: createResponse.document_id,
+          currentMediaCollectionId: createResponse.document_id,
         });
         handleClose();
         onSuccess?.();
       }
     } catch (error) {
-      console.error("Error creating knowledge component:", error);
-      toast.error("Failed to create knowledge component");
+      console.error("Error creating media collection:", error);
+      toast.error("Failed to create media collection");
     } finally {
       setIsSubmitting(false);
     }
@@ -75,7 +73,6 @@ export function AddTopicKnowledgeSidebar({
     // Reset form
     setTitle("");
     setLanguage("");
-    setFramework("FWOH");
     onClose();
   };
 
@@ -96,7 +93,7 @@ export function AddTopicKnowledgeSidebar({
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
-          <h2 className="text-lg font-semibold">Add Notes</h2>
+          <h2 className="text-lg font-semibold">Add Media Collection</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -118,7 +115,7 @@ export function AddTopicKnowledgeSidebar({
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter knowledge component title"
+              placeholder="Enter media collection title"
               disabled={isSubmitting}
             />
           </div>
@@ -169,7 +166,7 @@ export function AddTopicKnowledgeSidebar({
             ) : (
               <>
                 <Check className="h-4 w-4 mr-2 text-primary" />
-                Create Notes Collection
+                Create Media Collection
               </>
             )}
           </Button>

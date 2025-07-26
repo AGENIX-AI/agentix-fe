@@ -185,12 +185,10 @@ export const getImageDocument = async (
 
 /**
  * Upload an image document
- * @param documentId ID of the document
  * @param file File to upload
  * @returns Promise with the upload response
  */
 export const uploadImageDocument = async (
-  documentId: string,
   file: File
 ): Promise<{ success: boolean; description: string; url: string }> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
@@ -198,22 +196,23 @@ export const uploadImageDocument = async (
   formData.append("file", file);
 
   const accessToken = Cookies.get("edvara_access_token");
+  const refreshToken = Cookies.get("edvara_refresh_token");
   const headers: HeadersInit = {};
-
   if (accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
   }
 
-  const response = await fetch(
-    `${baseUrl}/documents/upload_image_document/${documentId}`,
-    {
-      method: "POST",
-      credentials: "include",
-      body: formData,
-      headers,
-      // Don't set Content-Type, browser will set it with boundary
-    }
-  );
+  if (refreshToken) {
+    headers["X-Refresh-Token"] = refreshToken;
+  }
+
+  const response = await fetch(`${baseUrl}/documents/upload_image_document`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+    headers,
+    // Don't set Content-Type, browser will set it with boundary
+  });
 
   if (!response.ok) {
     const data = await response.json();
@@ -341,7 +340,7 @@ export const uploadDocumentFile = async (
  * @returns Promise with the success status, document_id and chunk_index
  */
 export const createImageIndex = async (
-  assistantId: string,
+  documentId: string,
   description: string,
   title: string,
   url: string
@@ -354,7 +353,7 @@ export const createImageIndex = async (
     credentials: "include",
     headers,
     body: JSON.stringify({
-      assistant_id: assistantId,
+      document_id: documentId,
       description,
       title,
       url,
@@ -607,7 +606,6 @@ export async function getTopicKnowledgeItems(
  * Create knowledge component
  */
 export async function createTopicKnowledge(data: {
-  base_documents: string[];
   title: string;
   language: string;
   framework?: string;
@@ -616,6 +614,30 @@ export async function createTopicKnowledge(data: {
   const headers = getAuthHeaders();
 
   const response = await fetch(`${baseUrl}/documents/create_topic_knowledge`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify(data),
+  });
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to create topic knowledge: ${response.statusText}`)
+    );
+    throw new Error(`Failed to create topic knowledge: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+export async function createMediaCollection(data: {
+  title: string;
+  language: string;
+}): Promise<{ success: boolean; document_id: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(`${baseUrl}/documents/create_media_collection`, {
     method: "POST",
     credentials: "include",
     headers,

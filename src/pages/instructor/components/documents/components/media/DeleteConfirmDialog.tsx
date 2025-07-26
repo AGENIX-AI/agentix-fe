@@ -28,7 +28,7 @@ export function DeleteConfirmDialog({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Delete Knowledge Chunk</DialogTitle>
+          <DialogTitle>Delete Media Item</DialogTitle>
           <DialogDescription>
             Are you sure you want to delete "{itemTitle}"? This action cannot be
             undone.

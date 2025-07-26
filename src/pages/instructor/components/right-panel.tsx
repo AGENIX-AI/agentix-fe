@@ -3,12 +3,9 @@ import { useInstructor } from "@/contexts/InstructorContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
 import ModifyAssistantComponent from "./modifyAssisstant/ModifyAssistantComponent";
-import ModifyDocumentComponent from "./modifyDocument/ModifyDocumentComponent";
-import AddDocument from "./addDocument/add-document";
 import { Dashboard } from "./dashboard/dashboard";
 import ReviewDocument from "./reviewDocument/review-document";
-import TopicKnowledge from "./topicKnowledge/topic-knowledge";
-import TopicKnowledgeDetails from "./topicKnowledge/topic-knowledge-details";
+
 import { EditProfile } from "./editProfile/EditProfile";
 import { BuyCredits } from "./buyCredits/BuyCredits";
 import { SharingTopics } from "./history/SharingTopics";
@@ -248,16 +245,7 @@ export default function RightPanel({
           <AssistantView page="tasks" />
         </div>
       );
-    case "modifyDocument":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title="Modify Document"
-            toggleMiniapp={toggleMiniapp}
-          />
-          <ModifyDocumentComponent />
-        </div>
-      );
+
     case "modifyImageDocument":
       return (
         <div className="flex flex-col h-full">
@@ -279,16 +267,6 @@ export default function RightPanel({
         </div>
       );
 
-    case "addDocument":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title="Add Document"
-            toggleMiniapp={toggleMiniapp}
-          />
-          <AddDocument />
-        </div>
-      );
     case "dashboard":
       return (
         <div className="flex flex-col h-full">
@@ -307,26 +285,7 @@ export default function RightPanel({
           <ReviewDocument />
         </div>
       );
-    case "topicKnowledge":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title="Topic Knowledge"
-            toggleMiniapp={toggleMiniapp}
-          />
-          <TopicKnowledge />
-        </div>
-      );
-    case "topicKnowledgeDetails":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title="Topic Knowledge Details"
-            toggleMiniapp={toggleMiniapp}
-          />
-          <TopicKnowledgeDetails />
-        </div>
-      );
+
     case "editProfile":
       return (
         <div className="flex flex-col h-full">
