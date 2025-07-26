@@ -6,8 +6,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
-import DocumentImageDetails from "./components/DocumentImageDetails";
+
 import { EmbeddedDocumentsComponent } from "./ownDocuments";
+import DocumentDetailsView from "./components/DocumentDetailsView";
+import type { Document } from "@/api/documents";
 
 // Removed unused interface
 export interface ApiDocument {
@@ -37,7 +39,9 @@ export default function AddDocument() {
   const [currentDocumentId, setCurrentDocumentId] = useState<string>("");
   const [isSubmittingImages, setIsSubmittingImages] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const [selectedDocument, setSelectedDocument] = useState<string | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null
+  );
   const [showDocumentDetails, setShowDocumentDetails] = useState(false);
 
   // Clear success message after 3 seconds
@@ -148,9 +152,9 @@ export default function AddDocument() {
     }
   };
 
-  // Function to handle document selection for viewing images
-  const handleDocumentSelect = (documentId: string) => {
-    setSelectedDocument(documentId);
+  // Function to handle document selection for viewing details
+  const handleDocumentSelect = (document: Document) => {
+    setSelectedDocument(document);
     setShowDocumentDetails(true);
   };
 
@@ -245,9 +249,9 @@ export default function AddDocument() {
   // If showing document details, render that component
   if (showDocumentDetails && selectedDocument) {
     return (
-      <DocumentImageDetails
-        documentId={selectedDocument}
-        setShowDetails={setShowDocumentDetails}
+      <DocumentDetailsView
+        document={selectedDocument}
+        onBack={() => setShowDocumentDetails(false)}
       />
     );
   }
@@ -276,8 +280,7 @@ export default function AddDocument() {
           <div className="flex flex-col space-y-4">
             <EmbeddedDocumentsComponent
               refreshTrigger={refreshDocuments}
-              // onAddDocument={() => setShowAddDocumentSidebar(true)}
-              // onDocumentSelect={handleDocumentSelect}
+              onDocumentSelect={handleDocumentSelect}
             />
           </div>
         </div>

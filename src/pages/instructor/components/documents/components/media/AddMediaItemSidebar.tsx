@@ -14,6 +14,11 @@ interface AddMediaItemSidebarProps {
   mediaCollectionId: string;
   onClose: () => void;
   onSuccess: () => void;
+  onCreateMediaItem?: (data: {
+    title: string;
+    description: string;
+    url: string;
+  }) => Promise<boolean>;
 }
 
 export function AddMediaItemSidebar({
@@ -21,6 +26,7 @@ export function AddMediaItemSidebar({
   mediaCollectionId,
   onClose,
   onSuccess,
+  onCreateMediaItem,
 }: AddMediaItemSidebarProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -124,20 +130,33 @@ export function AddMediaItemSidebar({
 
     setIsLoading(true);
     try {
-      // Create image index
-      const result = await createImageIndex(
-        mediaCollectionId,
-        description,
-        title,
-        uploadedUrl
-      );
+      let success = false;
 
-      if (result.success) {
+      if (onCreateMediaItem) {
+        // Use the custom callback if provided
+        success = await onCreateMediaItem({
+          title,
+          description,
+          url: uploadedUrl,
+        });
+      } else {
+        // Fall back to default implementation
+        const result = await createImageIndex(
+          mediaCollectionId,
+          description,
+          title,
+          uploadedUrl
+        );
+
+        if (result.success) {
+          success = true;
+        }
+      }
+
+      if (success) {
         toast.success("Media item added successfully");
         resetForm();
         onSuccess();
-      } else {
-        throw new Error("Failed to index image");
       }
     } catch (error) {
       console.error("Error indexing image:", error);

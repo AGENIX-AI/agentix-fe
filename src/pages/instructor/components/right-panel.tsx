@@ -334,7 +334,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Knowledge Notes"
+            title="Knowledge Base"
             toggleMiniapp={toggleMiniapp}
           />
           <DocumentsLayout defaultTab="knowledge-notes" />
@@ -343,7 +343,10 @@ export default function RightPanel({
     case "media":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader title="Media" toggleMiniapp={toggleMiniapp} />
+          <RightPanelHeader
+            title="Knowledge Base"
+            toggleMiniapp={toggleMiniapp}
+          />
           <DocumentsLayout defaultTab="media" />
         </div>
       );
@@ -351,7 +354,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Online Sources"
+            title="Knowledge Base"
             toggleMiniapp={toggleMiniapp}
           />
           <DocumentsLayout defaultTab="online-sources" />

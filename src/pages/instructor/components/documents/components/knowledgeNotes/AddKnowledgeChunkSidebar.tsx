@@ -26,6 +26,12 @@ interface AddKnowledgeChunkSidebarProps {
   topicKnowledgeId: string;
   onClose: () => void;
   onSuccess?: () => void;
+  onCreateManualNote?: (data: {
+    title: string;
+    content: string;
+    ai_parse?: boolean;
+  }) => Promise<boolean>;
+  onCreateFrameworkNotes?: (framework: Framework) => Promise<boolean>;
 }
 
 type Mode = "Manual" | "Framework";
@@ -51,6 +57,8 @@ export function AddKnowledgeChunkSidebar({
   topicKnowledgeId,
   onClose,
   onSuccess,
+  onCreateManualNote,
+  onCreateFrameworkNotes,
 }: AddKnowledgeChunkSidebarProps) {
   const [mode, setMode] = useState<Mode>("Manual");
   const [title, setTitle] = useState("");
@@ -73,32 +81,53 @@ export function AddKnowledgeChunkSidebar({
 
     setIsSubmitting(true);
     try {
-      if (mode === "Manual") {
-        const response = await createTopicKnowledgeManual({
-          document_id: topicKnowledgeId,
-          title: title.trim(),
-          content: content.trim(),
-          ai_parse: aiParse,
-        });
+      let success = false;
 
-        if (response.success) {
-          toast.success("Note created successfully!");
-          handleClose();
-          onSuccess?.();
+      if (mode === "Manual") {
+        if (onCreateManualNote) {
+          // Use the custom callback if provided
+          success = await onCreateManualNote({
+            title: title.trim(),
+            content: content.trim(),
+            ai_parse: aiParse,
+          });
+        } else {
+          // Fall back to default implementation
+          const response = await createTopicKnowledgeManual({
+            document_id: topicKnowledgeId,
+            title: title.trim(),
+            content: content.trim(),
+            ai_parse: aiParse,
+          });
+
+          if (response.success) {
+            toast.success("Note created successfully!");
+            success = true;
+          }
         }
       } else {
-        const response = await createTopicKnowledgeFramework({
-          document_id: topicKnowledgeId,
-          framework,
-        });
+        if (onCreateFrameworkNotes) {
+          // Use the custom callback if provided
+          success = await onCreateFrameworkNotes(framework);
+        } else {
+          // Fall back to default implementation
+          const response = await createTopicKnowledgeFramework({
+            document_id: topicKnowledgeId,
+            framework,
+          });
 
-        if (response.success) {
-          toast.success(
-            `${response.output.length} notes created using ${frameworkLabels[framework]} framework!`
-          );
-          handleClose();
-          onSuccess?.();
+          if (response.success) {
+            toast.success(
+              `${response.output.length} notes created using ${frameworkLabels[framework]} framework!`
+            );
+            success = true;
+          }
         }
+      }
+
+      if (success) {
+        handleClose();
+        onSuccess?.();
       }
     } catch (error) {
       console.error("Error creating note:", error);

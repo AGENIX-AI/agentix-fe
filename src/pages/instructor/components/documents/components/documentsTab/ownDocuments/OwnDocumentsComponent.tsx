@@ -5,9 +5,6 @@ import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { Large } from "@/components/ui/typography";
 import { useInstructor } from "@/contexts/InstructorContext";
-
-// Import components after they're created
-import { SearchFilterBar } from "./SearchFilterBar";
 import { DocumentTable } from "./DocumentTable";
 import { Pagination } from "./Pagination";
 
@@ -26,7 +23,6 @@ export default function OwnDocumentsComponent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  const [documentType, setDocumentType] = useState<DocumentType>("all");
 
   // Fetch documents when page, search, or document type changes
   useEffect(() => {
@@ -39,7 +35,7 @@ export default function OwnDocumentsComponent() {
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || (undefined as unknown as string),
-          type: documentType === "all" ? undefined : documentType,
+          type: "document",
           assistant_id: assistantId, // Optional: filter by assistant ID if needed
           sort_by: "created_at",
           sort_order: 1,
@@ -57,7 +53,7 @@ export default function OwnDocumentsComponent() {
     };
 
     fetchDocuments();
-  }, [assistantId, currentPage, pageSize, searchQuery, documentType]);
+  }, [assistantId, currentPage, pageSize, searchQuery]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -86,11 +82,12 @@ export default function OwnDocumentsComponent() {
       </div>
 
       <div className="flex-1 overflow-y-auto p-6 space-y-3">
-        <SearchFilterBar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          documentType={documentType}
-          setDocumentType={setDocumentType}
+        <input
+          type="text"
+          placeholder="Search documents..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
         />
 
         {isLoading ? (

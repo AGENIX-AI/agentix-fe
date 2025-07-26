@@ -20,6 +20,7 @@ interface DocumentTableProps {
   onUnlinkDocument?: (documentId: string) => void;
   loadingDocumentIds?: string[];
   onViewDocument?: (documentId: string) => void;
+  onRowClick?: (document: Document) => void;
 }
 
 export function DocumentTable({
@@ -31,6 +32,7 @@ export function DocumentTable({
   onUnlinkDocument,
   loadingDocumentIds = [],
   onViewDocument,
+  onRowClick,
 }: DocumentTableProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -40,9 +42,7 @@ export function DocumentTable({
             <TableHead className="text-left p-2 text-xs font-medium">
               Title
             </TableHead>
-            <TableHead className="text-left p-2 text-xs font-medium">
-              Type
-            </TableHead>
+
             <TableHead className="text-left p-2 text-xs font-medium">
               Status
             </TableHead>
@@ -61,14 +61,18 @@ export function DocumentTable({
         </TableHeader>
         <TableBody>
           {documents.map((doc) => (
-            <TableRow key={doc.id}>
+            <TableRow
+              key={doc.id}
+              className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
+              onClick={() => onRowClick && onRowClick(doc)}
+            >
               <TableCell className="p-2 text-xs">
                 <div className="font-medium">{doc.title}</div>
                 <div className="text-xs text-muted-foreground">
                   {doc.file_name}
                 </div>
               </TableCell>
-              <TableCell className="p-2 text-xs">{doc.type}</TableCell>
+
               <TableCell className="p-2 text-xs">
                 <span
                   className={cn(
@@ -98,7 +102,10 @@ export function DocumentTable({
               <TableCell className="p-2 text-xs flex items-center space-x-2">
                 {onViewDocument && (
                   <button
-                    onClick={() => onViewDocument(doc.id)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onViewDocument(doc.id);
+                    }}
                     className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
                   >
                     View
@@ -110,6 +117,7 @@ export function DocumentTable({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     View
                   </a>
@@ -123,7 +131,10 @@ export function DocumentTable({
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6"
-                            onClick={() => onUnlinkDocument(doc.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onUnlinkDocument(doc.id);
+                            }}
                             disabled={loadingDocumentIds.includes(doc.id)}
                           >
                             {loadingDocumentIds.includes(doc.id) ? (
@@ -138,7 +149,10 @@ export function DocumentTable({
                             variant="ghost"
                             size="icon"
                             className="h-6 w-6"
-                            onClick={() => onLinkDocument(doc.id)}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLinkDocument(doc.id);
+                            }}
                             disabled={loadingDocumentIds.includes(doc.id)}
                           >
                             {loadingDocumentIds.includes(doc.id) ? (
