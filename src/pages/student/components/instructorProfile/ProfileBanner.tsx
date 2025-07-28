@@ -2,6 +2,7 @@ import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { ExtraSmall, H4 } from "@/components/ui/typography";
+import { useTranslation } from "react-i18next";
 
 interface ProfileBannerProps {
   instructorName?: string;
@@ -11,11 +12,12 @@ interface ProfileBannerProps {
 }
 
 export function ProfileBanner({
-  instructorName = "Instructor",
+  instructorName = "",
   profileImage = "",
   backgroundImage = "",
   instructorDescription = "",
 }: ProfileBannerProps) {
+  const { t } = useTranslation();
   return (
     <div className="relative pb-8 border-b">
       {/* Banner Image */}
@@ -41,7 +43,7 @@ export function ProfileBanner({
                 ?.split(" ")
                 .map((name) => name[0])
                 .join("")
-                .slice(0, 2) || "IN"}
+                .slice(0, 2) || t("student.instructorProfile.instructorInitials")}
             </AvatarFallback>
           </Avatar>
         </div>

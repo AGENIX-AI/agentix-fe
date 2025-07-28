@@ -164,7 +164,7 @@ const enTranslation: Record<string, any> = {
     refresh_failed: "Failed to refresh help topics. Please try again later.",
     content_failed: "Failed to load help content. Please try again later.",
     no_topics: "No topics available",
-    select_topic: "Select a topic to view its content"
+    select_topic: "Select a topic to view its content",
   },
 
   // Chat Components
@@ -181,16 +181,16 @@ const enTranslation: Record<string, any> = {
       removeImage: "Remove image",
     },
     messageCards: {
-      unknownType: "Unknown message card type"
+      unknownType: "Unknown message card type",
     },
     summaryCard: {
       sessionSummary: "Session Summary",
-      language: "Language"
+      language: "Language",
     },
     topicCard: {
       language: "Language",
       goal: "Goal",
-      problem: "Problem"
+      problem: "Problem",
     },
     tutoringTopicCard: {
       processing: "Processing...",
@@ -200,11 +200,11 @@ const enTranslation: Record<string, any> = {
       topics: "Topics",
       goals: "Goals",
       problems: "Problems",
-      saveChanges: "Save Changes"
+      saveChanges: "Save Changes",
     },
     chatBox: {
       agentTyping: "Agent is typing...",
-      typeMessage: "Type your message here..."
+      typeMessage: "Type your message here...",
     },
     message: {
       play_audio: "Play audio",
@@ -215,7 +215,7 @@ const enTranslation: Record<string, any> = {
       error_fetching_audio: "Error fetching or playing audio",
       latex_error: "Error rendering LaTeX",
       view_full_image: "View full image",
-      close: "Close"
+      close: "Close",
     },
     tasks: {
       title: "Task",
@@ -275,14 +275,70 @@ const enTranslation: Record<string, any> = {
   previous: "Previous",
   next: "Next",
   recommendedInstructors: "Recommended Instructors",
-  
+
   // Student Pages
   student: {
+    instructorFinder: {
+      instructor: "Instructor",
+      edvaraName: "Edvara",
+      edvaraDescription:
+        "Edvara is a platform that helps you find the best instructors for your needs.",
+      noDescriptionAvailable: "No description available",
+      searchByName: "Search by name",
+      search: "Search",
+      recommendedInstructors: "Recommended Instructors",
+      errorLoadingInstructors: "Error loading instructors",
+      noInstructorsFound: "No instructors found",
+      foundInstructors: "Found {{count}} instructor(s)",
+    },
+    history: {
+      privateTopics: "Private Topics",
+      collaborativeChats: "Collaborative Chats",
+      title: "Chats",
+    },
+    userConversations: {
+      loadingConversations: "Loading conversations...",
+    },
+    tutoringConversations: {
+      noConversationsFound: "No tutoring conversations found.",
+    },
+    tutoringConversation: {
+      defaultName: "Tutoring Session",
+    },
+    conversationItem: {
+      assistant: "Assistant",
+    },
+    collapsedTutoring: {
+      avatar: "Avatar",
+    },
+    collapsedCollaborative: {
+      assistant: "Assistant",
+      with: "with",
+    },
+    systemAssistant: {
+      loading: "Loading system assistant...",
+      defaultName: "System Assistant",
+      defaultDescription: "Support you to use the App effectively",
+    },
+    collaborativeChats: {
+      noConversationsFound: "No collaborative conversations found.",
+      defaultChatName: "Collaborative Chat",
+    },
     navigation: {
       student: "Student",
       instructor: "Instructor",
       about: "About",
       search: "Search",
+    },
+    sidebar: {
+      notifications: "Notifications",
+      creditsWithCount: "Credits: {{formattedCount}}",
+      creditsDisplay: "{{formattedCount}} Credits",
+      dashboard: "Dashboard",
+      find_instructor: "Find Instructor",
+      documents: "Documents",
+      help_center: "Help Center",
+      navigation: "Navigation",
     },
     rightPanel: {
       collapse: "Collapse miniapp",
@@ -315,7 +371,8 @@ const enTranslation: Record<string, any> = {
       count: "Count",
       loadingCanvas: "Loading Canvas...",
       noTasksAvailable: "No conversation tasks available",
-      noTasksDescription: "There are currently no tasks for this conversation. Tasks may be added as the conversation progresses.",
+      noTasksDescription:
+        "There are currently no tasks for this conversation. Tasks may be added as the conversation progresses.",
       conversationTasks: "Conversation Tasks",
       goal: "Goal",
       step: "Step",
@@ -327,28 +384,51 @@ const enTranslation: Record<string, any> = {
       privateTopics: "Private Topics",
       archivedTopics: "Archived Topics",
       categoryTopics: "{{category}} Topics",
-      noConversationsFound: "No conversations found"
+      noConversationsFound: "No conversations found",
+    },
+    instructorProfile: {
+      aiAssistants: "AI Assistants",
+      ai: "· AI",
+      noAIAssistantsAvailable: "No AI assistants available",
+      instructorGroups: "Instructor Groups",
+      harvardGroupName: "Harvard Business Review",
+      socialMediaGroupName: "Social Media Marketing",
+      memberCount: "{{count}} members",
+      join: "Join",
+      failedToLoadData: "Failed to load data. Please try again later.",
+      instructorInitials: "Instructor Initials",
+      instructorPosts: "{{name}} Posts",
+      noPostsAvailable: "No posts available",
+      firstDegree: "1st",
+      entrepreneurshipRole: "Entrepreneurship Evangelist and Educator",
+      timeAgo: "{{time}}",
     },
     buyCredits: {
       title: "Buy Credits",
       loadError: "Failed to load credit packages. Please try again.",
       selectPackage: "Please select a package first",
       createOrderError: "Failed to create payment order. Please try again.",
-      paymentSuccess: "Payment successful! {{credits}} credits added to your account.",
-      paymentProcessingError: "Payment processing failed. Please contact support if you were charged.",
+      paymentSuccess:
+        "Payment successful! {{credits}} credits added to your account.",
+      paymentProcessingError:
+        "Payment processing failed. Please contact support if you were charged.",
       paymentError: "Payment failed. Please try again or contact support.",
       enterVoucherCode: "Please enter a voucher code",
-      voucherSuccess: "Voucher redeemed successfully! {{credits}} credits added to your account.",
+      voucherSuccess:
+        "Voucher redeemed successfully! {{credits}} credits added to your account.",
       voucherError: "Failed to redeem voucher",
       voucherRedeemError: "Failed to redeem voucher. Please try again.",
       voucherRedeemed: "Voucher redeemed successfully!",
-      voucherRedeemFailCheck: "Failed to redeem voucher. Please check the code and try again.",
+      voucherRedeemFailCheck:
+        "Failed to redeem voucher. Please check the code and try again.",
       paymentSuccessful: "Payment Successful!",
       makeAnotherPurchase: "Make Another Purchase",
       choosePackage: "Choose Your Credit Package",
-      description: "Purchase credits to unlock premium features and enhanced capabilities",
+      description:
+        "Purchase credits to unlock premium features and enhanced capabilities",
       haveAVoucherCode: "Have a Voucher Code?",
-      redeemVoucherCode: "Redeem your voucher code to get free credits instantly",
+      redeemVoucherCode:
+        "Redeem your voucher code to get free credits instantly",
       voucherPlaceholder: "Enter voucher code (e.g., EDVARA-123456)",
       redeem: "Redeem",
       redeeming: "Redeeming...",
@@ -364,8 +444,8 @@ const enTranslation: Record<string, any> = {
       cancel: "Cancel",
       paymentCancelled: "Payment cancelled",
       securePayment: "🔒 Secure payment processing powered by PayPal",
-      encryptedInfo: "Your payment information is encrypted and protected"
-    }
+      encryptedInfo: "Your payment information is encrypted and protected",
+    },
   },
 };
 

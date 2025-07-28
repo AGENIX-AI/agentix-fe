@@ -1,6 +1,7 @@
 import { memo } from "react";
 import type { StudentConversationItem } from "@/api/conversations";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 
 interface TutoringConversationsBlockProps {
   tutoringConversations: StudentConversationItem[];
@@ -17,6 +18,7 @@ function TutoringConversationsBlockComponent({
   onConversationClick,
   searchQuery = "",
 }: TutoringConversationsBlockProps) {
+  const { t } = useTranslation();
   // Filter conversations if there's a search query
   const filteredConversations = searchQuery
     ? tutoringConversations.filter(
@@ -36,7 +38,7 @@ function TutoringConversationsBlockComponent({
   if (filteredConversations.length === 0) {
     return (
       <div className="text-[10px] text-muted-foreground p-2">
-        No tutoring conversations found.
+        {t('student.tutoringConversations.noConversationsFound')}
       </div>
     );
   }
@@ -62,7 +64,7 @@ function TutoringConversationsBlockComponent({
               </Avatar>
               <div className="flex-1 overflow-hidden">
                 <p className="text-xs truncate">
-                  {conversation.conversation_name || "Tutoring Session"}
+                  {conversation.conversation_name || t('student.tutoringConversation.defaultName')}
                 </p>
               </div>
             </div>

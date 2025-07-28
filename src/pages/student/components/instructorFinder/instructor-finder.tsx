@@ -79,7 +79,7 @@ const InstructorRow: React.FC<InstructorRowProps> = ({
               <img
                 src={
                   instructor.profile_image ||
-                  "https://placehold.co/100x100?text=Instructor"
+                  "https://placehold.co/100x100?text=" + t('student.instructorFinder.instructor')
                 }
                 alt={instructor.instructor_name}
                 className="h-full w-full object-cover"
@@ -91,7 +91,7 @@ const InstructorRow: React.FC<InstructorRowProps> = ({
               </Small>
               <ExtraSmall className="text-muted-foreground line-clamp-2 mt-1">
                 {instructor.instructor_description ||
-                  t("noDescriptionAvailable")}
+                  t("student.instructorFinder.noDescriptionAvailable")}
               </ExtraSmall>
             </div>
           </div>
@@ -166,10 +166,10 @@ export function InstructorFinder() {
   return (
     <div>
       <ProfileBanner
-        instructorName="Edvara"
+        instructorName={t('student.instructorFinder.edvaraName')}
         profileImage="https://edvara-bucket.sgp1.cdn.digitaloceanspaces.com/public/Edvara-logo-1024.png"
         backgroundImage="https://t4.ftcdn.net/jpg/04/61/47/03/360_F_461470323_6TMQSkCCs9XQoTtyer8VCsFypxwRiDGU.jpg"
-        instructorDescription="Edvara is a platform that helps you find the best instructors for your needs."
+        instructorDescription={t('student.instructorFinder.edvaraDescription')}
       />
       <div className="flex flex-col p-6 h-full">
         <form onSubmit={handleSearch} className="flex gap-2 mb-6">
@@ -179,15 +179,15 @@ export function InstructorFinder() {
               type="text"
               value={searchTerm}
               onChange={handleSearchInputChange}
-              placeholder={t("searchByName")}
+              placeholder={t("student.instructorFinder.searchByName")}
               className="pl-10"
             />
           </div>
-          <Button type="submit">{t("search")}</Button>
+          <Button type="submit">{t("student.instructorFinder.search")}</Button>
         </form>
 
         {!searchTerm && (
-          <Small className="mb-6">{t("recommendedInstructors")}</Small>
+          <Small className="mb-6">{t("student.instructorFinder.recommendedInstructors")}</Small>
         )}
         {loading && (
           <div className="flex justify-center items-center py-8">
@@ -202,14 +202,14 @@ export function InstructorFinder() {
         {error && (
           <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
             <Small className="text-destructive">
-              {t("errorLoadingInstructors")}: {error}
+              {t("student.instructorFinder.errorLoadingInstructors")}: {error}
             </Small>
           </Card>
         )}
 
         {!loading && !error && instructors.length === 0 && (
           <div className="text-center py-12 text-muted-foreground border rounded-md bg-muted/20">
-            <Small>{t("noInstructorsFound")}</Small>
+            <Small>{t("student.instructorFinder.noInstructorsFound")}</Small>
           </div>
         )}
 
@@ -237,7 +237,7 @@ export function InstructorFinder() {
             <div className="text-center mt-4 mb-2">
               <Badge variant="outline" className="bg-muted/50">
                 <ExtraSmall>
-                  {t("foundInstructors", { count: totalCount })}
+                  {t("student.instructorFinder.foundInstructors", { count: totalCount })}
                 </ExtraSmall>
               </Badge>
             </div>

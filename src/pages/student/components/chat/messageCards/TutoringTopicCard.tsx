@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import type { TutoringTopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
-import { ExtraSmall, Large } from "@/components/ui/typography";
+import { ExtraSmall, Large, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import {
@@ -177,21 +177,17 @@ export function TutoringTopicCard({
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" } as React.CSSProperties}
     >
       {/* Header */}
-      <div className="rounded-t-xl p-3">
+      <div className="rounded-t-xl p-3 pb-0">
         <div className="flex flex-col space-y-1">
-          <Large className="text-primary font-bold gap-3">
+          <Small className="text-primary font-bold gap-3">
             Create Tutoring Topic
-          </Large>
-          <ExtraSmall className="text-muted-foreground">
-            {card.language ? `Language: ${card.language}` : ""}
-          </ExtraSmall>
+          </Small>
         </div>
-
-        <Separator className="mt-3" />
+        <Separator className="my-3" />
       </div>
 
       {/* Content */}
-      <div className="px-3">
+      <div className="p-3 pt-0">
         <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3 ">
@@ -224,11 +220,11 @@ export function TutoringTopicCard({
             </div>
           )}
         </div>
-        <Separator className="mt-3" />
+        <Separator className="my-3" />
       </div>
 
       {/* Footer */}
-      <div className="flex justify-end gap-3 p-3">
+      <div className="flex justify-end gap-3 px-3 pb-3">
         {card.forward_to_conversation_id ? (
           <Button
             variant="default"
@@ -239,7 +235,9 @@ export function TutoringTopicCard({
             className="text-xs flex-1 max-w-[150px]"
             disabled={isLoading}
           >
-            {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.goToTopic", "Go To Topic")}
+            {isLoading
+              ? t("chat.tutoringTopicCard.processing", "Processing...")
+              : t("chat.tutoringTopicCard.goToTopic", "Go To Topic")}
           </Button>
         ) : (
           <>
@@ -268,7 +266,9 @@ export function TutoringTopicCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.accept", "Accept")}
+              {isLoading
+                ? t("chat.tutoringTopicCard.processing", "Processing...")
+                : t("chat.tutoringTopicCard.accept", "Accept")}
             </Button>
           </>
         )}
@@ -283,7 +283,12 @@ export function TutoringTopicCard({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>{t("chat.tutoringTopicCard.editTutoringTopic", "Edit Tutoring Topic")}</DialogTitle>
+            <DialogTitle>
+              {t(
+                "chat.tutoringTopicCard.editTutoringTopic",
+                "Edit Tutoring Topic"
+              )}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-3">
@@ -340,7 +345,9 @@ export function TutoringTopicCard({
               disabled={isLoading}
               className="flex-1 max-w-[120px]"
             >
-              {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.saveChanges", "Save Changes")}
+              {isLoading
+                ? t("chat.tutoringTopicCard.processing", "Processing...")
+                : t("chat.tutoringTopicCard.saveChanges", "Save Changes")}
             </Button>
           </DialogFooter>
         </DialogContent>

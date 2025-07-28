@@ -182,7 +182,7 @@ export function LearningDiscussCard({
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
       {/* Header */}
-      <div className="p-3 rounded-t-xl">
+      <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
             <Small className="font-bold">Learning Discussion</Small>
@@ -192,12 +192,12 @@ export function LearningDiscussCard({
               </ExtraSmall>
             )}
           </div>
-          <Separator className="mt-3" />
+          <Separator className="my-3" />
         </div>
       </div>
       {/* Content */}
-      <div className="px-3 pb-3">
-        <div className="space-y-4">
+      <div className="p-3 pt-0">
+        <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Topics</ExtraSmall>
@@ -218,10 +218,10 @@ export function LearningDiscussCard({
             </ExtraSmall>
           </div>
         </div>
-        <Separator className="mt-3" />
+        <Separator className="my-3" />
       </div>
 
-      <div className="flex justify-end gap-3 p-3">
+      <div className="flex justify-end gap-3 px-3 pb-3">
         {card.forward_to_conversation_id ? (
           <Button
             variant="default"
@@ -280,8 +280,8 @@ export function LearningDiscussCard({
           <DialogHeader>
             <DialogTitle>Edit Learning Discussion</DialogTitle>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="space-y-2">
+          <div className="space-y-3">
+            <div className="space-y-3">
               <ExtraSmall className="font-bold">Topics</ExtraSmall>
               <Textarea
                 name="topics"
@@ -292,7 +292,7 @@ export function LearningDiscussCard({
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-3">
               <ExtraSmall className="font-bold">Focus On</ExtraSmall>
               <Textarea
                 name="focus_on"
@@ -303,7 +303,7 @@ export function LearningDiscussCard({
               />
             </div>
           </div>
-          <DialogFooter className="flex gap-2 py-2">
+          <DialogFooter className="flex gap-3 py-3">
             <Button
               variant="outline"
               onClick={handleCloseDialog}

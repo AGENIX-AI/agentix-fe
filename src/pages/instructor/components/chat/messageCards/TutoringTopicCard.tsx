@@ -198,9 +198,6 @@ export function TutoringTopicCard({
             <Small className="text-primary font-bold">
               Create Tutoring Topic
             </Small>
-            <ExtraSmall className="text-primary">
-              {card.language ? `Language: ${card.language}` : ""}
-            </ExtraSmall>
           </div>
         </CardDescription>
       </CardHeader>

@@ -87,7 +87,7 @@ export function CreateDocumentFromChatCard({
         style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
       >
         {/* Header */}
-        <div className="p-3 rounded-t-xl">
+        <div className="rounded-t-xl p-3 pb-0">
           <div className="text-primary">
             <div className="flex items-center gap-2">
               <FileIcon size={16} />
@@ -100,12 +100,12 @@ export function CreateDocumentFromChatCard({
               </Alert>
             )}
           </div>
-          <Separator className="mt-3" />
+          <Separator className="my-3" />
         </div>
 
         {/* Content */}
-        <div className="px-3 pb-3">
-          <div className="space-y-2">
+        <div className="p-3 pt-0">
+          <div className="space-y-3">
             {card.topic && (
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center gap-3">
@@ -118,19 +118,9 @@ export function CreateDocumentFromChatCard({
                 </ExtraSmall>
               </div>
             )}
-            {/* <div className="flex flex-col space-y-1">
-              <div className="flex items-center gap-3">
-                <ExtraSmall className="font-bold text-primary">
-                  Location
-                </ExtraSmall>
-              </div>
-              <ExtraSmall className="text-xs text-foreground">
-                {card.filepath}
-              </ExtraSmall>
-            </div> */}
           </div>
 
-          <div className="flex justify-end gap-2 mt-4">
+          <div className="flex justify-end gap-2 px-3 pb-3">
             <Button
               variant="outline"
               size="sm"

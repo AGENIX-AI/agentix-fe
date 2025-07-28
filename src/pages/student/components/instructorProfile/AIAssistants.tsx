@@ -8,12 +8,14 @@ import { useStudent } from "@/contexts/StudentContext";
 import { createFirstConversation } from "@/api/conversations";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
 interface AIAssistantsProps {
   assistants: InstructorAssistant[];
 }
 
 export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel } = useStudent();
   const [loadingAssistantId, setLoadingAssistantId] = useState<string | null>(
     null
@@ -44,7 +46,7 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
   };
   return (
     <div className="mt-6">
-      <H6>AI Assistants</H6>
+      <H6>{t("student.instructorProfile.aiAssistants")}</H6>
 
       <div className="mt-3 grid grid-cols-1 gap-4 md:grid-cols-2">
         {assistants.map((assistant) => (
@@ -78,7 +80,7 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
                     <LinkedinIcon className="inline-block h-3.5 w-3.5 text-primary ml-1" />
                   </ExtraSmall>
                   <ExtraSmall className="ml-1 text-muted-foreground">
-                    · AI
+                    · {t("student.instructorProfile.ai")}
                   </ExtraSmall>
                 </div>
 
@@ -107,7 +109,7 @@ export function AIAssistants({ assistants = [] }: AIAssistantsProps) {
         {assistants.length === 0 && (
           <div className="col-span-2 text-center py-4">
             <ExtraSmall className="text-muted-foreground">
-              No AI assistants available
+              {t("student.instructorProfile.noAIAssistantsAvailable")}
             </ExtraSmall>
           </div>
         )}

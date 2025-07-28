@@ -30,22 +30,19 @@ export function SummaryCard({ card, className }: SummaryCardProps) {
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
       {/* Header */}
-      <div className="p-3 rounded-t-xl">
+      <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
-            <Small className="font-bold">{t("chat.summaryCard.sessionSummary", "Session Summary")}</Small>
-            {card.language && (
-              <ExtraSmall className="text-primary">
-                {t("chat.summaryCard.language", "Language")}: {card.language}
-              </ExtraSmall>
-            )}
+            <Small className="font-bold">
+              {t("chat.summaryCard.sessionSummary", "Session Summary")}
+            </Small>
           </div>
-          <Separator className="mt-3" />
+          <Separator className="my-3" />
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-3 pb-3">
+      <div className="p-3 pt-0">
         <div className="prose prose-sm max-w-none">
           <ReactMarkdown
             components={{

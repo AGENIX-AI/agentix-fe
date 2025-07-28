@@ -1,5 +1,6 @@
 import { AlignJustify, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import { Large } from "@/components/ui/typography";
@@ -43,6 +44,7 @@ export function HistoryComponent({
   isHistoryVisible: propIsHistoryVisible,
   toggleHistory: propToggleHistory,
 }: HistoryComponentProps) {
+  const { t } = useTranslation();
   const {
     setIsChatLoading,
     setAssistantId,
@@ -193,7 +195,7 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`transition-all duration-300 border border-border ${className}`}
+                      className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
                         isHistoryVisible ? "Collapse history" : "Expand history"
@@ -332,7 +334,7 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`transition-all duration-300 border border-border ${className}`}
+                      className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
                         isHistoryVisible ? "Collapse history" : "Expand history"
@@ -410,7 +412,7 @@ export function HistoryComponent({
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                       <span className="font-medium text-xs">
-                        Private Topics
+                        {t("student.history.privateTopics")}
                       </span>
                     </div>
                   </div>
@@ -447,7 +449,7 @@ export function HistoryComponent({
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                       <span className="font-medium text-xs">
-                        Collaborative Chats
+                        {t("student.history.collaborativeChats")}
                       </span>
                     </div>
                   </div>

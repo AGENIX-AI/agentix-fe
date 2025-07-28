@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
+import { useTranslation } from "react-i18next";
 
 interface ConversationItemProps {
   conversation: ConversationListItem;
@@ -18,6 +19,7 @@ function ConversationItemComponent({
   conversationId,
   isLearningTopic,
 }: ConversationItemProps) {
+  const { t } = useTranslation();
   // Determine if this item should be highlighted
   const isHighlighted = isLearningTopic
     ? conversationId === conversation.id
@@ -38,7 +40,7 @@ function ConversationItemComponent({
           <p className="text-xs">
             {isLearningTopic
               ? conversation.conversation_name
-              : conversation.assistants?.name || "Assistant"}
+              : conversation.assistants?.name || t('student.conversationItem.assistant')}
           </p>
         </div>
       </div>

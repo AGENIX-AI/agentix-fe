@@ -49,17 +49,17 @@ export function TrainingTopicRefCard({
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
       {/* Header */}
-      <div className="p-3 rounded-t-xl">
+      <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
             <Small className="font-bold">Training Topic Reference</Small>
           </div>
-          <Separator className="mt-3" />
+          <Separator className="my-3" />
         </div>
       </div>
       {/* Content */}
-      <div className="px-3 pb-3">
-        <div className="space-y-4">
+      <div className="p-3 pt-0">
+        <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Title</ExtraSmall>
@@ -69,10 +69,10 @@ export function TrainingTopicRefCard({
             </ExtraSmall>
           </div>
         </div>
-        <Separator className="mt-3" />
+        <Separator className="my-3" />
       </div>
 
-      <div className="flex justify-end gap-3 p-3">
+      <div className="flex justify-end gap-3 px-3 pb-3">
         <Button
           variant="default"
           size="sm"

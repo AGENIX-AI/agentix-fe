@@ -5,6 +5,7 @@ import { getListConversations } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { ConversationItem } from "./ConversationItem";
+import { useTranslation } from "react-i18next";
 
 interface UserConversationsBlockProps {
   searchQuery: string;
@@ -19,6 +20,7 @@ function UserConversationsBlockComponent({
   conversationsData,
   assistantId,
 }: UserConversationsBlockProps) {
+  const { t } = useTranslation();
   const {
     setAssistantId,
     setConversationId,
@@ -178,7 +180,7 @@ function UserConversationsBlockComponent({
   if (showLoadingState) {
     return (
       <LoadingState
-        message="Loading conversations..."
+        message={t('student.userConversations.loadingConversations')}
         size="medium"
         className="h-32"
       />

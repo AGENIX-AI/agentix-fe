@@ -33,7 +33,7 @@ const MiniappToggleButton = memo(
           <Button
             variant="ghost"
             size="icon"
-            className={`transition-all duration-300 border border-border ${className}`}
+            className={`transition-all duration-300 border-none ${className}`}
             onClick={toggleMiniapp}
             aria-label={isExpanded ? "Collapse miniapp" : "Expand miniapp"}
           >
@@ -92,7 +92,7 @@ const CollapsedVerticalBar = ({
             <Button
               variant="ghost"
               size="icon"
-              className={`transition-all duration-300 border border-border`}
+              className={`transition-all duration-300 border-none`}
               onClick={handleButtonClick}
               aria-label="Expand miniapp"
             >

@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
-
+import { useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import type { StudentConversationItem } from "@/api/conversations";
 
@@ -15,6 +15,7 @@ function CollapsedTutoringViewComponent({
   assistantId,
   handleTutoringClick,
 }: CollapsedTutoringViewProps) {
+  const { t } = useTranslation();
   if (conversations.length === 0) {
     return null;
   }
@@ -42,7 +43,7 @@ function CollapsedTutoringViewComponent({
               >
                 <AvatarImage
                   src={conversation.assistants?.image || ""}
-                  alt="Avatar"
+                  alt={t('student.collapsedTutoring.avatar')}
                 />
               </Avatar>
             </button>

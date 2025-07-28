@@ -7,8 +7,10 @@ import { ExtraSmall } from "@/components/ui/typography";
 import { useEffect, useState } from "react";
 import type { InstructorProfile, InstructorAssistant } from "@/api/instructor";
 import { getInstructorById, getInstructorAssistants } from "@/api/instructor";
+import { useTranslation } from "react-i18next";
 
 export function ProfileInfo() {
+  const { t } = useTranslation();
   const { instructorId } = useStudent();
   const [instructorData, setInstructorData] =
     useState<InstructorProfile | null>(null);
@@ -33,7 +35,7 @@ export function ProfileInfo() {
           setAssistants(instructorAssistants);
         } catch (error) {
           console.error("Error fetching instructor data:", error);
-          setError("Failed to load instructor data. Please try again later.");
+          setError(t("student.instructorProfile.failedToLoadData"));
         } finally {
           setLoading(false);
         }

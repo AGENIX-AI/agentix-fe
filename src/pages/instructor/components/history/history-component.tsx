@@ -26,6 +26,7 @@ import type {
   InstructorSharedConversationItem,
 } from "@/api/conversations";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { t } from "i18next";
 
 interface HistoryComponentProps {
   className?: string;
@@ -209,7 +210,7 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`transition-all duration-300 border border-border ${className}`}
+                      className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
                         isHistoryVisible ? "Collapse history" : "Expand history"
@@ -334,7 +335,7 @@ export function HistoryComponent({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`transition-all duration-300 border border-border ${className}`}
+                      className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
                         isHistoryVisible ? "Collapse history" : "Expand history"
@@ -347,7 +348,7 @@ export function HistoryComponent({
                     {isHistoryVisible ? "Collapse history" : "Expand history"}
                   </TooltipContent>
                 </Tooltip>
-                <Large>Chats</Large>
+                <Large>{t("student.history.title")}</Large>
               </div>
             </div>
           </div>

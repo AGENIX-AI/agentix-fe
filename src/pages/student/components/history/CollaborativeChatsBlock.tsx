@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import type { SharedConversationItem } from "@/api/conversations";
+import { useTranslation } from "react-i18next";
 
 interface CollaborativeChatsBlockProps {
   sharedConversations: SharedConversationItem[];
@@ -17,6 +18,7 @@ function CollaborativeChatsBlockComponent({
   onConversationClick,
   searchQuery = "",
 }: CollaborativeChatsBlockProps) {
+  const { t } = useTranslation();
   // Filter conversations if there's a search query
   const filteredConversations = searchQuery
     ? sharedConversations.filter(
@@ -39,7 +41,7 @@ function CollaborativeChatsBlockComponent({
   if (filteredConversations.length === 0) {
     return (
       <div className="text-[10px] text-muted-foreground p-2">
-        No collaborative conversations found.
+        {t('student.collaborativeChats.noConversationsFound')}
       </div>
     );
   }
@@ -77,7 +79,7 @@ function CollaborativeChatsBlockComponent({
               <div className="flex-1 overflow-hidden">
                 <p className="text-xs truncate">
                   {conversation.conversation_info.conversation_name ||
-                    "Collaborative Chat"}
+                    t('student.collaborativeChats.defaultChatName')}
                 </p>
               </div>
             </div>

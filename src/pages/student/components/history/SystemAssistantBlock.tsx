@@ -8,6 +8,7 @@ import {
 import type { SystemAssistantResponse } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { ConversationItem } from "./ConversationItem";
+import { useTranslation } from "react-i18next";
 
 function SystemAssistantBlockComponent({
   setIsChatLoading,
@@ -18,6 +19,7 @@ function SystemAssistantBlockComponent({
   systemAssistantData?: SystemAssistantResponse | null;
   assistantId: string | null;
 }) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useStudent();
 
@@ -102,7 +104,7 @@ function SystemAssistantBlockComponent({
   if (isLoading) {
     return (
       <LoadingState
-        message="Loading system assistant..."
+        message={t('student.systemAssistant.loading')}
         size="medium"
         className="h-16 mb-3"
       />
@@ -118,10 +120,10 @@ function SystemAssistantBlockComponent({
     id: systemAssistant.id || "",
     assistants: systemAssistant.assistants,
     last_message: systemAssistant.last_message,
-    conversation_name: systemAssistant.assistants?.name || "System Assistant",
+    conversation_name: systemAssistant.assistants?.name || t('student.systemAssistant.defaultName'),
     conversation_description:
       systemAssistant.assistants?.tagline ||
-      "Support you to use the App effectively",
+      t('student.systemAssistant.defaultDescription'),
   };
 
   return (

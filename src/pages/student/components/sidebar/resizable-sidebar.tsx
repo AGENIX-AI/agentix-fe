@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { cn } from "@/lib/utils";
 import {
@@ -52,6 +53,7 @@ export function ResizableSidebar({
   const rafRef = useRef<number | null>(null);
   const lastWidthRef = useRef<number>(initialWidth);
   const { setRightPanel } = useStudent();
+  const { t } = useTranslation();
 
   // Poll credits every 5 seconds
   const { credits, error: creditsError } = useCreditsPolling(5000);
@@ -284,7 +286,7 @@ export function ResizableSidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`transition-all duration-300 border border-border`}
+                  className={`transition-all duration-300 border-none `}
                   onClick={() => setIsCollapsed(!isCollapsed)}
                   aria-label={
                     isCollapsed ? "Expand sidebar" : "Collapse sidebar"
@@ -298,7 +300,7 @@ export function ResizableSidebar({
               </TooltipContent>
             </Tooltip>
             {!isCollapsed && (
-              <Large className="font-semibold">Navigation</Large>
+              <Large className="font-semibold">{t('student.sidebar.navigation')}</Large>
             )}
           </div>
 
@@ -403,7 +405,12 @@ export function ResizableSidebar({
                           )}
                           {!isCollapsed && (
                             <span className="ml-2 flex-1 truncate text-left">
-                              {navItem.title}
+                              {t(
+                                `student.sidebar.${navItem.title
+                                  .toLowerCase()
+                                  .replace(/\s+/g, "_")}`,
+                                { defaultValue: navItem.title }
+                              )}
                             </span>
                           )}
                           {!isCollapsed && navItem.badge && (
@@ -432,14 +439,14 @@ export function ResizableSidebar({
               "flex items-center px-4 text-xs ",
               isCollapsed && "justify-center px-2"
             )}
-            title={isCollapsed ? "Notifications" : undefined}
+            title={isCollapsed ? t("student.sidebar.notifications") : undefined}
           >
             <div className="relative">
               <NotificationCenter />
             </div>
             {!isCollapsed && (
               <span className="ml-2 flex-1 truncate text-left">
-                Notifications
+                {t("student.sidebar.notifications")}
               </span>
             )}
           </div>
@@ -453,7 +460,10 @@ export function ResizableSidebar({
               )}
               title={
                 isCollapsed
-                  ? `Credits: ${credits.balance.toLocaleString()}`
+                  ? t("student.sidebar.creditsWithCount", {
+                      count: credits.balance,
+                      formattedCount: credits.balance.toLocaleString(),
+                    })
                   : undefined
               }
             >
@@ -463,7 +473,10 @@ export function ResizableSidebar({
               />
               {!isCollapsed && (
                 <span className="ml-2 flex-1 truncate text-left">
-                  {credits.balance.toLocaleString()} Credits
+                  {t("student.sidebar.creditsDisplay", { 
+                    count: credits.balance, 
+                    formattedCount: credits.balance.toLocaleString() 
+                  })}
                 </span>
               )}
             </div>

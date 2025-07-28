@@ -18,7 +18,7 @@ export function LearningTopicCard({ card, className }: LearningTopicCardProps) {
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
       {/* Header */}
-      <div className="p-3 rounded-t-xl">
+      <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
             <Small className="font-bold">{card.topic_name}</Small>
@@ -29,12 +29,12 @@ export function LearningTopicCard({ card, className }: LearningTopicCardProps) {
             )}
           </div>
         </div>
-        <Separator className="mt-3" />
+        <Separator className="my-3" />
       </div>
 
       {/* Content */}
-      <div className="px-3 pb-3">
-        <div className="space-y-2">
+      <div className="p-3 pt-0">
+        <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Focus</ExtraSmall>

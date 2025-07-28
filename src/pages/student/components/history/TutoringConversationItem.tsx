@@ -1,6 +1,7 @@
 import { memo } from "react";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import type { StudentConversationItem } from "@/api/conversations";
+import { useTranslation } from "react-i18next";
 
 interface TutoringConversationItemProps {
   conversation: StudentConversationItem;
@@ -13,6 +14,7 @@ function TutoringConversationItemComponent({
   onClick,
   assistantId,
 }: TutoringConversationItemProps) {
+  const { t } = useTranslation();
   return (
     <div
       className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl ${
@@ -27,9 +29,10 @@ function TutoringConversationItemComponent({
       </Avatar>
       <div className="flex-1 overflow-hidden">
         <p className="text-xs">
-          {conversation.conversation_name || "Tutoring Session"}
+          {conversation.conversation_name ||
+            t("student.tutoringConversation.defaultName")}
         </p>
-        <p className="text-[10px] text-muted-foreground truncate">
+        <p className="text-[10px] text-muted-foreground truncate pr-1">
           {conversation.conversation_description}
         </p>
       </div>

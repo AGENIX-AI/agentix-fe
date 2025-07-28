@@ -286,7 +286,7 @@ export function ResizableSidebar({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className={`transition-all duration-300 border border-border`}
+                  className={`transition-all duration-300 border-none`}
                   onClick={() => setIsCollapsed(!isCollapsed)}
                   aria-label={
                     isCollapsed ? "Expand sidebar" : "Collapse sidebar"

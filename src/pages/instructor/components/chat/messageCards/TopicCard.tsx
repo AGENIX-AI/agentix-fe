@@ -1,10 +1,4 @@
 import { useState, useEffect } from "react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import type { TopicMessageCard } from "./types";
@@ -46,40 +40,39 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
   };
 
   return (
-    <Card
+    <div
       className={cn(
-        "w-[100%] mb-3 border border-primary/20 rounded-xl from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 shadow-sm transition-all duration-300 ease-in-out font-sans",
+        "w-full border border-border rounded-xl bg-card shadow-sm transition-all duration-300 ease-in-out font-sans",
         isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-4",
         className
       )}
       style={{ boxShadow: "0 2px 4px rgba(0,0,0,0.05)" }}
     >
-      <CardHeader className="rounded-t-xl">
-        {isEditing ? (
-          <Input
-            name="language"
-            value={formData.language || ""}
-            onChange={handleChange}
-            className="text-xs"
-            placeholder="Language (optional)"
-          />
-        ) : (
-          <CardDescription className="text-xs text-primary">
-            <div className="flex flex-col gap-2 space-y-2">
-              <Small className="text-primary font-bold">
-                {card.topic_name}
-              </Small>
-              <ExtraSmall className="text-primary">
-                {card.language ? `Language: ${card.language}` : ""}
-              </ExtraSmall>
+      {/* Header */}
+      <div className="rounded-t-xl p-3 pb-0">
+        <div className="text-primary">
+          {isEditing ? (
+            <Input
+              name="language"
+              value={formData.language || ""}
+              onChange={handleChange}
+              className="text-xs"
+              placeholder="Language (optional)"
+            />
+          ) : (
+            <div className="flex flex-col gap-1">
+              <Small className="font-bold">{card.topic_name}</Small>
             </div>
-          </CardDescription>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-2">
-          <div>
-            <div className="flex items-center gap-1.5">
+          )}
+          <Separator className="my-3" />
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="p-3 pt-0">
+        <div className="space-y-3">
+          <div className="flex flex-col space-y-1">
+            <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">Goal</ExtraSmall>
             </div>
             {isEditing ? (
@@ -91,15 +84,15 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
                 placeholder="What is the goal of this topic?"
               />
             ) : (
-              <ExtraSmall className="text-xs">{card.topic_goal}</ExtraSmall>
+              <ExtraSmall className="text-xs text-foreground">
+                {card.topic_goal}
+              </ExtraSmall>
             )}
           </div>
 
-          {card.topic_problem && <Separator className="my-3" />}
-
           {card.topic_problem && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-1.5">
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center gap-3">
                 <ExtraSmall className="font-bold text-primary">
                   Problem
                 </ExtraSmall>
@@ -113,14 +106,14 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
                   placeholder="What problem are you trying to solve?"
                 />
               ) : (
-                <ExtraSmall className="text-xs">
+                <ExtraSmall className="text-xs text-foreground">
                   {card.topic_problem}
                 </ExtraSmall>
               )}
             </div>
           )}
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

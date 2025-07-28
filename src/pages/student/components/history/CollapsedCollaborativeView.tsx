@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import type { SharedConversationItem } from "@/api/conversations";
+import { useTranslation } from "react-i18next";
 
 interface CollapsedCollaborativeViewProps {
   conversations: SharedConversationItem[];
@@ -19,6 +20,7 @@ function CollapsedCollaborativeViewComponent({
   conversationId,
   handleCollaborativeClick,
 }: CollapsedCollaborativeViewProps) {
+  const { t } = useTranslation();
   if (conversations.length === 0) {
     return null;
   }
@@ -60,7 +62,7 @@ function CollapsedCollaborativeViewComponent({
                 >
                   <AvatarImage
                     src={conversation.conversation_info.assistants?.image || ""}
-                    alt="Assistant"
+                    alt={t('student.collapsedCollaborative.assistant')}
                   />
                 </Avatar>
               </div>
@@ -77,7 +79,7 @@ function CollapsedCollaborativeViewComponent({
                   {conversation.conversation_info.conversation_name}
                 </p>
                 <p className="text-xs text-muted-foreground truncate max-w-[180px]">
-                  with {conversation.instructor_info?.name}
+                  {t('student.collapsedCollaborative.with')} {conversation.instructor_info?.name}
                 </p>
               </TooltipContent>
             </Tooltip>

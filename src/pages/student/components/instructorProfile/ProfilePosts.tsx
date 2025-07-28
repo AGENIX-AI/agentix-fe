@@ -3,12 +3,14 @@ import { Share } from "lucide-react";
 import { Avatar } from "@/components/ui/avatar";
 import { AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 
 interface PostProps {
   content: string;
 }
 
 function Post({ content }: PostProps) {
+  const { t } = useTranslation();
   return (
     <div>
       <div className="flex items-start">
@@ -25,14 +27,14 @@ function Post({ content }: PostProps) {
           <div className="flex items-center">
             <ExtraSmall>Son Tran</ExtraSmall>
             <ExtraSmall className="ml-2 text-muted-foreground">
-              · 1st
+              · {t("student.instructorProfile.firstDegree")}
             </ExtraSmall>
           </div>
           <ExtraSmall className="text-muted-foreground">
-            Entrepreneurship Evangelist and Educator
+            {t("student.instructorProfile.entrepreneurshipRole")}
           </ExtraSmall>
           <ExtraSmall className="text-muted-foreground">
-            3w ·{" "}
+            {t("student.instructorProfile.timeAgo", { time: "3w" })} ·{" "}
             <span className="rounded-full bg-muted p-0.5 inline-flex items-center justify-center h-4 w-4">
               <Share className="h-2.5 w-2.5" />
             </span>
@@ -55,11 +57,12 @@ export function ProfilePosts({
   instructorDescription,
   instructorName,
 }: ProfilePostsProps) {
+  const { t } = useTranslation();
   const hasPosts = false; // Show posts section if there's a description
 
   return (
     <div className="mt-6">
-      <H6>{instructorName} Posts</H6>
+      <H6>{t("student.instructorProfile.instructorPosts", { name: instructorName })}</H6>
 
       {hasPosts ? (
         <div className="mt-3 space-y-4">
@@ -82,7 +85,7 @@ export function ProfilePosts({
             </svg>
           </div>
           <ExtraSmall className="mt-2 text-muted-foreground">
-            No posts available
+            {t("student.instructorProfile.noPostsAvailable")}
           </ExtraSmall>
         </div>
       )}
