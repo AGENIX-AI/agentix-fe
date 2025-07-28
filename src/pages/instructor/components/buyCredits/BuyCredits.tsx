@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, CreditCard, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useTranslation } from "react-i18next";
 import {
   getPackages,
   createPaymentIntent,
@@ -15,6 +16,7 @@ import {
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
 
 export function BuyCredits() {
+  const { t } = useTranslation();
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -41,11 +43,11 @@ export function BuyCredits() {
         if (response.success && response.packages) {
           setPackages(response.packages);
         } else {
-          toast.error("Failed to load credit packages. Please try again.");
+          toast.error(t("credits.errors.load_failed"));
         }
       } catch (error) {
         console.error("Error fetching packages:", error);
-        toast.error("Failed to load credit packages. Please try again.");
+        toast.error(t("credits.errors.load_failed"));
       } finally {
         setIsLoadingPackages(false);
       }
@@ -61,7 +63,7 @@ export function BuyCredits() {
 
   const createOrder = async (): Promise<string> => {
     if (!selectedPackage) {
-      toast.error("Please select a package first");
+      toast.error(t("credits.errors.select_package"));
       throw new Error("No package selected");
     }
 
@@ -72,11 +74,11 @@ export function BuyCredits() {
       if (response.success && response.order_id) {
         return response.order_id;
       } else {
-        throw new Error(response.message || "Failed to create order");
+        throw new Error(response.message || t("credits.errors.create_order"));
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Failed to create payment order. Please try again.");
+      toast.error(t("credits.errors.payment_order"));
       throw error;
     } finally {
       setIsProcessing(false);
@@ -96,23 +98,26 @@ export function BuyCredits() {
         if (response.is_completed) {
           // Payment is completed
           toast.success(
-            `Payment successful! ${selectedPackage?.credit} credits added to your account.`
+            t("credits.success.payment_complete", {
+              count: selectedPackage?.credit,
+              formattedCount: selectedPackage?.credit.toLocaleString()
+            })
           );
           setPaymentStatus("completed");
           setShowPayPal(false);
           setIsProcessing(false);
         } else {
           // Payment failed or incomplete
-          throw new Error("Payment was not completed successfully");
+          throw new Error(t("credits.errors.payment_incomplete"));
         }
       } else {
-        throw new Error(response.message || "Payment processing failed");
+        throw new Error(response.message || t("credits.errors.payment_processing"));
       }
     } catch (error) {
       console.error("Error processing payment:", error);
       setPaymentStatus("failed");
       toast.error(
-        "Payment processing failed. Please contact support if you were charged."
+        t("credits.errors.payment_failed_contact")
       );
       setIsProcessing(false);
     }
@@ -128,7 +133,7 @@ export function BuyCredits() {
       console.error("Error in payment approval flow:", error);
       setPaymentStatus("failed");
       toast.error(
-        "Payment process failed. Please contact support if you were charged."
+        t("credits.errors.payment_failed_contact")
       );
       setIsProcessing(false);
     }
@@ -136,7 +141,7 @@ export function BuyCredits() {
 
   const onError = (err: unknown) => {
     console.error("PayPal error:", err);
-    toast.error("Payment failed. Please try again.");
+    toast.error(t("credits.errors.payment_failed"));
     setPaymentStatus("failed");
     setIsProcessing(false);
   };
@@ -149,13 +154,13 @@ export function BuyCredits() {
   };
 
   const onCancel = () => {
-    toast.info("Payment cancelled");
+    toast.info(t("credits.info.payment_cancelled"));
     resetPaymentState();
   };
 
   const handleVoucherRedeem = async () => {
     if (!voucherCode.trim()) {
-      toast.error("Please enter a voucher code");
+      toast.error(t("credits.errors.enter_voucher"));
       return;
     }
 
@@ -174,13 +179,13 @@ export function BuyCredits() {
         setVoucherRedemptionStatus("success");
         setVoucherCode("");
       } else {
-        throw new Error(response.message || "Failed to redeem voucher");
+        throw new Error(response.message || t("credits.errors.redeem_voucher"));
       }
     } catch (error) {
       console.error("Error redeeming voucher:", error);
       setVoucherRedemptionStatus("failed");
       toast.error(
-        error instanceof Error ? error.message : "Failed to redeem voucher"
+        error instanceof Error ? error.message : t("credits.errors.redeem_voucher")
       );
     } finally {
       setIsRedeemingVoucher(false);
@@ -193,7 +198,7 @@ export function BuyCredits() {
       <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
         <div className="flex items-center gap-3">
           <CreditCard className="size-6 text-primary" />
-          <h1 className="text-2xl font-bold">Buy Credits</h1>
+          <h1 className="text-2xl font-bold">{t("credits.title")}</h1>
         </div>
       </div>
 
@@ -207,11 +212,13 @@ export function BuyCredits() {
                 <CheckCircle className="size-12 text-primary" />
               </div>
               <h2 className="text-2xl font-semibold mb-2">
-                Payment Successful!
+                {t("credits.success.title")}
               </h2>
               <p className="text-muted-foreground mb-6">
-                {selectedPackage?.credit} credits have been added to your
-                account.
+                {t("credits.success.credits_added", {
+                  count: selectedPackage?.credit,
+                  formattedCount: selectedPackage?.credit.toLocaleString()
+                })}
               </p>
               <Button
                 onClick={() => {
@@ -219,7 +226,7 @@ export function BuyCredits() {
                   resetPaymentState();
                 }}
               >
-                Make Another Purchase
+                {t("credits.actions.another_purchase")}
               </Button>
             </div>
           ) : (
@@ -228,11 +235,10 @@ export function BuyCredits() {
               {/* Description */}
               <div className="text-center mb-8">
                 <h2 className="text-xl font-semibold mb-2">
-                  Choose Your Credit Package
+                  {t("credits.choose_package")}
                 </h2>
                 <p className="text-muted-foreground">
-                  Purchase credits to unlock premium features and enhanced
-                  capabilities
+                  {t("credits.description")}
                 </p>
               </div>
 
@@ -240,10 +246,10 @@ export function BuyCredits() {
               <Card className="p-6 mb-8">
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold mb-2">
-                    Have a Voucher Code?
+                    {t("credits.voucher.title")}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Redeem your voucher code to get free credits instantly
+                    {t("credits.voucher.description")}
                   </p>
                 </div>
 
@@ -255,7 +261,7 @@ export function BuyCredits() {
                       onChange={(e) =>
                         setVoucherCode(e.target.value.toUpperCase())
                       }
-                      placeholder="Enter voucher code (e.g., EDVARA-123456)"
+                      placeholder={t("credits.voucher.placeholder")}
                       className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       disabled={isRedeemingVoucher}
                       onKeyPress={(e) => {
@@ -272,10 +278,10 @@ export function BuyCredits() {
                       {isRedeemingVoucher ? (
                         <>
                           <Loader2 className="size-4 mr-1 animate-spin" />
-                          Redeeming...
+                          {t("credits.voucher.redeeming")}
                         </>
                       ) : (
-                        "Redeem"
+                        t("credits.voucher.redeem")
                       )}
                     </Button>
                   </div>
@@ -283,7 +289,7 @@ export function BuyCredits() {
                   {voucherRedemptionStatus === "success" && (
                     <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                       <p className="text-sm text-green-600 dark:text-green-400 text-center">
-                        ✅ Voucher redeemed successfully!
+                        {t("credits.voucher.success")}
                       </p>
                     </div>
                   )}
@@ -291,8 +297,7 @@ export function BuyCredits() {
                   {voucherRedemptionStatus === "failed" && (
                     <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                       <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                        ❌ Failed to redeem voucher. Please check the code and
-                        try again.
+                        {t("credits.voucher.failed")}
                       </p>
                     </div>
                   )}
@@ -326,7 +331,7 @@ export function BuyCredits() {
                         {pkg.popular && (
                           <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                             <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                              Most Popular
+                              {t("credits.package.most_popular")}
                             </span>
                           </div>
                         )}
@@ -342,14 +347,15 @@ export function BuyCredits() {
                             {pkg.credit.toLocaleString()}
                           </div>
                           <div className="text-sm text-muted-foreground mb-3">
-                            Credits
+                            {t("credits.package.credits")}
                           </div>
                           <div className="text-xs text-muted-foreground mb-3 px-2">
                             {pkg.description}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            ${(pkg.price / (pkg.credit / 1000)).toFixed(3)} per
-                            1K credits
+                            {t("credits.package.per_thousand", {
+                              price: (pkg.price / (pkg.credit / 1000)).toFixed(3)
+                            })}
                           </div>
                         </div>
 
@@ -367,12 +373,14 @@ export function BuyCredits() {
                 <Card className="p-6">
                   <div className="text-center mb-6">
                     <h3 className="text-lg font-semibold mb-2">
-                      Complete Your Purchase
+                      {t("credits.payment.complete_purchase")}
                     </h3>
                     <p className="text-muted-foreground">
-                      You're purchasing{" "}
-                      {selectedPackage.credit.toLocaleString()} credits for $
-                      {selectedPackage.price}
+                      {t("credits.payment.purchasing", {
+                        count: selectedPackage.credit,
+                        formattedCount: selectedPackage.credit.toLocaleString(),
+                        price: selectedPackage.price
+                      })}
                     </p>
                   </div>
 
@@ -404,8 +412,8 @@ export function BuyCredits() {
                         <Loader2 className="size-4 mr-2 animate-spin" />
                         <span className="text-sm text-muted-foreground">
                           {paymentStatus === "capturing"
-                            ? "Capturing payment..."
-                            : "Processing payment..."}
+                            ? t("credits.payment.capturing")
+                            : t("credits.payment.processing")}
                         </span>
                       </div>
                     )}
@@ -413,7 +421,7 @@ export function BuyCredits() {
                     {paymentStatus === "failed" && !isProcessing && (
                       <div className="flex items-center justify-center mt-4 text-destructive">
                         <span className="text-sm font-medium">
-                          Payment failed. Please try again or contact support.
+                          {t("credits.payment.failed")}
                         </span>
                       </div>
                     )}
@@ -428,7 +436,7 @@ export function BuyCredits() {
                         }}
                         disabled={isProcessing}
                       >
-                        Cancel
+                        {t("credits.actions.cancel")}
                       </Button>
                     </div>
                   </div>
@@ -437,8 +445,8 @@ export function BuyCredits() {
 
               {/* Security Note */}
               <div className="mt-8 text-center text-sm text-muted-foreground">
-                <p>🔒 Secure payment processing powered by PayPal</p>
-                <p>Your payment information is encrypted and protected</p>
+                <p>{t("credits.security.secure_payment")}</p>
+                <p>{t("credits.security.encrypted")}</p>
               </div>
             </>
           )}

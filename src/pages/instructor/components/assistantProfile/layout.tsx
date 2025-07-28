@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import type { InstructorProfile } from "@/api/instructor";
 import { getInstructorById } from "@/api/instructor";
 import { LoadingState } from "@/components/ui/loading-state";
+import { useTranslation } from "react-i18next";
 
 interface AssistantBannerProps {}
 
@@ -33,10 +34,12 @@ export function AssistantBanner({}: AssistantBannerProps) {
     }
   }, [assistantId, instructorId]);
 
+  const { t } = useTranslation();
+
   if (!instructor) {
     return (
       <div className="sticky top-0 z-10 bg-card h-48">
-        <LoadingState message="Loading assistant profile..." size="medium" />
+        <LoadingState message={t('assistant.profile.loading')} size="medium" />
       </div>
     );
   }
@@ -44,7 +47,7 @@ export function AssistantBanner({}: AssistantBannerProps) {
     return (
       <div className="sticky top-0 z-10 bg-card h-48 flex items-center justify-center">
         <p className="text-sm text-muted-foreground">
-          No assistant information available
+          {t('assistant.profile.no_info')}
         </p>
       </div>
     );
@@ -101,7 +104,7 @@ export function AssistantBanner({}: AssistantBannerProps) {
               {instructor.instructor_name}
             </h3>
             <p className="text-xs">
-              {instructor.instructor_description || "General Assistance"}
+              {instructor.instructor_description || t('assistant.profile.general_assistance')}
             </p>
           </div>
         </div>
@@ -111,6 +114,7 @@ export function AssistantBanner({}: AssistantBannerProps) {
 }
 
 export function AssistantView({ page }: { page: string }) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col h-full max-h-screen">
       <AssistantBanner />
@@ -122,19 +126,19 @@ export function AssistantView({ page }: { page: string }) {
               value="tasks"
               className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
             >
-              Tasks
+              {t('assistant.tabs.tasks')}
             </TabsTrigger>
             <TabsTrigger
               value="agentCapabilityStatement"
               className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
             >
-              Profile
+              {t('assistant.tabs.profile')}
             </TabsTrigger>
             <TabsTrigger
               value="assistantTopics"
               className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
             >
-              Topics
+              {t('assistant.tabs.topics')}
             </TabsTrigger>
           </TabsList>
 

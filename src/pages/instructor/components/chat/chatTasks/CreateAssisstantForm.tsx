@@ -17,6 +17,7 @@ import { eventBus } from "@/lib/utils/event/eventBus";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { Grid, Item } from "@/components/ui/grid";
 import { createAssistant } from "@/api/assistants";
+import { useTranslation } from "react-i18next";
 
 export interface CreateAssisstantFormData {
   name: string;
@@ -37,6 +38,7 @@ export function CreateAssisstantForm({
   onOpenChange,
   taskTitle,
 }: CreateAssisstantFormProps) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel } = useInstructor();
   const [formData, setFormData] = useState<CreateAssisstantFormData>({
     name: "",
@@ -66,7 +68,7 @@ export function CreateAssisstantForm({
     e.preventDefault();
 
     if (!formData.name.trim()) {
-      toast.error("Assistant name is required");
+      toast.error(t('chat.create_assistant_form.name_required'));
       return;
     }
 
@@ -90,7 +92,7 @@ export function CreateAssisstantForm({
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to create assistant:", error);
-      toast.error("An error occurred while creating the assistant");
+      toast.error(t('chat.create_assistant_form.error_creating'));
     } finally {
       setIsLoading(false);
     }
@@ -106,13 +108,13 @@ export function CreateAssisstantForm({
           <Grid container spacing={2}>
             <Item size={12}>
               <div className="space-y-1">
-                <Label className="text-xs">Name</Label>
+                <Label className="text-xs">{t('chat.create_assistant_form.name_label')}</Label>
                 <Input
                   type="text"
                   name="name"
                   value={formData.name}
                   onChange={handleChange}
-                  placeholder="Assistant name"
+                  placeholder={t('chat.create_assistant_form.name_placeholder')}
                   className="h-9 text-xs"
                   disabled={isLoading}
                   required
@@ -121,13 +123,13 @@ export function CreateAssisstantForm({
             </Item>
             <Item size={12}>
               <div className="space-y-1">
-                <Label className="text-xs">Tagline</Label>
+                <Label className="text-xs">{t('chat.create_assistant_form.tagline_label')}</Label>
                 <Input
                   type="text"
                   name="tagline"
                   value={formData.tagline}
                   onChange={handleChange}
-                  placeholder="Short description of what this assistant does"
+                  placeholder={t('chat.create_assistant_form.tagline_placeholder')}
                   className="h-9 text-xs"
                   disabled={isLoading}
                 />
@@ -135,12 +137,12 @@ export function CreateAssisstantForm({
             </Item>
             <Item size={12}>
               <div className="space-y-1">
-                <Label className="text-xs">Description</Label>
+                <Label className="text-xs">{t('chat.create_assistant_form.description_label')}</Label>
                 <Textarea
                   name="description"
                   value={formData.description}
                   onChange={handleChange}
-                  placeholder="Detailed description of the assistant's capabilities"
+                  placeholder={t('chat.create_assistant_form.description_placeholder')}
                   className="text-xs min-h-[120px] resize-none"
                   disabled={isLoading}
                 />
@@ -148,12 +150,12 @@ export function CreateAssisstantForm({
             </Item>
             <Item size={12}>
               <div className="space-y-1">
-                <Label className="text-xs">Language</Label>
+                <Label className="text-xs">{t('chat.create_assistant_form.language_label')}</Label>
                 <Combobox
                   options={languageOptions}
                   value={formData.language}
                   onValueChange={handleLanguageChange}
-                  placeholder="Select language"
+                  placeholder={t('chat.create_assistant_form.language_placeholder')}
                   triggerClassName="h-9 text-xs"
                   disabled={isLoading}
                 />
@@ -169,11 +171,11 @@ export function CreateAssisstantForm({
             {isLoading ? (
               <>
                 <Loader2 className="size-4 mr-2 animate-spin" />
-                Creating...
+                {t('chat.create_assistant_form.creating')}
               </>
             ) : (
               <>
-                Create
+                {t('chat.create_assistant_form.create')}
                 <SendIcon className="size-4 ml-2" />
               </>
             )}

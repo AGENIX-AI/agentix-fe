@@ -7,15 +7,22 @@ import {
   AlertCircle,
   Check,
   Upload,
+  Repeat,
+  BookCopy,
+  FileText,
 } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-import { getOwnDocuments, linkDocument, unlinkDocument } from "@/api/documents";
+import {
+  getOwnDocuments,
+  linkDocument,
+  unlinkDocument,
+  updateModeDocument,
+} from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { useInstructor } from "@/contexts/InstructorContext";
 
-import { Small } from "@/components/ui/typography";
 import { DocumentTable } from "./DocumentTable";
 import { Pagination } from "./Pagination";
 import { Button } from "@/components/ui/button";
@@ -40,16 +47,23 @@ export function EmbeddedDocumentsComponent({
   onDocumentSelect,
 }: EmbeddedDocumentsComponentProps) {
   const { assistantId } = useInstructor();
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [originalDocuments, setOriginalDocuments] = useState<Document[]>([]);
+  const [referenceDocuments, setReferenceDocuments] = useState<Document[]>([]);
+  const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
+  const [isLoadingReference, setIsLoadingReference] = useState(false);
   const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentPageOriginal, setCurrentPageOriginal] = useState(1);
+  const [currentPageReference, setCurrentPageReference] = useState(1);
   const [pageSize] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
+  const [totalItemsOriginal, setTotalItemsOriginal] = useState(0);
+  const [totalItemsReference, setTotalItemsReference] = useState(0);
   const [showAddDocumentSidebar, setShowAddDocumentSidebar] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
+  const [updatingModeDocumentId, setUpdatingModeDocumentId] = useState<
+    string | null
+  >(null);
 
   // Image handling states
   const [showImageSidebar, setShowImageSidebar] = useState(false);
@@ -60,36 +74,74 @@ export function EmbeddedDocumentsComponent({
   const [isSubmittingImages, setIsSubmittingImages] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  // Fetch documents when page, search, document type, or refresh trigger changes
+  // Fetch original documents
   useEffect(() => {
-    const fetchDocuments = async () => {
-      setIsLoading(true);
+    const fetchOriginalDocuments = async () => {
+      setIsLoadingOriginal(true);
       try {
         const response = await getOwnDocuments({
-          page_number: currentPage,
+          page_number: currentPageOriginal,
           page_size: pageSize,
           search: searchQuery || "",
           type: "document",
-          assistant_id: assistantId || undefined, // Provide undefined when no assistant selected
+          assistant_id: assistantId || undefined,
           sort_by: "created_at",
           sort_order: 1,
+          mode: "original",
         });
 
         if (response.success) {
-          setDocuments(response.documents);
-          setTotalItems(response.total_items);
+          setOriginalDocuments(response.documents);
+          setTotalItemsOriginal(response.total_items);
         }
       } catch (error) {
-        console.error("Error fetching documents:", error);
+        console.error("Error fetching original documents:", error);
       } finally {
-        setIsLoading(false);
+        setIsLoadingOriginal(false);
       }
     };
 
-    fetchDocuments();
+    fetchOriginalDocuments();
   }, [
     assistantId,
-    currentPage,
+    currentPageOriginal,
+    pageSize,
+    searchQuery,
+    refreshTrigger,
+    localRefreshTrigger,
+  ]);
+
+  // Fetch reference documents
+  useEffect(() => {
+    const fetchReferenceDocuments = async () => {
+      setIsLoadingReference(true);
+      try {
+        const response = await getOwnDocuments({
+          page_number: currentPageReference,
+          page_size: pageSize,
+          search: searchQuery || "",
+          type: "document",
+          assistant_id: assistantId || undefined,
+          sort_by: "created_at",
+          sort_order: 1,
+          mode: "reference",
+        });
+
+        if (response.success) {
+          setReferenceDocuments(response.documents);
+          setTotalItemsReference(response.total_items);
+        }
+      } catch (error) {
+        console.error("Error fetching reference documents:", error);
+      } finally {
+        setIsLoadingReference(false);
+      }
+    };
+
+    fetchReferenceDocuments();
+  }, [
+    assistantId,
+    currentPageReference,
     pageSize,
     searchQuery,
     refreshTrigger,
@@ -135,8 +187,13 @@ export function EmbeddedDocumentsComponent({
       if (response.success) {
         toast.success("Document linked successfully");
         // Update the document in the list
-        setDocuments(
-          documents.map((doc) =>
+        setOriginalDocuments(
+          originalDocuments.map((doc) =>
+            doc.id === documentId ? { ...doc, linked: true } : doc
+          )
+        );
+        setReferenceDocuments(
+          referenceDocuments.map((doc) =>
             doc.id === documentId ? { ...doc, linked: true } : doc
           )
         );
@@ -162,8 +219,13 @@ export function EmbeddedDocumentsComponent({
       if (response.success) {
         toast.success("Document unlinked successfully");
         // Update the document in the list
-        setDocuments(
-          documents.map((doc) =>
+        setOriginalDocuments(
+          originalDocuments.map((doc) =>
+            doc.id === documentId ? { ...doc, linked: false } : doc
+          )
+        );
+        setReferenceDocuments(
+          referenceDocuments.map((doc) =>
             doc.id === documentId ? { ...doc, linked: false } : doc
           )
         );
@@ -182,7 +244,10 @@ export function EmbeddedDocumentsComponent({
 
   const handleViewDocument = (documentId: string) => {
     if (onDocumentSelect) {
-      const document = documents.find((doc) => doc.id === documentId);
+      const document =
+        originalDocuments.find((doc) => doc.id === documentId) ||
+        referenceDocuments.find((doc) => doc.id === documentId);
+
       if (document) {
         onDocumentSelect(document);
       }
@@ -200,6 +265,27 @@ export function EmbeddedDocumentsComponent({
   const handleCloseAddDocumentSidebar = () => {
     setShowAddDocumentSidebar(false);
     setError(null);
+  };
+
+  const handleUpdateDocumentMode = async (
+    documentId: string,
+    newMode: "original" | "reference"
+  ) => {
+    try {
+      setUpdatingModeDocumentId(documentId);
+      const response = await updateModeDocument(documentId, newMode);
+      if (response.success) {
+        toast.success(`Document mode updated to ${newMode}`);
+        setLocalRefreshTrigger((prev) => prev + 1);
+      } else {
+        toast.error(response.message || "Failed to update document mode");
+      }
+    } catch (error) {
+      console.error("Error updating document mode:", error);
+      toast.error("Failed to update document mode");
+    } finally {
+      setUpdatingModeDocumentId(null);
+    }
   };
 
   // Function to fetch document images
@@ -374,10 +460,87 @@ export function EmbeddedDocumentsComponent({
     handleSubmitImages([], false);
   };
 
+  const renderDocumentTable = (
+    documents: Document[],
+    isLoading: boolean,
+    currentPage: number,
+    setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
+    totalItems: number,
+    targetMode: "original" | "reference"
+  ) => {
+    if (isLoading) {
+      return (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+
+    if (documents.length === 0) {
+      return (
+        <div className="text-center py-8 border rounded-lg">
+          <h3 className="mt-2 text-xs font-medium">No documents found</h3>
+          <p className="text-xs text-muted-foreground mt-1">
+            No documents available in {targetMode} mode
+          </p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="w-full max-w-full overflow-hidden">
+        <div className="w-full max-w-full overflow-x-auto">
+          <DocumentTable
+            documents={documents}
+            getStatusColor={getStatusColor}
+            getLinkStatus={getLinkStatus}
+            showLinkedColumn={true}
+            onLinkDocument={handleLinkDocument}
+            onUnlinkDocument={handleUnlinkDocument}
+            loadingDocumentIds={loadingDocumentIds}
+            onViewDocument={onDocumentSelect ? handleViewDocument : undefined}
+            onRowClick={onDocumentSelect}
+            renderActions={(document) => (
+              <Button
+                variant="outline"
+                size="sm"
+                className="h-7 px-2 text-xs"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleUpdateDocumentMode(
+                    document.id,
+                    targetMode === "original" ? "reference" : "original"
+                  );
+                }}
+                disabled={updatingModeDocumentId === document.id}
+              >
+                {updatingModeDocumentId === document.id ? (
+                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                ) : (
+                  <Repeat className="h-3 w-3 mr-1" />
+                )}
+                Switch to {targetMode === "original" ? "Reference" : "Original"}
+              </Button>
+            )}
+          />
+        </div>
+
+        <div className="mt-4">
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            pageSize={pageSize}
+            documentsCount={documents.length}
+            setCurrentPage={setCurrentPage}
+          />
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="">
-      <div className="mb-3 flex justify-between items-center">
-        <Small className="font-semibold">Your Documents</Small>
+      <div className="mb-3 flex justify-end items-right">
         <Button
           onClick={handleAddDocument}
           className="flex items-center space-x-1 px-3 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
@@ -414,50 +577,39 @@ export function EmbeddedDocumentsComponent({
         </div>
       )}
 
-      {isLoading ? (
-        <div className="flex justify-center items-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      ) : (
-        <>
-          {documents.length === 0 ? (
-            <div className="text-center py-8 border rounded-lg">
-              <h3 className="mt-2 text-xs font-medium">No documents found</h3>
-              <p className="text-xs text-muted-foreground mt-1">
-                No documents available
-              </p>
-            </div>
-          ) : (
-            <div className="w-full max-w-full overflow-hidden">
-              <div className="w-full max-w-full overflow-x-auto">
-                <DocumentTable
-                  documents={documents}
-                  getStatusColor={getStatusColor}
-                  getLinkStatus={getLinkStatus}
-                  showLinkedColumn={true}
-                  onLinkDocument={handleLinkDocument}
-                  onUnlinkDocument={handleUnlinkDocument}
-                  loadingDocumentIds={loadingDocumentIds}
-                  onViewDocument={
-                    onDocumentSelect ? handleViewDocument : undefined
-                  }
-                  onRowClick={onDocumentSelect}
-                />
-              </div>
-
-              <div className="mt-4">
-                <Pagination
-                  currentPage={currentPage}
-                  totalItems={totalItems}
-                  pageSize={pageSize}
-                  documentsCount={documents.length}
-                  setCurrentPage={setCurrentPage}
-                />
-              </div>
-            </div>
+      <div className="flex flex-col space-y-6">
+        {/* Original Documents Section */}
+        <div className="rounded-md">
+          <div className="flex items-center mb-4">
+            <FileText className="h-5 w-5 mr-2 text-primary" />
+            <h3 className="font-semibold">Original Documents</h3>
+          </div>
+          {renderDocumentTable(
+            originalDocuments,
+            isLoadingOriginal,
+            currentPageOriginal,
+            setCurrentPageOriginal,
+            totalItemsOriginal,
+            "original"
           )}
-        </>
-      )}
+        </div>
+
+        {/* Reference Documents Section */}
+        <div className="rounded-md">
+          <div className="flex items-center mb-4">
+            <BookCopy className="h-5 w-5 mr-2 text-primary" />
+            <h3 className="font-semibold">Reference Documents</h3>
+          </div>
+          {renderDocumentTable(
+            referenceDocuments,
+            isLoadingReference,
+            currentPageReference,
+            setCurrentPageReference,
+            totalItemsReference,
+            "reference"
+          )}
+        </div>
+      </div>
 
       {/* Add Document Sidebar */}
       {showAddDocumentSidebar && (

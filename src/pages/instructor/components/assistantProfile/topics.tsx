@@ -9,6 +9,7 @@ import type {
   GetInstructorConversationsResponse,
 } from "@/api/instructor";
 import { Large } from "@/components/ui/typography";
+import { useTranslation } from "react-i18next";
 // Types
 interface Personality {
   id: string;
@@ -62,6 +63,7 @@ function ConversationList({
   isLoading,
   hasError,
 }: ConversationListProps) {
+  const { t } = useTranslation();
   return (
     <div>
       {isLoading ? (
@@ -69,7 +71,7 @@ function ConversationList({
       ) : hasError ? (
         <div className="bg-destructive/10 rounded-md text-center">
           <p className="text-xs text-destructive">
-            Failed to load conversation data
+            {t('assistant.topics.load_failed')}
           </p>
         </div>
       ) : (
@@ -101,18 +103,19 @@ function ConversationCategory({
   conversations,
 }: ConversationCategoryProps) {
   const { setConversationId } = useInstructor();
+  const { t } = useTranslation();
 
   // Format category name for display
   const getCategoryTitle = () => {
     switch (category) {
       case "general":
-        return "General Topics";
+        return t('assistant.topics.categories.general');
       case "learning":
-        return "Training Topics";
+        return t('assistant.topics.categories.learning');
       case "archived":
-        return "Archived Topics";
+        return t('assistant.topics.categories.archived');
       default:
-        return `${category.charAt(0).toUpperCase() + category.slice(1)} Topics`;
+        return t('assistant.topics.categories.default', { category: category.charAt(0).toUpperCase() + category.slice(1) });
     }
   };
 
@@ -182,7 +185,7 @@ function ConversationCategory({
                         conv.goals &&
                         conv.goals.length > 0 && (
                           <p className="text-xs  mt-1">
-                            Goal : {conv.goals[0].goal_description}
+                            {t('assistant.topics.goal')} : {conv.goals[0].goal_description}
                           </p>
                         )}
                     </div>
@@ -214,7 +217,7 @@ function ConversationCategory({
               </svg>
             </div>
             <p className="text-sm min-w-0 font-medium">
-              No conversations found
+              {t('assistant.topics.no_conversations')}
             </p>
           </div>
         )}
@@ -226,6 +229,7 @@ function ConversationCategory({
 // Main Component
 export function AssistantTopics({ className }: AssistantTopicsProps) {
   const { assistantInfo } = useInstructor();
+  const { t } = useTranslation();
   const [conversationData, setConversationData] =
     useState<GetInstructorConversationsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -278,7 +282,7 @@ export function AssistantTopics({ className }: AssistantTopicsProps) {
       <div className="h-full mt-13 w-full flex flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
-          <p className="text-muted-foreground text-center">Loading Canvas...</p>
+          <p className="text-muted-foreground text-center">{t('assistant.topics.loading')}</p>
         </div>
       </div>
     );

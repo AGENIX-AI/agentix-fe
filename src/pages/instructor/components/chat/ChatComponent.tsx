@@ -6,6 +6,7 @@ import { ChatBox } from "./ChatBox";
 import { Small, Muted } from "@/components/ui/typography";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
+import { useTranslation } from "react-i18next";
 import {
   getConversationHistory,
   getConversationById,
@@ -21,23 +22,28 @@ import { Separator } from "@/components/ui/separator";
 import type { Conversation } from "@/services/conversation";
 
 // Subcomponents
-const LoadingState = memo(() => (
-  <div className="h-full w-full flex flex-col items-center justify-center">
-    <div className="flex flex-col items-center gap-4">
-      <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
-      <Muted className="text-center">Loading conversation...</Muted>
+const LoadingState = memo(() => {
+  const { t } = useTranslation();
+  return (
+    <div className="h-full w-full flex flex-col items-center justify-center">
+      <div className="flex flex-col items-center gap-4">
+        <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
+        <Muted className="text-center">{t('chat.loading.conversation')}</Muted>
+      </div>
     </div>
-  </div>
-));
+  );
+});
 
 LoadingState.displayName = "LoadingState";
 
 const TypingIndicator = memo(
-  ({ avatar_url, name }: { avatar_url?: string; name?: string }) => (
+  ({ avatar_url, name }: { avatar_url?: string; name?: string }) => {
+    const { t } = useTranslation();
+    return (
     <div className="flex items-start flex-col">
       <div className="flex items-center gap-2 mb-1">
         <Avatar className="h-6 w-6">
-          <AvatarImage src={avatar_url} alt={name || "Assistant"} />
+          <AvatarImage src={avatar_url} alt={name || t('chat.roles.assistant')} />
           <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
             {name
               ? name
@@ -47,7 +53,7 @@ const TypingIndicator = memo(
               : "AI"}
           </AvatarFallback>
         </Avatar>
-        <Small className="font-medium">{name || "Assistant"}</Small>
+        <Small className="font-medium">{name || t('chat.roles.assistant')}</Small>
         <Small className="text-[10px]">{format(new Date(), "h:mm a")}</Small>
       </div>
       <div className="flex max-w-[80%] items-center gap-3 rounded-lg bg-white dark:bg-gray-900 border border-gray-100 dark:border-gray-800 shadow-sm px-4 py-3 text-foreground ml-6">
@@ -76,7 +82,8 @@ const TypingIndicator = memo(
         </div>
       </div>
     </div>
-  )
+  );
+  }
 );
 
 TypingIndicator.displayName = "TypingIndicator";
@@ -100,6 +107,7 @@ interface WebSocketEvent {
 
 // Main Component
 export function ChatComponent() {
+  const { t } = useTranslation();
   const {
     assistantId,
     assistantInfo,
@@ -528,7 +536,7 @@ export function ChatComponent() {
           assistantId: assistantId,
           conversationId: conversationId,
           lastMessage: {
-            content: content || "[Image uploaded]", // Using the text content without the image for history display
+            content: content || t('chat.message.image_uploaded'), // Using the text content without the image for history display
             time: new Date().toISOString(),
             sender: "instructor",
           },

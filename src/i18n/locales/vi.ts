@@ -20,6 +20,30 @@ const viTranslation = {
     "Tham gia cùng hàng nghìn người học trên khắp thế giới trên nền tảng hiện đại của chúng tôi.",
   home_welcome: "Chào mừng đến với Edvara - Nền tảng học tập toàn diện của bạn",
 
+  // Documents
+  documents: {
+    your_documents: "Tài liệu của bạn",
+    add_document: "Thêm tài liệu",
+    search_documents: "Tìm kiếm tài liệu...",
+    no_documents_found: "Không tìm thấy tài liệu",
+    no_documents_available: "Không có tài liệu trong chế độ",
+    original_documents: "Tài liệu gốc",
+    reference_documents: "Tài liệu tham khảo",
+    search_original: "Tìm kiếm tài liệu gốc...",
+    search_reference: "Tìm kiếm tài liệu tham khảo...",
+    switch_to_original: "Chuyển sang Gốc",
+    switch_to_reference: "Chuyển sang Tham khảo",
+    document_mode_updated: "Chế độ tài liệu đã được cập nhật thành",
+    view: "Xem",
+    linked: "Đã liên kết",
+    not_linked: "Chưa liên kết",
+    document_linked: "Tài liệu đã được liên kết thành công",
+    document_unlinked: "Tài liệu đã được hủy liên kết thành công",
+    failed_to_link: "Không thể liên kết tài liệu",
+    failed_to_unlink: "Không thể hủy liên kết tài liệu",
+    failed_to_update_mode: "Không thể cập nhật chế độ tài liệu",
+  },
+
   // Auth pages
   login_title: "Đăng nhập vào Edvara",
   signup_title: "Tạo tài khoản mới",
@@ -169,11 +193,27 @@ const viTranslation = {
       archived_placeholder: "Cuộc trò chuyện này đã được lưu trữ",
       send: "Gửi",
       uploadImage: "Tải lên hình ảnh",
+      mention_student: "Nhắc đến học viên",
     },
+    loading: {
+      conversation: "Đang tải cuộc trò chuyện...",
+    },
+    roles: {
+      assistant: "Trợ lý",
+      assistant_the: "Trợ lý",
+      student: "Học viên",
+      student_initials: "HV",
+      instructor: "Giảng viên",
+    },
+    assistant: {
+      verification_warning: "{{name}} có thể sai. Vui lòng xác minh.",
+    },
+
     image: {
       previewImage: "Xem trước hình ảnh",
       pastedImage: "Hình ảnh đã dán",
       removeImage: "Xóa hình ảnh",
+      uploadImage: "Tải lên hình ảnh",
     },
     messageCards: {
       unknownType: "Loại thẻ tin nhắn không xác định",
@@ -205,6 +245,11 @@ const viTranslation = {
       title: "Nhiệm vụ",
       select_task: "Chọn một nhiệm vụ để bắt đầu",
       create_topic: "Tạo một chủ đề học tập",
+      create_assistant: "Tạo trợ lý của bạn",
+      create_knowledge_base: "Tạo cơ sở kiến thức",
+      create_knowledge_component: "Tạo thành phần kiến thức",
+      create_training_topic: "Tạo chủ đề đào tạo",
+      manage_knowledge_space: "Quản lý không gian kiến thức",
       feedback: "Phản hồi",
       feedback_placeholder: "Chức năng phản hồi sẽ sớm ra mắt...",
       share_with_instructor: "Chia sẻ với giảng viên",
@@ -245,13 +290,42 @@ const viTranslation = {
     message: {
       play_audio: "Phát âm thanh",
       stop_audio: "Dừng âm thanh",
-      typing: "Đang nhập...",
+      typing: "Trợ lý đang nhập...",
       typeMessage: "Nhập tin nhắn của bạn tại đây...",
-      error_playing_audio: "Lỗi khi phát âm thanh",
-      error_fetching_audio: "Lỗi khi tải hoặc phát âm thanh",
-      latex_error: "Lỗi khi hiển thị LaTeX",
-      view_full_image: "Xem ảnh đầy đủ",
+      error_playing_audio: "Lỗi phát âm thanh",
+      error_fetching_audio: "Lỗi tải hoặc phát âm thanh",
+      latex_error: "Lỗi hiển thị LaTeX",
+      view_full_image: "Xem hình ảnh đầy đủ",
       close: "Đóng",
+      image_uploaded: "[Đã tải lên hình ảnh]",
+    },
+    create_assistant_form: {
+      name_required: "Tên trợ lý là bắt buộc",
+      error_creating: "Đã xảy ra lỗi khi tạo trợ lý",
+      name_label: "Tên",
+      name_placeholder: "Tên trợ lý",
+      tagline_label: "Khẩu hiệu",
+      tagline_placeholder: "Mô tả ngắn gọn về những gì trợ lý này làm",
+      description_label: "Mô tả",
+      description_placeholder: "Mô tả chi tiết về khả năng của trợ lý",
+      language_label: "Ngôn ngữ",
+      language_placeholder: "Chọn ngôn ngữ",
+      creating: "Đang tạo...",
+      create: "Tạo",
+      cancel: "Hủy"
+    },
+    learning_topic_form: {
+      topic_required: "Chủ đề là bắt buộc",
+      no_conversation: "Không tìm thấy cuộc trò chuyện đang hoạt động",
+      success: "Chủ đề đào tạo đã được tạo thành công",
+      error_creating: "Đã xảy ra lỗi khi tạo chủ đề đào tạo",
+      topic_label: "Chủ đề",
+      topic_placeholder: "Nhập chủ đề đào tạo",
+      focus_label: "Tập trung vào",
+      focus_placeholder: "Chủ đề này nên tập trung vào điều gì?",
+      creating: "Đang tạo...",
+      create: "Tạo",
+      cancel: "Hủy"
     },
   },
 
@@ -289,6 +363,7 @@ const viTranslation = {
     history: {
       privateTopics: "Chủ đề riêng tư",
       collaborativeChats: "Trò chuyện cộng tác",
+      title: "Đoạn chat",
     },
     userConversations: {
       loadingConversations: "Đang tải cuộc trò chuyện...",
@@ -441,6 +516,133 @@ const viTranslation = {
       paymentCancelled: "Đã hủy thanh toán",
       securePayment: " Xử lý thanh toán an toàn được cung cấp bởi PayPal",
       encryptedInfo: "Thông tin thanh toán của bạn được mã hóa và bảo vệ",
+    },
+  },
+  document: {
+    table: {
+      title: "Tiêu đề",
+      type: "Loại",
+      status: "Trạng thái",
+      linked: "Đã liên kết",
+      created: "Đã tạo",
+      actions: "Hành động",
+      view: "Xem",
+      linked_status: {
+        linked: "Đã liên kết",
+        not_linked: "Chưa liên kết",
+      },
+    },
+  },
+  assistant: {
+    profile: {
+      loading: "Đang tải hồ sơ trợ lý...",
+      no_info: "Không có thông tin trợ lý",
+      general_assistance: "Hỗ trợ chung",
+      general_assistant: "Trợ lý chung",
+      created: "Đã tạo",
+      about: "Giới thiệu",
+      capabilities: "Khả năng",
+      specialty: "Chuyên môn",
+      personality_traits: "Đặc điểm tính cách",
+      no_traits: "Không có đặc điểm tính cách",
+      traits: {
+        instruction_style: "Phong cách hướng dẫn",
+        communication_style: "Phong cách giao tiếp",
+        response_length_style: "Độ dài phản hồi",
+        formality_style: "Mức độ trang trọng",
+        assertiveness_style: "Mức độ tự tin",
+        mood_style: "Tâm trạng",
+      },
+    },
+    tabs: {
+      tasks: "Nhiệm vụ",
+      profile: "Hồ sơ",
+      topics: "Chủ đề",
+    },
+    tasks: {
+      loading: "Đang tải...",
+      no_conversation: "Chưa chọn cuộc hội thoại",
+      select_conversation:
+        "Vui lòng chọn một cuộc hội thoại từ bảng lịch sử để xem nhiệm vụ.",
+      no_content: "Không có nội dung cuộc hội thoại",
+      content_explanation:
+        "Hiện tại không có nội dung cho cuộc hội thoại này. Nhiệm vụ và Hỏi đáp có thể được thêm vào khi cuộc hội thoại tiến triển.",
+      conversation_content: "Nội dung cuộc hội thoại",
+      goal: "Mục tiêu",
+      step: "Bước",
+      content: "Nội dung",
+      status: "Trạng thái",
+    },
+    topics: {
+      load_failed: "Không thể tải dữ liệu cuộc hội thoại",
+      loading: "Đang tải...",
+      no_conversations: "Không tìm thấy cuộc hội thoại",
+      goal: "Mục tiêu",
+      categories: {
+        general: "Chủ đề chung",
+        learning: "Chủ đề đào tạo",
+        archived: "Chủ đề đã lưu trữ",
+        default: "Chủ đề {{category}}",
+      },
+    },
+  },
+  credits: {
+    title: "Mua tín dụng",
+    choose_package: "Chọn gói tín dụng của bạn",
+    description:
+      "Mua tín dụng để mở khóa các tính năng cao cấp và khả năng nâng cao",
+    package: {
+      most_popular: "Phổ biến nhất",
+      credits: "Tín dụng",
+      per_thousand: "${{price}} cho mỗi 1K tín dụng",
+    },
+    payment: {
+      complete_purchase: "Hoàn tất mua hàng",
+      purchasing: "Bạn đang mua {{formattedCount}} tín dụng với giá ${{price}}",
+      capturing: "Đang xử lý thanh toán...",
+      processing: "Đang xử lý thanh toán...",
+      failed: "Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
+    },
+    voucher: {
+      title: "Bạn có mã giảm giá?",
+      description:
+        "Đổi mã giảm giá của bạn để nhận tín dụng miễn phí ngay lập tức",
+      placeholder: "Nhập mã giảm giá (ví dụ: EDVARA-123456)",
+      redeem: "Đổi",
+      redeeming: "Đang đổi...",
+      success: "✅ Đổi mã giảm giá thành công!",
+      failed: "❌ Không thể đổi mã giảm giá. Vui lòng kiểm tra mã và thử lại.",
+    },
+    success: {
+      title: "Thanh toán thành công!",
+      credits_added:
+        "{{formattedCount}} tín dụng đã được thêm vào tài khoản của bạn.",
+      payment_complete:
+        "Thanh toán thành công! {{formattedCount}} tín dụng đã được thêm vào tài khoản của bạn.",
+    },
+    actions: {
+      another_purchase: "Thực hiện giao dịch khác",
+      cancel: "Hủy",
+    },
+    security: {
+      secure_payment: "🔒 Xử lý thanh toán an toàn được cung cấp bởi PayPal",
+      encrypted: "Thông tin thanh toán của bạn được mã hóa và bảo vệ",
+    },
+    errors: {
+      load_failed: "Không thể tải gói tín dụng. Vui lòng thử lại.",
+      select_package: "Vui lòng chọn một gói trước",
+      create_order: "Không thể tạo đơn hàng",
+      payment_order: "Không thể tạo đơn hàng thanh toán. Vui lòng thử lại.",
+      payment_incomplete: "Thanh toán không được hoàn tất thành công",
+      payment_processing: "Xử lý thanh toán thất bại",
+      payment_failed_contact:
+        "Xử lý thanh toán thất bại. Vui lòng liên hệ hỗ trợ nếu bạn đã bị trừ tiền.",
+      payment_failed: "Thanh toán thất bại. Vui lòng thử lại.",
+      enter_voucher: "Vui lòng nhập mã giảm giá",
+      redeem_voucher: "Không thể đổi mã giảm giá",
+    },
+    info: {
+      payment_cancelled: "Đã hủy thanh toán",
     },
   },
 };

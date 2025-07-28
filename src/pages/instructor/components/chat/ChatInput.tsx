@@ -90,7 +90,7 @@ export function ChatInput({
     const textarea = textareaRef?.current || localTextareaRef.current;
     if (!textarea) return;
 
-    const studentName = conversationData.studentInfo.name || "Student";
+    const studentName = conversationData.studentInfo.name || t('chat.roles.student');
 
     // Replace the @query with the student's name in brackets format
     const beforeMention = input.substring(0, mentionPosition.start);
@@ -359,7 +359,7 @@ export function ChatInput({
                 className="absolute bottom-full left-0 mb-1 w-64 bg-white dark:bg-gray-900 border border-border rounded-md shadow-lg z-20"
               >
                 <div className="p-2 text-xs font-medium text-muted-foreground border-b border-border">
-                  Mention student
+                  {t('chat.input.mention_student')}
                 </div>
                 <div
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer transition-colors"
@@ -368,7 +368,7 @@ export function ChatInput({
                   <Avatar className="h-6 w-6">
                     <AvatarImage
                       src={conversationData.studentInfo?.avatar_url}
-                      alt={conversationData.studentInfo?.name || "Student"}
+                      alt={conversationData.studentInfo?.name || t('chat.roles.student')}
                     />
                     <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                       {conversationData.studentInfo?.name
@@ -376,11 +376,11 @@ export function ChatInput({
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
-                        : "ST"}
+                        : t('chat.roles.student_initials')}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm">
-                    {conversationData.studentInfo?.name || "Student"}
+                    {conversationData.studentInfo?.name || t('chat.roles.student')}
                   </span>
                 </div>
               </div>
@@ -403,7 +403,7 @@ export function ChatInput({
         </Button>
       </div>
       <div className="text-[9px] text-center mt-2">
-        {assistantInfo?.name || "The assistant"} may be wrong. Please verify.
+        {t('chat.assistant.verification_warning', { name: assistantInfo?.name || t('chat.roles.assistant_the') })}
       </div>
     </div>
   );

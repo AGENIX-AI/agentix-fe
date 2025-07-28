@@ -1,5 +1,6 @@
 import { Small } from "@/components/ui/typography";
 import { ImageIcon } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface ImageInputProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -10,6 +11,7 @@ export function ImageInput({
   onFileChange,
   disabled = false,
 }: ImageInputProps) {
+  const { t } = useTranslation();
   return (
     <label
       htmlFor="file-upload"
@@ -24,7 +26,7 @@ export function ImageInput({
         disabled={disabled}
       />
       <ImageIcon className="size-4" />
-      <Small className="sr-only">Upload image</Small>
+      <Small className="sr-only">{t('chat.image.uploadImage')}</Small>
     </label>
   );
 }

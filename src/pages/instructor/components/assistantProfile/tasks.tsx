@@ -21,6 +21,7 @@ import {
 import { useInstructor } from "@/contexts/InstructorContext";
 import { getConversationTasks } from "@/api/conversations";
 import { eventBus } from "@/lib/utils/event/eventBus";
+import { useTranslation } from "react-i18next";
 
 interface ConversationTasksProps {
   className?: string;
@@ -271,10 +272,11 @@ const TaskCard = memo(
 
 // Main component with optimizations
 export const ConversationTasks = memo(
-  function ConversationTasks({ className }: ConversationTasksProps) {
+  function ConversationTasks({ className = "" }: ConversationTasksProps) {
     const { conversationId, assistantInfo } = useInstructor();
-    const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState<ProcessedTasks | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const { t } = useTranslation();
     const tasksRef = useRef<ProcessedTasks | null>(null);
     const [plainTasks, setPlainTasks] = useState<ConversationTask[]>();
 
@@ -391,7 +393,7 @@ export const ConversationTasks = memo(
           <div className="flex flex-col items-center gap-6">
             <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
             <P className="text-muted-foreground text-center">
-              Loading Canvas...
+              {t('assistant.tasks.loading')}
             </P>
           </div>
         </div>
@@ -414,10 +416,9 @@ export const ConversationTasks = memo(
           <div className="p-6">
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <ListTodo size={48} className="text-muted-foreground mb-3" />
-              <H4 className="font-medium mb-3">No conversation selected</H4>
+              <H4 className="font-medium mb-3">{t('assistant.tasks.no_conversation')}</H4>
               <P className="text-muted-foreground max-w-md">
-                Please select a conversation from the history panel to view
-                tasks.
+                {t('assistant.tasks.select_conversation')}
               </P>
             </div>
           </div>
@@ -433,11 +434,10 @@ export const ConversationTasks = memo(
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <ListTodo size={48} className="text-muted-foreground mb-3" />
               <H4 className="font-medium mb-3">
-                No conversation content available
+                {t('assistant.tasks.no_content')}
               </H4>
               <P className="text-muted-foreground max-w-md">
-                There is currently no content for this conversation. Tasks and
-                Q&A may be added as the conversation progresses.
+                {t('assistant.tasks.content_explanation')}
               </P>
             </div>
           </div>
@@ -455,11 +455,11 @@ export const ConversationTasks = memo(
         <div className="px-6 py-3">
           <div className="space-y-3">
             <Large className="p-0">
-              {tasks.conversation_name || "Conversation Content"}
+              {tasks.conversation_name || t('assistant.tasks.conversation_content')}
             </Large>
             {tasks.goal_description && (
               <div className="flex flex-col gap-1 mb-3">
-                <ExtraSmall className="font-semibold">Goal:</ExtraSmall>
+                <ExtraSmall className="font-semibold">{t('assistant.tasks.goal')}:</ExtraSmall>
                 <ExtraSmall className="">{tasks.goal_description}</ExtraSmall>
               </div>
             )}
@@ -469,11 +469,11 @@ export const ConversationTasks = memo(
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">
               <TableRow>
-                <TableHead style={{ width: "5%" }}>Step</TableHead>
+                <TableHead style={{ width: "5%" }}>{t('assistant.tasks.step')}</TableHead>
                 <TableHead style={{ width: "70%" }}>
-                  <ExtraSmall className="ml-4">Content</ExtraSmall>
+                  <ExtraSmall className="ml-4">{t('assistant.tasks.content')}</ExtraSmall>
                 </TableHead>
-                <TableHead style={{ width: "25%" }}>Status</TableHead>
+                <TableHead style={{ width: "25%" }}>{t('assistant.tasks.status')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

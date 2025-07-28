@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/table";
 import { Loader2, Link, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import type { ReactNode } from "react";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -21,6 +22,7 @@ interface DocumentTableProps {
   loadingDocumentIds?: string[];
   onViewDocument?: (documentId: string) => void;
   onRowClick?: (document: Document) => void;
+  renderActions?: (document: Document) => ReactNode;
 }
 
 export function DocumentTable({
@@ -33,6 +35,7 @@ export function DocumentTable({
   loadingDocumentIds = [],
   onViewDocument,
   onRowClick,
+  renderActions,
 }: DocumentTableProps) {
   return (
     <div className="border rounded-lg overflow-hidden">
@@ -164,6 +167,8 @@ export function DocumentTable({
                         )}
                   </>
                 )}
+
+                {renderActions && renderActions(doc)}
               </TableCell>
             </TableRow>
           ))}

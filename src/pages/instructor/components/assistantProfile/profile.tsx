@@ -3,9 +3,11 @@ import { ExtraSmall, Large } from "@/components/ui/typography";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { useTranslation } from "react-i18next";
 
 export function AssistantProfile() {
   const { assistantInfo } = useInstructor();
+  const { t } = useTranslation();
 
   if (!assistantInfo) return null;
 
@@ -14,11 +16,22 @@ export function AssistantProfile() {
 
   console.log("personalityProfile", personalityProfile);
 
-  const formatPersonalityTrait = (trait: string) =>
-    trait
+  const formatPersonalityTrait = (trait: string) => {
+    // Try to get translation for this trait
+    const translationKey = `assistant.profile.traits.${trait}`;
+    const translation = t(translationKey);
+    
+    // If translation exists and is not the same as the key, use it
+    if (translation !== translationKey) {
+      return translation;
+    }
+    
+    // Fallback to formatting the trait name
+    return trait
       .split("_")
       .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
       .join(" ");
+  };
 
   return (
     <div className="px-6 py-3">
@@ -35,7 +48,7 @@ export function AssistantProfile() {
             </Badge>
             <Badge className="flex items-center px-2 py-1">
               <ExtraSmall>
-                Created{" "}
+                {t('assistant.profile.created')}{" "}
                 {new Date(assistantInfo.created_at).toLocaleDateString()}
               </ExtraSmall>
             </Badge>
@@ -47,7 +60,7 @@ export function AssistantProfile() {
 
       <div className="mb-3">
         <div className="flex items-center gap-6 mb-3">
-          <Badge>About</Badge>
+          <Badge>{t('assistant.profile.about')}</Badge>
         </div>
         <div className="mb-3 flex items-center gap-6">
           <ExtraSmall>{assistantInfo.description}</ExtraSmall>
@@ -58,12 +71,12 @@ export function AssistantProfile() {
       {/* Capabilities Section */}
       <div className="mb-3">
         <div className="flex items-center gap-6 mb-3">
-          <Badge>Capabilities</Badge>
+          <Badge>{t('assistant.profile.capabilities')}</Badge>
         </div>
         <div className="mb-3 flex items-center gap-6">
-          <ExtraSmall className="font-semibold">Specialty:</ExtraSmall>
+          <ExtraSmall className="font-semibold">{t('assistant.profile.specialty')}:</ExtraSmall>
           <ExtraSmall>
-            {assistantInfo?.speciality || "General Assistant"}
+            {assistantInfo?.speciality || t('assistant.profile.general_assistant')}
           </ExtraSmall>
         </div>
       </div>
@@ -72,7 +85,7 @@ export function AssistantProfile() {
       {/* Personality Traits Section */}
       <div className="mb-3">
         <div className="flex items-center gap-6 mb-3">
-          <Badge>Personality Traits</Badge>
+          <Badge>{t('assistant.profile.personality_traits')}</Badge>
         </div>
         <div className="space-y-3">
           {personalityProfile ? (
@@ -114,7 +127,7 @@ export function AssistantProfile() {
             ))
           ) : (
             <div className="text-sm text-muted-foreground">
-              No personality traits available
+              {t('assistant.profile.no_traits')}
             </div>
           )}
         </div>

@@ -1,5 +1,6 @@
 import { cn } from "@/lib/utils";
 import type { Document } from "@/api/documents";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -20,28 +21,29 @@ export function DocumentTable({
   getStatusColor,
   getLinkStatus 
 }: DocumentTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 text-xs">
             <TableHead className="text-left p-2 text-xs font-medium">
-              Title
+              {t('document.table.title')}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Type
+              {t('document.table.type')}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Status
+              {t('document.table.status')}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Linked
+              {t('document.table.linked')}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Created
+              {t('document.table.created')}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Actions
+              {t('document.table.actions')}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -75,7 +77,7 @@ export function DocumentTable({
                     getLinkStatus(doc.linked)
                   )}
                 >
-                  {doc.linked ? "Linked" : "Not Linked"}
+                  {doc.linked ? t('document.table.linked_status.linked') : t('document.table.linked_status.not_linked')}
                 </span>
               </TableCell>
               <TableCell className="p-2 text-xs">
@@ -88,7 +90,7 @@ export function DocumentTable({
                   rel="noopener noreferrer"
                   className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
                 >
-                  View
+                  {t('document.table.view')}
                 </a>
               </TableCell>
             </TableRow>

@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import type { SummaryMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
-import { ExtraSmall, Small } from "@/components/ui/typography";
+import { Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { createLearningDiscuss } from "@/api/instructor";
 import { useChatContext } from "@/contexts/InstructorChatContext";
+import { useTranslation } from "react-i18next";
 
 export interface CreateLearningTopicFormData {
   topic: string;
@@ -33,6 +34,7 @@ export function CreateLearningTopicForm({
   onOpenChange,
   taskTitle,
 }: CreateLearningTopicFormProps) {
+  const { t } = useTranslation();
   const { conversationId } = useInstructor();
   const { handleNewMessage } = useChatContext();
   const [formData, setFormData] = useState<CreateLearningTopicFormData>({
@@ -52,12 +54,12 @@ export function CreateLearningTopicForm({
     e.preventDefault();
 
     if (!formData.topic.trim()) {
-      toast.error("Topic is required");
+      toast.error(t('chat.learning_topic_form.topic_required'));
       return;
     }
 
     if (!conversationId) {
-      toast.error("No active conversation found");
+      toast.error(t('chat.learning_topic_form.no_conversation'));
       return;
     }
 
@@ -84,11 +86,11 @@ export function CreateLearningTopicForm({
       }
 
       // Success messages
-      toast.success("Training topic created successfully");
+      toast.success(t('chat.learning_topic_form.success'));
       onOpenChange(false);
     } catch (error) {
       console.error("Failed to create training topic:", error);
-      toast.error("An error occurred while creating the training topic");
+      toast.error(t('chat.learning_topic_form.error_creating'));
     } finally {
       setIsLoading(false);
     }
@@ -103,25 +105,25 @@ export function CreateLearningTopicForm({
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             <div className="space-y-1">
-              <Label className="text-xs">Topic</Label>
+              <Label className="text-xs">{t('chat.learning_topic_form.topic_label')}</Label>
               <Input
                 type="text"
                 name="topic"
                 value={formData.topic}
                 onChange={handleChange}
-                placeholder="Enter training topic"
+                placeholder={t('chat.learning_topic_form.topic_placeholder')}
                 className="h-9 text-xs"
                 disabled={isLoading}
                 required
               />
             </div>
             <div className="space-y-1">
-              <Label className="text-xs">Focus On</Label>
+              <Label className="text-xs">{t('chat.learning_topic_form.focus_label')}</Label>
               <Textarea
                 name="focus_on"
                 value={formData.focus_on}
                 onChange={handleChange}
-                placeholder="What should this topic focus on?"
+                placeholder={t('chat.learning_topic_form.focus_placeholder')}
                 className="text-xs min-h-[120px] resize-none"
                 disabled={isLoading}
               />
@@ -135,17 +137,17 @@ export function CreateLearningTopicForm({
               className="h-8 w-32"
               type="button"
             >
-              Cancel
+              {t('chat.learning_topic_form.cancel')}
             </Button>
             <Button type="submit" className="h-8 w-32" disabled={isLoading}>
               {isLoading ? (
                 <>
                   <Loader2 className="size-4 mr-2 animate-spin" />
-                  Creating...
+                  {t('chat.learning_topic_form.creating')}
                 </>
               ) : (
                 <>
-                  Create
+                  {t('chat.learning_topic_form.create')}
                   <SendIcon className="size-4 ml-2" />
                 </>
               )}

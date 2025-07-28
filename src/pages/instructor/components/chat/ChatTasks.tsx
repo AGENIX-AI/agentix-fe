@@ -50,7 +50,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-assisstant",
-        title: "Create your assistant",
+        title: t('chat.tasks.create_assistant'),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -59,7 +59,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-knowledge-base",
-        title: "Create knowledge base",
+        title: t('chat.tasks.create_knowledge_base'),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <FileText className="h-4 w-4 text-secondary" />
@@ -68,7 +68,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-topic-knowledge",
-        title: "Create knowledge component",
+        title: t('chat.tasks.create_knowledge_component'),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Brain className="h-4 w-4 text-secondary" />
@@ -80,7 +80,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-training-topic",
-        title: "Create training topic",
+        title: t('chat.tasks.create_training_topic'),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -98,7 +98,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "manage-knowledge-space",
-        title: "Manage knowledge space",
+        title: t('chat.tasks.manage_knowledge_space'),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Settings className="h-4 w-4 text-secondary" />
@@ -206,13 +206,13 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       <CreateAssisstantForm
         open={isCreateAssistantDialogOpen}
         onOpenChange={setIsCreateAssistantDialogOpen}
-        taskTitle="CREATE YOUR ASSISTANT"
+        taskTitle={t('chat.tasks.create_assistant').toUpperCase()}
       />
 
       <CreateLearningTopicForm
         open={isCreateLearningTopicDialogOpen}
         onOpenChange={setIsCreateLearningTopicDialogOpen}
-        taskTitle="CREATE TRAINING TOPIC"
+        taskTitle={t('chat.tasks.create_training_topic').toUpperCase()}
       />
     </>
   );

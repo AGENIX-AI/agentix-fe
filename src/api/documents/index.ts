@@ -69,6 +69,7 @@ export interface GetDocumentsParams {
   search?: string;
   type?: "document" | "image" | "topic_knowledge" | "crawl_document" | "all";
   assistant_id?: string;
+  mode?: "original" | "reference";
 }
 
 export interface GetAssistantDocumentsParams extends GetDocumentsParams {}
@@ -432,6 +433,7 @@ export const getOwnDocuments = async (
     ...(params.search && { search: params.search }),
     ...(params.type && { type: params.type }),
     ...(params.assistant_id && { assistant_id: params.assistant_id }),
+    ...(params.mode && { mode: params.mode }),
   });
 
   const response = await fetch(
@@ -908,6 +910,33 @@ export async function indexCrawlDocument(
       new Error(`Failed to index crawl document: ${response.statusText}`)
     );
     throw new Error(`Failed to index crawl document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+export async function updateModeDocument(
+  documentId: string,
+  mode: "original" | "reference"
+): Promise<{ success: boolean; message: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/update_mode_document/${documentId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers,
+      body: JSON.stringify({ mode }),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update mode document: ${response.statusText}`)
+    );
+    throw new Error(`Failed to update mode document: ${response.statusText}`);
   }
 
   return await response.json();
