@@ -117,7 +117,7 @@ export function ChatInput({
     const textarea = textareaRef?.current || localTextareaRef.current;
     if (!textarea) return;
 
-    const instructorName = conversationData.instructorInfo.name || "Instructor";
+    const instructorName = conversationData.instructorInfo.name || t("common.instructor", "Instructor");
 
     // Replace the @query with the instructor's name in brackets format
     const beforeMention = input.substring(0, mentionPosition.start);
@@ -202,7 +202,7 @@ export function ChatInput({
   const processMentionsForBackend = (text: string) => {
     if (!conversationData?.instructorInfo) return text;
 
-    const instructorName = conversationData.instructorInfo.name || "Instructor";
+    const instructorName = conversationData.instructorInfo.name || t("common.instructor", "Instructor");
     const instructorId = conversationData.instructorInfo.id;
 
     // Replace @[InstructorName] with @instructorId for backend processing
@@ -569,7 +569,7 @@ export function ChatInput({
                     <AvatarImage
                       src={conversationData.instructorInfo?.avatar_url}
                       alt={
-                        conversationData.instructorInfo?.name || "Instructor"
+                        conversationData.instructorInfo?.name || t("common.instructor", "Instructor")
                       }
                     />
                     <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
@@ -582,7 +582,7 @@ export function ChatInput({
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm">
-                    {conversationData.instructorInfo?.name || "Instructor"}
+                    {conversationData.instructorInfo?.name || t("common.instructor", "Instructor")}
                   </span>
                 </div>
               </div>

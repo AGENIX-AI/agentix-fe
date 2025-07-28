@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback, memo, useRef } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 import {
   CheckCircle,
   Clock,
@@ -214,7 +215,8 @@ const TaskCard = memo(
 
 // Main component with optimizations
 export const ConversationTasks = memo(
-  function ConversationTasks({ className }: ConversationTasksProps) {
+  function ConversationTasks({ className = "" }: ConversationTasksProps) {
+    const { t } = useTranslation();
     const { conversationId, assistantInfo } = useStudent();
     const [isLoading, setIsLoading] = useState(true);
     const [tasks, setTasks] = useState<ProcessedTasks | null>(null);
@@ -323,7 +325,7 @@ export const ConversationTasks = memo(
           <div className="flex flex-col items-center gap-6">
             <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
             <P className="text-muted-foreground text-center">
-              Loading Canvas...
+              {t('student.assistantProfile.loadingCanvas')}
             </P>
           </div>
         </div>
@@ -347,11 +349,10 @@ export const ConversationTasks = memo(
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <ListTodo size={48} className="text-muted-foreground mb-3" />
               <H4 className="font-medium mb-3">
-                No conversation tasks available
+                {t('student.assistantProfile.noTasksAvailable')}
               </H4>
               <P className="text-muted-foreground max-w-md">
-                There are currently no tasks for this conversation. Tasks may be
-                added as the conversation progresses.
+                {t('student.assistantProfile.noTasksDescription')}
               </P>
             </div>
           </div>
@@ -369,11 +370,11 @@ export const ConversationTasks = memo(
         <div className="px-6 py-3">
           <div className="space-y-3">
             <Large className="p-0">
-              {tasks.conversation_name || "Conversation Tasks"}
+              {tasks.conversation_name || t('student.assistantProfile.conversationTasks')}
             </Large>
             {tasks.goal_description && (
               <div className="flex flex-col gap-1 mb-3">
-                <ExtraSmall className="font-semibold">Goal:</ExtraSmall>
+                <ExtraSmall className="font-semibold">{t('student.assistantProfile.goal')}:</ExtraSmall>
                 <ExtraSmall className="">{tasks.goal_description}</ExtraSmall>
               </div>
             )}
@@ -383,11 +384,11 @@ export const ConversationTasks = memo(
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">
               <TableRow>
-                <TableHead style={{ width: "5%" }}>Step</TableHead>
+                <TableHead style={{ width: "5%" }}>{t('student.assistantProfile.step')}</TableHead>
                 <TableHead style={{ width: "70%" }}>
-                  <ExtraSmall className="ml-4">Task Details</ExtraSmall>
+                  <ExtraSmall className="ml-4">{t('student.assistantProfile.taskDetails')}</ExtraSmall>
                 </TableHead>
-                <TableHead style={{ width: "25%" }}>Status</TableHead>
+                <TableHead style={{ width: "25%" }}>{t('student.assistantProfile.status')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

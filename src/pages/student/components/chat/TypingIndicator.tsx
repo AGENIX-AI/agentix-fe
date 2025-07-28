@@ -15,13 +15,13 @@ export function TypingIndicator({ avatar_url, name }: TypingIndicatorProps) {
     <div className="flex flex-col items-start space-y-1">
       <div className="flex items-center space-x-2">
         <Avatar className="h-6 w-6">
-          <AvatarImage src={avatar_url} alt={name || "Assistant"} />
+          <AvatarImage src={avatar_url} alt={name || t("common.assistant", "Assistant")} />
           <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
             {getInitials(name || "")}
           </AvatarFallback>
         </Avatar>
         <span className="text-xs font-medium text-foreground">
-          {name || "Assistant"}
+          {name || t("common.assistant", "Assistant")}
         </span>
         <span className="text-[10px] text-muted-foreground">
           {format(new Date(), "h:mm a")}

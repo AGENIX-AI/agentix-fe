@@ -2,6 +2,7 @@ import { ProfileInfo } from "./instructorProfile/ProfileInfo";
 import { useStudent } from "@/contexts/StudentContext";
 import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
+import { useTranslation } from "react-i18next";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
 import { BuyCredits } from "./buyCredits/BuyCredits";
 import { Helps } from "./helps/Helps";
@@ -24,24 +25,29 @@ const MiniappToggleButton = memo(
     isExpanded: boolean;
     toggleMiniapp: () => void;
     className?: string;
-  }) => (
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className={`transition-all duration-300 border border-border ${className}`}
-          onClick={toggleMiniapp}
-          aria-label={isExpanded ? "Collapse miniapp" : "Expand miniapp"}
-        >
-          <AlignJustify className="h-4 w-4" />
-        </Button>
-      </TooltipTrigger>
-      <TooltipContent side="bottom" className="text-xs">
-        {isExpanded ? "Collapse miniapp" : "Expand miniapp"}
-      </TooltipContent>
-    </Tooltip>
-  )
+  }) => {
+    const { t } = useTranslation();
+    return (
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={`transition-all duration-300 border border-border ${className}`}
+            onClick={toggleMiniapp}
+            aria-label={isExpanded ? "Collapse miniapp" : "Expand miniapp"}
+          >
+            <AlignJustify className="h-4 w-4" />
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent side="bottom" className="text-xs">
+          {isExpanded
+            ? t("student.rightPanel.collapse")
+            : t("student.rightPanel.expand")}
+        </TooltipContent>
+      </Tooltip>
+    );
+  }
 );
 
 MiniappToggleButton.displayName = "MiniappToggleButton";
@@ -68,6 +74,7 @@ const CollapsedVerticalBar = ({
   title: string;
   toggleMiniapp: () => void;
 }) => {
+  const { t } = useTranslation();
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
     toggleMiniapp();
@@ -121,7 +128,7 @@ const CollapsedVerticalBar = ({
         </div>
       </TooltipTrigger>
       <TooltipContent side="left">
-        <p>Click to expand {title}</p>
+        <p>{t("student.rightPanel.clickToExpand", { title })}</p>
       </TooltipContent>
     </Tooltip>
   );
@@ -134,6 +141,7 @@ export default function RightPanel({
   onToggle?: (isCollapsed: boolean) => void;
   isCollapsed?: boolean;
 }) {
+  const { t } = useTranslation();
   const { rightPanel } = useStudent();
 
   const toggleMiniapp = () => {
@@ -146,27 +154,27 @@ export default function RightPanel({
   const getCurrentTitle = () => {
     switch (rightPanel) {
       case "profile_info":
-        return "Profile Info";
+        return t("student.rightPanel.profileInfo");
       case "following_posts":
-        return "Following Posts";
+        return t("student.rightPanel.followingPosts");
       case "assistantTopics":
-        return "Assistant Topics";
+        return t("student.rightPanel.assistantTopics");
       case "tasks":
-        return "Tasks";
+        return t("student.rightPanel.tasks");
       case "agentCapabilityStatement":
-        return "Agent Capability Statement";
+        return t("student.rightPanel.agentCapability");
       case "findInstructor":
-        return "Find Instructor";
+        return t("student.rightPanel.findInstructor");
       case "buyCredits":
-        return "Buy Credits";
+        return t("student.rightPanel.buyCredits");
       case "helps":
-        return "Help Center";
+        return t("student.rightPanel.helpCenter");
       case "documents":
         return "Documents";
       case "empty":
-        return "Home Page";
+        return t("student.rightPanel.homePage");
       default:
-        return "Right Panel";
+        return t("student.rightPanel.rightPanel");
     }
   };
 
@@ -188,7 +196,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Profile Info"
+            title={t("student.rightPanel.profileInfo")}
             toggleMiniapp={toggleMiniapp}
           />
           <ProfileInfo />
@@ -198,7 +206,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Following Posts"
+            title={t("student.rightPanel.followingPosts")}
             toggleMiniapp={toggleMiniapp}
           />
           <FollowingPosts />
@@ -208,7 +216,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Assistant Topics"
+            title={t("student.rightPanel.assistantTopics")}
             toggleMiniapp={toggleMiniapp}
           />
           <AssistantView defaultTab="tasks" />
@@ -217,7 +225,10 @@ export default function RightPanel({
     case "tasks":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader title="Tasks" toggleMiniapp={toggleMiniapp} />
+          <RightPanelHeader
+            title={t("student.rightPanel.tasks")}
+            toggleMiniapp={toggleMiniapp}
+          />
           <AssistantView defaultTab="tasks" />
         </div>
       );
@@ -225,7 +236,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Agent Capability Statement"
+            title={t("student.rightPanel.agentCapability")}
             toggleMiniapp={toggleMiniapp}
           />
           <AssistantView defaultTab="agentCapabilityStatement" />
@@ -235,7 +246,7 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader
-            title="Find Instructor"
+            title={t("student.rightPanel.findInstructor")}
             toggleMiniapp={toggleMiniapp}
           />
           <InstructorFinder />
@@ -244,14 +255,20 @@ export default function RightPanel({
     case "buyCredits":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader title="Buy Credits" toggleMiniapp={toggleMiniapp} />
+          <RightPanelHeader
+            title={t("student.rightPanel.buyCredits")}
+            toggleMiniapp={toggleMiniapp}
+          />
           <BuyCredits />
         </div>
       );
     case "helps":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader title="Help Center" toggleMiniapp={toggleMiniapp} />
+          <RightPanelHeader
+            title={t("student.rightPanel.helpCenter")}
+            toggleMiniapp={toggleMiniapp}
+          />
           <Helps />
         </div>
       );
@@ -260,7 +277,9 @@ export default function RightPanel({
         <div className="flex flex-col h-full">
           <div className="sticky top-0 z-20 bg-background flex h-18 border-b w-full p-4">
             <div className="flex items-center justify-between w-full">
-              <h1 className="text-2xl font-bold">Home Page</h1>
+              <h1 className="text-2xl font-bold">
+                {t("student.rightPanel.homePage")}
+              </h1>
               <MiniappToggleButton
                 isExpanded={true}
                 toggleMiniapp={toggleMiniapp}
@@ -281,7 +300,10 @@ export default function RightPanel({
     default:
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader title="Right Panel" toggleMiniapp={toggleMiniapp} />
+          <RightPanelHeader
+            title={t("student.rightPanel.rightPanel")}
+            toggleMiniapp={toggleMiniapp}
+          />
           <div>RightPanel</div>
         </div>
       );

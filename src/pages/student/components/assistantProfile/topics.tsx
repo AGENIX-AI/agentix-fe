@@ -2,6 +2,7 @@ import { useStudent } from "@/contexts/StudentContext";
 import { cn } from "@/lib/utils";
 import { Loader2Icon } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { Conversation as ConversationType } from "@/services/conversation";
 import type { ConversationListResponse } from "@/lib/utils/types/conversation";
 import { getConversations } from "@/api/conversations";
@@ -60,6 +61,7 @@ function ConversationList({
   isLoading,
   hasError,
 }: ConversationListProps) {
+  const { t } = useTranslation();
   return (
     <div>
       {isLoading ? (
@@ -67,7 +69,7 @@ function ConversationList({
       ) : hasError ? (
         <div className="bg-destructive/10 rounded-md text-center">
           <p className="text-xs text-destructive">
-            Failed to load conversation data
+            {t('student.assistantProfile.failedToLoadConversationData')}
           </p>
         </div>
       ) : (
@@ -98,21 +100,22 @@ function ConversationCategory({
   category,
   conversations,
 }: ConversationCategoryProps) {
+  const { t } = useTranslation();
   const { setConversationId } = useStudent();
 
   // Format category name for display
   const getCategoryTitle = () => {
     switch (category) {
       case "general":
-        return "General Topic";
+        return t('student.assistantProfile.generalTopic');
       case "mentor":
-        return "Mentoring Topics";
+        return t('student.assistantProfile.mentoringTopics');
       case "tutorial":
-        return "Private Topics";
+        return t('student.assistantProfile.privateTopics');
       case "archived":
-        return "Archived Topics";
+        return t('student.assistantProfile.archivedTopics');
       default:
-        return `${category.charAt(0).toUpperCase() + category.slice(1)} Topics`;
+        return t('student.assistantProfile.categoryTopics', { category: category.charAt(0).toUpperCase() + category.slice(1) });
     }
   };
 
@@ -217,7 +220,7 @@ function ConversationCategory({
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex flex-col space-y-1">
-                    <Small>No conversations found</Small>
+                    <Small>{t('student.assistantProfile.noConversationsFound')}</Small>
                   </div>
                 </div>
               </div>
@@ -231,6 +234,7 @@ function ConversationCategory({
 
 // Main Component
 export function AssistantTopics({ className }: AssistantTopicsProps) {
+  const { t } = useTranslation();
   const { assistantInfo } = useStudent();
   const [conversationData, setConversationData] =
     useState<ConversationListResponse | null>(null);
@@ -278,7 +282,7 @@ export function AssistantTopics({ className }: AssistantTopicsProps) {
       <div className="h-full mt-13 w-full flex flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
-          <p className="text-muted-foreground text-center">Loading Canvas...</p>
+          <p className="text-muted-foreground text-center">{t('student.assistantProfile.loadingCanvas')}</p>
         </div>
       </div>
     );

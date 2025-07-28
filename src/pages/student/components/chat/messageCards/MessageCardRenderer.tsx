@@ -9,6 +9,7 @@ import { TutoringTopicCard } from "./TutoringTopicCard";
 import { SummaryCard } from "./SummaryCard";
 import { Small } from "@/components/ui/typography";
 import { useChatContext } from "@/contexts/ChatContext";
+import { useTranslation } from "react-i18next";
 
 interface MessageCardRendererProps {
   card: MessageCard;
@@ -23,6 +24,7 @@ export function MessageCardRenderer({
 }: MessageCardRendererProps) {
   // Use conditional rendering for different card types
   const { handleNewMessage } = useChatContext();
+  const { t } = useTranslation();
   if (isTopicMessageCard(card)) {
     return <TopicCard card={card} className={className} />;
   } else if (isTutoringTopicMessageCard(card)) {
@@ -41,7 +43,7 @@ export function MessageCardRenderer({
   // Default case - unknown card type
   return (
     <div className="text-sm text-muted-foreground p-2 border rounded-md">
-      <Small>Unknown message card type: {card.type as string}</Small>
+      <Small>{t("chat.messageCards.unknownType", "Unknown message card type")}: {card.type as string}</Small>
     </div>
   );
 }

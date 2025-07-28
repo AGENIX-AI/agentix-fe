@@ -4,6 +4,7 @@ import type { SummaryMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
 import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface SummaryCardProps {
   card: SummaryMessageCard;
@@ -11,6 +12,7 @@ interface SummaryCardProps {
 }
 
 export function SummaryCard({ card, className }: SummaryCardProps) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -31,10 +33,10 @@ export function SummaryCard({ card, className }: SummaryCardProps) {
       <div className="p-3 rounded-t-xl">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
-            <Small className="font-bold">Session Summary</Small>
+            <Small className="font-bold">{t("chat.summaryCard.sessionSummary", "Session Summary")}</Small>
             {card.language && (
               <ExtraSmall className="text-primary">
-                Language: {card.language}
+                {t("chat.summaryCard.language", "Language")}: {card.language}
               </ExtraSmall>
             )}
           </div>

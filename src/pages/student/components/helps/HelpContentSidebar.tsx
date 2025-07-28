@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fetchHelpTopic } from "@/api/admin/helpCenter";
 import type { HelpTopic } from "@/api/admin/helpCenter";
 import ReactMarkdown from "react-markdown";
@@ -19,6 +20,7 @@ export const HelpContentSidebar = ({
   const [content, setContent] = useState<HelpTopic | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -30,7 +32,7 @@ export const HelpContentSidebar = ({
         const helpContent = await fetchHelpTopic(topicId);
         setContent(helpContent);
       } catch (err) {
-        setError("Failed to load help content. Please try again later.");
+        setError(t("help.content_failed", "Failed to load help content. Please try again later."));
         console.error("Error fetching help content:", err);
       } finally {
         setIsLoading(false);
@@ -124,7 +126,7 @@ export const HelpContentSidebar = ({
           </div>
         ) : (
           <div className="text-gray-500 text-xs">
-            Select a topic to view its content
+            {t("help.select_topic", "Select a topic to view its content")}
           </div>
         )}
       </div>

@@ -3,6 +3,7 @@ import { SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Small } from "@/components/ui/typography";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
@@ -273,6 +274,8 @@ export default function LeftPanel({
     };
   }, [userId]);
 
+  const { t } = useTranslation();
+
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
       <header className="flex h-18 items-center border border-r-0 border-t-0 bg-background z-30 px-6">
@@ -294,25 +297,25 @@ export default function LeftPanel({
             <Input
               className="h-8 pl-8 w-full transition-all duration-300"
               type="search"
-              placeholder="Search"
+              placeholder={t('student.navigation.search')}
             />
           </div>
 
           {/* Navigation */}
           <nav className="flex gap-6 text-sm font-semibold flex-shrink-0">
             <Link to="#" className="text-[#007E85] hover:text-foreground/80">
-              <Small>Student</Small>
+              <Small>{t('student.navigation.student')}</Small>
             </Link>
             <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
             <Link
               to="/instructor"
               className="transition-colors hover:text-foreground/80"
             >
-              <Small>Instructor</Small>
+              <Small>{t('student.navigation.instructor')}</Small>
             </Link>
             <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
             <Link to="#" className="transition-colors hover:text-foreground/80">
-              <Small>About</Small>
+              <Small>{t('student.navigation.about')}</Small>
             </Link>
           </nav>
         </div>

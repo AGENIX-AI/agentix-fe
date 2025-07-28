@@ -1,4 +1,5 @@
 import { useRef, useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
 import "./ChatBox.css";
@@ -46,6 +47,7 @@ export function ChatBox({
   isAgentResponding,
   conversationData,
 }: ChatBoxProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
@@ -79,8 +81,8 @@ export function ChatBox({
   };
 
   const placeholder = isAgentResponding
-    ? "Agent is typing..."
-    : "Type your message here...";
+    ? t("chat.chatBox.agentTyping", "Agent is typing...")
+    : t("chat.chatBox.typeMessage", "Type your message here...");
   const disabled = isAgentResponding || isChatLoading;
   const typingIndicator = isAgentResponding ? (
     <TypingIndicator avatar_url={avatar_url} name={name} />
@@ -118,7 +120,8 @@ export function ChatBox({
               displayImage = currentUserImage;
             } else if (message.sender === "instructor") {
               displayName =
-                conversationData?.instructorInfo?.name || "Instructor";
+                conversationData?.instructorInfo?.name ||
+                t("common.instructor", "Instructor");
               displayImage = conversationData?.instructorInfo?.avatar_url || "";
             } else if (message.sender === "agent") {
               displayName = name;

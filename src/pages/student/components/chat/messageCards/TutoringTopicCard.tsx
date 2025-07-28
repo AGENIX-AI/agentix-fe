@@ -18,6 +18,7 @@ import {
   refactorTutoringDiscuss,
   createGenerateTask,
 } from "@/api/conversations";
+import { useTranslation } from "react-i18next";
 
 interface TutoringTopicCardProps {
   card: TutoringTopicMessageCard;
@@ -42,6 +43,7 @@ export function TutoringTopicCard({
   onCancel,
   invocation_id,
 }: TutoringTopicCardProps) {
+  const { t } = useTranslation();
   const { setConversationId, conversationId, assistantId } = useStudent();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -213,7 +215,7 @@ export function TutoringTopicCard({
             <div className="flex flex-col space-y-1">
               <div className="flex items-center gap-3 ">
                 <ExtraSmall className="font-bold text-primary">
-                  Problems
+                  {t("chat.tutoringTopicCard.problems", "Problems")}
                 </ExtraSmall>
               </div>
               <ExtraSmall className="text-xs text-foreground">
@@ -237,7 +239,7 @@ export function TutoringTopicCard({
             className="text-xs flex-1 max-w-[150px]"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Go To Topic"}
+            {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.goToTopic", "Go To Topic")}
           </Button>
         ) : (
           <>
@@ -257,7 +259,7 @@ export function TutoringTopicCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              Edit
+              {t("common.edit", "Edit")}
             </Button>
             <Button
               variant="default"
@@ -266,7 +268,7 @@ export function TutoringTopicCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              {isLoading ? "Processing..." : "Accept"}
+              {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.accept", "Accept")}
             </Button>
           </>
         )}
@@ -281,12 +283,12 @@ export function TutoringTopicCard({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Tutoring Topic</DialogTitle>
+            <DialogTitle>{t("chat.tutoringTopicCard.editTutoringTopic", "Edit Tutoring Topic")}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-3">
               <ExtraSmall className="font-bold text-foreground">
-                Topics
+                {t("chat.tutoringTopicCard.topics", "Topics")}
               </ExtraSmall>
               <Textarea
                 name="topics"
@@ -299,7 +301,7 @@ export function TutoringTopicCard({
 
             <div className="space-y-3">
               <ExtraSmall className="font-bold text-foreground">
-                Goals
+                {t("chat.tutoringTopicCard.goals", "Goals")}
               </ExtraSmall>
               <Textarea
                 name="goals"
@@ -312,7 +314,7 @@ export function TutoringTopicCard({
 
             <div className="space-y-3">
               <ExtraSmall className="font-bold text-foreground">
-                Problems
+                {t("chat.tutoringTopicCard.problems", "Problems")}
               </ExtraSmall>
               <Textarea
                 name="problems"
@@ -338,7 +340,7 @@ export function TutoringTopicCard({
               disabled={isLoading}
               className="flex-1 max-w-[120px]"
             >
-              {isLoading ? "Processing..." : "Save Changes"}
+              {isLoading ? t("chat.tutoringTopicCard.processing", "Processing...") : t("chat.tutoringTopicCard.saveChanges", "Save Changes")}
             </Button>
           </DialogFooter>
         </DialogContent>

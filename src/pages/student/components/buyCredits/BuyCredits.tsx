@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Loader2, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
+import { useTranslation } from "react-i18next";
 import {
   getPackages,
   createPaymentIntent,
@@ -15,6 +16,7 @@ import {
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
 
 export function BuyCredits() {
+  const { t } = useTranslation();
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -41,11 +43,11 @@ export function BuyCredits() {
         if (response.success && response.packages) {
           setPackages(response.packages);
         } else {
-          toast.error("Failed to load credit packages. Please try again.");
+          toast.error(t('student.buyCredits.loadError'));
         }
       } catch (error) {
         console.error("Error fetching packages:", error);
-        toast.error("Failed to load credit packages. Please try again.");
+        toast.error(t('student.buyCredits.loadError'));
       } finally {
         setIsLoadingPackages(false);
       }
@@ -61,7 +63,7 @@ export function BuyCredits() {
 
   const createOrder = async (): Promise<string> => {
     if (!selectedPackage) {
-      toast.error("Please select a package first");
+      toast.error(t('student.buyCredits.selectPackage'));
       throw new Error("No package selected");
     }
 
@@ -76,7 +78,7 @@ export function BuyCredits() {
       }
     } catch (error) {
       console.error("Error creating order:", error);
-      toast.error("Failed to create payment order. Please try again.");
+      toast.error(t('student.buyCredits.createOrderError'));
       throw error;
     } finally {
       setIsProcessing(false);
@@ -96,7 +98,7 @@ export function BuyCredits() {
         if (response.is_completed) {
           // Payment is completed
           toast.success(
-            `Payment successful! ${selectedPackage?.credit} credits added to your account.`
+            t('student.buyCredits.paymentSuccess', { credits: selectedPackage?.credit })
           );
           setPaymentStatus("completed");
           setShowPayPal(false);
@@ -112,7 +114,7 @@ export function BuyCredits() {
       console.error("Error processing payment:", error);
       setPaymentStatus("failed");
       toast.error(
-        "Payment processing failed. Please contact support if you were charged."
+        t('student.buyCredits.paymentProcessingError')
       );
       setIsProcessing(false);
     }
@@ -136,7 +138,7 @@ export function BuyCredits() {
 
   const onError = (err: unknown) => {
     console.error("PayPal error:", err);
-    toast.error("Payment failed. Please try again.");
+    toast.error(t('student.buyCredits.paymentError'));
     setPaymentStatus("failed");
     setIsProcessing(false);
   };
@@ -149,13 +151,13 @@ export function BuyCredits() {
   };
 
   const onCancel = () => {
-    toast.info("Payment cancelled");
+    toast.info(t('student.buyCredits.paymentCancelled'));
     resetPaymentState();
   };
 
   const handleVoucherRedeem = async () => {
     if (!voucherCode.trim()) {
-      toast.error("Please enter a voucher code");
+      toast.error(t('student.buyCredits.enterVoucherCode'));
       return;
     }
 
@@ -167,20 +169,18 @@ export function BuyCredits() {
 
       if (response.success) {
         toast.success(
-          `${
-            response.message
-          } (${response.credits_added?.toLocaleString()} credits added)`
+          t('student.buyCredits.voucherSuccess', { credits: response.credits_added })
         );
         setVoucherRedemptionStatus("success");
         setVoucherCode("");
       } else {
-        throw new Error(response.message || "Failed to redeem voucher");
+        toast.error(response.message || t('student.buyCredits.voucherError'));
       }
     } catch (error) {
       console.error("Error redeeming voucher:", error);
       setVoucherRedemptionStatus("failed");
       toast.error(
-        error instanceof Error ? error.message : "Failed to redeem voucher"
+        error instanceof Error ? error.message : t('student.buyCredits.voucherError')
       );
     } finally {
       setIsRedeemingVoucher(false);
@@ -199,7 +199,7 @@ export function BuyCredits() {
                 <CheckCircle className="size-12 text-primary" />
               </div>
               <h2 className="text-2xl font-semibold mb-2">
-                Payment Successful!
+                {t('student.buyCredits.paymentSuccessful')}
               </h2>
               <p className="text-muted-foreground mb-6">
                 {selectedPackage?.credit} credits have been added to your
@@ -211,7 +211,7 @@ export function BuyCredits() {
                   resetPaymentState();
                 }}
               >
-                Make Another Purchase
+                {t('student.buyCredits.makeAnotherPurchase')}
               </Button>
             </div>
           ) : (
@@ -220,11 +220,10 @@ export function BuyCredits() {
               {/* Description */}
               <div className="text-center mb-8">
                 <h2 className="text-xl font-semibold mb-2">
-                  Choose Your Credit Package
+                  {t('student.buyCredits.choosePackage')}
                 </h2>
                 <p className="text-muted-foreground">
-                  Purchase credits to unlock premium features and enhanced
-                  capabilities
+                  {t('student.buyCredits.description')}
                 </p>
               </div>
 
@@ -232,10 +231,10 @@ export function BuyCredits() {
               <Card className="p-6 mb-8">
                 <div className="text-center mb-4">
                   <h3 className="text-lg font-semibold mb-2">
-                    Have a Voucher Code?
+                    {t('student.buyCredits.haveAVoucherCode')}
                   </h3>
                   <p className="text-sm text-muted-foreground">
-                    Redeem your voucher code to get free credits instantly
+                    {t('student.buyCredits.redeemVoucherCode')}
                   </p>
                 </div>
 
@@ -247,7 +246,7 @@ export function BuyCredits() {
                       onChange={(e) =>
                         setVoucherCode(e.target.value.toUpperCase())
                       }
-                      placeholder="Enter voucher code (e.g., EDVARA-123456)"
+                      placeholder={t('student.buyCredits.voucherPlaceholder')}
                       className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                       disabled={isRedeemingVoucher}
                       onKeyPress={(e) => {
@@ -264,10 +263,10 @@ export function BuyCredits() {
                       {isRedeemingVoucher ? (
                         <>
                           <Loader2 className="size-4 mr-1 animate-spin" />
-                          Redeeming...
+                          {t('student.buyCredits.redeeming')}
                         </>
                       ) : (
-                        "Redeem"
+                        t('student.buyCredits.redeem')
                       )}
                     </Button>
                   </div>
@@ -275,7 +274,7 @@ export function BuyCredits() {
                   {voucherRedemptionStatus === "success" && (
                     <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-md">
                       <p className="text-sm text-green-600 dark:text-green-400 text-center">
-                        ✅ Voucher redeemed successfully!
+                        ✅ {t('student.buyCredits.voucherRedeemed')}
                       </p>
                     </div>
                   )}
@@ -283,8 +282,7 @@ export function BuyCredits() {
                   {voucherRedemptionStatus === "failed" && (
                     <div className="mt-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md">
                       <p className="text-sm text-red-600 dark:text-red-400 text-center">
-                        ❌ Failed to redeem voucher. Please check the code and
-                        try again.
+                        ❌ {t('student.buyCredits.voucherRedeemFailCheck')}
                       </p>
                     </div>
                   )}
@@ -359,12 +357,13 @@ export function BuyCredits() {
                 <Card className="p-6">
                   <div className="text-center mb-6">
                     <h3 className="text-lg font-semibold mb-2">
-                      Complete Your Purchase
+                      {t('student.buyCredits.completePurchase')}
                     </h3>
                     <p className="text-muted-foreground">
-                      You're purchasing{" "}
-                      {selectedPackage.credit.toLocaleString()} credits for $
-                      {selectedPackage.price}
+                      {t('student.buyCredits.purchasingCredits', { 
+                        credits: selectedPackage.credit.toLocaleString(), 
+                        price: selectedPackage.price 
+                      })}
                     </p>
                   </div>
 
@@ -396,8 +395,8 @@ export function BuyCredits() {
                         <Loader2 className="size-4 mr-2 animate-spin" />
                         <span className="text-sm text-muted-foreground">
                           {paymentStatus === "capturing"
-                            ? "Capturing payment..."
-                            : "Processing payment..."}
+                            ? t('student.buyCredits.capturingPayment')
+                            : t('student.buyCredits.processingPayment')}
                         </span>
                       </div>
                     )}
@@ -405,7 +404,7 @@ export function BuyCredits() {
                     {paymentStatus === "failed" && !isProcessing && (
                       <div className="flex items-center justify-center mt-4 text-destructive">
                         <span className="text-sm font-medium">
-                          Payment failed. Please try again or contact support.
+                          {t('student.buyCredits.paymentFailed')}
                         </span>
                       </div>
                     )}
@@ -420,7 +419,7 @@ export function BuyCredits() {
                         }}
                         disabled={isProcessing}
                       >
-                        Cancel
+                        {t('student.buyCredits.cancel')}
                       </Button>
                     </div>
                   </div>
@@ -429,8 +428,8 @@ export function BuyCredits() {
 
               {/* Security Note */}
               <div className="mt-8 text-center text-sm text-muted-foreground">
-                <p>🔒 Secure payment processing powered by PayPal</p>
-                <p>Your payment information is encrypted and protected</p>
+                <p>{t('student.buyCredits.securePayment')}</p>
+                <p>{t('student.buyCredits.encryptedInfo')}</p>
               </div>
             </>
           )}

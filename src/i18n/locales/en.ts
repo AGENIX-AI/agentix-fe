@@ -147,13 +147,24 @@ const enTranslation: Record<string, any> = {
   language_en: "English",
   language_vi: "Vietnamese",
 
-  // Common
   common: {
+    loading: "Loading...",
     cancel: "Cancel",
-    share: "Share",
-    sharing: "Sharing...",
-    send: "Send",
-    sending: "Sending...",
+    save: "Save",
+    delete: "Delete",
+    edit: "Edit",
+    confirm: "Confirm",
+    instructor: "Instructor",
+  },
+
+  // Help Section
+  help: {
+    fetch_failed: "Failed to fetch help topics. Please try again later.",
+    load_topics_failed: "Failed to load topics. Please try again later.",
+    refresh_failed: "Failed to refresh help topics. Please try again later.",
+    content_failed: "Failed to load help content. Please try again later.",
+    no_topics: "No topics available",
+    select_topic: "Select a topic to view its content"
   },
 
   // Chat Components
@@ -162,6 +173,49 @@ const enTranslation: Record<string, any> = {
       placeholder: "Type a message...",
       archived_placeholder: "This conversation is archived",
       send: "Send",
+      uploadImage: "Upload image",
+    },
+    image: {
+      previewImage: "Preview image",
+      pastedImage: "Pasted image",
+      removeImage: "Remove image",
+    },
+    messageCards: {
+      unknownType: "Unknown message card type"
+    },
+    summaryCard: {
+      sessionSummary: "Session Summary",
+      language: "Language"
+    },
+    topicCard: {
+      language: "Language",
+      goal: "Goal",
+      problem: "Problem"
+    },
+    tutoringTopicCard: {
+      processing: "Processing...",
+      goToTopic: "Go To Topic",
+      accept: "Accept",
+      editTutoringTopic: "Edit Tutoring Topic",
+      topics: "Topics",
+      goals: "Goals",
+      problems: "Problems",
+      saveChanges: "Save Changes"
+    },
+    chatBox: {
+      agentTyping: "Agent is typing...",
+      typeMessage: "Type your message here..."
+    },
+    message: {
+      play_audio: "Play audio",
+      stop_audio: "Stop audio",
+      typing: "Agent is typing...",
+      typeMessage: "Type your message here...",
+      error_playing_audio: "Error playing audio",
+      error_fetching_audio: "Error fetching or playing audio",
+      latex_error: "Error rendering LaTeX",
+      view_full_image: "View full image",
+      close: "Close"
     },
     tasks: {
       title: "Task",
@@ -204,13 +258,6 @@ const enTranslation: Record<string, any> = {
       hide_history: "Hide history",
       powered_by: "{{name}}",
     },
-    message: {
-      typing: "Typing...",
-      view_full_image: "View full image",
-      close: "Close",
-      play_audio: "Play audio",
-      stop_audio: "Stop audio",
-    },
   },
 
   // Instructor Finder
@@ -228,6 +275,98 @@ const enTranslation: Record<string, any> = {
   previous: "Previous",
   next: "Next",
   recommendedInstructors: "Recommended Instructors",
+  
+  // Student Pages
+  student: {
+    navigation: {
+      student: "Student",
+      instructor: "Instructor",
+      about: "About",
+      search: "Search",
+    },
+    rightPanel: {
+      collapse: "Collapse miniapp",
+      expand: "Expand miniapp",
+      clickToExpand: "Click to expand {{title}}",
+      profileInfo: "Profile Info",
+      followingPosts: "Following Posts",
+      assistantTopics: "Assistant Topics",
+      tasks: "Tasks",
+      agentCapability: "Agent Capability Statement",
+      findInstructor: "Find Instructor",
+      buyCredits: "Buy Credits",
+      helpCenter: "Help Center",
+      homePage: "Home Page",
+      rightPanel: "Right Panel",
+    },
+    assistantProfile: {
+      loading: "Loading assistant profile...",
+      noInfo: "No assistant information available",
+      generalAssistance: "General Assistance",
+      generalAssistant: "General Assistant",
+      profile: "Profile",
+      error: "Failed to load data. Please try again later.",
+      about: "About",
+      specialty: "Specialty",
+      topics: "Topics",
+      loadingTopics: "Loading topics...",
+      failedToLoadData: "Failed to load conversation data",
+      category: "Category",
+      count: "Count",
+      loadingCanvas: "Loading Canvas...",
+      noTasksAvailable: "No conversation tasks available",
+      noTasksDescription: "There are currently no tasks for this conversation. Tasks may be added as the conversation progresses.",
+      conversationTasks: "Conversation Tasks",
+      goal: "Goal",
+      step: "Step",
+      taskDetails: "Task Details",
+      status: "Status",
+      failedToLoadConversationData: "Failed to load conversation data",
+      generalTopic: "General Topic",
+      mentoringTopics: "Mentoring Topics",
+      privateTopics: "Private Topics",
+      archivedTopics: "Archived Topics",
+      categoryTopics: "{{category}} Topics",
+      noConversationsFound: "No conversations found"
+    },
+    buyCredits: {
+      title: "Buy Credits",
+      loadError: "Failed to load credit packages. Please try again.",
+      selectPackage: "Please select a package first",
+      createOrderError: "Failed to create payment order. Please try again.",
+      paymentSuccess: "Payment successful! {{credits}} credits added to your account.",
+      paymentProcessingError: "Payment processing failed. Please contact support if you were charged.",
+      paymentError: "Payment failed. Please try again or contact support.",
+      enterVoucherCode: "Please enter a voucher code",
+      voucherSuccess: "Voucher redeemed successfully! {{credits}} credits added to your account.",
+      voucherError: "Failed to redeem voucher",
+      voucherRedeemError: "Failed to redeem voucher. Please try again.",
+      voucherRedeemed: "Voucher redeemed successfully!",
+      voucherRedeemFailCheck: "Failed to redeem voucher. Please check the code and try again.",
+      paymentSuccessful: "Payment Successful!",
+      makeAnotherPurchase: "Make Another Purchase",
+      choosePackage: "Choose Your Credit Package",
+      description: "Purchase credits to unlock premium features and enhanced capabilities",
+      haveAVoucherCode: "Have a Voucher Code?",
+      redeemVoucherCode: "Redeem your voucher code to get free credits instantly",
+      voucherPlaceholder: "Enter voucher code (e.g., EDVARA-123456)",
+      redeem: "Redeem",
+      redeeming: "Redeeming...",
+      redeemed: "Redeemed!",
+      redeemVoucher: "Redeem Voucher",
+      purchaseCredits: "Purchase Credits",
+      loadingPackages: "Loading packages...",
+      completePurchase: "Complete Your Purchase",
+      purchasingCredits: "You're purchasing {{credits}} credits for ${{price}}",
+      capturingPayment: "Capturing payment...",
+      processingPayment: "Processing payment...",
+      paymentFailed: "Payment failed. Please try again or contact support.",
+      cancel: "Cancel",
+      paymentCancelled: "Payment cancelled",
+      securePayment: "🔒 Secure payment processing powered by PayPal",
+      encryptedInfo: "Your payment information is encrypted and protected"
+    }
+  },
 };
 
 export default enTranslation;

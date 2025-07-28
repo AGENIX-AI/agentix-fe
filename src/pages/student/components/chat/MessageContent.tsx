@@ -3,6 +3,7 @@ import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { ImageViewer } from "./ImageViewer";
 import { parseMessageCard } from "./messageCards/types";
 import { MessageCardRenderer } from "./messageCards/MessageCardRenderer";
+import { useTranslation } from "react-i18next";
 
 interface UserInfo {
   id: string;
@@ -70,6 +71,9 @@ function MessageContentComponent({
   invocation_id,
   conversationData,
 }: MessageContentProps) {
+  // Get translation function
+  const { t } = useTranslation();
+  
   // State for image viewer
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
@@ -79,12 +83,12 @@ function MessageContentComponent({
 
   // Remove [Instructor] and [Student] prefixes from the parsed content BEFORE parsing message card
   let cleanedOriginalContent = parsedContent;
-  if (cleanedOriginalContent.trim().startsWith("[Instructor")) {
+  if (cleanedOriginalContent.trim().startsWith("[" + t("common.instructor", "Instructor"))) {
     cleanedOriginalContent = cleanedOriginalContent.replace(
       /^\s*\[Instructor\s*:\s*[^\]]+\]\s*:\s*/,
       ""
     );
-  } else if (cleanedOriginalContent.trim().startsWith("[Student")) {
+  } else if (cleanedOriginalContent.trim().startsWith("[" + t("common.student", "Student"))) {
     cleanedOriginalContent = cleanedOriginalContent.replace(
       /^\s*\[Student\s*:\s*[^\]]+\]\s*:\s*/,
       ""
@@ -171,7 +175,7 @@ function MessageContentComponent({
             });
           }
         } catch (error) {
-          console.error("Error rendering LaTeX:", error);
+          console.error(t("chat.message.latex_error", "Error rendering LaTeX:"), error);
         }
       };
 

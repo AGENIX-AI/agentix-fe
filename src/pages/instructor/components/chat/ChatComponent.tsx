@@ -11,6 +11,7 @@ import {
   getConversationById,
   type UserInfo,
   type AssistantInfo,
+  uploadConversationImage,
 } from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/InstructorChatContext";
@@ -371,11 +372,96 @@ export function ChatComponent() {
 
   // Helper function to escape markdown image syntax
   const escapeMarkdownImage = (imageUrl: string, text?: string) => {
-    const encoded = encodeURIComponent(imageUrl);
-    const escapedImageMarkdown = `![image](${encoded})`;
+    const escapedImageMarkdown = `![image](${imageUrl})`;
     return text ? `${escapedImageMarkdown}\n\n${text}` : escapedImageMarkdown;
   };
 
+  // Consolidated function to handle file uploads
+  const handleFileUpload = async (file: File, textInput?: string) => {
+    if (!conversationId || isAgentResponding) return;
+
+    try {
+      console.log("handleFileUpload - Starting upload for file:", file.name);
+      // Show loading indicator for file upload
+      setIsUploadingFile(true);
+      setIsAgentResponding(true);
+
+      // Upload the file to the server using the API function
+      console.log("handleFileUpload - Calling uploadConversationImage");
+      const uploadResponse = await uploadConversationImage(file);
+      console.log("handleFileUpload - Upload response:", uploadResponse);
+
+      if (uploadResponse.success && uploadResponse.image_path) {
+        console.log(
+          "handleFileUpload - Upload successful, image_path:",
+          uploadResponse.image_path
+        );
+        // Format the message with the image in markdown format
+        const messageWithImage = escapeMarkdownImage(
+          uploadResponse.image_path,
+          textInput
+        );
+        console.log("handleFileUpload - Formatted message:", messageWithImage);
+
+        // Add user message with image to the chat immediately
+        const userMessage: Message = {
+          sender: "instructor",
+          content: messageWithImage,
+          time: Date.now(),
+          invocation_id: "",
+        };
+
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+        // Emit event for user file upload
+        eventBus.emit("conversation-update", {
+          assistantId: assistantId,
+          conversationId: conversationId,
+          lastMessage: {
+            content: textInput || "[Image uploaded]", // Use text input if provided, otherwise a placeholder
+            time: new Date().toISOString(),
+            sender: "instructor",
+          },
+        });
+
+        // Send message to API
+        console.log(
+          "handleFileUpload - Calling sendInstructorMessage with conversationId:",
+          conversationId
+        );
+        const response = await sendInstructorMessage(
+          conversationId,
+          messageWithImage
+        );
+        console.log(
+          "handleFileUpload - sendInstructorMessage response:",
+          response
+        );
+
+        // Handle special action message types
+        if (
+          response.message &&
+          response.message.startsWith("Action:SetConversationId:")
+        ) {
+          const id = response.message.replace("Action:SetConversationId:", "");
+          setConversationId(id);
+          return;
+        }
+      } else {
+        console.error(
+          "handleFileUpload - Upload failed or no image_path in response"
+        );
+        throw new Error("Failed to upload image");
+      }
+    } catch (error) {
+      console.error("Error handling file upload:", error);
+    } finally {
+      setIsAgentResponding(false);
+      setIsUploadingFile(false);
+    }
+  };
+
+  // Function to handle sending message with image from data URL
   const handleSendMessageWithImage = async (
     content: string,
     imageData: string
@@ -383,124 +469,104 @@ export function ChatComponent() {
     if (!conversationId || isAgentResponding) return;
 
     try {
-      // Set agent responding state to true to show typing indicator
+      console.log(
+        "handleSendMessageWithImage - Starting with content length:",
+        content?.length
+      );
+      // Show agent responding indicator
       setIsAgentResponding(true);
 
-      // Format the message with the image in markdown format with escaped syntax
-      const messageWithImage = escapeMarkdownImage(imageData, content);
-
-      // Add user message with image to the chat immediately
-      const userMessage: Message = {
-        sender: "instructor",
-        content: messageWithImage,
-        time: Date.now(),
-        invocation_id: "",
-      };
-
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
-
-      // Emit event for user message with image
-      eventBus.emit("conversation-update", {
-        assistantId: assistantId,
-        conversationId: conversationId,
-        lastMessage: {
-          content: content, // Using the text content without the image for history display
-          time: new Date().toISOString(),
-          sender: "instructor",
-        },
-      });
-
-      // Send message to API
-      const response = await sendInstructorMessage(
-        conversationId,
-        messageWithImage
+      // Convert data URL to File
+      console.log("handleSendMessageWithImage - Converting data URL to File");
+      const fetchResponse = await fetch(imageData);
+      const blob = await fetchResponse.blob();
+      const file = new File([blob], "image.jpg", { type: blob.type });
+      console.log(
+        "handleSendMessageWithImage - Created File:",
+        file.name,
+        file.type,
+        file.size
       );
 
-      // Handle special action message types
-      if (
-        response.message &&
-        response.message.startsWith("Action:SetConversationId:")
-      ) {
-        const id = response.message.replace("Action:SetConversationId:", "");
-        setConversationId(id);
-        return;
-      }
+      // Upload the image using the API
+      console.log(
+        "handleSendMessageWithImage - Calling uploadConversationImage"
+      );
+      const uploadResponse = await uploadConversationImage(file);
+      console.log(
+        "handleSendMessageWithImage - Upload response:",
+        uploadResponse
+      );
 
-      // Agent response will come through WebSocket, no need to handle it here
+      if (uploadResponse.success && uploadResponse.image_path) {
+        console.log(
+          "handleSendMessageWithImage - Upload successful, image_path:",
+          uploadResponse.image_path
+        );
+        // Format the message with the image in markdown format
+        const messageWithImage = escapeMarkdownImage(
+          uploadResponse.image_path,
+          content
+        );
+        console.log(
+          "handleSendMessageWithImage - Formatted message:",
+          messageWithImage
+        );
+
+        // Add user message with image to the chat immediately
+        const userMessage: Message = {
+          sender: "instructor",
+          content: messageWithImage,
+          time: Date.now(),
+          invocation_id: "",
+        };
+
+        setMessages((prevMessages) => [...prevMessages, userMessage]);
+
+        // Emit event for user message with image
+        eventBus.emit("conversation-update", {
+          assistantId: assistantId,
+          conversationId: conversationId,
+          lastMessage: {
+            content: content || "[Image uploaded]", // Using the text content without the image for history display
+            time: new Date().toISOString(),
+            sender: "instructor",
+          },
+        });
+
+        // Send message to API
+        console.log(
+          "handleSendMessageWithImage - Calling sendInstructorMessage with conversationId:",
+          conversationId
+        );
+        const response = await sendInstructorMessage(
+          conversationId,
+          messageWithImage
+        );
+        console.log(
+          "handleSendMessageWithImage - sendInstructorMessage response:",
+          response
+        );
+
+        // Handle special action message types
+        if (
+          response.message &&
+          response.message.startsWith("Action:SetConversationId:")
+        ) {
+          const id = response.message.replace("Action:SetConversationId:", "");
+          setConversationId(id);
+          return;
+        }
+      } else {
+        console.error(
+          "handleSendMessageWithImage - Upload failed or no image_path in response"
+        );
+        throw new Error("Failed to upload image");
+      }
     } catch (error) {
       console.error("Error sending message with image:", error);
-      // Optionally show an error message to the user
     } finally {
-      // Reset the agent responding state
       setIsAgentResponding(false);
-    }
-  };
-
-  const handleFileUpload = async (file: File, textInput?: string) => {
-    if (!conversationId || isAgentResponding) return;
-
-    try {
-      // Show loading indicator for file upload only
-      setIsUploadingFile(true);
-
-      // Read the file as a data URL
-      const reader = new FileReader();
-
-      reader.onload = async (e) => {
-        try {
-          if (e.target?.result) {
-            const imageData = e.target.result.toString();
-
-            // Format the message with the image in markdown format with escaped syntax
-            const messageWithImage = escapeMarkdownImage(imageData, textInput);
-
-            // Add user message with image to the chat immediately
-            const userMessage: Message = {
-              sender: "instructor",
-              content: messageWithImage,
-              time: Date.now(),
-              invocation_id: "",
-            };
-
-            setMessages((prevMessages) => [...prevMessages, userMessage]);
-
-            // Emit event for user file upload
-            eventBus.emit("conversation-update", {
-              assistantId: assistantId,
-              conversationId: conversationId,
-              lastMessage: {
-                content: textInput || "[Image uploaded]", // Use text input if provided, otherwise a placeholder
-                time: new Date().toISOString(),
-                sender: "instructor",
-              },
-            });
-
-            // Set agent responding state to true to show typing indicator
-            setIsAgentResponding(true);
-
-            // Send message to API
-            await sendInstructorMessage(conversationId, messageWithImage);
-
-            // Agent response will come through WebSocket, no need to handle it here
-          }
-        } catch (error) {
-          console.error("Error processing file:", error);
-        } finally {
-          setIsAgentResponding(false);
-          setIsUploadingFile(false);
-        }
-      };
-
-      reader.onerror = () => {
-        console.error("Error reading file");
-        setIsUploadingFile(false);
-      };
-
-      // Start reading the file
-      reader.readAsDataURL(file);
-    } catch (error) {
-      console.error("Error handling file upload:", error);
-      setIsUploadingFile(false);
     }
   };
 

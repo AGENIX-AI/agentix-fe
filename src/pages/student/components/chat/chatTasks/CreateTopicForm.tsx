@@ -106,7 +106,7 @@ export function CreateTopicForm({ onClose, onSubmit }: CreateTopicFormProps) {
           disabled={isLoading}
           className="h-8 w-32"
         >
-          Cancel
+          {t("common.cancel", "Cancel")}
         </Button>
         <Button
           className="h-8 w-32"

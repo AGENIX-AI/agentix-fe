@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Small } from "@/components/ui/typography";
 import { FullImageModal } from "./FullImageModal";
+import { useTranslation } from "react-i18next";
 
 interface ImagePreviewProps {
   imageUrl: string;
@@ -9,6 +10,7 @@ interface ImagePreviewProps {
 }
 
 export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
+  const { t } = useTranslation();
   const [showFullImage, setShowFullImage] = useState(false);
 
   return (
@@ -18,7 +20,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
           image={{
             id: "preview",
             url: imageUrl,
-            file_name: "Preview image",
+            file_name: t("chat.image.previewImage", "Preview image"),
             content: "",
             summary: "",
             created_at: new Date().toISOString(),
@@ -31,7 +33,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
       <div className="relative mb-2 rounded-md border border-border p-2">
         <img
           src={imageUrl}
-          alt="Pasted image"
+          alt={t("chat.image.pastedImage", "Pasted image")}
           className="max-h-40 rounded-md object-contain cursor-pointer"
           onClick={() => setShowFullImage(true)}
         />
@@ -42,7 +44,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
           className="absolute right-1 top-1 h-6 w-6 rounded-full bg-background/80 text-foreground hover:bg-background/90"
           onClick={onRemove}
         >
-          <Small className="sr-only">Remove image</Small>
+          <Small className="sr-only">{t("chat.image.removeImage", "Remove image")}</Small>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

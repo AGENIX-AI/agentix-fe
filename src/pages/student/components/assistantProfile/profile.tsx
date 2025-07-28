@@ -1,6 +1,7 @@
 import { ExtraSmall, Large } from "@/components/ui/typography";
 import { useStudent } from "@/contexts/StudentContext";
 import { useEffect, useState, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import type { Conversation as ConversationType } from "@/services/conversation";
 import type { ConversationListResponse } from "@/lib/utils/types/conversation";
 import { getConversations } from "@/api/conversations";
@@ -16,6 +17,7 @@ import {
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 export function AssistantProfile() {
+  const { t } = useTranslation();
   const { assistantInfo, setConversationId } = useStudent();
   const [conversationData, setConversationData] =
     useState<ConversationListResponse | null>(null);
@@ -107,7 +109,7 @@ export function AssistantProfile() {
       {/* Description */}
       <div className="space-y-1">
         <ExtraSmall className="font-semibold text-foreground">
-          About:{" "}
+          {t("student.assistantProfile.about")}:{" "}
         </ExtraSmall>
         <ExtraSmall className="">{assistantInfo.description}</ExtraSmall>
       </div>
@@ -115,24 +117,28 @@ export function AssistantProfile() {
       {/* Specialty */}
       <div className="space-y-1">
         <ExtraSmall className="font-semibold text-foreground">
-          Specialty:{" "}
+          {t("student.assistantProfile.specialty")}:{" "}
         </ExtraSmall>
         <ExtraSmall className="">
-          {assistantInfo?.speciality || "General Assistant"}
+          {assistantInfo?.speciality ||
+            t("student.assistantProfile.generalAssistant")}
         </ExtraSmall>
       </div>
 
       {/* Topics */}
       <div className="space-y-2">
         <ExtraSmall className="font-semibold text-foreground">
-          Topics:{" "}
+          {t("student.assistantProfile.topics")}:{" "}
         </ExtraSmall>
 
         {isLoading ? (
-          <LoadingState message="Loading topics..." size="small" />
+          <LoadingState
+            message={t("student.assistantProfile.loadingTopics")}
+            size="small"
+          />
         ) : hasError ? (
           <ExtraSmall className="text-destructive">
-            Failed to load conversation data
+            {t("student.assistantProfile.failedToLoadData")}
           </ExtraSmall>
         ) : conversationData ? (
           <div className="space-y-2">
@@ -140,8 +146,12 @@ export function AssistantProfile() {
               <TableHeader>
                 <TableRow className="text-xs">
                   <TableHead className="w-8"></TableHead>
-                  <TableHead className="w-full">Category</TableHead>
-                  <TableHead className="w-16 text-right">Count</TableHead>
+                  <TableHead className="w-full">
+                    {t("student.assistantProfile.category")}
+                  </TableHead>
+                  <TableHead className="w-16 text-right">
+                    {t("student.assistantProfile.count")}
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>

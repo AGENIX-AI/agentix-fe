@@ -2,6 +2,7 @@ import { ConversationTasks } from "./tasks";
 import { AssistantProfile } from "./profile";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
+import { useTranslation } from "react-i18next";
 import { useStudent } from "@/contexts/StudentContext";
 import { useEffect, useState } from "react";
 import type { Assistant } from "@/api/assistants";
@@ -26,10 +27,11 @@ function AssistantBanner({
   instructor,
   loading,
 }: AssistantBannerProps) {
+  const { t } = useTranslation();
   if (loading) {
     return (
       <div className="sticky top-0 bg-card h-48">
-        <LoadingState message="Loading assistant profile..." size="medium" />
+        <LoadingState message={t('student.assistantProfile.loading')} size="medium" />
       </div>
     );
   }
@@ -38,7 +40,7 @@ function AssistantBanner({
     return (
       <div className="sticky top-0 bg-card h-48 flex items-center justify-center">
         <p className="text-sm text-muted-foreground">
-          No assistant information available
+          {t('student.assistantProfile.noInfo')}
         </p>
       </div>
     );
@@ -95,7 +97,7 @@ function AssistantBanner({
               {instructor.instructor_name}
             </h3>
             <p className="text-xs">
-              {instructor.instructor_description || "General Assistance"}
+              {instructor.instructor_description || t('student.assistantProfile.generalAssistance')}
             </p>
           </div>
         </div>
@@ -105,6 +107,7 @@ function AssistantBanner({
 }
 
 export function AssistantView({ defaultTab }: { defaultTab: string }) {
+  const { t } = useTranslation();
   const { assistantId, instructorId, conversationId } = useStudent();
   const { assistantInfo } = useStudent();
   const [instructor, setInstructor] = useState<InstructorProfile | null>(null);
@@ -132,7 +135,7 @@ export function AssistantView({ defaultTab }: { defaultTab: string }) {
           }
         } catch (error) {
           console.error("Error fetching data:", error);
-          setError("Failed to load data. Please try again later.");
+          setError(t('student.assistantProfile.error'));
         } finally {
           setLoading(false);
         }
@@ -170,13 +173,13 @@ export function AssistantView({ defaultTab }: { defaultTab: string }) {
                 value="tasks"
                 className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
               >
-                Tasks
+                {t('student.rightPanel.tasks')}
               </TabsTrigger>
               <TabsTrigger
                 value="agentCapabilityStatement"
                 className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
               >
-                Profile
+                {t('student.assistantProfile.profile')}
               </TabsTrigger>
             </TabsList>
 

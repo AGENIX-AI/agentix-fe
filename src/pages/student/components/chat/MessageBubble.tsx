@@ -85,14 +85,22 @@ export function MessageBubble({
       audio.onended = () => setIsPlaying(false);
       audio.onerror = () => {
         setIsPlaying(false);
-        console.error("Error playing audio");
+        console.error(
+          t("chat.message.error_playing_audio", "Error playing audio")
+        );
       };
 
       // Play the audio
       await audio.play();
       setIsAudioLoading(false);
     } catch (error) {
-      console.error("Error fetching or playing audio:", error);
+      console.error(
+        t(
+          "chat.message.error_fetching_audio",
+          "Error fetching or playing audio:"
+        ),
+        error
+      );
       setIsPlaying(false);
       setIsAudioLoading(false);
     }
@@ -109,19 +117,19 @@ export function MessageBubble({
     if (isCurrentUser) {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Student)
+          {t("common.student_role", "(Student)")}
         </span>
       );
     } else if (message.sender === "instructor") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Instructor)
+          {t("common.instructor_role", "(Instructor)")}
         </span>
       );
     } else if (message.sender === "agent") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Assistant)
+          {t("common.assistant_role", "(Assistant)")}
         </span>
       );
     }
@@ -134,16 +142,22 @@ export function MessageBubble({
       <div className="flex items-center gap-2">
         {isCurrentUser ? (
           <Avatar className="h-6 w-6">
-            <AvatarImage src={currentUserImage} alt={currentUserName} />
+            <AvatarImage
+              src={currentUserImage}
+              alt={currentUserName || t("common.student", "Student")}
+            />
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {getInitials(currentUserName)}
+              {getInitials(currentUserName || t("common.student", "Student"))}
             </AvatarFallback>
           </Avatar>
         ) : (
           <Avatar className="h-6 w-6">
-            <AvatarImage src={agentImage} alt={agentName} />
+            <AvatarImage
+              src={agentImage}
+              alt={agentName || t("common.assistant", "Assistant")}
+            />
             <AvatarFallback className="text-xs bg-primary/10 text-primary">
-              {getInitials(agentName)}
+              {getInitials(agentName || t("common.assistant", "Assistant"))}
             </AvatarFallback>
           </Avatar>
         )}

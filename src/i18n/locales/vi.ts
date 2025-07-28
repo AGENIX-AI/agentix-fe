@@ -149,11 +149,17 @@ const viTranslation = {
 
   // Common
   common: {
+    loading: "Đang tải...",
     cancel: "Hủy",
+    save: "Lưu",
+    delete: "Xóa",
+    edit: "Chỉnh sửa",
+    confirm: "Xác nhận",
     share: "Chia sẻ",
     sharing: "Đang chia sẻ...",
     send: "Gửi",
     sending: "Đang gửi...",
+    instructor: "Giảng viên",
   },
 
   // Chat Components
@@ -162,6 +168,38 @@ const viTranslation = {
       placeholder: "Nhập tin nhắn...",
       archived_placeholder: "Cuộc trò chuyện này đã được lưu trữ",
       send: "Gửi",
+      uploadImage: "Tải lên hình ảnh",
+    },
+    image: {
+      previewImage: "Xem trước hình ảnh",
+      pastedImage: "Hình ảnh đã dán",
+      removeImage: "Xóa hình ảnh",
+    },
+    messageCards: {
+      unknownType: "Loại thẻ tin nhắn không xác định"
+    },
+    summaryCard: {
+      sessionSummary: "Tóm tắt phiên",
+      language: "Ngôn ngữ"
+    },
+    topicCard: {
+      language: "Ngôn ngữ",
+      goal: "Mục tiêu",
+      problem: "Vấn đề"
+    },
+    tutoringTopicCard: {
+      processing: "Đang xử lý...",
+      goToTopic: "Đi đến chủ đề",
+      accept: "Chấp nhận",
+      editTutoringTopic: "Chỉnh sửa chủ đề dạy kèm",
+      topics: "Chủ đề",
+      goals: "Mục tiêu",
+      problems: "Vấn đề",
+      saveChanges: "Lưu thay đổi"
+    },
+    chatBox: {
+      agentTyping: "Tác nhân đang nhập...",
+      typeMessage: "Nhập tin nhắn của bạn tại đây..."
     },
     tasks: {
       title: "Nhiệm vụ",
@@ -205,11 +243,15 @@ const viTranslation = {
       powered_by: "Được hỗ trợ bởi {{name}}",
     },
     message: {
-      typing: "Đang nhập...",
-      view_full_image: "Xem hình ảnh đầy đủ",
-      close: "Đóng",
       play_audio: "Phát âm thanh",
       stop_audio: "Dừng âm thanh",
+      typing: "Đang nhập...",
+      typeMessage: "Nhập tin nhắn của bạn tại đây...",
+      error_playing_audio: "Lỗi khi phát âm thanh",
+      error_fetching_audio: "Lỗi khi tải hoặc phát âm thanh",
+      latex_error: "Lỗi khi hiển thị LaTeX",
+      view_full_image: "Xem ảnh đầy đủ",
+      close: "Đóng"
     },
   },
 
@@ -228,6 +270,98 @@ const viTranslation = {
   previous: "Trước",
   next: "Tiếp",
   recommendedInstructors: "Giảng viên được đề xuất",
+  
+  // Student Pages
+  student: {
+    navigation: {
+      student: 'Học viên',
+      instructor: 'Giảng viên',
+      about: 'Giới thiệu',
+      search: 'Tìm kiếm'
+    },
+    rightPanel: {
+      collapse: 'Thu gọn ứng dụng',
+      expand: 'Mở rộng ứng dụng',
+      clickToExpand: 'Nhấp để mở rộng {{title}}',
+      profileInfo: 'Thông tin hồ sơ',
+      followingPosts: 'Bài viết đang theo dõi',
+      assistantTopics: 'Chủ đề trợ lý',
+      tasks: 'Nhiệm vụ',
+      agentCapability: 'Tuyên bố khả năng của đại lý',
+      findInstructor: 'Tìm giảng viên',
+      buyCredits: 'Mua tín dụng',
+      helpCenter: 'Trung tâm trợ giúp',
+      homePage: 'Trang chủ',
+      rightPanel: 'Bảng điều khiển bên phải'
+    },
+    assistantProfile: {
+      loading: 'Đang tải hồ sơ trợ lý...',
+      noInfo: 'Không có thông tin trợ lý',
+      generalAssistance: 'Hỗ trợ chung',
+      generalAssistant: 'Trợ lý chung',
+      profile: 'Hồ sơ',
+      error: 'Không thể tải dữ liệu. Vui lòng thử lại sau.',
+      about: 'Giới thiệu',
+      specialty: 'Chuyên môn',
+      topics: 'Chủ đề',
+      loadingTopics: 'Đang tải chủ đề...',
+      failedToLoadData: 'Không thể tải dữ liệu cuộc trò chuyện',
+      category: 'Danh mục',
+      count: 'Số lượng',
+      loadingCanvas: 'Đang tải Canvas...',
+      noTasksAvailable: 'Không có nhiệm vụ cuộc trò chuyện',
+      noTasksDescription: 'Hiện tại không có nhiệm vụ nào cho cuộc trò chuyện này. Nhiệm vụ có thể được thêm vào khi cuộc trò chuyện tiến triển.',
+      conversationTasks: 'Nhiệm vụ cuộc trò chuyện',
+      goal: 'Mục tiêu',
+      step: 'Bước',
+      taskDetails: 'Chi tiết nhiệm vụ',
+      status: 'Trạng thái',
+      failedToLoadConversationData: 'Không thể tải dữ liệu cuộc trò chuyện',
+      generalTopic: 'Chủ đề chung',
+      mentoringTopics: 'Chủ đề hướng dẫn',
+      privateTopics: 'Chủ đề riêng tư',
+      archivedTopics: 'Chủ đề đã lưu trữ',
+      categoryTopics: 'Chủ đề {{category}}',
+      noConversationsFound: 'Không tìm thấy cuộc trò chuyện nào'
+    },
+    buyCredits: {
+      title: 'Mua tín dụng',
+      loadError: 'Không thể tải gói tín dụng. Vui lòng thử lại.',
+      selectPackage: 'Vui lòng chọn một gói',
+      createOrderError: 'Không thể tạo đơn hàng thanh toán. Vui lòng thử lại.',
+      paymentSuccess: 'Thanh toán thành công! {{credits}} tín dụng đã được thêm vào tài khoản của bạn.',
+      paymentProcessingError: 'Xử lý thanh toán thất bại. Vui lòng liên hệ hỗ trợ nếu bạn đã bị tính phí.',
+      paymentError: 'Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.',
+      enterVoucherCode: 'Vui lòng nhập mã voucher',
+      voucherSuccess: 'Đổi voucher thành công! {{credits}} tín dụng đã được thêm vào tài khoản của bạn.',
+      voucherError: 'Không thể đổi voucher',
+      voucherRedeemError: 'Không thể đổi voucher. Vui lòng thử lại.',
+      voucherRedeemed: 'Đã đổi voucher thành công!',
+      voucherRedeemFailCheck: 'Không thể đổi voucher. Vui lòng kiểm tra mã và thử lại.',
+      paymentSuccessful: 'Thanh toán thành công!',
+      makeAnotherPurchase: 'Thực hiện giao dịch khác',
+      choosePackage: 'Chọn gói tín dụng của bạn',
+      description: 'Mua tín dụng để mở khóa tính năng cao cấp và khả năng nâng cao',
+      haveAVoucherCode: 'Có mã voucher?',
+      redeemVoucherCode: 'Đổi mã voucher của bạn để nhận tín dụng miễn phí ngay lập tức',
+      voucherPlaceholder: 'Nhập mã voucher (ví dụ: EDVARA-123456)',
+      redeem: 'Đổi',
+      redeeming: 'Đang đổi...',
+      redeemed: 'Đã đổi!',
+      redeemVoucher: 'Đổi Voucher',
+      purchaseCredits: 'Mua tín dụng',
+      loadingPackages: 'Đang tải gói...',
+      completePurchase: 'Hoàn tất giao dịch của bạn',
+      purchasingCredits: 'Bạn đang mua {{credits}} tín dụng với giá ${{price}}',
+      capturingPayment: 'Đang ghi nhận thanh toán...',
+      processingPayment: 'Đang xử lý thanh toán...',
+      paymentFailed: 'Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.',
+      cancel: 'Hủy',
+      paymentCancelled: 'Đã hủy thanh toán',
+      securePayment: ' Xử lý thanh toán an toàn được cung cấp bởi PayPal',
+      encryptedInfo: 'Thông tin thanh toán của bạn được mã hóa và bảo vệ'
+    }
+  },
 };
 
 export default viTranslation;

@@ -46,6 +46,11 @@ export interface GetMessagesResponse {
   [key: string]: any;
 }
 
+export interface UploadImageResponse {
+  success: boolean;
+  image_path: string;
+}
+
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
   const accessToken = Cookies.get("edvara_access_token");
@@ -1046,3 +1051,47 @@ export const sendAchievement = async (
 
   return await response.json();
 };
+
+export async function uploadConversationImage(
+  imageFile: File
+): Promise<UploadImageResponse> {
+  try {
+    const formData = new FormData();
+    formData.append("image", imageFile);
+
+    // Get auth headers but omit Content-Type
+    const authHeaders = getAuthHeaders();
+    const { Authorization, "X-Refresh-Token": refreshToken } =
+      authHeaders as any;
+
+    // Create new headers without Content-Type
+    const headers: HeadersInit = {};
+    if (Authorization) headers.Authorization = Authorization;
+    if (refreshToken) headers["X-Refresh-Token"] = refreshToken;
+
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+
+    // Browser will set correct Content-Type with boundary for FormData
+    const response = await fetch(`${baseUrl}/conversations/upload_image`, {
+      method: "POST",
+      body: formData,
+      credentials: "include",
+      headers: headers,
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to upload image: ${response.statusText}`)
+      );
+      console.error("Upload failed:", data);
+      throw new Error(data.error || "Image upload failed");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error uploading image document:", error);
+    throw new Error("Error uploading image document");
+  }
+}
