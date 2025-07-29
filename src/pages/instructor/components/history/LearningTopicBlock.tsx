@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
@@ -22,6 +23,7 @@ function LearningTopicBlockComponent({
   learningTopicsData,
   conversationId,
 }: LearningTopicBlockProps) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
@@ -210,7 +212,7 @@ function LearningTopicBlockComponent({
   if (showLoadingState) {
     return (
       <LoadingState
-        message="Loading learning topics..."
+        message={t("history.loadingLearningTopics")}
         size="medium"
         className="h-32"
       />
@@ -233,7 +235,7 @@ function LearningTopicBlockComponent({
         ))
       ) : (
         <div className="text-xs text-muted-foreground p-2">
-          No learning topics available
+          {t("history.noLearningTopicsAvailable")}
         </div>
       )}
     </div>

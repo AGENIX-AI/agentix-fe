@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
@@ -24,6 +25,7 @@ export function MediaCollectionsComponent({
   onAddMediaCollection,
   setShowDetails,
 }: MediaCollectionsComponentProps) {
+  const { t } = useTranslation();
   const { metaData, setMetaData } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -136,7 +138,7 @@ export function MediaCollectionsComponent({
   return (
     <div className="">
       <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">Media Collections</Small>
+        <Small className="font-semibold">{t("documents.media.collections")}</Small>
         <Button
           onClick={() => {
             onAddMediaCollection?.();
@@ -144,7 +146,7 @@ export function MediaCollectionsComponent({
           className="px-3 py-1.5 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
         >
           <Plus className="h-3 w-3 mr-1" />
-          Add Media Collection
+          {t("documents.media.addCollection")}
         </Button>
       </div>
 

@@ -20,7 +20,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
           image={{
             id: "preview",
             url: imageUrl,
-            file_name: "Preview image",
+            file_name: t('chat.image.previewImage'),
             content: "",
             summary: "",
             created_at: new Date().toISOString(),
@@ -33,7 +33,7 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
       <div className="relative mb-2 rounded-md border border-border p-2">
         <img
           src={imageUrl}
-          alt="Pasted image"
+          alt={t('chat.image.pastedImage')}
           className="max-h-40 rounded-md object-contain cursor-pointer"
           onClick={() => setShowFullImage(true)}
         />

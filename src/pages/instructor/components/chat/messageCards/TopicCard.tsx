@@ -5,6 +5,7 @@ import type { TopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
 import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 interface TopicCardProps {
   card: TopicMessageCard;
@@ -13,6 +14,7 @@ interface TopicCardProps {
 }
 
 export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
+  const { t } = useTranslation();
   const [isEditing, setIsEditing] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState<Omit<TopicMessageCard, "type">>({
@@ -57,7 +59,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
               value={formData.language || ""}
               onChange={handleChange}
               className="text-xs"
-              placeholder="Language (optional)"
+              placeholder={t('chat.topicCard.language')}
             />
           ) : (
             <div className="flex flex-col gap-1">
@@ -73,7 +75,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
         <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
-              <ExtraSmall className="font-bold text-primary">Goal</ExtraSmall>
+              <ExtraSmall className="font-bold text-primary">{t('chat.topicCard.goal')}</ExtraSmall>
             </div>
             {isEditing ? (
               <Textarea
@@ -81,7 +83,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
                 value={formData.topic_goal}
                 onChange={handleChange}
                 className="min-h-[80px] text-xs"
-                placeholder="What is the goal of this topic?"
+                placeholder={t('chat.topicCard.goalPlaceholder')}
               />
             ) : (
               <ExtraSmall className="text-xs text-foreground">
@@ -94,7 +96,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
             <div className="flex flex-col space-y-1">
               <div className="flex items-center gap-3">
                 <ExtraSmall className="font-bold text-primary">
-                  Problem
+                  {t('chat.topicCard.problem')}
                 </ExtraSmall>
               </div>
               {isEditing ? (
@@ -103,7 +105,7 @@ export function TopicCard({ card, className, onSubmit }: TopicCardProps) {
                   value={formData.topic_problem}
                   onChange={handleChange}
                   className="min-h-[80px] text-xs"
-                  placeholder="What problem are you trying to solve?"
+                  placeholder={t('chat.topicCard.problemPlaceholder')}
                 />
               ) : (
                 <ExtraSmall className="text-xs text-foreground">

@@ -6,8 +6,10 @@ import { Badge } from "../../../../../components/ui/badge";
 import { Skeleton } from "../../../../../components/ui/skeleton";
 import { ScrollArea } from "../../../../../components/ui/scroll-area";
 import { Separator } from "../../../../../components/ui/separator";
+import { useTranslation } from "react-i18next";
 
 export function AssistantKnowledgeTab() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
   const [assistants, setAssistants] = useState<AssistantKnowledgeItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -21,7 +23,7 @@ export function AssistantKnowledgeTab() {
         setError(null);
       } catch (err) {
         console.error("Failed to fetch assistant knowledge:", err);
-        setError("Failed to load assistant data. Please try again.");
+        setError(t('documents.assistantKnowledge.failedToLoad'));
       } finally {
         setLoading(false);
       }
@@ -61,7 +63,7 @@ export function AssistantKnowledgeTab() {
       <div className="px-2">
         {assistants.length === 0 ? (
           <div className="text-center text-xs text-muted-foreground py-4">
-            No assistants found
+            {t('documents.assistantKnowledge.noAssistants')}
           </div>
         ) : (
           assistants.map((assistant, index) => (
@@ -85,7 +87,7 @@ export function AssistantKnowledgeTab() {
                 </p>
                 {assistant.documents.length > 0 && (
                   <div className="mt-1">
-                    <p className="text-[10px] font-medium mb-1">Documents:</p>
+                    <p className="text-[10px] font-medium mb-1">{t('documents.assistantKnowledge.documents')}:</p>
                     <div className="flex flex-wrap gap-1">
                       {assistant.documents.map((doc) => (
                         <Badge

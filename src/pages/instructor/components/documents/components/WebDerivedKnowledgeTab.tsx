@@ -13,6 +13,7 @@ import { AddWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/WebDerivedK
 import { WebDerivedKnowledgeTable } from "./webdeviredKnowledge/WebDerivedKnowledgeTable";
 import { IndexCrawlDocumentSidebar } from "./webdeviredKnowledge/IndexCrawlDocumentSidebar";
 import { EditWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/EditWebDerivedKnowledgeSidebar";
+import WebDerivedKnowledgeDetailsView from "./webdeviredKnowledge/WebDerivedKnowledgeDetailsView";
 
 export default function WebDerivedKnowledgeTab() {
   const { metaData, setMetaData, assistantId } = useInstructor();
@@ -30,6 +31,10 @@ export default function WebDerivedKnowledgeTab() {
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
     null
   );
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null
+  );
+  const [showDetailsView, setShowDetailsView] = useState(false);
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -92,14 +97,25 @@ export default function WebDerivedKnowledgeTab() {
 
   const handleRowClick = (documentId: string) => {
     try {
-      setMetaData?.({
-        ...metaData,
-        currentWebDerivedKnowledgeId: documentId,
-      });
+      // Find the document by ID
+      const document = documents.find((doc) => doc.id === documentId);
+      if (document) {
+        setSelectedDocument(document);
+        setShowDetailsView(true);
+        setMetaData?.({
+          ...metaData,
+          currentWebDerivedKnowledgeId: documentId,
+        });
+      }
     } catch (error) {
       console.error("Error selecting online sources:", error);
       toast.error("Failed to select online sources");
     }
+  };
+
+  const handleBackFromDetails = () => {
+    setShowDetailsView(false);
+    setSelectedDocument(null);
   };
 
   const handleAddSidebarSuccess = () => {
@@ -172,6 +188,16 @@ export default function WebDerivedKnowledgeTab() {
       setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
     }
   };
+
+  // Show details view if selected
+  if (showDetailsView && selectedDocument) {
+    return (
+      <WebDerivedKnowledgeDetailsView
+        document={selectedDocument}
+        onBack={handleBackFromDetails}
+      />
+    );
+  }
 
   return (
     <div className="flex flex-col h-full">

@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, memo } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
@@ -20,6 +21,7 @@ function UserConversationsBlockComponent({
   conversationsData,
   assistantId,
 }: UserConversationsBlockProps) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
@@ -181,7 +183,7 @@ function UserConversationsBlockComponent({
   if (showLoadingState) {
     return (
       <LoadingState
-        message="Loading conversations..."
+        message={t("history.loadingConversations")}
         size="medium"
         className="h-32"
       />

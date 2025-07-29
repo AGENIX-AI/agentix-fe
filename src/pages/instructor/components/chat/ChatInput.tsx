@@ -175,7 +175,7 @@ export function ChatInput({
   const processMentionsForBackend = (text: string) => {
     if (!conversationData?.studentInfo) return text;
 
-    const studentName = conversationData.studentInfo.name || "Student";
+    const studentName = conversationData.studentInfo.name || t('chat.roles.student');
     const studentId = conversationData.studentInfo.id;
 
     // Replace @[StudentName] with @studentId for backend processing

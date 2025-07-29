@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/ui/loading-state";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { getInstructorSharedConversations } from "@/api/conversations";
@@ -14,6 +15,7 @@ function SharingBlockComponent({
   searchQuery,
   sharingData,
 }: SharingBlockProps) {
+  const { t } = useTranslation();
   const [sharedConversations, setSharedConversations] = useState<
     InstructorSharedConversationItem[]
   >(sharingData || []);
@@ -78,7 +80,7 @@ function SharingBlockComponent({
   if (isLoading) {
     return (
       <LoadingState
-        message="Loading sharing..."
+        message={t("history.loadingSharing")}
         size="medium"
         className="h-32"
       />
@@ -89,8 +91,8 @@ function SharingBlockComponent({
     return (
       <div className="text-center text-muted-foreground py-4 text-[10px]">
         {searchQuery
-          ? "No collaborative topics found"
-          : "No collaborative topics available"}
+          ? t("history.noCollaborativeTopicsFound")
+          : t("history.noCollaborativeTopicsAvailable")}
       </div>
     );
   }
@@ -128,7 +130,7 @@ function SharingBlockComponent({
                 <div className="flex-1 overflow-hidden">
                   <p className="text-xs truncate">
                     {conversation.conversation_info?.conversation_name ||
-                      "Collaborative Topic"}
+                      t("history.collaborativeTopic")}
                   </p>
                 </div>
               </div>

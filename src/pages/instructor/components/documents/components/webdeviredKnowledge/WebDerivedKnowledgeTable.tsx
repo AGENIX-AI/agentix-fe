@@ -1,6 +1,7 @@
 import { Loader2, Eye, Database } from "lucide-react";
 import type { Document } from "@/api/documents";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 import {
   Table,
   TableBody,
@@ -31,19 +32,21 @@ export function WebDerivedKnowledgeTable({
   onLinkDocument,
   onUnlinkDocument,
 }: WebDerivedKnowledgeTableProps) {
+  const { t } = useTranslation();
+  
   // Function to get a user-friendly status text
   const getStatusText = (status: string): string => {
     switch (status) {
       case "completed":
-        return "Completed";
+        return t("documents.webKnowledge.statusCompleted");
       case "not_complete":
-        return "In Progress";
+        return t("documents.webKnowledge.statusInProgress");
       case "pending":
-        return "Pending";
+        return t("documents.webKnowledge.statusPending");
       case "failed":
-        return "Failed";
+        return t("documents.webKnowledge.statusFailed");
       case "crawl_completed":
-        return "Crawl Completed";
+        return t("documents.webKnowledge.statusCrawlCompleted");
       default:
         return (
           status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, " ")
@@ -58,10 +61,10 @@ export function WebDerivedKnowledgeTable({
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-xs ">Title</TableHead>
-                <TableHead className="text-xs">Status</TableHead>
-                <TableHead className="text-xs">Created</TableHead>
-                <TableHead className="text-right text-xs">Actions</TableHead>
+                <TableHead className="text-xs ">{t("documents.webKnowledge.tableTitle")}</TableHead>
+                <TableHead className="text-xs">{t("documents.webKnowledge.tableStatus")}</TableHead>
+                <TableHead className="text-xs">{t("documents.webKnowledge.tableCreated")}</TableHead>
+                <TableHead className="text-right text-xs">{t("documents.webKnowledge.tableActions")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -104,7 +107,7 @@ export function WebDerivedKnowledgeTable({
                                 document.id
                               )}
                             >
-                              Unlink
+                              {t("documents.webKnowledge.actionUnlink")}
                             </button>
                           ) : (
                             <button
@@ -114,7 +117,7 @@ export function WebDerivedKnowledgeTable({
                                 document.id
                               )}
                             >
-                              Link
+                              {t("documents.webKnowledge.actionLink")}
                             </button>
                           )}
 
@@ -124,10 +127,10 @@ export function WebDerivedKnowledgeTable({
                               onView(document.id);
                             }}
                             className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                            title="View web derived knowledge"
+                            title={t("documents.webKnowledge.tooltipView")}
                           >
                             <Eye className="h-3 w-3" />
-                            View
+                            {t("documents.webKnowledge.actionView")}
                           </button>
                           {/* <button
                             onClick={(e) => {
@@ -158,10 +161,10 @@ export function WebDerivedKnowledgeTable({
                                 onIndex(document.id);
                               }}
                               className="text-xs text-green-600 hover:underline flex items-center gap-1"
-                              title="Index web derived knowledge"
+                              title={t("documents.webKnowledge.tooltipIndex")}
                             >
                               <Database className="h-3 w-3" />
-                              Index
+                              {t("documents.webKnowledge.actionIndex")}
                             </button>
                           )}
                         </>

@@ -22,8 +22,10 @@ import {
   type StudentStats,
 } from "@/services/dashboardService";
 import { ProfileBanner } from "../instructorProfile";
+import { useTranslation } from "react-i18next";
 
 export function Dashboard() {
+  const { t } = useTranslation();
   const { instructorId } = useInstructor();
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState<DashboardStats>({
@@ -65,7 +67,7 @@ export function Dashboard() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-full">
-        <LoadingState message="Loading dashboard data..." size="large" />
+        <LoadingState message={t('dashboard.loadingMessage')} size="large" />
       </div>
     );
   }
@@ -77,11 +79,11 @@ export function Dashboard() {
       {/* Overview Section */}
       <div className="mx-6 p-3 space-y-6 overflow-y-auto pb-16">
         <section>
-          <Small className="text-xl font-semibold mb-4 block">Overview</Small>
+          <Small className="text-xl font-semibold mb-4 block">{t('dashboard.overview')}</Small>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="p-4 border rounded-lg bg-card">
               <div className="flex justify-between items-center mb-2">
-                <Small className="font-medium">Assistants Created</Small>
+                <Small className="font-medium">{t('dashboard.assistantsCreated')}</Small>
                 <div className="p-2 bg-primary/10 rounded-full text-primary">
                   <Layout className="h-5 w-5" />
                 </div>
@@ -90,13 +92,13 @@ export function Dashboard() {
                 {stats.assistantsCount}
               </Small>
               <ExtraSmall className="text-muted-foreground block">
-                Total AI assistants you've created
+                {t('dashboard.totalAIAssistants')}
               </ExtraSmall>
             </div>
 
             <div className="p-4 border rounded-lg bg-card">
               <div className="flex justify-between items-center mb-2">
-                <Small className="font-medium">Documents Uploaded</Small>
+                <Small className="font-medium">{t('dashboard.documentsUploaded')}</Small>
                 <div className="p-2 bg-primary/10 rounded-full text-primary">
                   <FileText className="h-5 w-5" />
                 </div>
@@ -105,13 +107,13 @@ export function Dashboard() {
                 {stats.documentsCount}
               </Small>
               <ExtraSmall className="text-muted-foreground block">
-                Total documents in your library
+                {t('dashboard.totalDocuments')}
               </ExtraSmall>
             </div>
 
             <div className="p-4 border rounded-lg bg-card">
               <div className="flex justify-between items-center mb-2">
-                <Small className="font-medium">Active Students</Small>
+                <Small className="font-medium">{t('dashboard.activeStudents')}</Small>
                 <div className="p-2 bg-primary/10 rounded-full text-primary">
                   <Users className="h-5 w-5" />
                 </div>
@@ -120,7 +122,7 @@ export function Dashboard() {
                 {stats.activeStudentsCount}
               </Small>
               <ExtraSmall className="text-muted-foreground block">
-                Students learning from your assistants
+                {t('dashboard.studentsLearning')}
               </ExtraSmall>
             </div>
           </div>
@@ -129,15 +131,15 @@ export function Dashboard() {
         {/* Assistant Activity Section */}
         <section className="mt-8">
           <Small className="text-xl font-semibold mb-4 block">
-            Assistant Activity
+            {t('dashboard.assistantActivity')}
           </Small>
           <div className="border rounded-lg bg-card overflow-hidden">
             <div className="p-4 border-b">
               <Small className="text-lg block">
-                Top Assistants by Interaction
+                {t('dashboard.topAssistants')}
               </Small>
               <ExtraSmall className="text-muted-foreground block">
-                Performance metrics for your AI assistants
+                {t('dashboard.performanceMetrics')}
               </ExtraSmall>
             </div>
             <div className="p-4">
@@ -145,16 +147,16 @@ export function Dashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      <Small>Assistant Name</Small>
+                      <Small>{t('dashboard.assistantName')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Total Interactions</Small>
+                      <Small>{t('dashboard.totalInteractions')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Chat Count</Small>
+                      <Small>{t('dashboard.chatCount')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Completion Rate</Small>
+                      <Small>{t('dashboard.completionRate')}</Small>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -200,10 +202,10 @@ export function Dashboard() {
             </div>
             <div className="p-4 border-t flex justify-between">
               <ExtraSmall className="text-muted-foreground block">
-                Data based on interactions from the last 30 days
+                {t('dashboard.dataBasedOn30Days')}
               </ExtraSmall>
               <ExtraSmall className="text-primary cursor-pointer block">
-                View full report
+                {t('dashboard.viewFullReport')}
               </ExtraSmall>
             </div>
           </div>
@@ -211,12 +213,12 @@ export function Dashboard() {
 
         {/* Documents Section */}
         <section className="mt-8">
-          <Small className="text-xl font-semibold mb-4 block">Documents</Small>
+          <Small className="text-xl font-semibold mb-4 block">{t('dashboard.documents')}</Small>
           <div className="border rounded-lg bg-card overflow-hidden">
             <div className="p-4 border-b">
-              <Small className="text-lg block">Document Analytics</Small>
+              <Small className="text-lg block">{t('dashboard.documentAnalytics')}</Small>
               <ExtraSmall className="text-muted-foreground block">
-                View metrics for your uploaded documents
+                {t('dashboard.viewMetrics')}
               </ExtraSmall>
             </div>
             <div className="p-4">
@@ -224,16 +226,16 @@ export function Dashboard() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      <Small>Document</Small>
+                      <Small>{t('dashboard.document')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Type</Small>
+                      <Small>{t('dashboard.type')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Views</Small>
+                      <Small>{t('dashboard.views')}</Small>
                     </TableHead>
                     <TableHead>
-                      <Small>Upload Date</Small>
+                      <Small>{t('dashboard.uploadDate')}</Small>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
@@ -263,7 +265,7 @@ export function Dashboard() {
             </div>
             <div className="p-4 border-t">
               <ExtraSmall className="text-primary cursor-pointer block">
-                View all documents
+                {t('dashboard.viewAllDocuments')}
               </ExtraSmall>
             </div>
           </div>
@@ -271,12 +273,12 @@ export function Dashboard() {
 
         {/* Students Section */}
         <section className="mt-8">
-          <Small className="text-xl font-semibold mb-4 block">Students</Small>
+          <Small className="text-xl font-semibold mb-4 block">{t('dashboard.students')}</Small>
           <div className="border rounded-lg bg-card overflow-hidden">
             <div className="p-4 border-b">
-              <Small className="text-lg block">Student Progress</Small>
+              <Small className="text-lg block">{t('dashboard.studentProgress')}</Small>
               <ExtraSmall className="text-muted-foreground block">
-                Current learning status of your students
+                {t('dashboard.currentLearningStatus')}
               </ExtraSmall>
             </div>
             <div className="p-4">
@@ -313,14 +315,14 @@ export function Dashboard() {
                     <div className="text-right">
                       <div>
                         <ExtraSmall className="text-xs text-muted-foreground">
-                          Last active
+                          {t('dashboard.lastActive')}
                         </ExtraSmall>
                         <ExtraSmall className="font-medium">
                           {new Date(student.lastActive).toLocaleDateString()}
                         </ExtraSmall>
                       </div>
                       <Badge variant="outline">
-                        <ExtraSmall>{student.progress}% Complete</ExtraSmall>
+                        <ExtraSmall>{student.progress}% {t('dashboard.complete')}</ExtraSmall>
                       </Badge>
                     </div>
                   </div>
@@ -329,7 +331,7 @@ export function Dashboard() {
             </div>
             <div className="p-4 border-t">
               <ExtraSmall className="text-primary cursor-pointer block">
-                View all students
+                {t('dashboard.viewAllStudents')}
               </ExtraSmall>
             </div>
           </div>

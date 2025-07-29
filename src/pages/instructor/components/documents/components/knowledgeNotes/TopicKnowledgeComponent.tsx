@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
@@ -24,6 +25,7 @@ export function TopicKnowledgeComponent({
   onAddTopicKnowledge,
   setShowDetails,
 }: TopicKnowledgeComponentProps) {
+  const { t } = useTranslation();
   const { metaData, setMetaData } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +55,7 @@ export function TopicKnowledgeComponent({
         }
       } catch (error) {
         console.error("Error fetching knowledge components:", error);
-        toast.error("Failed to fetch knowledge components");
+        toast.error(t("documents.knowledgeNotes.failedToFetch"));
       } finally {
         setIsLoading(false);
       }
@@ -65,7 +67,7 @@ export function TopicKnowledgeComponent({
   const handleViewDocument = async (documentId: string) => {
     try {
       // TODO: Implement view functionality
-      toast.info(`View functionality to be implemented ${documentId}`);
+      toast.info(`${t("documents.details.functionalityTBD")} ${documentId}`);
     } catch (error) {
       console.error("Error viewing document:", error);
       toast.error("Failed to view document");
@@ -75,7 +77,7 @@ export function TopicKnowledgeComponent({
   const handleEditDocument = async (documentId: string) => {
     try {
       // TODO: Implement edit functionality
-      toast.info(`Edit functionality to be implemented ${documentId}`);
+      toast.info(`${t("documents.details.functionalityTBD")} ${documentId}`);
     } catch (error) {
       console.error("Error editing document:", error);
       toast.error("Failed to edit document");
@@ -89,17 +91,17 @@ export function TopicKnowledgeComponent({
       // TODO: Implement delete API call
       // For now, just show a confirmation toast
       const confirmed = window.confirm(
-        "Are you sure you want to delete this knowledge component?"
+        t("documents.knowledgeNotes.confirmDelete")
       );
 
       if (confirmed) {
         // Remove from local state for now
         setDocuments(documents.filter((doc) => doc.id !== documentId));
-        toast.success("Knowledge component deleted successfully");
+        toast.success(t("documents.knowledgeNotes.componentDeleted"));
       }
     } catch (error) {
       console.error("Error deleting document:", error);
-      toast.error("Failed to delete document");
+      toast.error(t("documents.knowledgeNotes.failedToDelete"));
     } finally {
       setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
     }
@@ -122,7 +124,7 @@ export function TopicKnowledgeComponent({
   return (
     <div className="">
       <div className="flex items-center justify-between mb-3">
-        <Small className="font-semibold">Notes Collections</Small>
+        <Small className="font-semibold">{t("documents.knowledgeNotes.title")}</Small>
         <Button
           onClick={() => {
             onAddTopicKnowledge?.();
@@ -130,7 +132,7 @@ export function TopicKnowledgeComponent({
           className="px-3 bg-primary text-primary-foreground text-xs rounded-md hover:bg-primary/90 transition-colors"
         >
           <Plus className="h-3 w-3 mr-1" />
-          Add Notes Collection
+          {t("documents.knowledgeNotes.addCollection")}
         </Button>
       </div>
 
@@ -138,7 +140,7 @@ export function TopicKnowledgeComponent({
       <div className="mb-4">
         <input
           type="text"
-          placeholder="Search notes collections..."
+          placeholder={t("documents.knowledgeNotes.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
@@ -154,10 +156,10 @@ export function TopicKnowledgeComponent({
           {documents.length === 0 ? (
             <div className="text-center py-8 border rounded-lg">
               <h3 className="mt-2 text-xs font-medium">
-                No knowledge components found
+                {t("documents.knowledgeNotes.noComponents")}
               </h3>
               <p className="text-xs text-muted-foreground mt-1">
-                No knowledge components available
+                {t("documents.knowledgeNotes.noComponentsAvailable")}
               </p>
             </div>
           ) : (

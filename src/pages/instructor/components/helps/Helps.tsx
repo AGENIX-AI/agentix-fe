@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   fetchHelpMainTopics,
   fetchHelpTopicsByMainId,
@@ -12,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { HelpContentSidebar } from "@/pages/instructor/components/helps/HelpContentSidebar";
 
 export const Helps = () => {
+  const { t } = useTranslation();
   const [helpMainTopics, setHelpMainTopics] = useState<HelpMainTopic[]>([]);
   const [helpTopicsMap, setHelpTopicsMap] = useState<
     Record<string, HelpTopic[]>
@@ -46,7 +48,7 @@ export const Helps = () => {
 
         setError(null);
       } catch (err) {
-        setError("Failed to fetch help topics. Please try again later.");
+        setError(t("help.fetch_failed"));
         console.error("Error fetching help topics:", err);
       } finally {
         setIsLoading(false);
@@ -70,7 +72,7 @@ export const Helps = () => {
       setHelpTopicsMap((prev) => ({ ...prev, [mainTopicId]: sortedTopics }));
     } catch (err) {
       console.error("Error fetching topics for main topic:", err);
-      setError("Failed to load topics. Please try again later.");
+      setError(t("help.load_topics_failed"));
     } finally {
       setLoadingTopics((prev) => ({ ...prev, [mainTopicId]: false }));
     }
@@ -113,7 +115,7 @@ export const Helps = () => {
 
       setError(null);
     } catch (err) {
-      setError("Failed to refresh help topics. Please try again later.");
+      setError(t("help.refresh_failed"));
       console.error("Error refreshing help topics:", err);
     } finally {
       setIsLoading(false);
@@ -130,7 +132,7 @@ export const Helps = () => {
               onClick={refreshHelpData}
               className="ml-2 underline hover:no-underline"
             >
-              Retry
+              {t("help.retry")}
             </button>
           </div>
         )}
@@ -178,7 +180,7 @@ export const Helps = () => {
                       ))
                     ) : (
                       <div className="p-4 text-xs text-foreground text-center">
-                        No topics available
+                        {t("help.no_topics")}
                       </div>
                     )}
                   </div>

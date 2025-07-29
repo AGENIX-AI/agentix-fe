@@ -1,4 +1,5 @@
 import { useState, useEffect, memo, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/ui/loading-state";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,6 +40,7 @@ interface SharingTask {
 
 // Student Banner Component
 function StudentBanner() {
+  const { t } = useTranslation();
   const [sharingData, setSharingData] =
     useState<StudentSharingTopicsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -68,7 +70,7 @@ function StudentBanner() {
   if (isLoading || !sharingData) {
     return (
       <div className="sticky top-0 z-10 bg-card h-32">
-        <LoadingState message="Loading student profile..." size="medium" />
+        <LoadingState message={t("history.loadingStudentProfile")} size="medium" />
       </div>
     );
   }
@@ -92,8 +94,7 @@ function StudentBanner() {
               {sharingData.student_info.email}
             </p>
             <p className="text-xs text-muted-foreground">
-              Student - Sharing {sharingData.conversations.length} conversation
-              {sharingData.conversations.length !== 1 ? "s" : ""}
+              {t("history.studentSharing")} {sharingData.conversations.length} {sharingData.conversations.length === 1 ? t("history.conversation") : t("history.conversations")}
             </p>
           </div>
         </div>
@@ -111,6 +112,7 @@ const SharingTaskCard = memo(
     task: SharingTask;
     currentTaskStep: number;
   }) {
+    const { t } = useTranslation();
     const [isExpanded, setIsExpanded] = useState(false);
 
     const getStatus = () => {
@@ -150,7 +152,7 @@ const SharingTaskCard = memo(
                   isExpanded ? "whitespace-pre-line" : ""
                 }`}
               >
-                <ExtraSmall className="font-bold">Goal</ExtraSmall>:{" "}
+                <ExtraSmall className="font-bold">{t("history.goal")}</ExtraSmall>:{" "}
                 {task.success_condition}
               </ExtraSmall>
             </div>
@@ -159,14 +161,14 @@ const SharingTaskCard = memo(
                 <div className="mb-2">
                   <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
                     <ExtraSmall className="font-bold">
-                      Assistant Task
+                      {t("history.assistantTask")}
                     </ExtraSmall>
                     : {task.agent_task}
                   </ExtraSmall>
                 </div>
                 <div className="mb-2">
                   <ExtraSmall className="text-primary whitespace-pre-line line-clamp-3 overflow-hidden text-ellipsis">
-                    <ExtraSmall className="font-bold">User Task</ExtraSmall>:{" "}
+                    <ExtraSmall className="font-bold">{t("history.userTask")}</ExtraSmall>:{" "}
                     {task.user_task}
                   </ExtraSmall>
                 </div>
@@ -199,6 +201,7 @@ const SharingTaskCard = memo(
 
 // Sharing Tasks Component
 const SharingTasks = memo(function SharingTasks() {
+  const { t } = useTranslation();
   const [tasks, setTasks] = useState<ConversationTasksResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -206,7 +209,7 @@ const SharingTasks = memo(function SharingTasks() {
 
   const fetchTasks = useCallback(async () => {
     if (!conversationId) {
-      setError("No conversation selected");
+      setError(t("history.selectConversationToViewTasks"));
       return;
     }
 
@@ -235,7 +238,7 @@ const SharingTasks = memo(function SharingTasks() {
         <div className="flex flex-col items-center gap-6">
           <ListTodo size={48} className="text-muted-foreground" />
           <P className="text-muted-foreground text-center">
-            Select a conversation to view tasks
+            {t("history.selectConversationToViewTasks")}
           </P>
         </div>
       </div>
@@ -244,7 +247,7 @@ const SharingTasks = memo(function SharingTasks() {
 
   if (isLoading) {
     return (
-      <LoadingState message="Loading tasks..." size="medium" className="h-32" />
+      <LoadingState message={t("history.loadingTasks")} size="medium" className="h-32" />
     );
   }
 
@@ -264,10 +267,9 @@ const SharingTasks = memo(function SharingTasks() {
       <div className="h-[calc(100vh-200px)] w-full flex flex-col items-center justify-center">
         <div className="flex flex-col items-center gap-6">
           <ListTodo size={48} className="text-muted-foreground" />
-          <H4 className="font-medium">No tasks available</H4>
+          <H4 className="font-medium">{t("history.noTasksAvailable")}</H4>
           <P className="text-muted-foreground text-center max-w-md">
-            No tasks available for this conversation. Tasks may be added as the
-            conversation progresses.
+            {t("history.noTasksAvailableDescription")}
           </P>
         </div>
       </div>
@@ -283,7 +285,7 @@ const SharingTasks = memo(function SharingTasks() {
           )}
           {tasks.goal_description && (
             <div className="flex flex-col gap-1 mb-3">
-              <ExtraSmall className="font-semibold">Goal:</ExtraSmall>
+              <ExtraSmall className="font-semibold">{t("history.goal")}:</ExtraSmall>
               <ExtraSmall>{tasks.goal_description}</ExtraSmall>
             </div>
           )}
@@ -293,11 +295,11 @@ const SharingTasks = memo(function SharingTasks() {
         <Table className="w-full max-w-full table-fixed overflow-hidden">
           <TableHeader className="text-xs">
             <TableRow>
-              <TableHead style={{ width: "5%" }}>Step</TableHead>
+              <TableHead style={{ width: "5%" }}>{t("history.step")}</TableHead>
               <TableHead style={{ width: "70%" }}>
-                <ExtraSmall className="ml-4">Task Details</ExtraSmall>
+                <ExtraSmall className="ml-4">{t("history.taskDetails")}</ExtraSmall>
               </TableHead>
-              <TableHead style={{ width: "25%" }}>Status</TableHead>
+              <TableHead style={{ width: "25%" }}>{t("history.status")}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -317,6 +319,7 @@ const SharingTasks = memo(function SharingTasks() {
 
 // Sharing List Component
 function SharingList() {
+  const { t } = useTranslation();
   const [sharingData, setSharingData] =
     useState<StudentSharingTopicsResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -377,7 +380,7 @@ function SharingList() {
   if (isLoading) {
     return (
       <LoadingState
-        message="Loading sharing list..."
+        message={t("history.loadingSharingList")}
         size="medium"
         className="h-64"
       />
@@ -388,7 +391,7 @@ function SharingList() {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-center">
         <p className="text-destructive text-sm mb-2">
-          Error loading sharing list
+          {t("history.errorLoadingSharingList")}
         </p>
         <p className="text-muted-foreground text-xs">{error}</p>
       </div>
@@ -398,7 +401,7 @@ function SharingList() {
   if (!sharingData || sharingData.conversations.length === 0) {
     return (
       <div className="text-center text-muted-foreground py-8 text-sm">
-        No shared conversations available
+        {t("history.noSharedConversationsAvailable")}
       </div>
     );
   }
@@ -450,7 +453,7 @@ function SharingList() {
 
                 {/* Date */}
                 <p className="text-xs text-muted-foreground">
-                  Shared on {formatDate(conversation.created_at)}
+                  {t("history.sharedOn")} {formatDate(conversation.created_at)}
                 </p>
               </div>
             </CardContent>
@@ -463,6 +466,7 @@ function SharingList() {
 
 // Main Component with Tabs
 function SharingTopicsComponent() {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col h-full max-h-screen">
       <StudentBanner />
@@ -474,13 +478,13 @@ function SharingTopicsComponent() {
               value="tasks"
               className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
             >
-              Tasks
+              {t("history.tasks")}
             </TabsTrigger>
             <TabsTrigger
               value="list"
               className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
             >
-              List of Sharing
+              {t("history.listOfSharing")}
             </TabsTrigger>
           </TabsList>
 

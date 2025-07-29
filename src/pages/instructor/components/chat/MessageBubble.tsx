@@ -109,19 +109,19 @@ export function MessageBubble({
     if (isCurrentUser) {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Instructor)
+          ({t('chat.roles.instructor')})
         </span>
       );
     } else if (message.sender === "student") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Student)
+          ({t('chat.roles.student')})
         </span>
       );
     } else if (message.sender === "agent") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          (Assistant)
+          ({t('chat.roles.assistant')})
         </span>
       );
     }

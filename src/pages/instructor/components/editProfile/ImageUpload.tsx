@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Upload, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { uploadInstructorProfileImage } from "@/api/instructor";
+import { useTranslation } from "react-i18next";
 
 interface ImageUploadProps {
   label: string;
@@ -26,6 +27,7 @@ export function ImageUpload({
   isProfileImage = false,
   instructorName = "Instructor",
 }: ImageUploadProps) {
+  const { t } = useTranslation();
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -37,13 +39,13 @@ export function ImageUpload({
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file");
+      toast.error(t("editProfile.messages.invalidImageFile"));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB");
+      toast.error(t("editProfile.messages.imageTooLarge"));
       return;
     }
 
@@ -53,13 +55,13 @@ export function ImageUpload({
       const response = await uploadInstructorProfileImage(file);
       if (response.success) {
         onImageUrlChange(response.url);
-        toast.success("Image uploaded successfully!");
+        toast.success(t("editProfile.messages.imageUploadSuccess"));
       } else {
         throw new Error("Upload failed");
       }
     } catch (error) {
       console.error("Error uploading image:", error);
-      toast.error("Failed to upload image. Please try again.");
+      toast.error(t("editProfile.messages.imageUploadFailed"));
     } finally {
       setIsUploading(false);
       // Clear the file input

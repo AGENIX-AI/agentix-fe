@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Save, X, Upload } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   getInstructorProfile,
   updateInstructorProfile,
@@ -14,6 +15,7 @@ import {
 } from "@/api/instructor";
 
 export function EditProfile() {
+  const { t } = useTranslation();
   const [profile, setProfile] = useState<InstructorProfile | null>(null);
   const [formData, setFormData] = useState<UpdateInstructorProfileData>({
     instructor_name: "",
@@ -47,7 +49,7 @@ export function EditProfile() {
         });
       } catch (error) {
         console.error("Error fetching profile:", error);
-        toast.error("Failed to load profile data. Please try again.");
+        toast.error(t("editProfile.messages.loadFailed"));
       } finally {
         setIsFetching(false);
       }
@@ -84,7 +86,7 @@ export function EditProfile() {
     e.preventDefault();
 
     if (!hasChanges) {
-      toast.info("No changes detected");
+      toast.info(t("editProfile.messages.noChanges"));
       return;
     }
 
@@ -94,10 +96,10 @@ export function EditProfile() {
       const updatedProfile = await updateInstructorProfile(formData);
       setProfile(updatedProfile);
       setHasChanges(false);
-      toast.success("Profile updated successfully!");
+      toast.success(t("editProfile.messages.updateSuccess"));
     } catch (error) {
       console.error("Error updating profile:", error);
-      toast.error("Failed to update profile. Please try again.");
+      toast.error(t("editProfile.messages.updateFailed"));
     } finally {
       setIsLoading(false);
     }
@@ -124,13 +126,13 @@ export function EditProfile() {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file");
+      toast.error(t("editProfile.messages.invalidImageFile"));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB");
+      toast.error(t("editProfile.messages.imageTooLarge"));
       return;
     }
 
@@ -140,13 +142,13 @@ export function EditProfile() {
       const response = await uploadInstructorProfileImage(file);
       if (response.success) {
         setFormData((prev) => ({ ...prev, profile_image: response.url }));
-        toast.success("Profile image uploaded successfully!");
+        toast.success(t("editProfile.messages.profileImageSuccess"));
       } else {
         throw new Error("Upload failed");
       }
     } catch (error) {
       console.error("Error uploading profile image:", error);
-      toast.error("Failed to upload profile image. Please try again.");
+      toast.error(t("editProfile.messages.profileImageFailed"));
     } finally {
       setIsProfileUploading(false);
       // Clear the file input
@@ -164,13 +166,13 @@ export function EditProfile() {
 
     // Validate file type
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select a valid image file");
+      toast.error(t("editProfile.messages.invalidImageFile"));
       return;
     }
 
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("Image size must be less than 5MB");
+      toast.error(t("editProfile.messages.imageTooLarge"));
       return;
     }
 
@@ -180,13 +182,13 @@ export function EditProfile() {
       const response = await uploadInstructorProfileImage(file);
       if (response.success) {
         setFormData((prev) => ({ ...prev, background_image: response.url }));
-        toast.success("Background image uploaded successfully!");
+        toast.success(t("editProfile.messages.backgroundImageSuccess"));
       } else {
         throw new Error("Upload failed");
       }
     } catch (error) {
       console.error("Error uploading background image:", error);
-      toast.error("Failed to upload background image. Please try again.");
+      toast.error(t("editProfile.messages.backgroundImageFailed"));
     } finally {
       setIsBackgroundUploading(false);
       // Clear the file input
@@ -200,12 +202,12 @@ export function EditProfile() {
     return (
       <div className="flex flex-col h-full overflow-hidden">
         <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
-          <h1 className="text-2xl font-bold">Edit Profile</h1>
+          <h1 className="text-2xl font-bold">{t("editProfile.title")}</h1>
         </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="flex items-center space-x-2">
             <Loader2 className="size-4 animate-spin" />
-            <span className="text-xs">Loading profile...</span>
+            <span className="text-xs">{t("editProfile.loadingProfile")}</span>
           </div>
         </div>
       </div>
@@ -228,7 +230,7 @@ export function EditProfile() {
                 formData.background_image ||
                 "https://plus.unsplash.com/premium_photo-1701534008693-0eee0632d47a?fm=jpg&q=60&w=3000&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8d2Vic2l0ZSUyMGJhY2tncm91bmR8ZW58MHx8MHx8fDA%3D"
               }
-              alt={`${formData.instructor_name}'s background`}
+              alt={t("editProfile.backgroundAlt", { name: formData.instructor_name })}
               className="h-full w-full object-cover"
             />
 
@@ -239,7 +241,7 @@ export function EditProfile() {
               ) : (
                 <div className="text-center text-white">
                   <Upload className="size-8 mx-auto mb-2" />
-                  <p className="text-xs">Click to upload background</p>
+                  <p className="text-xs">{t("editProfile.clickToUploadBackground")}</p>
                 </div>
               )}
             </div>
@@ -286,12 +288,12 @@ export function EditProfile() {
             <div className="ml-6 mt-4">
               <div className="flex items-center space-x-2">
                 <h4 className="text-xl font-bold">
-                  {formData.instructor_name || "Instructor Name"}
+                  {formData.instructor_name || t("editProfile.instructorNameFallback")}
                 </h4>
               </div>
 
               <p className="text-xs mt-1 line-clamp-3">
-                {formData.instructor_description || "Instructor description..."}
+                {formData.instructor_description || t("editProfile.instructorDescriptionFallback")}
               </p>
             </div>
           </div>
@@ -322,12 +324,12 @@ export function EditProfile() {
           <div className="space-y-6">
             {/* Basic Information */}
             <div className="space-y-3">
-              <h2 className="font-semibold text-xs">Basic Information</h2>
+              <h2 className="font-semibold text-xs">{t("editProfile.basicInformation")}</h2>
 
               <div className="space-y-3">
                 <div>
                   <Label htmlFor="instructor_name" className="text-xs">
-                    Instructor Name
+                    {t("editProfile.instructorName")}
                   </Label>
                   <Input
                     id="instructor_name"
@@ -335,7 +337,7 @@ export function EditProfile() {
                     type="text"
                     value={formData.instructor_name}
                     onChange={handleInputChange}
-                    placeholder="Enter your name"
+                    placeholder={t("editProfile.namePlaceholder")}
                     className="mt-1 text-xs"
                     required
                     disabled={isLoading}
@@ -344,14 +346,14 @@ export function EditProfile() {
 
                 <div>
                   <Label htmlFor="instructor_description" className="text-xs">
-                    Description
+                    {t("editProfile.description")}
                   </Label>
                   <Textarea
                     id="instructor_description"
                     name="instructor_description"
                     value={formData.instructor_description}
                     onChange={handleInputChange}
-                    placeholder="Tell students about yourself, your teaching style, and what makes you unique"
+                    placeholder={t("editProfile.descriptionPlaceholder")}
                     className="mt-1 text-xs min-h-32 resize-none"
                     disabled={isLoading}
                   />
@@ -361,18 +363,18 @@ export function EditProfile() {
 
             {/* Payment Information */}
             <div className="space-y-3">
-              <h2 className="font-semibold text-xs">Payment Information</h2>
+              <h2 className="font-semibold text-xs">{t("editProfile.paymentInformation")}</h2>
 
               <div>
                 <Label htmlFor="payment_info" className="text-xs">
-                  Payment Details
+                  {t("editProfile.paymentDetails")}
                 </Label>
                 <Textarea
                   id="payment_info"
                   name="payment_info"
                   value={formData.payment_info}
                   onChange={handleInputChange}
-                  placeholder="Bank account: 1234567890, Bank name: Vietcombank"
+                  placeholder={t("editProfile.paymentPlaceholder")}
                   className="mt-1 text-xs min-h-20 resize-none"
                   disabled={isLoading}
                 />
@@ -390,7 +392,7 @@ export function EditProfile() {
                   className="h-8 text-xs"
                 >
                   <X className="size-4 mr-1" />
-                  Reset
+                  {t("editProfile.reset")}
                 </Button>
                 <Button
                   type="submit"
@@ -401,12 +403,12 @@ export function EditProfile() {
                   {isLoading ? (
                     <>
                       <Loader2 className="size-4 mr-1 animate-spin" />
-                      Saving...
+                      {t("editProfile.saving")}
                     </>
                   ) : (
                     <>
                       <Save className="size-4 mr-1" />
-                      Save Changes
+                      {t("editProfile.saveChanges")}
                     </>
                   )}
                 </Button>

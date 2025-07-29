@@ -1,4 +1,5 @@
 import { useState, useEffect, memo } from "react";
+import { useTranslation } from "react-i18next";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { createInstructorFirstConversation } from "@/api/conversations";
@@ -15,6 +16,7 @@ function SystemAssistantBlockComponent({
   systemAssistantData: SystemAssistantResponse | null;
   assistantId: string | null;
 }) {
+  const { t } = useTranslation();
   const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
     useInstructor();
 
@@ -61,7 +63,7 @@ function SystemAssistantBlockComponent({
   if (isLoading) {
     return (
       <LoadingState
-        message="Loading system assistant..."
+        message={t("history.loadingSystemAssistant")}
         size="medium"
         className="h-16 mb-4"
       />
@@ -77,10 +79,10 @@ function SystemAssistantBlockComponent({
     id: systemAssistant.id || "",
     assistants: systemAssistant.assistants,
     last_message: systemAssistant.last_message,
-    conversation_name: systemAssistant.assistants.name || "System Assistant",
+    conversation_name: systemAssistant.assistants.name || t("history.systemAssistant"),
     conversation_description:
       systemAssistant.assistants.tagline ||
-      "Support you to use the App effectively",
+      t("history.systemAssistantDescription"),
   };
 
   return (

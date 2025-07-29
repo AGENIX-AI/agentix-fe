@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { X, Loader2, Check, ChevronDown, ChevronRight } from "lucide-react";
 
@@ -40,6 +41,7 @@ export function AddWebDerivedKnowledgeSidebar({
   metaData,
   setMetaData,
 }: AddWebDerivedKnowledgeSidebarProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<"fetch" | "select">("fetch");
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -117,11 +119,11 @@ export function AddWebDerivedKnowledgeSidebar({
         setTitle(new URL(url).hostname); // Set default title to domain name
         setStep("select");
       } else {
-        toast.error("Failed to fetch URLs");
+        toast.error(t("webDerivedKnowledge.failed_to_fetch_urls"));
       }
     } catch (error) {
       console.error("Error fetching URLs:", error);
-      toast.error("Failed to fetch URLs");
+      toast.error(t("webDerivedKnowledge.failed_to_fetch_urls"));
     } finally {
       setIsLoading(false);
     }
@@ -154,7 +156,7 @@ export function AddWebDerivedKnowledgeSidebar({
         .map((item) => item.url);
 
       if (selectedUrls.length === 0) {
-        toast.error("Please select at least one URL to index");
+        toast.error(t("webDerivedKnowledge.select_at_least_one_url"));
         setIsSubmitting(false);
         return;
       }
@@ -173,15 +175,15 @@ export function AddWebDerivedKnowledgeSidebar({
           currentWebDerivedKnowledgeId: response.document_id,
         });
 
-        toast.success("Online sources indexing started");
+        toast.success(t("webDerivedKnowledge.indexing_started"));
         // Call success callback
         onSuccess();
       } else {
-        toast.error("Failed to index URLs");
+        toast.error(t("webDerivedKnowledge.failed_to_index_urls"));
       }
     } catch (error) {
       console.error("Error indexing URLs:", error);
-      toast.error("Failed to index URLs");
+      toast.error(t("webDerivedKnowledge.failed_to_index_urls"));
     } finally {
       setIsSubmitting(false);
     }
@@ -211,14 +213,25 @@ export function AddWebDerivedKnowledgeSidebar({
     return selectedCount > 0 && selectedCount < urlsByDepth[depthLevel].length;
   };
 
+  const decodeUrlForDisplay = (url: string): string => {
+    try {
+      return decodeURIComponent(url);
+    } catch (error) {
+      // If decoding fails, return the original URL
+      return url;
+    }
+  };
+
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-96 md:w-[450px] bg-background border-l border-border shadow-lg z-50 overflow-hidden flex flex-col h-screen">
+    <div className="fixed inset-y-0 right-0 w-full sm:w-96 md:w-[700px] bg-background border-l border-border shadow-lg z-50 overflow-hidden flex flex-col h-screen">
       {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-border">
+      <div className="flex items-center justify-between p-4 border-b border-border h-18">
         <h2 className="text-lg font-semibold">
-          {step === "fetch" ? "Add Online Sources" : "Select URLs to Index"}
+          {step === "fetch"
+            ? t("webDerivedKnowledge.add_online_sources")
+            : t("webDerivedKnowledge.select_urls_to_index")}
         </h2>
         <button
           onClick={onClose}
@@ -229,26 +242,28 @@ export function AddWebDerivedKnowledgeSidebar({
       </div>
 
       {/* Content */}
-      <div className="flex-grow overflow-y-auto">
+      <div className="flex-grow flex flex-col overflow-hidden">
         {step === "fetch" ? (
           <form onSubmit={handleFetchUrls} className="p-4 space-y-4">
             <div className="space-y-3">
               <div className="space-y-1">
                 <Label htmlFor="url" className="text-xs font-medium">
-                  URL to Crawl
+                  {t("webDerivedKnowledge.url_to_crawl")}
                 </Label>
                 <Input
                   id="url"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
-                  placeholder="e.g., https://www.example.com"
+                  placeholder={t("webDerivedKnowledge.url_placeholder")}
                   required
                   className="h-9 text-xs"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs font-medium">Crawl Depth</Label>
+                <Label className="text-xs font-medium">
+                  {t("webDerivedKnowledge.crawl_depth")}
+                </Label>
                 <RadioGroup
                   value={depth.toString()}
                   onValueChange={(value) => setDepth(parseInt(value))}
@@ -261,7 +276,7 @@ export function AddWebDerivedKnowledgeSidebar({
                       className="h-3 w-3"
                     />
                     <Label htmlFor="depth-0" className="text-xs">
-                      Current Page
+                      {t("webDerivedKnowledge.current_page")}
                     </Label>
                   </div>
                   <div className="flex items-center space-x-2">
@@ -271,7 +286,7 @@ export function AddWebDerivedKnowledgeSidebar({
                       className="h-3 w-3"
                     />
                     <Label htmlFor="depth-1" className="text-xs">
-                      Depth 1
+                      {t("webDerivedKnowledge.depth_1")}
                     </Label>
                   </div>
                 </RadioGroup>
@@ -279,135 +294,144 @@ export function AddWebDerivedKnowledgeSidebar({
             </div>
           </form>
         ) : (
-          <div className="p-4 space-y-4">
-            <div className="space-y-3">
-              <div className="space-y-1">
-                <Label htmlFor="title" className="text-xs font-medium">
-                  Title
-                </Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter a title for this collection"
-                  required
-                  className="h-9 text-xs"
-                />
-              </div>
-
-              <div className="space-y-1">
-                <Label htmlFor="language" className="text-xs font-medium">
-                  Language
-                </Label>
-                <Select value={language} onValueChange={setLanguage}>
-                  <SelectTrigger className="h-9 text-xs">
-                    <SelectValue placeholder="Select language" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="English">English</SelectItem>
-                    <SelectItem value="Vietnamese">Vietnamese</SelectItem>
-                    <SelectItem value="Spanish">Spanish</SelectItem>
-                    <SelectItem value="French">French</SelectItem>
-                    <SelectItem value="German">German</SelectItem>
-                    <SelectItem value="Chinese">Chinese</SelectItem>
-                    <SelectItem value="Japanese">Japanese</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Separator className="my-3" />
-
+          <div className="flex flex-col h-full">
+            <div className="p-4 pb-0 space-y-4 flex-shrink-0">
               <div className="space-y-3">
+                <div className="space-y-1">
+                  <Label htmlFor="title" className="text-xs font-medium">
+                    {t("webDerivedKnowledge.title")}
+                  </Label>
+                  <Input
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    placeholder={t("webDerivedKnowledge.title_placeholder")}
+                    required
+                    className="h-9 text-xs"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <Label htmlFor="language" className="text-xs font-medium">
+                    {t("webDerivedKnowledge.language")}
+                  </Label>
+                  <Select value={language} onValueChange={setLanguage}>
+                    <SelectTrigger className="h-9 text-xs">
+                      <SelectValue
+                        placeholder={t("webDerivedKnowledge.select_language")}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="English">English</SelectItem>
+                      <SelectItem value="Vietnamese">Vietnamese</SelectItem>
+                      <SelectItem value="Spanish">Spanish</SelectItem>
+                      <SelectItem value="French">French</SelectItem>
+                      <SelectItem value="German">German</SelectItem>
+                      <SelectItem value="Chinese">Chinese</SelectItem>
+                      <SelectItem value="Japanese">Japanese</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Separator className="my-3" />
+
                 <Label className="text-xs font-medium">
-                  Available URLs ({crawlUrls.filter((u) => u.selected).length}/
-                  {crawlUrls.length} selected)
+                  {t("webDerivedKnowledge.available_urls", {
+                    selected: crawlUrls.filter((u) => u.selected).length,
+                    total: crawlUrls.length,
+                  })}
                 </Label>
-                <ScrollArea className="h-[400px] pr-2">
-                  <div className="space-y-3">
-                    {Object.keys(urlsByDepth)
-                      .map(Number)
-                      .sort((a, b) => a - b)
-                      .map((depthLevel) => (
-                        <div key={depthLevel} className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <div
-                              className="flex items-center space-x-2 flex-1 cursor-pointer"
-                              onClick={() =>
-                                handleToggleDepth(
-                                  depthLevel,
-                                  !isDepthFullySelected(depthLevel)
-                                )
-                              }
-                            >
-                              <div
-                                className={`w-4 h-4 flex items-center justify-center rounded border ${
-                                  isDepthFullySelected(depthLevel)
-                                    ? "bg-primary border-primary"
-                                    : "border-gray-300 dark:border-gray-600"
-                                }`}
-                              >
-                                {isDepthFullySelected(depthLevel) && (
-                                  <Check className="h-2.5 w-2.5 text-primary-foreground" />
-                                )}
-                                {isDepthPartiallySelected(depthLevel) && (
-                                  <div className="w-2 h-2 bg-primary rounded-sm" />
-                                )}
-                              </div>
-                              <span className="font-medium text-xs">
-                                Depth {depthLevel}
-                              </span>
-                            </div>
-                            <div className="flex items-center space-x-2">
-                              <span className="text-xs text-muted-foreground">
-                                {getSelectedCountForDepth(depthLevel)}
-                              </span>
-                              <button
-                                type="button"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  toggleDepthExpansion(depthLevel);
-                                }}
-                                className="p-0.5 hover:bg-muted rounded"
-                              >
-                                {expandedDepths[depthLevel] ? (
-                                  <ChevronDown className="h-3 w-3" />
-                                ) : (
-                                  <ChevronRight className="h-3 w-3" />
-                                )}
-                              </button>
-                            </div>
-                          </div>
-                          {expandedDepths[depthLevel] && (
-                            <div className="pl-6 space-y-2">
-                              {urlsByDepth[depthLevel].map((item) => (
-                                <div
-                                  key={item.url}
-                                  className="flex items-start space-x-2 cursor-pointer"
-                                  onClick={() => handleToggleUrl(item.url)}
-                                >
-                                  <div
-                                    className={`w-3.5 h-3.5 mt-0.5 flex items-center justify-center rounded border ${
-                                      item.selected
-                                        ? "bg-primary border-primary"
-                                        : "border-gray-300 dark:border-gray-600"
-                                    }`}
-                                  >
-                                    {item.selected && (
-                                      <Check className="h-2 w-2 text-primary-foreground" />
-                                    )}
-                                  </div>
-                                  <span className="text-xs break-all leading-tight">
-                                    {item.url}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                  </div>
-                </ScrollArea>
               </div>
+            </div>
+
+            <div className="flex-1 px-4 pb-4 min-h-0">
+              <ScrollArea className="h-full pr-2">
+                <div className="space-y-3">
+                  {Object.keys(urlsByDepth)
+                    .map(Number)
+                    .sort((a, b) => a - b)
+                    .map((depthLevel) => (
+                      <div key={depthLevel} className="space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div
+                            className="flex items-center space-x-2 flex-1 cursor-pointer"
+                            onClick={() =>
+                              handleToggleDepth(
+                                depthLevel,
+                                !isDepthFullySelected(depthLevel)
+                              )
+                            }
+                          >
+                            <div
+                              className={`w-4 h-4 flex items-center justify-center rounded border ${
+                                isDepthFullySelected(depthLevel)
+                                  ? "bg-primary border-primary"
+                                  : "border-gray-300 dark:border-gray-600"
+                              }`}
+                            >
+                              {isDepthFullySelected(depthLevel) && (
+                                <Check className="h-2.5 w-2.5 text-primary-foreground" />
+                              )}
+                              {isDepthPartiallySelected(depthLevel) && (
+                                <div className="w-2 h-2 bg-primary rounded-sm" />
+                              )}
+                            </div>
+                            <span className="font-medium text-xs">
+                              {t("webDerivedKnowledge.depth_level", {
+                                level: depthLevel,
+                              })}
+                            </span>
+                          </div>
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xs text-muted-foreground">
+                              {getSelectedCountForDepth(depthLevel)}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                toggleDepthExpansion(depthLevel);
+                              }}
+                              className="p-0.5 hover:bg-muted rounded"
+                            >
+                              {expandedDepths[depthLevel] ? (
+                                <ChevronDown className="h-3 w-3" />
+                              ) : (
+                                <ChevronRight className="h-3 w-3" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+                        {expandedDepths[depthLevel] && (
+                          <div className="pl-6 space-y-2">
+                            {urlsByDepth[depthLevel].map((item) => (
+                              <div
+                                key={item.url}
+                                className="flex items-start space-x-2 cursor-pointer"
+                                onClick={() => handleToggleUrl(item.url)}
+                              >
+                                <div
+                                  className={`w-3.5 h-3.5 mt-0.5 flex items-center justify-center rounded border ${
+                                    item.selected
+                                      ? "bg-primary border-primary"
+                                      : "border-gray-300 dark:border-gray-600"
+                                  }`}
+                                >
+                                  {item.selected && (
+                                    <Check className="h-2 w-2 text-primary-foreground" />
+                                  )}
+                                </div>
+                                <span className="text-xs break-all leading-tight">
+                                  {decodeUrlForDisplay(item.url)}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              </ScrollArea>
             </div>
           </div>
         )}
@@ -425,10 +449,10 @@ export function AddWebDerivedKnowledgeSidebar({
             {isLoading ? (
               <>
                 <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                Fetching URLs...
+                {t("webDerivedKnowledge.fetching_urls")}
               </>
             ) : (
-              "Fetch URLs"
+              t("webDerivedKnowledge.fetch_urls")
             )}
           </Button>
         ) : (
@@ -439,7 +463,7 @@ export function AddWebDerivedKnowledgeSidebar({
               disabled={isSubmitting}
               className="flex-1 h-9 text-xs"
             >
-              Back
+              {t("webDerivedKnowledge.back")}
             </Button>
             <Button
               type="submit"
@@ -450,10 +474,10 @@ export function AddWebDerivedKnowledgeSidebar({
               {isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-3 w-3 animate-spin" />
-                  Indexing...
+                  {t("webDerivedKnowledge.indexing")}
                 </>
               ) : (
-                "Index URLs"
+                t("webDerivedKnowledge.index_urls")
               )}
             </Button>
           </div>

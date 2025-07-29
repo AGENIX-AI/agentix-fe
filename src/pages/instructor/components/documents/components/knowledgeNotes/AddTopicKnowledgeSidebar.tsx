@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 import { createTopicKnowledge, type Framework } from "@/api/documents";
 import { Button } from "@/components/ui/button";
@@ -29,6 +30,7 @@ export function AddTopicKnowledgeSidebar({
   setMetaData,
   metaData,
 }: AddTopicKnowledgeSidebarProps) {
+  const { t } = useTranslation();
   const [title, setTitle] = useState("");
   const [language, setLanguage] = useState<string>("");
   const [framework, setFramework] = useState<Framework>("FWOH");
@@ -36,12 +38,12 @@ export function AddTopicKnowledgeSidebar({
 
   const handleSubmit = async () => {
     if (!title.trim()) {
-      toast.error("Please enter a title");
+      toast.error(t("documents.knowledgeNotes.enterTitle"));
       return;
     }
 
     if (!language) {
-      toast.error("Please select a language");
+      toast.error(t("documents.knowledgeNotes.selectLanguage"));
       return;
     }
 
@@ -55,7 +57,7 @@ export function AddTopicKnowledgeSidebar({
       });
 
       if (createResponse.document_id) {
-        toast.success("Knowledge component created successfully!");
+        toast.success(t("documents.knowledgeNotes.created"));
         setMetaData({
           ...metaData,
           currentTopicKnowledgeId: createResponse.document_id,
@@ -65,7 +67,7 @@ export function AddTopicKnowledgeSidebar({
       }
     } catch (error) {
       console.error("Error creating knowledge component:", error);
-      toast.error("Failed to create knowledge component");
+      toast.error(t("documents.knowledgeNotes.failedToCreate"));
     } finally {
       setIsSubmitting(false);
     }
@@ -96,7 +98,7 @@ export function AddTopicKnowledgeSidebar({
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
-          <h2 className="text-lg font-semibold">Add Notes</h2>
+          <h2 className="text-lg font-semibold">{t("documents.knowledgeNotes.addNotes")}</h2>
           <Button
             variant="ghost"
             size="icon"
@@ -112,34 +114,34 @@ export function AddTopicKnowledgeSidebar({
           {/* Title Input */}
           <div className="space-y-2">
             <Label htmlFor="title" className="text-xs">
-              Title
+              {t("documents.knowledgeNotes.titleLabel")}
             </Label>
             <Input
               id="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Enter knowledge component title"
+              placeholder={t("documents.knowledgeNotes.titlePlaceholder")}
               disabled={isSubmitting}
             />
           </div>
 
           {/* Language Selection */}
           <div className="space-y-2">
-            <Label className="text-xs">Language</Label>
+            <Label className="text-xs">{t("documents.knowledgeNotes.languageLabel")}</Label>
             <Select
               value={language}
               onValueChange={setLanguage}
               disabled={isSubmitting}
             >
               <SelectTrigger className="text-xs">
-                <SelectValue placeholder="Select language" />
+                <SelectValue placeholder={t("documents.knowledgeNotes.languagePlaceholder")} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="English" className="text-xs">
-                  English
+                  {t("documents.languages.english")}
                 </SelectItem>
                 <SelectItem value="Vietnamese" className="text-xs">
-                  Vietnamese
+                  {t("documents.languages.vietnamese")}
                 </SelectItem>
               </SelectContent>
             </Select>
@@ -154,7 +156,7 @@ export function AddTopicKnowledgeSidebar({
             disabled={isSubmitting}
             className="text-xs"
           >
-            Cancel
+            {t("documents.common.cancel")}
           </Button>
           <Button
             onClick={handleSubmit}
@@ -164,12 +166,12 @@ export function AddTopicKnowledgeSidebar({
             {isSubmitting ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin text-primary" />
-                Creating...
+                {t("documents.knowledgeNotes.creating")}
               </>
             ) : (
               <>
                 <Check className="h-4 w-4 mr-2 text-primary" />
-                Create Notes Collection
+                {t("documents.knowledgeNotes.addCollection")}
               </>
             )}
           </Button>

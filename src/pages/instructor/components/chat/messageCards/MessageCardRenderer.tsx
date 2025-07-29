@@ -15,6 +15,7 @@ import { LearningDiscussCard } from "./LearningDiscussCard";
 import { LearningTopicCard } from "./LearningTopicCard";
 import { CreateDocumentFromChatCard } from "./CreateDocumentFromChatCard";
 import { TrainingTopicRefCard } from "./TrainingTopicRefCard";
+import { useTranslation } from "react-i18next";
 
 interface MessageCardRendererProps {
   card: MessageCard;
@@ -29,6 +30,7 @@ export function MessageCardRenderer({
 }: MessageCardRendererProps) {
   // Use conditional rendering for different card types
   const { handleNewMessage } = useChatContext();
+  const { t } = useTranslation();
   if (isLearningTopicMessageCard(card)) {
     return <LearningTopicCard card={card} className={className} />;
   } else if (isTopicMessageCard(card)) {
@@ -72,7 +74,7 @@ export function MessageCardRenderer({
   // Default case - unknown card type
   return (
     <div className="text-sm text-muted-foreground p-2 border rounded-md">
-      <Small>Unknown message card type: {card.type as string}</Small>
+      <Small>{t('chat.messageCards.unknownType')}: {card.type as string}</Small>
     </div>
   );
 }

@@ -5,6 +5,7 @@ import { ExtraSmall, Small } from "@/components/ui/typography";
 import { cn } from "@/lib/utils";
 import type { TrainingTopicRefMessageCard } from "./types";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { useTranslation } from "react-i18next";
 
 interface TrainingTopicRefCardProps {
   card: TrainingTopicRefMessageCard;
@@ -21,6 +22,7 @@ export function TrainingTopicRefCard({
   card,
   className,
 }: TrainingTopicRefCardProps) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const { setRightPanel, setMetaData, metaData } = useInstructor();
 
@@ -52,7 +54,7 @@ export function TrainingTopicRefCard({
       <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
-            <Small className="font-bold">Training Topic Reference</Small>
+            <Small className="font-bold">{t('chat.messageCards.trainingTopicReference')}</Small>
           </div>
           <Separator className="my-3" />
         </div>
@@ -62,7 +64,7 @@ export function TrainingTopicRefCard({
         <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
-              <ExtraSmall className="font-bold text-primary">Title</ExtraSmall>
+              <ExtraSmall className="font-bold text-primary">{t('chat.messageCards.title')}</ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
               {card.title}
@@ -79,7 +81,7 @@ export function TrainingTopicRefCard({
           onClick={handleGoToDocument}
           className="text-xs flex-1 max-w-[150px]"
         >
-          View Document
+          {t('chat.messageCards.viewDocument')}
         </Button>
       </div>
     </div>

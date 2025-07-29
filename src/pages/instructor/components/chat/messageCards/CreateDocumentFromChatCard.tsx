@@ -7,6 +7,7 @@ import { FileIcon, FileText, Loader2, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useInstructor } from "@/contexts/InstructorContext";
+import { useTranslation } from "react-i18next";
 
 interface CreateDocumentFromChatCardProps {
   card: CreateDocumentFromChatMessageCard;
@@ -25,6 +26,7 @@ export function CreateDocumentFromChatCard({
   handleNewMessage,
   invocation_id,
 }: CreateDocumentFromChatCardProps) {
+  const { t } = useTranslation();
   const [isVisible, setIsVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,7 @@ export function CreateDocumentFromChatCard({
       setRightPanel("reviewDocument");
     } catch (error) {
       console.error("Error opening document:", error);
-      setError("Failed to open document for review");
+      setError(t('chat.messageCards.failedToOpen'));
     } finally {
       setIsLoading(false);
     }
@@ -69,7 +71,7 @@ export function CreateDocumentFromChatCard({
     if (handleNewMessage && invocation_id) {
       handleNewMessage({
         sender: "instructor",
-        content: `Document at ${card.filepath} has been submitted.`,
+        content: t('chat.messageCards.documentSubmitted', { filepath: card.filepath }),
         invocation_id: invocation_id,
       });
     }
@@ -91,7 +93,7 @@ export function CreateDocumentFromChatCard({
           <div className="text-primary">
             <div className="flex items-center gap-2">
               <FileIcon size={16} />
-              <Small className="font-bold">Document Created</Small>
+              <Small className="font-bold">{t('chat.messageCards.documentCreated')}</Small>
             </div>
             {error && (
               <Alert variant="destructive" className="mt-2">
@@ -110,7 +112,7 @@ export function CreateDocumentFromChatCard({
               <div className="flex flex-col space-y-1">
                 <div className="flex items-center gap-3">
                   <ExtraSmall className="font-bold text-primary">
-                    Topic
+                    {t('chat.messageCards.topic')}
                   </ExtraSmall>
                 </div>
                 <ExtraSmall className="text-xs text-foreground">
@@ -131,17 +133,17 @@ export function CreateDocumentFromChatCard({
               {isLoading ? (
                 <>
                   <Loader2 size={14} className="mr-1 animate-spin" />
-                  Loading...
+                  {t('chat.messageCards.loading')}
                 </>
               ) : (
                 <>
                   <FileText size={14} />
-                  Open
+                  {t('chat.messageCards.open')}
                 </>
               )}
             </Button>
             <Button size="sm" onClick={handleSubmit}>
-              Submit
+              {t('chat.messageCards.submit')}
             </Button>
           </div>
         </div>

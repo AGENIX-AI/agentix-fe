@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import type { LearningTopicMessageCard } from "./types";
 import { Separator } from "@/components/ui/separator";
 import { ExtraSmall, Small } from "@/components/ui/typography";
+import { useTranslation } from "react-i18next";
 
 interface LearningTopicCardProps {
   card: LearningTopicMessageCard;
@@ -9,6 +10,8 @@ interface LearningTopicCardProps {
 }
 
 export function LearningTopicCard({ card, className }: LearningTopicCardProps) {
+  const { t } = useTranslation();
+  
   const cardContent = (
     <div
       className={cn(
@@ -24,7 +27,7 @@ export function LearningTopicCard({ card, className }: LearningTopicCardProps) {
             <Small className="font-bold">{card.topic_name}</Small>
             {card.language && (
               <ExtraSmall className="text-primary">
-                Language: {card.language}
+                {t('chat.messageCards.language')}: {card.language}
               </ExtraSmall>
             )}
           </div>
@@ -37,7 +40,7 @@ export function LearningTopicCard({ card, className }: LearningTopicCardProps) {
         <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
-              <ExtraSmall className="font-bold text-primary">Focus</ExtraSmall>
+              <ExtraSmall className="font-bold text-primary">{t('chat.messageCards.focus')}</ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
               {card.focus_on}

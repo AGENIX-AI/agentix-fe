@@ -208,14 +208,14 @@ export function HistoryComponent({
                       className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
-                        isHistoryVisible ? "Collapse history" : "Expand history"
+                        isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")
                       }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {isHistoryVisible ? "Collapse history" : "Expand history"}
+                    {isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -241,7 +241,7 @@ export function HistoryComponent({
                         )}
                         onClick={() => handleAvatarClick(systemAssistant, true)}
                         title={
-                          systemAssistant.assistants?.name || "Edvara Assistant"
+                          systemAssistant.assistants?.name || t("history.edvaraAssistant")
                         }
                       >
                         <Avatar className="overflow-hidden h-5 w-5">
@@ -263,7 +263,7 @@ export function HistoryComponent({
                           "justify-center"
                         )}
                         onClick={() => handleAvatarClick(conversation, false)}
-                        title={conversation.assistants?.name || "Assistant"}
+                        title={conversation.assistants?.name || t("history.assistant")}
                       >
                         <Avatar className="overflow-hidden h-5 w-5">
                           <AvatarImage
@@ -333,14 +333,14 @@ export function HistoryComponent({
                       className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
-                        isHistoryVisible ? "Collapse history" : "Expand history"
+                        isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")
                       }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {isHistoryVisible ? "Collapse history" : "Expand history"}
+                    {isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")}
                   </TooltipContent>
                 </Tooltip>
                 <Large>{t("student.history.title")}</Large>
@@ -365,7 +365,7 @@ export function HistoryComponent({
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="font-medium text-xs">Assistants</span>
+                      <span className="font-medium text-xs">{t("history.assistants")}</span>
                     </div>
                   </div>
 
@@ -411,7 +411,7 @@ export function HistoryComponent({
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                       <span className="font-medium text-xs">
-                        Training Topics
+                        {t("history.trainingTopics")}
                       </span>
                     </div>
                   </div>
@@ -445,7 +445,7 @@ export function HistoryComponent({
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
                       <span className="font-medium text-xs ">
-                        Collaborative Topics
+                        {t("history.collaborativeTopics")}
                       </span>
                     </div>
                   </div>

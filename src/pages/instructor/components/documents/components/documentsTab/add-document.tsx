@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
+import { useTranslation } from "react-i18next";
 
 import { EmbeddedDocumentsComponent } from "./ownDocuments";
 import DocumentDetailsView from "./components/DocumentDetailsView";
@@ -30,6 +31,7 @@ export interface ApiDocument {
 // Response types are defined inline where needed
 
 export default function AddDocument() {
+  const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
   const [isLoadingImages, setIsLoadingImages] = useState(false);
   const [documentImages, setDocumentImages] = useState<string[]>([]);
@@ -93,7 +95,7 @@ export default function AddDocument() {
       setDocumentImages(imageUrls);
     } catch (err) {
       console.error("Error fetching document images:", err);
-      setError("Failed to fetch document images.");
+      setError(t("documents.documentsTab.failedToFetchImages"));
     } finally {
       setIsLoadingImages(false);
     }
@@ -101,7 +103,7 @@ export default function AddDocument() {
 
   // Handle successful document upload
   const handleUploadSuccess = async (documentId: string) => {
-    setSuccessMessage("Document successfully uploaded!");
+    setSuccessMessage(t("documents.documentsTab.uploadSuccess"));
     setCurrentDocumentId(documentId);
     await fetchDocumentImages(documentId);
     setShowImageSidebar(true);
@@ -164,7 +166,7 @@ export default function AddDocument() {
     isAllImages = false
   ) => {
     if (!currentDocumentId) {
-      setError("No document selected for submission.");
+      setError(t("documents.documentsTab.noDocumentSelected"));
       return;
     }
 
@@ -209,10 +211,11 @@ export default function AddDocument() {
 
       const messageText =
         imagesToSubmit.length > 0
-          ? `Image index updated successfully! ${
-              result.remaining_files.length
-            } images ${isAllImages ? "submitted" : "selected"}.`
-          : "Document submitted successfully with no images.";
+          ? t("documents.documentsTab.imageIndexUpdated", {
+              count: result.remaining_files.length,
+              type: isAllImages ? t("documents.documentsTab.submitted") : t("documents.documentsTab.selected")
+            })
+          : t("documents.documentsTab.documentSubmittedNoImages");
 
       // Show success toast and close sidebar immediately
       toast.success(messageText);
@@ -225,7 +228,7 @@ export default function AddDocument() {
       setRefreshDocuments((prev) => prev + 1);
     } catch (err) {
       console.error("Error updating image index:", err);
-      setError("Failed to update image index. Please try again.");
+      setError(t("documents.documentsTab.failedToUpdateIndex"));
     } finally {
       setIsSubmittingImages(false);
     }
@@ -299,7 +302,7 @@ export default function AddDocument() {
           <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
-              <h2 className="text-lg font-semibold">Add Document</h2>
+              <h2 className="text-lg font-semibold">{t("documents.documentsTab.addDocument")}</h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -349,7 +352,7 @@ export default function AddDocument() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold">Document Images</h2>
+                <h2 className="text-lg font-semibold">{t("documents.documentsTab.documentImages")}</h2>
                 {documentImages.length > 0 && !isSubmittingImages && (
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -362,7 +365,7 @@ export default function AddDocument() {
                       disabled={isSubmittingImages}
                     />
                     <Label htmlFor="select-all" className="text-xs">
-                      Select All ({selectedImages.length}/
+                      {t("documents.documentsTab.selectAll")} ({selectedImages.length}/
                       {documentImages.length})
                     </Label>
                   </div>
@@ -386,8 +389,8 @@ export default function AddDocument() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                   <p className="text-xs text-muted-foreground">
                     {isSubmittingImages
-                      ? "Submitting images..."
-                      : "Loading document images..."}
+                      ? t("documents.documentsTab.submittingImages")
+                      : t("documents.documentsTab.loadingImages")}
                   </p>
                 </div>
               ) : documentImages.length > 0 ? (
@@ -409,7 +412,7 @@ export default function AddDocument() {
                         <div className="relative">
                           <img
                             src={fullImageUrl}
-                            alt={`Document page ${index + 1}`}
+                            alt={`${t("documents.documentsTab.documentPage")} ${index + 1}`}
                             className="w-full h-40 object-cover"
                             loading="lazy"
                           />
@@ -425,7 +428,7 @@ export default function AddDocument() {
                           </div>
                         </div>
                         <div className="p-2 bg-background/80 text-xs text-center">
-                          Page {index + 1}
+                          {t("documents.documentsTab.page")} {index + 1}
                         </div>
                       </div>
                     );
@@ -436,9 +439,9 @@ export default function AddDocument() {
                   <div className="p-2 rounded-full bg-accent mx-auto w-fit">
                     <Upload size={20} className="text-primary/70" />
                   </div>
-                  <p className="text-sm font-medium">No images found</p>
+                  <p className="text-sm font-medium">{t("documents.documentsTab.noImages")}</p>
                   <p className="text-xs text-muted-foreground">
-                    No images are available for this document
+                    {t("documents.documentsTab.noImagesAvailable")}
                   </p>
                 </div>
               )}
@@ -457,10 +460,10 @@ export default function AddDocument() {
                     {isSubmittingImages ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Submitting...
+                        {t("documents.documentsTab.submitting")}
                       </>
                     ) : (
-                      `Submit All Images (${documentImages.length})`
+                      `${t("documents.documentsTab.submitAllImages")} (${documentImages.length})`
                     )}
                   </Button>
 
@@ -474,10 +477,10 @@ export default function AddDocument() {
                     {isSubmittingImages ? (
                       <>
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                        Submitting...
+                        {t("documents.documentsTab.submitting")}
                       </>
                     ) : (
-                      `Submit Selected Images (${selectedImages.length})`
+                      `${t("documents.documentsTab.submitSelectedImages")} (${selectedImages.length})`
                     )}
                   </Button>
                 </>
@@ -491,10 +494,10 @@ export default function AddDocument() {
                   {isSubmittingImages ? (
                     <>
                       <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      Submitting...
+                      {t("documents.documentsTab.submitting")}
                     </>
                   ) : (
-                    "Submit Document Without Images"
+                    t("documents.documentsTab.submitWithoutImages")
                   )}
                 </Button>
               )}

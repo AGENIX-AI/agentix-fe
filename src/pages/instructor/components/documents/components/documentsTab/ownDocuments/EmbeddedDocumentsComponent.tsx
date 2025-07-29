@@ -52,7 +52,8 @@ export function EmbeddedDocumentsComponent({
   const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
   const [isLoadingReference, setIsLoadingReference] = useState(false);
   const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQueryOriginal, setSearchQueryOriginal] = useState("");
+  const [searchQueryReference, setSearchQueryReference] = useState("");
   const [currentPageOriginal, setCurrentPageOriginal] = useState(1);
   const [currentPageReference, setCurrentPageReference] = useState(1);
   const [pageSize] = useState(10);
@@ -82,7 +83,7 @@ export function EmbeddedDocumentsComponent({
         const response = await getOwnDocuments({
           page_number: currentPageOriginal,
           page_size: pageSize,
-          search: searchQuery || "",
+          search: searchQueryOriginal || "",
           type: "document",
           assistant_id: assistantId || undefined,
           sort_by: "created_at",
@@ -106,7 +107,7 @@ export function EmbeddedDocumentsComponent({
     assistantId,
     currentPageOriginal,
     pageSize,
-    searchQuery,
+    searchQueryOriginal,
     refreshTrigger,
     localRefreshTrigger,
   ]);
@@ -119,7 +120,7 @@ export function EmbeddedDocumentsComponent({
         const response = await getOwnDocuments({
           page_number: currentPageReference,
           page_size: pageSize,
-          search: searchQuery || "",
+          search: searchQueryReference || "",
           type: "document",
           assistant_id: assistantId || undefined,
           sort_by: "created_at",
@@ -143,7 +144,7 @@ export function EmbeddedDocumentsComponent({
     assistantId,
     currentPageReference,
     pageSize,
-    searchQuery,
+    searchQueryReference,
     refreshTrigger,
     localRefreshTrigger,
   ]);
@@ -466,74 +467,89 @@ export function EmbeddedDocumentsComponent({
     currentPage: number,
     setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
     totalItems: number,
-    targetMode: "original" | "reference"
+    targetMode: "original" | "reference",
+    searchQuery: string,
+    setSearchQuery: React.Dispatch<React.SetStateAction<string>>
   ) => {
-    if (isLoading) {
-      return (
-        <div className="flex justify-center items-center py-8">
-          <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        </div>
-      );
-    }
-
-    if (documents.length === 0) {
-      return (
-        <div className="text-center py-8 border rounded-lg">
-          <h3 className="mt-2 text-xs font-medium">No documents found</h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            No documents available in {targetMode} mode
-          </p>
-        </div>
-      );
-    }
-
     return (
       <div className="w-full max-w-full overflow-hidden">
-        <div className="w-full max-w-full overflow-x-auto">
-          <DocumentTable
-            documents={documents}
-            getStatusColor={getStatusColor}
-            getLinkStatus={getLinkStatus}
-            showLinkedColumn={true}
-            onLinkDocument={handleLinkDocument}
-            onUnlinkDocument={handleUnlinkDocument}
-            loadingDocumentIds={loadingDocumentIds}
-            onViewDocument={onDocumentSelect ? handleViewDocument : undefined}
-            onRowClick={onDocumentSelect}
-            renderActions={(document) => (
-              <Button
-                variant="outline"
-                size="sm"
-                className="h-7 px-2 text-xs"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleUpdateDocumentMode(
-                    document.id,
-                    targetMode === "original" ? "reference" : "original"
-                  );
-                }}
-                disabled={updatingModeDocumentId === document.id}
-              >
-                {updatingModeDocumentId === document.id ? (
-                  <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                ) : (
-                  <Repeat className="h-3 w-3 mr-1" />
-                )}
-                Switch to {targetMode === "original" ? "Reference" : "Original"}
-              </Button>
-            )}
-          />
+        {/* Search Input */}
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <input
+              type="text"
+              placeholder={`Search ${targetMode} documents...`}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+            />
+          </div>
         </div>
 
-        <div className="mt-4">
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            pageSize={pageSize}
-            documentsCount={documents.length}
-            setCurrentPage={setCurrentPage}
-          />
-        </div>
+        {isLoading ? (
+          <div className="flex justify-center items-center py-8">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : documents.length === 0 ? (
+          <div className="text-center py-8 border rounded-lg">
+            <h3 className="mt-2 text-xs font-medium">No documents found</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              No documents available in {targetMode} mode
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="w-full max-w-full overflow-x-auto">
+              <DocumentTable
+                documents={documents}
+                getStatusColor={getStatusColor}
+                getLinkStatus={getLinkStatus}
+                showLinkedColumn={true}
+                onLinkDocument={handleLinkDocument}
+                onUnlinkDocument={handleUnlinkDocument}
+                loadingDocumentIds={loadingDocumentIds}
+                onViewDocument={
+                  onDocumentSelect ? handleViewDocument : undefined
+                }
+                onRowClick={onDocumentSelect}
+                renderActions={(document) => (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="h-7 px-2 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUpdateDocumentMode(
+                        document.id,
+                        targetMode === "original" ? "reference" : "original"
+                      );
+                    }}
+                    disabled={updatingModeDocumentId === document.id}
+                  >
+                    {updatingModeDocumentId === document.id ? (
+                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    ) : (
+                      <Repeat className="h-3 w-3 mr-1" />
+                    )}
+                    Switch to{" "}
+                    {targetMode === "original" ? "Reference" : "Original"}
+                  </Button>
+                )}
+              />
+            </div>
+
+            <div className="mt-4">
+              <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                pageSize={pageSize}
+                documentsCount={documents.length}
+                setCurrentPage={setCurrentPage}
+              />
+            </div>
+          </>
+        )}
       </div>
     );
   };
@@ -548,19 +564,6 @@ export function EmbeddedDocumentsComponent({
           <Plus className="h-4 w-4" />
           <span>Add Document</span>
         </Button>
-      </div>
-
-      <div className="flex items-center space-x-2 mb-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search documents..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-          />
-        </div>
       </div>
 
       {successMessage && (
@@ -590,7 +593,9 @@ export function EmbeddedDocumentsComponent({
             currentPageOriginal,
             setCurrentPageOriginal,
             totalItemsOriginal,
-            "original"
+            "original",
+            searchQueryOriginal,
+            setSearchQueryOriginal
           )}
         </div>
 
@@ -606,7 +611,9 @@ export function EmbeddedDocumentsComponent({
             currentPageReference,
             setCurrentPageReference,
             totalItemsReference,
-            "reference"
+            "reference",
+            searchQueryReference,
+            setSearchQueryReference
           )}
         </div>
       </div>

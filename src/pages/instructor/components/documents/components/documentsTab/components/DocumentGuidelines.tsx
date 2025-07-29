@@ -1,19 +1,21 @@
 import { useState } from "react";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
+import { useTranslation } from "react-i18next";
 
 export default function DocumentGuidelines() {
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState("");
 
   // Filter guidelines based on search query
   const fileTypes = [
-    { label: "Documents (PDF, DOC, DOCX)", searchTerms: ["pdf", "doc", "docx", "documents"] },
-    { label: "Markdown (.md, .markdown)", searchTerms: ["markdown", "md"] }
+    { label: t("documents.guidelines.documentsType"), searchTerms: ["pdf", "doc", "docx", "documents"] },
+    { label: t("documents.guidelines.markdownType"), searchTerms: ["markdown", "md"] }
   ];
 
   const sizeLimits = [
-    { label: "Maximum file size: 10MB", searchTerms: ["size", "10mb", "maximum", "limit"] },
-    { label: "Recommended image resolution: 1920×1080", searchTerms: ["resolution", "1920", "1080", "image", "recommended"] }
+    { label: t("documents.guidelines.maxFileSize"), searchTerms: ["size", "10mb", "maximum", "limit"] },
+    { label: t("documents.guidelines.recommendedResolution"), searchTerms: ["resolution", "1920", "1080", "image", "recommended"] }
   ];
 
   const filteredFileTypes = fileTypes.filter(item => 

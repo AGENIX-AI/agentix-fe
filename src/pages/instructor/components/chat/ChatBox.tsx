@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { TypingIndicator } from "./TypingIndicator";
 import type { Conversation } from "@/services/conversation";
+import { useTranslation } from "react-i18next";
 
 export interface ChatBoxProps {
   messages?: Array<{
@@ -48,6 +49,7 @@ export function ChatBox({
   conversationData,
 }: ChatBoxProps) {
   const { user } = useAuth();
+  const { t } = useTranslation();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const { isChatLoading } = useInstructor();
@@ -62,8 +64,8 @@ export function ChatBox({
   }, [messages]);
 
   const placeholder = isAgentResponding
-    ? "Agent is typing..."
-    : "Type your message here...";
+    ? t('chat.chatBox.agentTyping')
+    : t('chat.chatBox.typeMessage');
   const disabled = isAgentResponding || isChatLoading;
   const typingIndicator = isAgentResponding ? (
     <TypingIndicator avatar_url={avatar_url} name={name} />
@@ -100,7 +102,7 @@ export function ChatBox({
               displayName = currentUserName;
               displayImage = currentUserImage;
             } else if (message.sender === "student") {
-              displayName = conversationData?.studentInfo?.name || "Student";
+              displayName = conversationData?.studentInfo?.name || t('chat.chatBox.student');
               displayImage = conversationData?.studentInfo?.avatar_url || "";
             } else if (message.sender === "agent") {
               displayName = name;

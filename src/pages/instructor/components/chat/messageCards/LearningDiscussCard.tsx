@@ -18,6 +18,7 @@ import {
   createGenerateTasklistLearning,
   createLearningDiscuss,
 } from "@/api/instructor";
+import { useTranslation } from "react-i18next";
 
 interface LearningDiscussCardProps {
   card: LearningDiscussMessageCard;
@@ -42,6 +43,7 @@ export function LearningDiscussCard({
   onCancel,
   invocation_id,
 }: LearningDiscussCardProps) {
+  const { t } = useTranslation();
   const { setConversationId, conversationId } = useInstructor();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
@@ -185,10 +187,10 @@ export function LearningDiscussCard({
       <div className="rounded-t-xl p-3 pb-0">
         <div className="text-primary">
           <div className="flex flex-col gap-1">
-            <Small className="font-bold">Learning Discussion</Small>
+            <Small className="font-bold">{t('chat.messageCards.learningDiscussion')}</Small>
             {card.language && (
               <ExtraSmall className="text-primary">
-                Language: {card.language}
+                {t('chat.messageCards.language')}: {card.language}
               </ExtraSmall>
             )}
           </div>
@@ -200,7 +202,7 @@ export function LearningDiscussCard({
         <div className="space-y-3">
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
-              <ExtraSmall className="font-bold text-primary">Topics</ExtraSmall>
+              <ExtraSmall className="font-bold text-primary">{t('chat.messageCards.topics')}</ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
               {card.topics}
@@ -210,7 +212,7 @@ export function LearningDiscussCard({
           <div className="flex flex-col space-y-1">
             <div className="flex items-center gap-3">
               <ExtraSmall className="font-bold text-primary">
-                Focus On
+                {t('chat.messageCards.focusOn')}
               </ExtraSmall>
             </div>
             <ExtraSmall className="text-xs text-foreground">
@@ -232,7 +234,7 @@ export function LearningDiscussCard({
             className="text-xs flex-1 max-w-[150px]"
             disabled={isLoading}
           >
-            {isLoading ? "Processing..." : "Go to Topic"}
+            {isLoading ? t('chat.messageCards.processing') : t('chat.messageCards.goToTopic')}
           </Button>
         ) : (
           <>
@@ -243,7 +245,7 @@ export function LearningDiscussCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              Cancel
+              {t('chat.messageCards.cancel')}
             </Button>
             <Button
               variant="outline"
@@ -252,7 +254,7 @@ export function LearningDiscussCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              Edit
+              {t('chat.messageCards.edit')}
             </Button>
             <Button
               variant="default"
@@ -261,7 +263,7 @@ export function LearningDiscussCard({
               className="text-xs flex-1 max-w-[100px]"
               disabled={isLoading}
             >
-              {isLoading ? "Processing..." : "Accept"}
+              {isLoading ? t('chat.messageCards.processing') : t('chat.messageCards.accept')}
             </Button>
           </>
         )}
@@ -278,11 +280,11 @@ export function LearningDiscussCard({
       <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
-            <DialogTitle>Edit Learning Discussion</DialogTitle>
+            <DialogTitle>{t('chat.messageCards.editLearningDiscussion')}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3">
             <div className="space-y-3">
-              <ExtraSmall className="font-bold">Topics</ExtraSmall>
+              <ExtraSmall className="font-bold">{t('chat.messageCards.topics')}</ExtraSmall>
               <Textarea
                 name="topics"
                 value={formData.topics}
@@ -293,7 +295,7 @@ export function LearningDiscussCard({
             </div>
 
             <div className="space-y-3">
-              <ExtraSmall className="font-bold">Focus On</ExtraSmall>
+              <ExtraSmall className="font-bold">{t('chat.messageCards.focusOn')}</ExtraSmall>
               <Textarea
                 name="focus_on"
                 value={formData.focus_on}
@@ -310,7 +312,7 @@ export function LearningDiscussCard({
               disabled={isLoading}
               className="flex-1 max-w-[120px]"
             >
-              Cancel
+              {t('chat.messageCards.cancel')}
             </Button>
 
             <Button
@@ -318,7 +320,7 @@ export function LearningDiscussCard({
               disabled={isLoading}
               className="flex-1 max-w-[120px]"
             >
-              {isLoading ? "Processing..." : "Save Changes"}
+              {isLoading ? t('chat.messageCards.processing') : t('chat.messageCards.saveChanges')}
             </Button>
           </DialogFooter>
         </DialogContent>
