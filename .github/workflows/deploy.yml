@@ -15,15 +15,17 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Send Lark notification - Deployment Started
-        run: |
-          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "msg_type": "text",
-              "content": {
-                "text": "🚀 Deployment Frontend Started\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}"
-              }
-            }'
+        uses: drayeasy/action-lark-notify@v1
+        with:
+          webhook: ${{ secrets.LARK_WEBHOOK_URL }}
+          title: "🚀 Deployment Frontend Started"
+          content: |
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Commit Message: ${{ github.event.head_commit.message }}
+            Triggered by: ${{ github.actor }}
+            Workflow: ${{ github.workflow }}
 
       - name: Deploy to DigitalOcean Server
         id: deploy
@@ -98,24 +100,32 @@ jobs:
 
       - name: Send Lark notification - Deployment Success
         if: success()
-        run: |
-          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "msg_type": "text",
-              "content": {
-                "text": "✅ Deployment Frontend Completed Successfully\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n🎉 Your application has been deployed!"
-              }
-            }'
+        uses: drayeasy/action-lark-notify@v1
+        with:
+          webhook: ${{ secrets.LARK_WEBHOOK_URL }}
+          title: "✅ Deployment Frontend Completed Successfully"
+          content: |
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Commit Message: ${{ github.event.head_commit.message }}
+            Triggered by: ${{ github.actor }}
+            Workflow: ${{ github.workflow }}
+
+            🎉 Your application has been deployed!
 
       - name: Send Lark notification - Deployment Failed
         if: failure()
-        run: |
-          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d '{
-              "msg_type": "text",
-              "content": {
-                "text": "❌ Deployment Frontend Failed\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n⚠️ Please check the workflow logs for details."
-              }
-            }'
+        uses: drayeasy/action-lark-notify@v1
+        with:
+          webhook: ${{ secrets.LARK_WEBHOOK_URL }}
+          title: "❌ Deployment Frontend Failed"
+          content: |
+            Repository: ${{ github.repository }}
+            Branch: ${{ github.ref_name }}
+            Commit: ${{ github.sha }}
+            Commit Message: ${{ github.event.head_commit.message }}
+            Triggered by: ${{ github.actor }}
+            Workflow: ${{ github.workflow }}
+
+            ⚠️ Please check the workflow logs for details.

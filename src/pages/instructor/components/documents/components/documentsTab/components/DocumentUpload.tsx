@@ -6,6 +6,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { uploadDocumentFile } from "@/api/documents";
+import { useTranslation } from "react-i18next";
 
 interface DocumentUploadProps {
   onUploadSuccess: (documentId: string) => void;
@@ -16,6 +17,7 @@ export default function DocumentUpload({
   onUploadSuccess,
   onError,
 }: DocumentUploadProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +41,7 @@ export default function DocumentUpload({
       console.log("File type: Document");
       return true;
     } else {
-      onError("Only PDFs, DOC files, and Markdown files are allowed");
+      onError(t("documents.upload.onlyPDFAllowed"));
       console.error("Invalid file type:", fileType);
       return false;
     }
@@ -66,7 +68,7 @@ export default function DocumentUpload({
       const droppedFile = e.dataTransfer.files[0];
       if (validateFile(droppedFile)) {
         setFile(droppedFile);
-        setDocumentTitle(droppedFile.name.split(".")[0] || "Document");
+        setDocumentTitle(droppedFile.name.split(".")[0] || t("documents.upload.document"));
       }
     }
   };
@@ -76,7 +78,7 @@ export default function DocumentUpload({
       const selectedFile = e.target.files[0];
       if (validateFile(selectedFile)) {
         setFile(selectedFile);
-        setDocumentTitle(selectedFile.name.split(".")[0] || "Document");
+        setDocumentTitle(selectedFile.name.split(".")[0] || t("documents.upload.document"));
       }
     }
   };
@@ -95,7 +97,7 @@ export default function DocumentUpload({
     try {
       const result = await uploadDocumentFile(
         file,
-        documentTitle || file.name.split(".")[0] || "Untitled Document",
+        documentTitle || file.name.split(".")[0] || t("documents.upload.document"),
         isParse
       );
 
@@ -113,7 +115,7 @@ export default function DocumentUpload({
       }
     } catch (err) {
       console.error("Error uploading document:", err);
-      onError("Failed to upload document. Please try again.");
+      onError(t("documents.upload.failedToUpload"));
     } finally {
       setIsLoading(false);
     }
@@ -123,8 +125,7 @@ export default function DocumentUpload({
     <div className="w-full space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs text-muted-foreground">
-          Upload your learning materials to share with students. Accepted formats:
-          PDF, DOC, and Markdown.
+          {t("documents.upload.instructions")}
         </p>
       </div>
       
@@ -132,7 +133,7 @@ export default function DocumentUpload({
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search uploaded documents..."
+          placeholder={t("documents.documentsTab.searchUploadedPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 h-8 text-xs"
@@ -159,8 +160,8 @@ export default function DocumentUpload({
             className={`${isDragging ? "text-primary" : "text-primary/70"}`}
           />
         </div>
-        <p className="text-xs font-medium mb-1">Drag and drop your file here</p>
-        <p className="text-xs text-muted-foreground mb-2">or</p>
+        <p className="text-xs font-medium mb-1">{t("documents.upload.dragDrop")}</p>
+        <p className="text-xs text-muted-foreground mb-2">{t("documents.upload.or")}</p>
 
         <input
           type="file"
@@ -176,7 +177,7 @@ export default function DocumentUpload({
           size="sm"
           className="bg-background hover:bg-accent/50 transition-colors"
         >
-          Browse files
+{t("documents.upload.browseFiles")}
         </Button>
       </div>
 
@@ -184,7 +185,7 @@ export default function DocumentUpload({
         <div className="w-full space-y-2">
           <div className="flex items-center space-x-2">
             <div className="w-1 h-3 bg-primary rounded-full"></div>
-            <p className="text-xs font-medium">Selected Document</p>
+            <p className="text-xs font-medium">{t("documents.upload.selectedDocument")}</p>
           </div>
 
           <div className="flex items-start space-x-6 p-3 border rounded-md bg-accent/5 hover:bg-accent/10 transition-colors">
@@ -199,7 +200,7 @@ export default function DocumentUpload({
               <div className="flex items-center space-x-2">
                 <p className="text-xs font-medium">{file.name}</p>
                 <span className="px-2 py-0.5 bg-success/10 text-success-foreground rounded-full text-[10px] font-medium">
-                  Document
+                  {t("documents.upload.document")}
                 </span>
               </div>
               <p className="text-xs text-muted-foreground mt-1">
@@ -208,13 +209,13 @@ export default function DocumentUpload({
 
               <div className="mt-3 space-y-2">
                 <Label htmlFor="document-title" className="text-xs">
-                  Document Title
+                  {t("documents.upload.documentTitle")}
                 </Label>
                 <Input
                   id="document-title"
                   value={documentTitle}
                   onChange={(e) => setDocumentTitle(e.target.value)}
-                  placeholder="Enter document title"
+                  placeholder={t("documents.upload.titlePlaceholder")}
                   className="h-8 text-xs"
                 />
               </div>
@@ -226,8 +227,7 @@ export default function DocumentUpload({
                   onCheckedChange={(checked) => setIsParse(checked === true)}
                 />
                 <Label htmlFor="parse-document" className="text-xs">
-                  Parse document content (extract text and create searchable
-                  index)
+                  {t("documents.upload.parseContent")}
                 </Label>
               </div>
 
@@ -241,10 +241,10 @@ export default function DocumentUpload({
                   {isLoading ? (
                     <>
                       <Loader2 className="h-3 w-3 mr-1 animate-spin" />
-                      Uploading...
+                      {t("documents.upload.uploading")}
                     </>
                   ) : (
-                    "Submit Document"
+                    t("documents.upload.submitDocument")
                   )}
                 </Button>
               </div>

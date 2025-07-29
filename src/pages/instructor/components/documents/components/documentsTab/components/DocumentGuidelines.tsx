@@ -34,7 +34,7 @@ export default function DocumentGuidelines() {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <div className="w-1 h-3 bg-muted-foreground/50 rounded-full"></div>
-          <p className="text-xs font-medium">Document Guidelines</p>
+          <p className="text-xs font-medium">{t("documents.guidelines.title")}</p>
         </div>
       </div>
       
@@ -42,7 +42,7 @@ export default function DocumentGuidelines() {
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
-          placeholder="Search guidelines..."
+          placeholder={t("documents.guidelines.searchPlaceholder")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="pl-10 h-8 text-xs"
@@ -54,7 +54,7 @@ export default function DocumentGuidelines() {
           <div className="p-3 border border-border/80 rounded-md flex-1 bg-accent/5 hover:bg-accent/10 transition-colors">
             <div className="flex items-center space-x-2 mb-1">
               <div className="w-1 h-2 bg-primary/70 rounded-full"></div>
-              <p className="text-xs font-medium">Accepted File Types</p>
+              <p className="text-xs font-medium">{t("documents.guidelines.acceptedFileTypes")}</p>
             </div>
             <ul className="text-xs text-muted-foreground space-y-1 pl-2">
               {(searchQuery === "" ? fileTypes : filteredFileTypes).map((item, index) => (
@@ -71,7 +71,7 @@ export default function DocumentGuidelines() {
           <div className="p-3 border border-border/80 rounded-md flex-1 bg-accent/5 hover:bg-accent/10 transition-colors">
             <div className="flex items-center space-x-2 mb-1">
               <div className="w-1 h-2 bg-primary/70 rounded-full"></div>
-              <p className="text-xs font-medium">Size Limits</p>
+              <p className="text-xs font-medium">{t("documents.guidelines.sizeLimit")}</p>
             </div>
             <ul className="text-xs text-muted-foreground space-y-1 pl-2">
               {(searchQuery === "" ? sizeLimits : filteredSizeLimits).map((item, index) => (
@@ -88,7 +88,7 @@ export default function DocumentGuidelines() {
       {/* No results message */}
       {searchQuery !== "" && filteredFileTypes.length === 0 && filteredSizeLimits.length === 0 && (
         <div className="text-center py-4">
-          <p className="text-xs text-muted-foreground">No guidelines found matching "{searchQuery}"</p>
+          <p className="text-xs text-muted-foreground">{t("documents.guidelines.noGuidelinesFound")} "{searchQuery}"</p>
         </div>
       )}
     </div>

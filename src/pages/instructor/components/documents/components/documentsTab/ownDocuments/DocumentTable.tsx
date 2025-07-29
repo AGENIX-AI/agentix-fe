@@ -11,6 +11,7 @@ import {
 import { Loader2, Link, Unlink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 
 interface DocumentTableProps {
   documents: Document[];
@@ -37,28 +38,29 @@ export function DocumentTable({
   onRowClick,
   renderActions,
 }: DocumentTableProps) {
+  const { t } = useTranslation();
   return (
     <div className="border rounded-lg overflow-hidden">
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 text-xs">
             <TableHead className="text-left p-2 text-xs font-medium">
-              Title
+              {t("documents.table.title")}
             </TableHead>
 
             <TableHead className="text-left p-2 text-xs font-medium">
-              Status
+              {t("documents.table.status")}
             </TableHead>
             {showLinkedColumn && (
               <TableHead className="text-left p-2 text-xs font-medium">
-                Linked
+                {t("documents.table.linked")}
               </TableHead>
             )}
             <TableHead className="text-left p-2 text-xs font-medium">
-              Created
+              {t("documents.table.created")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              Actions
+              {t("documents.table.actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -95,7 +97,7 @@ export function DocumentTable({
                       getLinkStatus(doc.linked)
                     )}
                   >
-                    {doc.linked ? "Linked" : "Not Linked"}
+                    {doc.linked ? t("documents.table.linked_status.linked") : t("documents.table.linked_status.not_linked")}
                   </span>
                 </TableCell>
               )}
@@ -111,7 +113,7 @@ export function DocumentTable({
                     }}
                     className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
                   >
-                    View
+                    {t("documents.table.view")}
                   </button>
                 )}
                 {!onViewDocument && (
@@ -122,7 +124,7 @@ export function DocumentTable({
                     className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
                     onClick={(e) => e.stopPropagation()}
                   >
-                    View
+                    {t("documents.table.view")}
                   </a>
                 )}
 

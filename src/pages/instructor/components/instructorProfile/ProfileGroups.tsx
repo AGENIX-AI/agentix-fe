@@ -3,17 +3,19 @@ import { AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { H6, ExtraSmall } from "@/components/ui/typography";
+import { useTranslation } from "react-i18next";
 
 export function ProfileGroups({
   instructorName,
 }: {
   instructorName: string | undefined;
 }) {
+  const { t } = useTranslation();
   const hasGroups = false; // You can set this based on your actual data
 
   return (
     <div className="mt-6">
-      <H6>{instructorName} Groups</H6>
+      <H6>{t("instructorProfile.instructorGroups")}</H6>
 
       {hasGroups ? (
         <div className="mt-3 space-y-6">
@@ -28,9 +30,9 @@ export function ProfileGroups({
               </AvatarFallback>
             </Avatar>
             <div className="ml-4 flex-1">
-              <H6>Harvard Business Review Discussion Group</H6>
+              <H6>{t("instructorProfile.harvardGroupName")}</H6>
               <ExtraSmall className="text-muted-foreground">
-                3M members
+                {t("instructorProfile.memberCount", { count: "3M" })}
               </ExtraSmall>
               <ExtraSmall className="text-muted-foreground mt-1 line-clamp-2">
                 At Harvard Business Review, we believe in management. If the
@@ -43,7 +45,7 @@ export function ProfileGroups({
               variant="outline"
               className="rounded-full border border-primary text-primary bg-background hover:bg-primary/10 px-6 py-1 h-8 ml-2"
             >
-              <ExtraSmall>Join</ExtraSmall>
+              <ExtraSmall>{t("instructorProfile.join")}</ExtraSmall>
             </Button>
           </div>
 
@@ -58,9 +60,9 @@ export function ProfileGroups({
               </AvatarFallback>
             </Avatar>
             <div className="ml-4 flex-1">
-              <H6>The Social Media Marketing Group</H6>
+              <H6>{t("instructorProfile.socialMediaGroupName")}</H6>
               <ExtraSmall className="text-muted-foreground">
-                3M members
+                {t("instructorProfile.memberCount", { count: "3M" })}
               </ExtraSmall>
               <ExtraSmall className="text-muted-foreground mt-1 line-clamp-2">
                 This Social Media Marketing{" "}
@@ -74,7 +76,7 @@ export function ProfileGroups({
               variant="outline"
               className="rounded-full border border-primary text-primary bg-background hover:bg-primary/10 px-6 py-1 h-8 ml-2"
             >
-              <ExtraSmall>Join</ExtraSmall>
+              <ExtraSmall>{t("instructorProfile.join")}</ExtraSmall>
             </Button>
           </div>
         </div>

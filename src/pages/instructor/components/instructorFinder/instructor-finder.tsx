@@ -91,12 +91,12 @@ const InstructorRow: React.FC<InstructorRowProps> = ({
               </Small>
               <ExtraSmall className="text-muted-foreground line-clamp-2 mt-1">
                 {instructor.instructor_description ||
-                  t("noDescriptionAvailable")}
+                  t("instructorFinder.noDescriptionAvailable")}
               </ExtraSmall>
             </div>
           </div>
           <Button variant="ghost" size="sm" className="h-8">
-            <Small>{t("view")}</Small>
+            <Small>{t("instructorFinder.view")}</Small>
           </Button>
         </div>
       </div>
@@ -168,7 +168,7 @@ export function InstructorFinder() {
         instructorDescription=""
       />
 
-      <H5 className="mb-6">{t("recommendedInstructors")}</H5>
+      <H5 className="mb-6">{t("instructorFinder.recommendedInstructors")}</H5>
 
       <form onSubmit={handleSearch} className="flex gap-2 mb-6">
         <div className="relative flex-1">
@@ -177,11 +177,11 @@ export function InstructorFinder() {
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder={t("searchByName")}
+            placeholder={t("instructorFinder.searchByName")}
             className="pl-10"
           />
         </div>
-        <Button type="submit">{t("search")}</Button>
+        <Button type="submit">{t("instructorFinder.search")}</Button>
       </form>
 
       {loading && (
@@ -197,14 +197,14 @@ export function InstructorFinder() {
       {error && (
         <Card className="bg-destructive/10 border-destructive/20 p-4 mb-6">
           <Small className="text-destructive">
-            {t("errorLoadingInstructors")}: {error}
+            {t("instructorFinder.errorLoadingInstructors")}: {error}
           </Small>
         </Card>
       )}
 
       {!loading && !error && instructors.length === 0 && (
         <div className="text-center py-12 text-muted-foreground border rounded-md bg-muted/20">
-          <Small>{t("noInstructorsFound")}</Small>
+          <Small>{t("instructorFinder.noInstructorsFound")}</Small>
         </div>
       )}
 
@@ -231,7 +231,7 @@ export function InstructorFinder() {
         {totalCount > 0 && (
           <div className="text-center mt-4 mb-2">
             <Badge variant="outline" className="bg-muted/50">
-              <Small>{t("foundInstructors", { count: totalCount })}</Small>
+              <Small>{t("instructorFinder.foundInstructors", { count: totalCount })}</Small>
             </Badge>
           </div>
         )}
