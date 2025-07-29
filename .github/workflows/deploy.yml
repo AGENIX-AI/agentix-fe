@@ -14,7 +14,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Send Lark notification - Deployment Started
+        run: |
+          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msg_type": "text",
+              "content": {
+                "text": "🚀 Deployment Started\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}"
+              }
+            }'
+
       - name: Deploy to DigitalOcean Server
+        id: deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.HOST }}
@@ -83,3 +95,27 @@ jobs:
             # sudo systemctl restart nginx
 
             echo "✅ Deployment completed successfully!"
+
+      - name: Send Lark notification - Deployment Success
+        if: success()
+        run: |
+          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msg_type": "text",
+              "content": {
+                "text": "✅ Deployment Completed Successfully\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n🎉 Your application has been deployed!"
+              }
+            }'
+
+      - name: Send Lark notification - Deployment Failed
+        if: failure()
+        run: |
+          curl -X POST "${{ secrets.LARK_WEBHOOK_URL }}" \
+            -H "Content-Type: application/json" \
+            -d '{
+              "msg_type": "text",
+              "content": {
+                "text": "❌ Deployment Failed\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n⚠️ Please check the workflow logs for details."
+              }
+            }'
