@@ -49,6 +49,8 @@ jobs:
               exit 1
             fi
 
+            ls -la
+
             # Install dependencies
             echo "📦 Installing dependencies..."
             npm ci --production=false
