@@ -371,6 +371,29 @@ export const getSystemAssistantConversation =
     return await response.json();
   };
 
+export const getAssistantConversation =
+  async (): Promise<ConversationListResponse> => {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(
+      `${baseUrl}/conversations/instructor/get_assistant_conversation`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch system assistant conversation: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  };
+
 /**
  * Get paginated list of conversations with filtering and sorting options
  * @param assistantId - The ID of the assistant to filter conversations by

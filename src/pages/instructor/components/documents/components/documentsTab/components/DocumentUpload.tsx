@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import type { DragEvent, ChangeEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, Search } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,6 +21,7 @@ export default function DocumentUpload({
   const [isLoading, setIsLoading] = useState(false);
   const [documentTitle, setDocumentTitle] = useState("");
   const [isParse, setIsParse] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Allowed file types
@@ -120,10 +121,23 @@ export default function DocumentUpload({
 
   return (
     <div className="w-full space-y-2">
-      <p className="text-xs text-muted-foreground">
-        Upload your learning materials to share with students. Accepted formats:
-        PDF, DOC, and Markdown.
-      </p>
+      <div className="flex items-center justify-between">
+        <p className="text-xs text-muted-foreground">
+          Upload your learning materials to share with students. Accepted formats:
+          PDF, DOC, and Markdown.
+        </p>
+      </div>
+      
+      {/* Search Bar */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search uploaded documents..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="pl-10 h-8 text-xs"
+        />
+      </div>
 
       <div
         className={`border-2 border-dashed rounded-lg p-4 w-full flex flex-col items-center justify-center transition-all duration-200 ${

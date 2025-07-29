@@ -2,22 +2,20 @@ import { useState, useEffect, useRef, memo } from "react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useInstructor } from "@/contexts/InstructorContext";
 import {
-  getInstructorListConversations,
   createInstructorFirstConversation,
+  getAssistantConversation,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { ConversationItem } from "./ConversationItem";
 
 interface UserConversationsBlockProps {
-  searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
   conversationsData: ConversationListItem[];
   assistantId: string | null;
 }
 
 function UserConversationsBlockComponent({
-  searchQuery,
   setIsChatLoading,
   conversationsData,
   assistantId,
@@ -30,8 +28,6 @@ function UserConversationsBlockComponent({
   );
   const conversationsRef = useRef<ConversationListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Changed to false since data comes from props
-  const [currentPage, setCurrentPage] = useState(1);
-  const pageSize = 100;
 
   // Update local state when prop changes
   useEffect(() => {
@@ -45,46 +41,19 @@ function UserConversationsBlockComponent({
   // Display loading state for the history component
   const showLoadingState = isLoading && conversations.length === 0;
 
-  const fetchConversations = async (search?: string, page: number = 1) => {
+  const fetchConversations = async () => {
     try {
       setIsLoading(true);
       console.log("fetchConversations");
-      const response = await getInstructorListConversations(
-        page,
-        pageSize,
-        "created_at",
-        1,
-        search
-      );
-      if (response.success) {
-        setConversations(response.conversations);
-        conversationsRef.current = response.conversations;
-        setCurrentPage(response.page_number);
-      }
+      const response = await getAssistantConversation();
+      setConversations(response.conversations);
+      conversationsRef.current = response.conversations;
     } catch (error) {
       console.error("Failed to fetch conversations:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  // Remove initial fetch since data comes from props
-  // Only fetch when there's a search query
-  useEffect(() => {
-    if (searchQuery) {
-      const timeoutId = setTimeout(() => {
-        fetchConversations(searchQuery, 1);
-      }, 300); // Debounce search requests
-
-      return () => clearTimeout(timeoutId);
-    } else {
-      // If no search query, use the data from props
-      if (conversationsData) {
-        setConversations(conversationsData);
-        conversationsRef.current = conversationsData;
-      }
-    }
-  }, [searchQuery, conversationsData]);
 
   // Listen for conversation updates
   useEffect(() => {
@@ -149,14 +118,14 @@ function UserConversationsBlockComponent({
       );
 
       // Fetch conversations to refresh the list
-      fetchConversations(searchQuery, currentPage);
+      fetchConversations();
     });
 
     return () => {
       conversationUpdateUnsubscribe();
       reloadHistoryUnsubscribe();
     };
-  }, [searchQuery, currentPage]);
+  }, []);
 
   const handleConversationClick = async (
     conversation: ConversationListItem

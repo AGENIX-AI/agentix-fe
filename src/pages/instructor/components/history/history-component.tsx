@@ -19,6 +19,7 @@ import {
   createFirstConversation,
   getInstructorSharedConversations,
   getInstructorListConversations,
+  getAssistantConversation,
 } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import type {
@@ -102,13 +103,7 @@ export function HistoryComponent({
         }
 
         // Fetch user conversations
-        const conversationsResponse = await getInstructorListConversations(
-          1,
-          100,
-          "",
-          1,
-          ""
-        );
+        const conversationsResponse = await getAssistantConversation();
         if (conversationsResponse.success) {
           setConversations(conversationsResponse.conversations);
         }
@@ -389,7 +384,6 @@ export function HistoryComponent({
                       {/* BLOCK 2: User Conversations */}
                       {conversations.length > 0 && (
                         <UserConversationsBlock
-                          searchQuery={searchQuery}
                           setIsChatLoading={setIsChatLoading}
                           conversationsData={conversations}
                           assistantId={assistantId}

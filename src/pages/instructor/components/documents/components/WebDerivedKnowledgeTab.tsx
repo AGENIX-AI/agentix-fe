@@ -25,7 +25,6 @@ export default function WebDerivedKnowledgeTab() {
   const [totalItems, setTotalItems] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [showAddSidebar, setShowAddSidebar] = useState(false);
-  // const [showDetails, setShowDetails] = useState(false);
   const [showIndexSidebar, setShowIndexSidebar] = useState(false);
   const [showEditSidebar, setShowEditSidebar] = useState(false);
   const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
@@ -48,21 +47,8 @@ export default function WebDerivedKnowledgeTab() {
         });
 
         if (response.success) {
-          // Filter documents to only show web derived knowledge (crawl_document)
-          // In a real implementation, this would be done by the API
-          // For now, we'll filter client-side based on some criteria
-          // This is just a placeholder - in a real app you would have a proper way to identify crawl documents
-          const filteredDocuments = response.documents.filter(
-            (doc) =>
-              // Filter logic - this is just an example
-              // In reality, you might filter based on a specific property or metadata
-              doc.url?.includes("http") ||
-              doc.title?.toLowerCase().includes("web") ||
-              doc.description?.toLowerCase().includes("crawl")
-          );
-
-          setDocuments(filteredDocuments);
-          setTotalItems(filteredDocuments.length); // This would normally come from the API
+          setDocuments(response.documents);
+          setTotalItems(response.total_items);
         }
       } catch (error) {
         console.error("Error fetching web derived knowledge:", error);
@@ -73,7 +59,7 @@ export default function WebDerivedKnowledgeTab() {
     };
 
     fetchDocuments();
-  }, [currentPage, pageSize, searchQuery, refreshDocuments]);
+  }, [currentPage, pageSize, searchQuery, refreshDocuments, assistantId]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -110,7 +96,6 @@ export default function WebDerivedKnowledgeTab() {
         ...metaData,
         currentWebDerivedKnowledgeId: documentId,
       });
-      // setShowDetails?.(true);
     } catch (error) {
       console.error("Error selecting online sources:", error);
       toast.error("Failed to select online sources");
@@ -152,7 +137,6 @@ export default function WebDerivedKnowledgeTab() {
             doc.id === documentId ? { ...doc, linked: true } : doc
           )
         );
-        // Refresh assistant documents to show the newly linked document
       } else {
         toast.error(response.message || "Failed to link document");
       }

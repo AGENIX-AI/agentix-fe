@@ -941,3 +941,73 @@ export async function updateModeDocument(
 
   return await response.json();
 }
+
+/**
+ * Get crawl URLs for a given URL and depth
+ * @param url The URL to crawl
+ * @param depth The depth of crawling
+ * @returns Promise with the list of URLs that can be crawled
+ */
+export async function getCrawlUrls(
+  url: string,
+  depth: number
+): Promise<{ success: boolean; data: Array<{ url: string; depth: number }> }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    depth: depth.toString(),
+    url: url,
+  });
+
+  const response = await fetch(
+    `${baseUrl}/documents/crawl_document/get_crawl_urls?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to get crawl URLs: ${response.statusText}`)
+    );
+    throw new Error(`Failed to get crawl URLs: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Index selected URLs with a title and language
+ * @param data Object containing title, language, and URLs to index
+ * @returns Promise with the success status and document_id
+ */
+export async function indexUrls(data: {
+  title: string;
+  language: string;
+  urls: string[];
+}): Promise<{ success: boolean; document_id: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/crawl_document/index_urls`,
+    {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to index URLs: ${response.statusText}`)
+    );
+    throw new Error(`Failed to index URLs: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
