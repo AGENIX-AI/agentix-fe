@@ -21,7 +21,7 @@ jobs:
             -d '{
               "msg_type": "text",
               "content": {
-                "text": "🚀 Deployment Started\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}"
+                "text": "🚀 Deployment Frontend Started\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}"
               }
             }'
 
@@ -104,7 +104,7 @@ jobs:
             -d '{
               "msg_type": "text",
               "content": {
-                "text": "✅ Deployment Completed Successfully\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n🎉 Your application has been deployed!"
+                "text": "✅ Deployment Frontend Completed Successfully\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n🎉 Your application has been deployed!"
               }
             }'
 
@@ -116,6 +116,6 @@ jobs:
             -d '{
               "msg_type": "text",
               "content": {
-                "text": "❌ Deployment Failed\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n⚠️ Please check the workflow logs for details."
+                "text": "❌ Deployment Frontend Failed\n\nRepository: ${{ github.repository }}\nBranch: ${{ github.ref_name }}\nCommit: ${{ github.sha }}\nCommit Message: ${{ github.event.head_commit.message }}\nTriggered by: ${{ github.actor }}\nWorkflow: ${{ github.workflow }}\n\n⚠️ Please check the workflow logs for details."
               }
             }'
