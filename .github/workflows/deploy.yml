@@ -1,0 +1,79 @@
+name: Deploy to DigitalOcean
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # Allows manual trigger
+
+jobs:
+  deploy:
+    name: Deploy to Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to DigitalOcean Server
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT || 22 }}
+          script: |
+            echo "🚀 Starting deployment..."
+
+            # Set variables (adjust these paths as needed)
+            PROJECT_PATH="/home/${{ secrets.USERNAME }}/edvara-fe"
+            REPO_URL="https://github.com/${{ github.repository }}.git"
+
+            # Create project directory if it doesn't exist
+            mkdir -p "$(dirname "$PROJECT_PATH")"
+
+            # Check if project directory exists and has git repository
+            if [ -d "$PROJECT_PATH/.git" ]; then
+              echo "📂 Project exists, pulling latest changes..."
+              cd "$PROJECT_PATH"
+              git fetch origin main
+              git reset --hard origin/main
+            else
+              echo "📥 Cloning repository..."
+              git clone "$REPO_URL" "$PROJECT_PATH"
+              cd "$PROJECT_PATH"
+            fi
+
+            # Check if Node.js and npm are available
+            if ! command -v node &> /dev/null; then
+              echo "❌ Node.js is not installed. Please install Node.js first."
+              exit 1
+            fi
+
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            npm ci --production=false
+
+            # Build the project
+            echo "🔨 Building project..."
+            npm run build
+
+            # Check if build was successful
+            if [ -d "dist" ]; then
+              echo "✅ Build completed successfully!"
+              echo "📁 Build files are in: $PROJECT_PATH/dist"
+            else
+              echo "❌ Build failed - no dist directory found"
+              exit 1
+            fi
+
+            # Optional: Copy build files to web server directory
+            # Uncomment and adjust path as needed for your web server setup
+            # echo "🚀 Copying files to web server..."
+            # sudo cp -r dist/* /var/www/html/
+            # sudo chown -R www-data:www-data /var/www/html/
+
+            # Optional: Restart web server if needed
+            # echo "🔄 Restarting web server..."
+            # sudo systemctl restart nginx
+
+            echo "✅ Deployment completed successfully!"
