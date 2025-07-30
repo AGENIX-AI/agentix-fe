@@ -1,4 +1,3 @@
-import { Loader2, Eye, Database } from "lucide-react";
 import type { Document } from "@/api/documents";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -14,26 +13,16 @@ import {
 interface WebDerivedKnowledgeTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
-  onView: (documentId: string) => void;
-  onIndex: (documentId: string) => void;
   onRowClick: (documentId: string) => void;
-  loadingDocumentIds: string[];
-  onLinkDocument: (documentId: string) => void;
-  onUnlinkDocument: (documentId: string) => void;
 }
 
 export function WebDerivedKnowledgeTable({
   documents,
   getStatusColor,
-  onView,
-  onIndex,
   onRowClick,
-  loadingDocumentIds,
-  onLinkDocument,
-  onUnlinkDocument,
 }: WebDerivedKnowledgeTableProps) {
   const { t } = useTranslation();
-  
+
   // Function to get a user-friendly status text
   const getStatusText = (status: string): string => {
     switch (status) {
@@ -61,10 +50,15 @@ export function WebDerivedKnowledgeTable({
           <Table className="w-full">
             <TableHeader>
               <TableRow>
-                <TableHead className="text-xs ">{t("documents.webKnowledge.tableTitle")}</TableHead>
-                <TableHead className="text-xs">{t("documents.webKnowledge.tableStatus")}</TableHead>
-                <TableHead className="text-xs">{t("documents.webKnowledge.tableCreated")}</TableHead>
-                <TableHead className="text-right text-xs">{t("documents.webKnowledge.tableActions")}</TableHead>
+                <TableHead className="text-xs ">
+                  {t("documents.webKnowledge.tableTitle")}
+                </TableHead>
+                <TableHead className="text-xs">
+                  {t("documents.webKnowledge.tableStatus")}
+                </TableHead>
+                <TableHead className="text-xs">
+                  {t("documents.webKnowledge.tableCreated")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -92,84 +86,6 @@ export function WebDerivedKnowledgeTable({
                   </TableCell>
                   <TableCell className="text-xs">
                     {new Date(document.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-right text-xs">
-                    <div className="flex gap-2 justify-end">
-                      {loadingDocumentIds.includes(document.id) ? (
-                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                      ) : (
-                        <>
-                          {document.linked ? (
-                            <button
-                              onClick={() => onUnlinkDocument?.(document.id)}
-                              className="text-xs text-red-600 hover:underline"
-                              disabled={loadingDocumentIds.includes(
-                                document.id
-                              )}
-                            >
-                              {t("documents.webKnowledge.actionUnlink")}
-                            </button>
-                          ) : (
-                            <button
-                              onClick={() => onLinkDocument?.(document.id)}
-                              className="text-xs text-green-600 hover:underline"
-                              disabled={loadingDocumentIds.includes(
-                                document.id
-                              )}
-                            >
-                              {t("documents.webKnowledge.actionLink")}
-                            </button>
-                          )}
-
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onView(document.id);
-                            }}
-                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                            title={t("documents.webKnowledge.tooltipView")}
-                          >
-                            <Eye className="h-3 w-3" />
-                            {t("documents.webKnowledge.actionView")}
-                          </button>
-                          {/* <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onEdit(document.id);
-                            }}
-                            className="text-xs text-amber-600 hover:underline flex items-center gap-1"
-                            title="Edit web derived knowledge"
-                          >
-                            <Edit className="h-3 w-3" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              onDelete(document.id);
-                            }}
-                            className="text-xs text-red-600 hover:underline flex items-center gap-1"
-                            title="Delete web derived knowledge"
-                          >
-                            <Trash2 className="h-3 w-3" />
-                            Delete
-                          </button> */}
-                          {document.upload_status === "crawl_completed" && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                onIndex(document.id);
-                              }}
-                              className="text-xs text-green-600 hover:underline flex items-center gap-1"
-                              title={t("documents.webKnowledge.tooltipIndex")}
-                            >
-                              <Database className="h-3 w-3" />
-                              {t("documents.webKnowledge.actionIndex")}
-                            </button>
-                          )}
-                        </>
-                      )}
-                    </div>
                   </TableCell>
                 </TableRow>
               ))}

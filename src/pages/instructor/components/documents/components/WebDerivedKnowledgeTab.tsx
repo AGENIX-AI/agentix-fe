@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Loader2, Plus } from "lucide-react";
 import { toast } from "sonner";
 
-import { getOwnDocuments, linkDocument, unlinkDocument } from "@/api/documents";
+import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { useInstructor } from "@/contexts/InstructorContext";
 
@@ -11,26 +11,20 @@ import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { AddWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/WebDerivedKnowledgeSidebar";
 import { WebDerivedKnowledgeTable } from "./webdeviredKnowledge/WebDerivedKnowledgeTable";
-import { IndexCrawlDocumentSidebar } from "./webdeviredKnowledge/IndexCrawlDocumentSidebar";
-import { EditWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/EditWebDerivedKnowledgeSidebar";
+
 import WebDerivedKnowledgeDetailsView from "./webdeviredKnowledge/WebDerivedKnowledgeDetailsView";
 
 export default function WebDerivedKnowledgeTab() {
   const { metaData, setMetaData, assistantId } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [showAddSidebar, setShowAddSidebar] = useState(false);
-  const [showIndexSidebar, setShowIndexSidebar] = useState(false);
-  const [showEditSidebar, setShowEditSidebar] = useState(false);
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string | null>(
-    null
-  );
+
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
@@ -81,20 +75,6 @@ export default function WebDerivedKnowledgeTab() {
     }
   };
 
-  const handleViewDocument = async (documentId: string) => {
-    try {
-      toast.info(`View functionality to be implemented ${documentId}`);
-    } catch (error) {
-      console.error("Error viewing document:", error);
-      toast.error("Failed to view document");
-    }
-  };
-
-  const handleIndexDocument = (documentId: string) => {
-    setSelectedDocumentId(documentId);
-    setShowIndexSidebar(true);
-  };
-
   const handleRowClick = (documentId: string) => {
     try {
       // Find the document by ID
@@ -123,70 +103,6 @@ export default function WebDerivedKnowledgeTab() {
     setRefreshDocuments((prev) => prev + 1);
     // Close the sidebar
     setShowAddSidebar(false);
-  };
-
-  const handleEditSidebarSuccess = () => {
-    // Refresh the documents list
-    setRefreshDocuments((prev) => prev + 1);
-    // Close the sidebar
-    setShowEditSidebar(false);
-  };
-
-  const handleIndexSidebarSuccess = () => {
-    // Refresh the documents list
-    setRefreshDocuments((prev) => prev + 1);
-    // Close the sidebar
-    setShowIndexSidebar(false);
-  };
-
-  const handleLinkDocument = async (documentId: string) => {
-    if (!assistantId) return;
-
-    try {
-      setLoadingDocumentIds((prev) => [...prev, documentId]);
-      const response = await linkDocument(documentId, assistantId);
-      if (response.success) {
-        toast.success("Document linked successfully");
-        // Update the document in the list
-        setDocuments(
-          documents.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: true } : doc
-          )
-        );
-      } else {
-        toast.error(response.message || "Failed to link document");
-      }
-    } catch (error) {
-      console.error("Error linking document:", error);
-      toast.error("Failed to link document");
-    } finally {
-      setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
-    }
-  };
-
-  const handleUnlinkDocument = async (documentId: string) => {
-    if (!assistantId) return;
-
-    try {
-      setLoadingDocumentIds((prev) => [...prev, documentId]);
-      const response = await unlinkDocument(documentId, assistantId);
-      if (response.success) {
-        toast.success("Document unlinked successfully");
-        // Update the document in the list
-        setDocuments(
-          documents.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: false } : doc
-          )
-        );
-      } else {
-        toast.error(response.message || "Failed to unlink document");
-      }
-    } catch (error) {
-      console.error("Error unlinking document:", error);
-      toast.error("Failed to unlink document");
-    } finally {
-      setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
-    }
   };
 
   // Show details view if selected
@@ -246,12 +162,7 @@ export default function WebDerivedKnowledgeTab() {
                     <WebDerivedKnowledgeTable
                       documents={documents}
                       getStatusColor={getStatusColor}
-                      onView={handleViewDocument}
-                      onIndex={handleIndexDocument}
                       onRowClick={handleRowClick}
-                      loadingDocumentIds={loadingDocumentIds}
-                      onLinkDocument={handleLinkDocument}
-                      onUnlinkDocument={handleUnlinkDocument}
                     />
                   </div>
 
@@ -279,7 +190,7 @@ export default function WebDerivedKnowledgeTab() {
         setMetaData={setMetaData}
       />
 
-      <EditWebDerivedKnowledgeSidebar
+      {/* <EditWebDerivedKnowledgeSidebar
         isVisible={showEditSidebar}
         onClose={() => setShowEditSidebar(false)}
         onSuccess={handleEditSidebarSuccess}
@@ -291,7 +202,7 @@ export default function WebDerivedKnowledgeTab() {
         onClose={() => setShowIndexSidebar(false)}
         onSuccess={handleIndexSidebarSuccess}
         documentId={selectedDocumentId}
-      />
+      /> */}
     </div>
   );
 }

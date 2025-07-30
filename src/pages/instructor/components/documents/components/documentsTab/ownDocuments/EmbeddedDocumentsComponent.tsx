@@ -14,12 +14,7 @@ import {
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-import {
-  getOwnDocuments,
-  linkDocument,
-  unlinkDocument,
-  updateModeDocument,
-} from "@/api/documents";
+import { getOwnDocuments, updateModeDocument } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { useInstructor } from "@/contexts/InstructorContext";
 
@@ -34,14 +29,12 @@ import { Label } from "@/components/ui/label";
 // Using DocumentType from types.ts
 
 interface EmbeddedDocumentsComponentProps {
-  refreshAssistantDocuments?: () => Promise<void>;
   refreshTrigger?: number;
   onAddDocument?: () => void;
   onDocumentSelect?: (document: Document) => void;
 }
 
 export function EmbeddedDocumentsComponent({
-  refreshAssistantDocuments,
   refreshTrigger,
   onAddDocument,
   onDocumentSelect,
@@ -51,7 +44,6 @@ export function EmbeddedDocumentsComponent({
   const [referenceDocuments, setReferenceDocuments] = useState<Document[]>([]);
   const [isLoadingOriginal, setIsLoadingOriginal] = useState(false);
   const [isLoadingReference, setIsLoadingReference] = useState(false);
-  const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
   const [searchQueryOriginal, setSearchQueryOriginal] = useState("");
   const [searchQueryReference, setSearchQueryReference] = useState("");
   const [currentPageOriginal, setCurrentPageOriginal] = useState(1);
@@ -170,88 +162,6 @@ export function EmbeddedDocumentsComponent({
         return "text-red-600 bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900";
       default:
         return "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
-    }
-  };
-
-  const getLinkStatus = (linked: boolean | undefined) => {
-    return linked
-      ? "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-950/30 dark:border-blue-900"
-      : "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
-  };
-
-  const handleLinkDocument = async (documentId: string) => {
-    if (!assistantId) return;
-
-    try {
-      setLoadingDocumentIds((prev) => [...prev, documentId]);
-      const response = await linkDocument(documentId, assistantId);
-      if (response.success) {
-        toast.success("Document linked successfully");
-        // Update the document in the list
-        setOriginalDocuments(
-          originalDocuments.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: true } : doc
-          )
-        );
-        setReferenceDocuments(
-          referenceDocuments.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: true } : doc
-          )
-        );
-        // Refresh assistant documents to show the newly linked document
-        refreshAssistantDocuments?.();
-      } else {
-        toast.error(response.message || "Failed to link document");
-      }
-    } catch (error) {
-      console.error("Error linking document:", error);
-      toast.error("Failed to link document");
-    } finally {
-      setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
-    }
-  };
-
-  const handleUnlinkDocument = async (documentId: string) => {
-    if (!assistantId) return;
-
-    try {
-      setLoadingDocumentIds((prev) => [...prev, documentId]);
-      const response = await unlinkDocument(documentId, assistantId);
-      if (response.success) {
-        toast.success("Document unlinked successfully");
-        // Update the document in the list
-        setOriginalDocuments(
-          originalDocuments.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: false } : doc
-          )
-        );
-        setReferenceDocuments(
-          referenceDocuments.map((doc) =>
-            doc.id === documentId ? { ...doc, linked: false } : doc
-          )
-        );
-        // Refresh assistant documents to remove the unlinked document
-        refreshAssistantDocuments?.();
-      } else {
-        toast.error(response.message || "Failed to unlink document");
-      }
-    } catch (error) {
-      console.error("Error unlinking document:", error);
-      toast.error("Failed to unlink document");
-    } finally {
-      setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
-    }
-  };
-
-  const handleViewDocument = (documentId: string) => {
-    if (onDocumentSelect) {
-      const document =
-        originalDocuments.find((doc) => doc.id === documentId) ||
-        referenceDocuments.find((doc) => doc.id === documentId);
-
-      if (document) {
-        onDocumentSelect(document);
-      }
     }
   };
 
@@ -504,14 +414,6 @@ export function EmbeddedDocumentsComponent({
               <DocumentTable
                 documents={documents}
                 getStatusColor={getStatusColor}
-                getLinkStatus={getLinkStatus}
-                showLinkedColumn={true}
-                onLinkDocument={handleLinkDocument}
-                onUnlinkDocument={handleUnlinkDocument}
-                loadingDocumentIds={loadingDocumentIds}
-                onViewDocument={
-                  onDocumentSelect ? handleViewDocument : undefined
-                }
                 onRowClick={onDocumentSelect}
                 renderActions={(document) => (
                   <Button

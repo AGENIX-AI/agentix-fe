@@ -70,6 +70,7 @@ export interface GetDocumentsParams {
   type?: "document" | "image" | "topic_knowledge" | "crawl_document" | "all";
   assistant_id?: string;
   mode?: "original" | "reference";
+  only_link?: boolean;
 }
 
 export interface GetAssistantDocumentsParams extends GetDocumentsParams {}
@@ -384,14 +385,18 @@ export const getAssistantDocuments = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const queryParams = new URLSearchParams({
-    page_number: params.page_number?.toString() ?? "1",
-    page_size: params.page_size?.toString() ?? "10",
-    sort_by: params.sort_by ?? "created_at",
-    sort_order: params.sort_order?.toString() ?? "1",
-    ...(params.search && { search: params.search }),
-    ...(params.type && { type: params.type }),
-  });
+  const queryParams = new URLSearchParams();
+  queryParams.append("page_number", params.page_number?.toString() ?? "1");
+  queryParams.append("page_size", params.page_size?.toString() ?? "10");
+  queryParams.append("sort_by", params.sort_by ?? "created_at");
+  queryParams.append("sort_order", params.sort_order?.toString() ?? "1");
+
+  if (params.search) {
+    queryParams.append("search", params.search);
+  }
+  if (params.type) {
+    queryParams.append("type", params.type);
+  }
 
   const response = await fetch(
     `${baseUrl}/documents/get_assisstant_documents/${assistantId}?${queryParams.toString()}`,
@@ -425,16 +430,27 @@ export const getOwnDocuments = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const queryParams = new URLSearchParams({
-    page_number: params.page_number?.toString() ?? "1",
-    page_size: params.page_size?.toString() ?? "10",
-    sort_by: params.sort_by ?? "created_at",
-    sort_order: params.sort_order?.toString() ?? "1",
-    ...(params.search && { search: params.search }),
-    ...(params.type && { type: params.type }),
-    ...(params.assistant_id && { assistant_id: params.assistant_id }),
-    ...(params.mode && { mode: params.mode }),
-  });
+  const queryParams = new URLSearchParams();
+  queryParams.append("page_number", params.page_number?.toString() ?? "1");
+  queryParams.append("page_size", params.page_size?.toString() ?? "10");
+  queryParams.append("sort_by", params.sort_by ?? "created_at");
+  queryParams.append("sort_order", params.sort_order?.toString() ?? "1");
+
+  if (params.search) {
+    queryParams.append("search", params.search);
+  }
+  if (params.type) {
+    queryParams.append("type", params.type);
+  }
+  if (params.assistant_id) {
+    queryParams.append("assistant_id", params.assistant_id);
+  }
+  if (params.mode) {
+    queryParams.append("mode", params.mode);
+  }
+  if (params.only_link !== undefined) {
+    queryParams.append("only_link", params.only_link.toString());
+  }
 
   const response = await fetch(
     `${baseUrl}/documents/get_own_documents?${queryParams.toString()}`,

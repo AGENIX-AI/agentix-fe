@@ -20,6 +20,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
 import { DocumentsLayout } from "./documents";
+import AssistantManager from "./assistantManager/AssistantManager";
 
 const MiniappToggleButton = memo(
   ({
@@ -185,6 +186,8 @@ export default function RightPanel({
         return "Help Center";
       case "knowledgeBase":
         return "Knowledge Base";
+      case "assistantManager":
+        return "Assistant Manager";
       case "empty":
         return "Home Page";
 
@@ -360,7 +363,16 @@ export default function RightPanel({
           <DocumentsLayout defaultTab="online-sources" />
         </div>
       );
-
+    case "assistantManager":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Assistant Management"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <AssistantManager />
+        </div>
+      );
     default:
       return (
         <div className="flex flex-col h-full">

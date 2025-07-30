@@ -400,7 +400,7 @@ export function ResizableSidebar({
                               setRightPanel("documents");
                             }
                             if (navItem.title === "Assistant Management") {
-                              setRightPanel("assistantManagement");
+                              setRightPanel("assistantManager");
                             }
                           }}
                         >

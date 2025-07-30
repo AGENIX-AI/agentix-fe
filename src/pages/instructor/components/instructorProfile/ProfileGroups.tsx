@@ -32,7 +32,7 @@ export function ProfileGroups({
             <div className="ml-4 flex-1">
               <H6>{t("instructorProfile.harvardGroupName")}</H6>
               <ExtraSmall className="text-muted-foreground">
-                {t("instructorProfile.memberCount", { count: "3M" })}
+                {t("instructorProfile.memberCount", { count: 3000000 })}
               </ExtraSmall>
               <ExtraSmall className="text-muted-foreground mt-1 line-clamp-2">
                 At Harvard Business Review, we believe in management. If the
@@ -62,7 +62,7 @@ export function ProfileGroups({
             <div className="ml-4 flex-1">
               <H6>{t("instructorProfile.socialMediaGroupName")}</H6>
               <ExtraSmall className="text-muted-foreground">
-                {t("instructorProfile.memberCount", { count: "3M" })}
+                {t("instructorProfile.memberCount", { count: 3000000 })}
               </ExtraSmall>
               <ExtraSmall className="text-muted-foreground mt-1 line-clamp-2">
                 This Social Media Marketing{" "}

@@ -69,12 +69,6 @@ export default function OwnDocumentsComponent() {
     }
   };
 
-  const getLinkStatus = (linked: boolean | undefined) => {
-    return linked
-      ? "text-blue-600 bg-blue-50 border-blue-100 dark:bg-blue-950/30 dark:border-blue-900"
-      : "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
-  };
-
   return (
     <div className="flex flex-col h-full">
       <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
@@ -108,7 +102,6 @@ export default function OwnDocumentsComponent() {
                 <DocumentTable
                   documents={documents}
                   getStatusColor={getStatusColor}
-                  getLinkStatus={getLinkStatus}
                 />
 
                 <Pagination

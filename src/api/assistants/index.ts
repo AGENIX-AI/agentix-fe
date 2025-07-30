@@ -320,3 +320,116 @@ export async function createAssistant(
 
   return data;
 }
+
+/**
+ * Interface for get my assistants response
+ */
+export interface GetMyAssistantsResponse {
+  success: boolean;
+  assistants: Assistant[];
+  total_count: number;
+  page_number: number;
+  page_size: number;
+}
+
+/**
+ * Parameters for getting my assistants
+ */
+export interface GetMyAssistantsParams {
+  page_number?: number;
+  page_size?: number;
+  sort_order?: number;
+  sort_by?: string;
+  search?: string;
+  have_personality?: boolean;
+  have_last_message?: boolean;
+}
+
+/**
+ * Get my assistants with search and pagination
+ * @param params - Parameters for filtering and pagination
+ * @returns Promise with the list of assistants
+ */
+export const getMyAssistants = async (
+  params: GetMyAssistantsParams = {}
+): Promise<GetMyAssistantsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_order: params.sort_order?.toString() ?? "-1",
+    sort_by: params.sort_by ?? "created_at",
+    search: params.search ?? "",
+    have_personality: params.have_personality?.toString() ?? "false",
+    have_last_message: params.have_last_message?.toString() ?? "false",
+  });
+
+  try {
+    const response = await fetch(
+      `${baseUrl}/assistants/get_my_assistants?${queryParams.toString()}`,
+      {
+        method: "GET",
+        credentials: "include",
+        headers,
+      }
+    );
+
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to fetch my assistants: ${response.statusText}`)
+      );
+      throw new Error(`Failed to fetch my assistants: ${response.statusText}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching my assistants:", error);
+    throw error;
+  }
+};
+
+/**
+ * Interface for assistant stats response
+ */
+export interface AssistantStatsResponse {
+  success: boolean;
+  conversation_counts_by_type: Record<string, number>;
+  students_count: number;
+  documents_count: number;
+}
+
+/**
+ * Get statistics for a specific assistant
+ * @param assistantId - ID of the assistant
+ * @returns Promise with the assistant stats
+ */
+export const getAssistantStats = async (
+  assistantId: string
+): Promise<AssistantStatsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  try {
+    const response = await fetch(`${baseUrl}/assistants/stats/${assistantId}`, {
+      method: "GET",
+      credentials: "include",
+      headers,
+    });
+
+    if (!response.ok) {
+      Sentry.captureException(
+        new Error(`Failed to fetch assistant stats: ${response.statusText}`)
+      );
+      throw new Error(
+        `Failed to fetch assistant stats: ${response.statusText}`
+      );
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error("Error fetching assistant stats:", error);
+    throw error;
+  }
+};
