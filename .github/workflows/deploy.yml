@@ -54,21 +54,17 @@ jobs:
             mkdir -p "$(dirname "$PROJECT_PATH")"
 
             # Check if project directory exists and has git repository
-            if [ -d "$PROJECT_PATH/.git" ]; then
-              echo "📂 Project exists, pulling latest changes..."
-              cd "$PROJECT_PATH"
-              
-              # Configure git to use token for this repository
-              git remote set-url origin "$REPO_URL"
-              
-              # Pull latest changes
-              git fetch origin main
-              git reset --hard origin/main
-            else
-              echo "📥 Cloning repository..."
-              git clone "$REPO_URL" "$PROJECT_PATH"
-              cd "$PROJECT_PATH"
-            fi
+
+            echo "📂 Project exists, pulling latest changes..."
+            cd "$PROJECT_PATH"
+
+            # Configure git to use token for this repository
+            git remote set-url origin "$REPO_URL"
+
+            # Pull latest changes
+            git fetch origin main
+            git reset --hard origin/main
+            git pull origin main
 
             # Check if Node.js and npm are available
             if ! command -v node &> /dev/null; then
