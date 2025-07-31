@@ -79,9 +79,6 @@ jobs:
             echo "🔍 Checking project directory..."
             ls -la
 
-            echo "cd to project path"
-            cd edvara-fe
-
             # Install dependencies
             echo "📦 Installing dependencies..."
             npm ci --production=false
