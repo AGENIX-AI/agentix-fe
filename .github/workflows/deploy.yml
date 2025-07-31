@@ -44,19 +44,11 @@ jobs:
             echo "🚀 Starting deployment..."
 
             # Set variables (adjust these paths as needed)
-            PROJECT_PATH="/edvara-fe"
+            PROJECT_PATH="edvara-fe"
             REPO_URL="https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
 
             echo "REPO_URL: $REPO_URL"
             echo "PROJECT_PATH: $PROJECT_PATH"
-
-            # Create project directory if it doesn't exist
-            mkdir -p "$(dirname "$PROJECT_PATH")"
-
-            # Check if project directory exists and has git repository
-
-            echo "📂 Project exists, pulling latest changes..."
-            cd "$PROJECT_PATH"
 
             # Pull latest changes
             git pull
