@@ -58,7 +58,8 @@ jobs:
 
             # Pull latest changes
             echo "Pulling latest changes..."
-            git pull
+            git remote set-url origin "https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
+            git pull origin main
 
             # Check if Node.js and npm are available
             echo "Checking Node.js and npm..."
