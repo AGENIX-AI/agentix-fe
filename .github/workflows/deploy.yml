@@ -41,216 +41,62 @@ jobs:
           password: ${{ secrets.PASSWORD }}
           port: ${{ secrets.PORT || 22 }}
           script: |
-            set -e  # Exit on any error
-            START_TIME=$(date +%s)  # Record start time for duration calculation
-            
-            echo "========================================"
-            echo "🚀 STARTING DEPLOYMENT PROCESS"
-            echo "========================================"
-            echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "User: $(whoami)"
-            echo "Host: $(hostname)"
-            echo "Working Directory: $(pwd)"
-            echo "Available Disk Space: $(df -h . | tail -1 | awk '{print $4}')"
-            echo "Memory Usage: $(free -h | grep '^Mem:' | awk '{print $3\"/\"$2}')"
-            echo ""
+            echo "🚀 Starting deployment..."
 
             # Set variables (adjust these paths as needed)
             PROJECT_PATH="edvara-fe"
             REPO_URL="https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
 
-            echo "========================================"
-            echo "📋 CONFIGURATION DETAILS"
-            echo "========================================"
-            echo "Repository URL: $REPO_URL"
-            echo "Project Path: $PROJECT_PATH"
-            echo "GitHub Repository: ${{ github.repository }}"
-            echo "Branch: ${{ github.ref_name }}"
-            echo "Commit SHA: ${{ github.sha }}"
-            echo "Commit Message: ${{ github.event.head_commit.message }}"
-            echo "Triggered by: ${{ github.actor }}"
-            echo ""
+            echo "REPO_URL: $REPO_URL"
+            echo "PROJECT_PATH: $PROJECT_PATH"
 
-            echo "========================================"
-            echo "📂 NAVIGATING TO PROJECT DIRECTORY"
-            echo "========================================"
             echo "Current directory: $(pwd)"
-            echo "Changing to project directory: $PROJECT_PATH"
-            
-            if [ ! -d "$PROJECT_PATH" ]; then
-              echo "❌ Project directory $PROJECT_PATH does not exist!"
-              echo "Available directories:"
-              ls -la
-              exit 1
-            fi
-            
+            echo "Go to project directory: $PROJECT_PATH"
             cd $PROJECT_PATH
-            echo "✅ Successfully changed to: $(pwd)"
-            echo "Directory contents:"
-            ls -la
-            echo ""
 
-            echo "========================================"
-            echo "🔄 GIT OPERATIONS"
-            echo "========================================"
-            echo "Current git status:"
-            git status --porcelain
-            echo ""
-            echo "Current branch: $(git branch --show-current)"
-            echo "Current commit: $(git rev-parse HEAD)"
-            echo "Remote URL: $(git remote get-url origin)"
-            echo ""
-            
-            echo "Configuring git for pull operations..."
-            git config pull.rebase false  # Use merge strategy
-            git config --global --add safe.directory $(pwd)
-            echo "✅ Git configuration completed"
-            echo ""
-            
-            echo "Fetching latest changes from remote..."
-            git fetch --all --prune --verbose
-            echo ""
-            
+            echo "Current directory: $(pwd)"
+
+            # Pull latest changes
             echo "Pulling latest changes..."
-            git pull origin ${{ github.ref_name }} --verbose
-            echo "✅ Git pull completed successfully"
-            echo ""
-            echo "Updated to commit: $(git rev-parse HEAD)"
-            echo "Last commit message: $(git log -1 --pretty=format:'%s')"
-            echo "Last commit author: $(git log -1 --pretty=format:'%an <%ae>')"
-            echo "Last commit date: $(git log -1 --pretty=format:'%cd')"
-            echo ""
+            git pull
 
-            echo "========================================"
-            echo "🔍 ENVIRONMENT VERIFICATION"
-            echo "========================================"
-            echo "Checking Node.js installation..."
+            # Check if Node.js and npm are available
+            echo "Checking Node.js and npm..."
             if ! command -v node &> /dev/null; then
               echo "❌ Node.js is not installed. Please install Node.js first."
               exit 1
             fi
-            echo "✅ Node.js version: $(node --version)"
-            
-            echo "Checking npm installation..."
-            if ! command -v npm &> /dev/null; then
-              echo "❌ npm is not installed. Please install npm first."
-              exit 1
-            fi
-            echo "✅ npm version: $(npm --version)"
-            echo ""
-            
-            echo "Checking package.json..."
-            if [ ! -f "package.json" ]; then
-              echo "❌ package.json not found in current directory"
-              exit 1
-            fi
-            echo "✅ package.json found"
-            echo "Package name: $(cat package.json | grep '\"name\"' | head -1 | awk -F: '{print $2}' | sed 's/[\"\,]//g' | xargs)"
-            echo ""
 
-            echo "========================================"
-            echo "📦 DEPENDENCY INSTALLATION"
-            echo "========================================"
-            echo "Current npm cache info:"
-            npm cache verify
-            echo ""
-            
-            echo "Installing dependencies with npm ci..."
-            echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
-            npm ci --production=false --verbose
-            echo "✅ Dependencies installed successfully"
-            echo "Installation completed at: $(date '+%Y-%m-%d %H:%M:%S')"
-            echo ""
-            
-            echo "Installed packages summary:"
-            npm list --depth=0
-            echo ""
+            # Install dependencies
+            echo "📦 Installing dependencies..."
+            npm ci --production=false
 
-            echo "========================================"
-            echo "🔨 PROJECT BUILD"
-            echo "========================================"
-            echo "Starting build process..."
-            echo "Timestamp: $(date '+%Y-%m-%d %H:%M:%S')"
+            # Build the project
+            echo "🔨 Building project..."
             echo "Current directory: $(pwd)"
-            echo ""
-            
-            echo "Available npm scripts:"
-            npm run
-            echo ""
-            
-            echo "Running build command..."
-            npm run build --verbose
-            echo "✅ Build command completed"
-            echo "Build finished at: $(date '+%Y-%m-%d %H:%M:%S')"
-            echo ""
 
-            echo "========================================"
-            echo "✅ BUILD VERIFICATION"
-            echo "========================================"
+            npm run build
+
+            # Check if build was successful
             if [ -d "dist" ]; then
               echo "✅ Build completed successfully!"
-              echo "📁 Build directory: $(pwd)/dist"
-              echo "📊 Build statistics:"
-              echo "   - Total files: $(find dist -type f | wc -l)"
-              echo "   - Total size: $(du -sh dist | cut -f1)"
-              echo "   - Directory structure:"
-              find dist -type f | head -20
-              if [ $(find dist -type f | wc -l) -gt 20 ]; then
-                echo "   ... and $(($(find dist -type f | wc -l) - 20)) more files"
-              fi
+              echo "📁 Build files are in: $PROJECT_PATH/dist"
             else
               echo "❌ Build failed - no dist directory found"
-              echo "Available directories:"
-              ls -la
-              echo "Build logs above should contain error details"
               exit 1
             fi
-            echo ""
 
-            echo "========================================"
-            echo "🚀 OPTIONAL: WEB SERVER DEPLOYMENT"
-            echo "========================================"
-            echo "Note: Web server deployment steps are currently commented out"
-            echo "To enable, uncomment and configure the following sections:"
-            echo "  - Copy build files to web server directory"
-            echo "  - Set proper file permissions"
-            echo "  - Restart web server service"
-            echo ""
-            
             # Optional: Copy build files to web server directory
             # Uncomment and adjust path as needed for your web server setup
             # echo "🚀 Copying files to web server..."
             # sudo cp -r dist/* /var/www/html/
             # sudo chown -R www-data:www-data /var/www/html/
-            # echo "✅ Files copied to web server"
 
             # Optional: Restart web server if needed
             # echo "🔄 Restarting web server..."
             # sudo systemctl restart nginx
-            # echo "✅ Web server restarted"
 
-            echo "========================================"
-            echo "🎉 DEPLOYMENT COMPLETED SUCCESSFULLY"
-            echo "========================================"
-            echo "Final Status: SUCCESS ✅"
-            echo "Completion Time: $(date '+%Y-%m-%d %H:%M:%S')"
-            echo "Total Duration: $(($(date +%s) - START_TIME)) seconds" 2>/dev/null || echo "Total Duration: N/A"
-            echo "Final Commit: $(git rev-parse HEAD)"
-            echo "Build Directory: $(pwd)/dist"
-            echo "Build Size: $(du -sh dist | cut -f1)"
-            echo "Build Files: $(find dist -type f | wc -l)"
-            echo ""
-            echo "🚀 Deployment Summary:"
-            echo "  ✅ Code pulled from repository"
-            echo "  ✅ Dependencies installed"
-            echo "  ✅ Project built successfully"
-            echo "  ✅ Build artifacts verified"
-            echo ""
-            echo "Next steps (if needed):"
-            echo "  - Configure web server deployment"
-            echo "  - Set up SSL certificates"
-            echo "  - Configure domain routing"
-            echo "========================================"
+            echo "✅ Deployment completed successfully!"
 
       - name: Send Lark notification - Deployment Success
         if: success()
