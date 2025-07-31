@@ -50,6 +50,12 @@ jobs:
             echo "REPO_URL: $REPO_URL"
             echo "PROJECT_PATH: $PROJECT_PATH"
 
+            echo "Current directory: $(pwd)"
+            echo "Go to project directory: $PROJECT_PATH"
+            cd $PROJECT_PATH
+
+            echo "Current directory: $(pwd)"
+
             # Pull latest changes
             git pull
 
