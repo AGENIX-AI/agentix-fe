@@ -44,7 +44,7 @@ jobs:
             echo "🚀 Starting deployment..."
 
             # Set variables (adjust these paths as needed)
-            PROJECT_PATH="${{ secrets.USERNAME }}/edvara-fe"
+            PROJECT_PATH="/edvara-fe"
             REPO_URL="https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
 
             echo "REPO_URL: $REPO_URL"
