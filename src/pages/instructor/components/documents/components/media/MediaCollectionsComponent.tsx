@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +11,7 @@ import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/
 import { MediaCollectionsTable } from "./MediaCollectionsTable";
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export type MediaDocumentType = "image";
 
@@ -138,7 +139,9 @@ export function MediaCollectionsComponent({
   return (
     <div className="">
       <div className="mb-3 flex items-center justify-between">
-        <Small className="font-semibold">{t("documents.media.collections")}</Small>
+        <Small className="font-semibold">
+          {t("documents.media.collections")}
+        </Small>
         <Button
           onClick={() => {
             onAddMediaCollection?.();
@@ -152,13 +155,16 @@ export function MediaCollectionsComponent({
 
       {/* Simple search bar without type filter since we only show media collections */}
       <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search media collections..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search media collections..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs"
+          />
+        </div>
       </div>
 
       {isLoading ? (

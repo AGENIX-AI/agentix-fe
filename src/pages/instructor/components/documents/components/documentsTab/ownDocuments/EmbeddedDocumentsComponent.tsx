@@ -26,6 +26,7 @@ import DocumentGuidelines from "../components/DocumentGuidelines";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Small } from "@/components/typography";
+import { Input } from "@/components/ui/input";
 
 // Using DocumentType from types.ts
 
@@ -388,12 +389,11 @@ export function EmbeddedDocumentsComponent({
         <div className="flex items-center space-x-2 mb-4">
           <div className="relative flex-1">
             <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <input
-              type="text"
+            <Input
               placeholder={`Search ${targetMode} documents...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
+              className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs"
             />
           </div>
         </div>

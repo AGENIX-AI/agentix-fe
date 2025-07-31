@@ -255,6 +255,7 @@ function MessageContentComponent({
             [&_.code-block-container]:max-w-full
             [&_.code-block-container]:overflow-hidden
             [&_.code-block-container]:border-border
+            [&_.code-block-container]:rounded-md
             [&_.code-block-header]:bg-muted
             [&_.code-block-header]:px-3
             [&_.code-block-header]:py-1.5
@@ -269,8 +270,10 @@ function MessageContentComponent({
             [&_.code-block]:text-xs
             [&_.code-block]:font-mono
             [&_.code-block]:leading-relaxed
-            [&_.code-block]:whitespace-pre
+            [&_.code-block]:whitespace-pre-wrap
+            [&_.code-block]:break-words
             [&_.code-block]:max-w-full
+            [&_.code-block]:min-w-0
             [&_.code-block]:text-foreground
             [&_.inline-code]:bg-muted
             [&_.inline-code]:px-1

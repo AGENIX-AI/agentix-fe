@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -11,6 +11,7 @@ import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/
 import { TopicKnowledgeTable } from "./TopicKnowledgeTable";
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export type TopicKnowledgeDocumentType = "topic_knowledge";
 
@@ -124,7 +125,9 @@ export function TopicKnowledgeComponent({
   return (
     <div className="">
       <div className="flex items-center justify-between mb-3">
-        <Small className="font-semibold">{t("documents.knowledgeNotes.title")}</Small>
+        <Small className="font-semibold">
+          {t("documents.knowledgeNotes.title")}
+        </Small>
         <Button
           onClick={() => {
             onAddTopicKnowledge?.();
@@ -138,13 +141,16 @@ export function TopicKnowledgeComponent({
 
       {/* Simple search bar without type filter since we only show knowledge components */}
       <div className="mb-4">
-        <input
-          type="text"
-          placeholder={t("documents.knowledgeNotes.searchPlaceholder")}
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-        />
+        <div className="relative flex-1">
+          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+          <Input
+            placeholder={t("documents.knowledgeNotes.searchPlaceholder")}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs"
+          />
+        </div>
       </div>
 
       {isLoading ? (

@@ -58,11 +58,8 @@ jobs:
             echo "📂 Project exists, pulling latest changes..."
             cd "$PROJECT_PATH"
 
-            # Configure git to use token for this repository
-            git remote set-url origin "$REPO_URL"
-
             # Pull latest changes
-            git pull origin main
+            git pull
 
             # Check if Node.js and npm are available
             if ! command -v node &> /dev/null; then

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 
 import { getOwnDocuments } from "@/api/documents";
@@ -13,6 +13,8 @@ import { AddWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/WebDerivedK
 import { WebDerivedKnowledgeTable } from "./webdeviredKnowledge/WebDerivedKnowledgeTable";
 
 import WebDerivedKnowledgeDetailsView from "./webdeviredKnowledge/WebDerivedKnowledgeDetailsView";
+import { Input } from "@/components/ui/input";
+import { t } from "i18next";
 
 export default function WebDerivedKnowledgeTab() {
   const { metaData, setMetaData, assistantId } = useInstructor();
@@ -132,13 +134,16 @@ export default function WebDerivedKnowledgeTab() {
 
           {/* Search bar */}
           <div className="mb-4">
-            <input
-              type="text"
-              placeholder="Search online sources..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-md text-xs focus:outline-none focus:ring-2 focus:ring-primary/20"
-            />
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+              <Input
+                placeholder={t("documents.webKnowledge.searchPlaceholder")}
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs"
+              />
+            </div>
           </div>
 
           {isLoading ? (
