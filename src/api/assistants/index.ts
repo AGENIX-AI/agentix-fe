@@ -90,6 +90,22 @@ export interface GenerateImageResponse {
 }
 
 /**
+ * Response for the generate tagline endpoint
+ */
+export interface GenerateTaglineResponse {
+  success: boolean;
+  tagline: string;
+}
+
+/**
+ * Response for the generate description endpoint
+ */
+export interface GenerateDescriptionResponse {
+  success: boolean;
+  description: string;
+}
+
+/**
  * Interface for creating a new assistant
  */
 export interface CreateAssistantParams {
@@ -291,6 +307,76 @@ export async function generateAssistantImage(
     );
     console.error("Generate image failed:", data);
     throw new Error(data.error || "Failed to generate image");
+  }
+
+  return data;
+}
+
+/**
+ * Generate assistant tagline using AI
+ * @param name - Assistant name
+ * @param description - Assistant description
+ * @param language - Language for generation
+ * @returns Promise with the generated tagline
+ */
+export async function generateAssistantTagline(
+  name: string,
+  description: string,
+  language: string
+): Promise<GenerateTaglineResponse> {
+  const headers = getAuthHeaders();
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+
+  const response = await fetch(`${baseUrl}/assistants/generate_assistant_tagline`, {
+    method: "POST",
+    body: JSON.stringify({ name, description, language }),
+    credentials: "include",
+    headers: headers,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to generate tagline: ${response.statusText}`)
+    );
+    console.error("Generate tagline failed:", data);
+    throw new Error(data.error || "Failed to generate tagline");
+  }
+
+  return data;
+}
+
+/**
+ * Generate assistant description using AI
+ * @param name - Assistant name
+ * @param tagline - Assistant tagline
+ * @param language - Language for generation
+ * @returns Promise with the generated description
+ */
+export async function generateAssistantDescription(
+  name: string,
+  tagline: string,
+  language: string
+): Promise<GenerateDescriptionResponse> {
+  const headers = getAuthHeaders();
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+
+  const response = await fetch(`${baseUrl}/assistants/generate_assistant_description`, {
+    method: "POST",
+    body: JSON.stringify({ name, tagline, language }),
+    credentials: "include",
+    headers: headers,
+  });
+
+  const data = await response.json();
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to generate description: ${response.statusText}`)
+    );
+    console.error("Generate description failed:", data);
+    throw new Error(data.error || "Failed to generate description");
   }
 
   return data;

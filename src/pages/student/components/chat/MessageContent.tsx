@@ -73,7 +73,7 @@ function MessageContentComponent({
 }: MessageContentProps) {
   // Get translation function
   const { t } = useTranslation();
-  
+
   // State for image viewer
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [currentImageUrl, setCurrentImageUrl] = useState("");
@@ -83,12 +83,20 @@ function MessageContentComponent({
 
   // Remove [Instructor] and [Student] prefixes from the parsed content BEFORE parsing message card
   let cleanedOriginalContent = parsedContent;
-  if (cleanedOriginalContent.trim().startsWith("[" + t("common.instructor", "Instructor"))) {
+  if (
+    cleanedOriginalContent
+      .trim()
+      .startsWith("[" + t("common.instructor", "Instructor"))
+  ) {
     cleanedOriginalContent = cleanedOriginalContent.replace(
       /^\s*\[Instructor\s*:\s*[^\]]+\]\s*:\s*/,
       ""
     );
-  } else if (cleanedOriginalContent.trim().startsWith("[" + t("common.student", "Student"))) {
+  } else if (
+    cleanedOriginalContent
+      .trim()
+      .startsWith("[" + t("common.student", "Student"))
+  ) {
     cleanedOriginalContent = cleanedOriginalContent.replace(
       /^\s*\[Student\s*:\s*[^\]]+\]\s*:\s*/,
       ""
@@ -175,7 +183,10 @@ function MessageContentComponent({
             });
           }
         } catch (error) {
-          console.error(t("chat.message.latex_error", "Error rendering LaTeX:"), error);
+          console.error(
+            t("chat.message.latex_error", "Error rendering LaTeX:"),
+            error
+          );
         }
       };
 
@@ -240,6 +251,34 @@ function MessageContentComponent({
             [&_ul]:!p-0 
             [&_ol]:!m-0 
             [&_ol]:!p-0
+            [&_.code-block-container]:my-2
+            [&_.code-block-container]:max-w-full
+            [&_.code-block-container]:overflow-hidden
+            [&_.code-block-container]:border-border
+            [&_.code-block-header]:bg-muted
+            [&_.code-block-header]:px-3
+            [&_.code-block-header]:py-1.5
+            [&_.code-block-header]:text-xs
+            [&_.code-block-header]:font-medium
+            [&_.code-block-header]:text-muted-foreground
+            [&_.code-block-header]:border-b
+            [&_.code-block-header]:border-border
+            [&_.code-block]:bg-muted/50
+            [&_.code-block]:p-3
+            [&_.code-block]:overflow-x-auto
+            [&_.code-block]:text-xs
+            [&_.code-block]:font-mono
+            [&_.code-block]:leading-relaxed
+            [&_.code-block]:whitespace-pre
+            [&_.code-block]:max-w-full
+            [&_.code-block]:text-foreground
+            [&_.inline-code]:bg-muted
+            [&_.inline-code]:px-1
+            [&_.inline-code]:py-0.5
+            [&_.inline-code]:rounded
+            [&_.inline-code]:text-xs
+            [&_.inline-code]:font-mono
+            [&_.inline-code]:text-foreground
           `}
           style={{
             fontFamily: "Inter, sans-serif",

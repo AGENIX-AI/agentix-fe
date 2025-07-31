@@ -25,6 +25,7 @@ import DocumentUpload from "../components/DocumentUpload";
 import DocumentGuidelines from "../components/DocumentGuidelines";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { Small } from "@/components/typography";
 
 // Using DocumentType from types.ts
 
@@ -434,7 +435,7 @@ export function EmbeddedDocumentsComponent({
                     ) : (
                       <Repeat className="h-3 w-3 mr-1" />
                     )}
-                    Switch to{" "}
+                    Move to{" "}
                     {targetMode === "original" ? "Reference" : "Original"}
                   </Button>
                 )}
@@ -487,7 +488,7 @@ export function EmbeddedDocumentsComponent({
         <div className="rounded-md">
           <div className="flex items-center mb-4">
             <FileText className="h-5 w-5 mr-2 text-primary" />
-            <h3 className="font-semibold">Original Documents</h3>
+            <Small className="font-semibold">Official Documents</Small>
           </div>
           {renderDocumentTable(
             originalDocuments,
@@ -505,7 +506,7 @@ export function EmbeddedDocumentsComponent({
         <div className="rounded-md">
           <div className="flex items-center mb-4">
             <BookCopy className="h-5 w-5 mr-2 text-primary" />
-            <h3 className="font-semibold">Reference Documents</h3>
+            <Small className="font-semibold">Reference Documents</Small>
           </div>
           {renderDocumentTable(
             referenceDocuments,
@@ -583,7 +584,7 @@ export function EmbeddedDocumentsComponent({
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold">Document Images</h2>
+                <Small className="text-lg font-semibold">Document Images</Small>
                 {documentImages.length > 0 && !isSubmittingImages && (
                   <div className="flex items-center space-x-2">
                     <Checkbox

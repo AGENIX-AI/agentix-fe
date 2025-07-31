@@ -32,7 +32,12 @@ export const HelpContentSidebar = ({
         const helpContent = await fetchHelpTopic(topicId);
         setContent(helpContent);
       } catch (err) {
-        setError(t("help.content_failed", "Failed to load help content. Please try again later."));
+        setError(
+          t(
+            "help.content_failed",
+            "Failed to load help content. Please try again later."
+          )
+        );
         console.error("Error fetching help content:", err);
       } finally {
         setIsLoading(false);
@@ -74,16 +79,16 @@ export const HelpContentSidebar = ({
             <ReactMarkdown
               components={{
                 h1: ({ children }) => (
-                  <h1 className="text-xl font-bold mb-2">{children}</h1>
+                  <h1 className="text-[16px] font-bold mb-2">{children}</h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-lg font-bold mb-2">{children}</h2>
+                  <h2 className="text-[14px] font-bold mb-2">{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className="text-sm font-bold mb-1">{children}</h3>
+                  <h3 className="text-[12px] font-bold mb-1">{children}</h3>
                 ),
                 h4: ({ children }) => (
-                  <h4 className="text-xs font-bold mb-1">{children}</h4>
+                  <h4 className="text-[10px] font-bold mb-1">{children}</h4>
                 ),
                 h5: ({ children }) => (
                   <h5 className="text-xs font-bold mb-1">{children}</h5>

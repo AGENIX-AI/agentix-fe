@@ -74,16 +74,16 @@ export const HelpContentSidebar = ({
             <ReactMarkdown
               components={{
                 h1: ({ children }) => (
-                  <h1 className="text-xl font-bold mb-2">{children}</h1>
+                  <h1 className="text-[16px] font-bold mb-2">{children}</h1>
                 ),
                 h2: ({ children }) => (
-                  <h2 className="text-lg font-bold mb-2">{children}</h2>
+                  <h2 className="text-[14px] font-bold mb-2">{children}</h2>
                 ),
                 h3: ({ children }) => (
-                  <h3 className="text-sm font-bold mb-1">{children}</h3>
+                  <h3 className="text-[12px] font-bold mb-1">{children}</h3>
                 ),
                 h4: ({ children }) => (
-                  <h4 className="text-xs font-bold mb-1">{children}</h4>
+                  <h4 className="text-[10px] font-bold mb-1">{children}</h4>
                 ),
                 h5: ({ children }) => (
                   <h5 className="text-xs font-bold mb-1">{children}</h5>
@@ -125,9 +125,7 @@ export const HelpContentSidebar = ({
             </ReactMarkdown>
           </div>
         ) : (
-          <div className="text-gray-500 text-xs">
-            {t("help.select_topic")}
-          </div>
+          <div className="text-gray-500 text-xs">{t("help.select_topic")}</div>
         )}
       </div>
     </div>

@@ -166,7 +166,10 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
     }
   };
 
-  const fetchAvailableDocuments = async (type: DocumentType) => {
+  const fetchAvailableDocuments = async (
+    type: DocumentType,
+    is_link?: boolean
+  ) => {
     if (!assistant?.id || !type) return;
 
     setSidebarLoading(true);
@@ -180,11 +183,37 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
         sort_by: "created_at",
         sort_order: 1,
         assistant_id: assistant.id,
-        only_link: false,
       });
 
       if (response.success) {
-        setAvailableDocuments(response.documents);
+        // Check linked status and handle link/unlink based on is_link parameter
+        const documentsWithLinkAction = response.documents.map(
+          (doc: Document) => {
+            if (typeof is_link === "boolean") {
+              // If is_link is true and document is not linked, it can be linked
+              // If is_link is false and document is linked, it can be unlinked
+              const canLink = is_link && !doc.linked;
+              const canUnlink = !is_link && doc.linked;
+
+              return {
+                ...doc,
+                canLink,
+                canUnlink,
+                actionType: canLink ? "link" : canUnlink ? "unlink" : "none",
+              };
+            }
+
+            // Default behavior: show link action for unlinked documents
+            return {
+              ...doc,
+              canLink: !doc.linked,
+              canUnlink: doc.linked,
+              actionType: doc.linked ? "unlink" : "link",
+            };
+          }
+        );
+
+        setAvailableDocuments(documentsWithLinkAction);
         setSidebarTotalItems(response.total_items);
       }
     } catch (error) {
@@ -212,6 +241,7 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
   // Fetch available documents when sidebar opens or search/page changes
   useEffect(() => {
     if (showSidebar && sidebarType) {
+      // Default behavior: show all documents with appropriate link/unlink actions
       fetchAvailableDocuments(sidebarType);
     }
   }, [showSidebar, sidebarType, sidebarSearchQuery, sidebarPageNumber]);
@@ -295,6 +325,11 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
 
         // Refresh the main documents list
         fetchDocuments(type);
+        
+        // Refresh the sidebar documents if sidebar is open
+        if (showSidebar && sidebarType === type) {
+          fetchAvailableDocuments(type);
+        }
       } else {
         const typeName = getTypeName(type);
         toast.error(
@@ -501,7 +536,7 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
         {/* Sidebar */}
         <div className="relative ml-auto w-[600px] bg-background border-l shadow-xl h-full flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b">
+          <div className="flex items-center justify-between p-6 border-b h-18">
             <h2 className="text-lg font-semibold">
               {t("documents.assistantKnowledge.add_documents_title", {
                 type: typeName,
@@ -571,22 +606,49 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
                           </span>
                         </div>
                       </div>
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          handleLinkDocument(document.id, sidebarType)
-                        }
-                        disabled={linkingDocumentIds.includes(document.id)}
-                      >
-                        {linkingDocumentIds.includes(document.id) ? (
-                          <>
-                            <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                            {t("documents.assistantKnowledge.linking_document")}
-                          </>
-                        ) : (
-                          t("documents.assistantKnowledge.link_document")
-                        )}
-                      </Button>
+                      {(document as any).actionType !== "none" && (
+                        <Button
+                          size="sm"
+                          variant={
+                            (document as any).actionType === "unlink"
+                              ? "destructive"
+                              : "default"
+                          }
+                          onClick={() => {
+                            if ((document as any).actionType === "link") {
+                              handleLinkDocument(document.id, sidebarType);
+                            } else if (
+                              (document as any).actionType === "unlink"
+                            ) {
+                              handleUnlinkDocument(document.id, sidebarType);
+                            }
+                          }}
+                          disabled={
+                            linkingDocumentIds.includes(document.id) ||
+                            unlinkingDocumentIds.includes(document.id)
+                          }
+                        >
+                          {linkingDocumentIds.includes(document.id) ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                              {t(
+                                "documents.assistantKnowledge.linking_document"
+                              )}
+                            </>
+                          ) : unlinkingDocumentIds.includes(document.id) ? (
+                            <>
+                              <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                              {t(
+                                "documents.assistantKnowledge.unlinking_document"
+                              )}
+                            </>
+                          ) : (document as any).actionType === "link" ? (
+                            t("documents.assistantKnowledge.link_document")
+                          ) : (
+                            t("documents.assistantKnowledge.unlink_document")
+                          )}
+                        </Button>
+                      )}
                     </div>
                   ))}
                 </div>

@@ -45,7 +45,7 @@ jobs:
 
             # Set variables (adjust these paths as needed)
             PROJECT_PATH="/home/${{ secrets.USERNAME }}/edvara-fe"
-            REPO_URL="https://github.com/${{ github.repository }}.git"
+            REPO_URL="https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
 
             # Create project directory if it doesn't exist
             mkdir -p "$(dirname "$PROJECT_PATH")"
@@ -54,6 +54,11 @@ jobs:
             if [ -d "$PROJECT_PATH/.git" ]; then
               echo "📂 Project exists, pulling latest changes..."
               cd "$PROJECT_PATH"
+              
+              # Configure git to use token for this repository
+              git remote set-url origin "$REPO_URL"
+              
+              # Pull latest changes
               git fetch origin main
               git reset --hard origin/main
             else

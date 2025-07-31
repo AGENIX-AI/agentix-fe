@@ -36,19 +36,9 @@ export function BasicInformation({
   return (
     <div className={cn("space-y-3", className)}>
       <h2 className="text-sm font-bold">Basic Information</h2>
-      <div>
-        <div>
-          <div className="flex justify-between items-center">
-            <Label htmlFor="name">Name</Label>
-            <Button
-              size="sm"
-              variant="ghost"
-              className="h-8"
-              onClick={() => onGenerateWithAI("name")}
-            >
-              <Wand2 className="w-4 h-4 mr-1" /> Generate
-            </Button>
-          </div>
+      <div className="space-y-3">
+        <div className="space-y-3">
+          <Label htmlFor="name">Name</Label>
           <Input
             id="name"
             value={name}
@@ -56,7 +46,7 @@ export function BasicInformation({
           />
         </div>
 
-        <div>
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
             <Label htmlFor="tagline">Tagline</Label>
             <Button
@@ -75,7 +65,7 @@ export function BasicInformation({
           />
         </div>
 
-        <div>
+        <div className="space-y-3">
           <div className="flex justify-between items-center">
             <Label htmlFor="description">Description</Label>
             <Button
@@ -96,8 +86,8 @@ export function BasicInformation({
         </div>
       </div>
 
-      <div className="mt-6">
-        <Label htmlFor="language" className="mb-3 block">
+      <div className="space-y-3">
+        <Label htmlFor="language">
           Language
         </Label>
         <Select

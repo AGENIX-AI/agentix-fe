@@ -20,6 +20,8 @@ import {
 // Import API functions
 import {
   generateAssistantImage,
+  generateAssistantTagline,
+  generateAssistantDescription,
   updateAssistant,
   uploadAssistantImage,
 } from "@/api/assistants/index";
@@ -130,12 +132,50 @@ export function AssistantProfile({
   const generateWithAI = async (
     field: "name" | "tagline" | "description" | "avatar"
   ) => {
-    // Handle basic text fields generation
-    if (field !== "avatar") {
-      // TODO: Implement text field AI generation logic
-      console.log(`Generating ${field} with AI`);
-      return;
+    if (field === "tagline") {
+      try {
+        if (!formData.name || !formData.description) {
+          toast.error("Please fill in name and description first");
+          return;
+        }
+        
+        const response = await generateAssistantTagline(
+          formData.name,
+          formData.description,
+          formData.language
+        );
+        
+        if (response.success) {
+          handleInputChange("tagline", response.tagline.trim());
+          toast.success("Tagline generated successfully");
+        }
+      } catch (error) {
+        console.error("Error generating tagline:", error);
+        toast.error("Failed to generate tagline");
+      }
+    } else if (field === "description") {
+      try {
+        if (!formData.name || !formData.tagline) {
+          toast.error("Please fill in name and tagline first");
+          return;
+        }
+        
+        const response = await generateAssistantDescription(
+          formData.name,
+          formData.tagline,
+          formData.language
+        );
+        
+        if (response.success) {
+          handleInputChange("description", response.description.trim());
+          toast.success("Description generated successfully");
+        }
+      } catch (error) {
+        console.error("Error generating description:", error);
+        toast.error("Failed to generate description");
+      }
     }
+    // Note: name generation has been removed, avatar generation is handled separately
   };
 
   const handleGenerateAvatar = async (style: string) => {

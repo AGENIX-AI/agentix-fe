@@ -7,9 +7,9 @@ import { Languages, Search } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { getMyAssistants } from "@/api/assistants";
 import type { Assistant } from "@/api/assistants";
-import AssistantDetails from "./AssistantDetails";
+import { useInstructor } from "@/contexts/InstructorContext";
 
-export default function AssistantManager() {
+export default function AssistantList() {
   const { t } = useTranslation();
   const [assistants, setAssistants] = useState<Assistant[]>([]);
   const [loading, setLoading] = useState(true);
@@ -19,9 +19,7 @@ export default function AssistantManager() {
   const [totalCount, setTotalCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState(""); // This is the actual search query used for API
   const [searchInput, setSearchInput] = useState(""); // This is the input field value
-  const [selectedAssistantId, setSelectedAssistantId] = useState<string | null>(
-    null
-  );
+  const { metaData, setMetaData, setRightPanel } = useInstructor();
 
   // Function to fetch assistants
   const fetchAssistants = useCallback(async () => {
@@ -78,21 +76,12 @@ export default function AssistantManager() {
   };
 
   const handleAssistantClick = (assistantId: string) => {
-    setSelectedAssistantId(assistantId);
+    setMetaData({
+      ...metaData,
+      assistantId,
+    });
+    setRightPanel("assistant-profile");
   };
-
-  const handleBackToList = () => {
-    setSelectedAssistantId(null);
-  };
-
-  if (selectedAssistantId) {
-    return (
-      <AssistantDetails
-        assistantId={selectedAssistantId}
-        onBack={handleBackToList}
-      />
-    );
-  }
 
   if (loading) {
     return (

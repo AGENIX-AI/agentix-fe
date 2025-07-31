@@ -48,6 +48,8 @@ export function HistoryComponent({
     isChatLoading,
     assistantId,
     conversationId,
+    metaData,
+    setMetaData,
   } = useInstructor();
   const [searchQuery] = useState("");
 
@@ -185,7 +187,12 @@ export function HistoryComponent({
     try {
       setConversationId(conversation.conversation_info.id);
       setAssistantId(conversation.conversation_info.assistants?.id);
-      setRightPanel("assistantTopics");
+      setMetaData({
+        ...metaData,
+        assistantId: conversation.conversation_info.assistants?.id,
+      });
+      setRightPanel("assistant-dashboard");
+      setIsChatLoading(false);
     } finally {
       setIsChatLoading(false);
     }
@@ -208,14 +215,18 @@ export function HistoryComponent({
                       className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
-                        isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")
+                        isHistoryVisible
+                          ? t("history.collapseHistory")
+                          : t("history.expandHistory")
                       }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")}
+                    {isHistoryVisible
+                      ? t("history.collapseHistory")
+                      : t("history.expandHistory")}
                   </TooltipContent>
                 </Tooltip>
               </div>
@@ -241,7 +252,8 @@ export function HistoryComponent({
                         )}
                         onClick={() => handleAvatarClick(systemAssistant, true)}
                         title={
-                          systemAssistant.assistants?.name || t("history.edvaraAssistant")
+                          systemAssistant.assistants?.name ||
+                          t("history.edvaraAssistant")
                         }
                       >
                         <Avatar className="overflow-hidden h-5 w-5">
@@ -263,7 +275,10 @@ export function HistoryComponent({
                           "justify-center"
                         )}
                         onClick={() => handleAvatarClick(conversation, false)}
-                        title={conversation.assistants?.name || t("history.assistant")}
+                        title={
+                          conversation.assistants?.name ||
+                          t("history.assistant")
+                        }
                       >
                         <Avatar className="overflow-hidden h-5 w-5">
                           <AvatarImage
@@ -333,14 +348,18 @@ export function HistoryComponent({
                       className={`transition-all duration-300 border-none ${className}`}
                       onClick={toggleHistory}
                       aria-label={
-                        isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")
+                        isHistoryVisible
+                          ? t("history.collapseHistory")
+                          : t("history.expandHistory")
                       }
                     >
                       <AlignJustify className="h-4 w-4" />
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent side="bottom">
-                    {isHistoryVisible ? t("history.collapseHistory") : t("history.expandHistory")}
+                    {isHistoryVisible
+                      ? t("history.collapseHistory")
+                      : t("history.expandHistory")}
                   </TooltipContent>
                 </Tooltip>
                 <Large>{t("student.history.title")}</Large>
@@ -365,7 +384,9 @@ export function HistoryComponent({
                       ) : (
                         <ChevronRight className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span className="font-medium text-xs">{t("history.assistants")}</span>
+                      <span className="font-medium text-xs">
+                        {t("history.assistants")}
+                      </span>
                     </div>
                   </div>
 

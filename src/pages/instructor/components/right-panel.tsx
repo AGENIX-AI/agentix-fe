@@ -20,7 +20,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
 import { DocumentsLayout } from "./documents";
-import AssistantManager from "./assistantManager/AssistantManager";
+import AssistantManager from "./assistantList/AssistantList";
+import AssistantDetailsLayout from "./assistantManagement/AssistantDetailsLayout";
 
 const MiniappToggleButton = memo(
   ({
@@ -141,7 +142,7 @@ export default function RightPanel({
   onToggle?: (isCollapsed: boolean) => void;
   isCollapsed?: boolean;
 }) {
-  const { rightPanel } = useInstructor();
+  const { rightPanel, metaData } = useInstructor();
 
   const toggleMiniapp = () => {
     // Notify parent to toggle the state
@@ -371,6 +372,46 @@ export default function RightPanel({
             toggleMiniapp={toggleMiniapp}
           />
           <AssistantManager />
+        </div>
+      );
+    case "assistant-dashboard":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Assistant Details"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <AssistantDetailsLayout
+            defaultTab="dashboard"
+            assistantId={metaData.assistantId}
+          />
+        </div>
+      );
+
+    case "assistant-profile":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Assistant Details"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <AssistantDetailsLayout
+            defaultTab="profile"
+            assistantId={metaData.assistantId}
+          />
+        </div>
+      );
+    case "assistant-knowledge":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title="Assistant Details"
+            toggleMiniapp={toggleMiniapp}
+          />
+          <AssistantDetailsLayout
+            defaultTab="knowledge"
+            assistantId={metaData.assistantId}
+          />
         </div>
       );
     default:

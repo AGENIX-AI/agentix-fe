@@ -49,9 +49,51 @@ export function processMessageContent(content: string): {
 
   const imageUrls: string[] = [];
 
-  // Store LaTeX expressions to restore later
+  // Store LaTeX expressions and code blocks to restore later
   const latexBlocks: { placeholder: string; content: string }[] = [];
+  const codeBlocks: { placeholder: string; content: string }[] = [];
   let processedContent = content;
+
+  // Preserve code blocks first (before LaTeX to avoid conflicts)
+  const codeBlockRegex = /```([a-zA-Z0-9+#-]*)?\n?([\s\S]*?)```/g;
+  processedContent = processedContent.replace(
+    codeBlockRegex,
+    (_match, language, code) => {
+      const placeholder = `__CODE_BLOCK_${codeBlocks.length}__`;
+      const lang = language ? language.toLowerCase().trim() : "";
+      const trimmedCode = code.trim();
+
+      // Create HTML for code block with proper styling (xs size, chat-friendly, theme-aware)
+      const codeHtml = `
+<div class="code-block-container my-2 rounded-md overflow-hidden border border-border max-w-full">
+  ${
+    lang
+      ? `<div class="code-block-header bg-muted px-3 py-1.5 text-xs font-medium text-muted-foreground border-b border-border">${lang}</div>`
+      : ""
+  }
+  <pre class="code-block bg-muted/50 p-3 overflow-x-auto text-xs font-mono leading-relaxed max-w-full text-foreground"><code class="language-${
+        lang || "text"
+      }">${trimmedCode.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+</div>`;
+
+      codeBlocks.push({ placeholder, content: codeHtml });
+      return placeholder;
+    }
+  );
+
+  // Preserve inline code (single backticks)
+  const inlineCodeRegex = /`([^`\n]+)`/g;
+  processedContent = processedContent.replace(
+    inlineCodeRegex,
+    (_match, code) => {
+      const placeholder = `__INLINE_CODE_${codeBlocks.length}__`;
+      const inlineCodeHtml = `<code class="inline-code bg-muted px-1 py-0.5 rounded text-xs font-mono text-foreground">${code
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")}</code>`;
+      codeBlocks.push({ placeholder, content: inlineCodeHtml });
+      return placeholder;
+    }
+  );
 
   // Preserve LaTeX blocks (display math)
   const displayMathRegex = /\$\$([\s\S]*?)\$\$/g;
@@ -258,6 +300,11 @@ export function processMessageContent(content: string): {
     "<strong>$1</strong>"
   );
 
+  // Restore code blocks first
+  codeBlocks.forEach(({ placeholder, content }) => {
+    processedContent = processedContent.replace(placeholder, content);
+  });
+
   // Restore LaTeX expressions
   for (const { placeholder, content } of latexBlocks) {
     // Check if this placeholder is alone on its line (surrounded only by whitespace)
@@ -275,10 +322,7 @@ export function processMessageContent(content: string): {
     }
   }
 
-  return {
-    cleanedContent: processedContent,
-    imageUrls,
-  };
+  return { cleanedContent: processedContent, imageUrls };
 }
 
 /**

@@ -22,8 +22,14 @@ function UserConversationsBlockComponent({
   assistantId,
 }: UserConversationsBlockProps) {
   const { t } = useTranslation();
-  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
-    useInstructor();
+  const {
+    setAssistantId,
+    setConversationId,
+    setRightPanel,
+    isChatLoading,
+    metaData,
+    setMetaData,
+  } = useInstructor();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     conversationsData || []
@@ -176,7 +182,11 @@ function UserConversationsBlockComponent({
     }
 
     // Change the right panel to assistantTopics
-    setRightPanel("assistantTopics");
+    setMetaData({
+      ...metaData,
+      assistantId: conversation.assistants?.id,
+    });
+    setRightPanel("assistant-dashboard");
     setIsChatLoading(false);
   };
 

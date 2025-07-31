@@ -101,7 +101,7 @@ export function InstructorContextProvider({
   );
   const [rightPanel, setRightPanel] = useState<string>(initialState.rightPanel);
   const [instructorId, setInstructorId] = useState<string | null>(null);
-  const [metaData, setMetaData] = useState<any>(null);
+  const [metaData, setMetaData] = useState<any>(initialState.metaData);
   const [isChatLoading, setIsChatLoading] = useState(false);
   const [isHistoryVisible, setIsHistoryVisible] = useState(true);
 
@@ -115,6 +115,7 @@ export function InstructorContextProvider({
       assistantId,
       conversationId,
       rightPanel,
+      metaData,
     };
     localStorage.setItem("instructor_state", JSON.stringify(state));
     // Optionally, you can log for debugging
