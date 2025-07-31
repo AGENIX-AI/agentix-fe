@@ -47,6 +47,9 @@ jobs:
             PROJECT_PATH="/home/${{ secrets.USERNAME }}/edvara-fe"
             REPO_URL="https://${{ secrets.GH_TOKEN }}@github.com/${{ github.repository }}.git"
 
+            echo "REPO_URL: $REPO_URL"
+            echo "PROJECT_PATH: $PROJECT_PATH"
+
             # Create project directory if it doesn't exist
             mkdir -p "$(dirname "$PROJECT_PATH")"
 
