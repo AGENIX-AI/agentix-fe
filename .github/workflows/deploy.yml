@@ -67,15 +67,14 @@ jobs:
               exit 1
             fi
 
-            echo "🔍 Checking project directory..."
-            ls -la
-
             # Install dependencies
             echo "📦 Installing dependencies..."
             npm ci --production=false
 
             # Build the project
             echo "🔨 Building project..."
+            echo "Current directory: $(pwd)"
+
             npm run build
 
             # Check if build was successful
