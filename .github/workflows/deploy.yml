@@ -62,8 +62,7 @@ jobs:
             git remote set-url origin "$REPO_URL"
 
             # Pull latest changes
-            git fetch origin main
-            git reset --hard origin/main
+
             git pull origin main
 
             # Check if Node.js and npm are available
