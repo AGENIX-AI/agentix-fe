@@ -56,12 +56,12 @@ export const fetchBlogs = async (
 };
 
 export const fetchBlog = async (id: string): Promise<Blog> => {
-  const response = await axiosInstance.get(`/blog/${id}/`);
+  const response = await axiosInstance.get(`/blog/${id}`);
   return response.data;
 };
 
 export const createBlog = async (data: CreateBlogRequest): Promise<Blog> => {
-  const response = await axiosInstance.post("/blog/", data);
+  const response = await axiosInstance.post("/blog", data);
   return response.data;
 };
 
@@ -69,10 +69,10 @@ export const updateBlog = async (
   id: string,
   data: UpdateBlogRequest
 ): Promise<Blog> => {
-  const response = await axiosInstance.put(`/blog/${id}/`, data);
+  const response = await axiosInstance.put(`/blog/${id}`, data);
   return response.data;
 };
 
 export const deleteBlog = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/blog/${id}/`);
+  await axiosInstance.delete(`/blog/${id}`);
 };
