@@ -2,11 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { SearchIcon } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { Small } from "@/components/ui/typography";
-import { Link } from "react-router-dom";
 
 import { useInstructor } from "@/contexts/InstructorContext";
-import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
 import { ResizableSidebar } from "./sidebar/resizable-sidebar";
@@ -292,12 +289,12 @@ export default function LeftPanel({
         </div>
 
         {/* Right section - Search + Navigation */}
-        <div className="flex items-center gap-6 ml-auto min-w-0 mx-6">
+        <div className="flex items-center gap-6 ml-auto min-w-0">
           {/* Search - Made flexible to resize with header */}
           <div
             className={cn(
-              "relative w-full mx-6",
-              isRightPanelCollapsed ? "w-[300px]" : "w-[200px]"
+              "relative w-full",
+              isRightPanelCollapsed ? "min-w-[400px]" : "w-[250px]"
             )}
           >
             <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 text-muted-foreground" />
@@ -307,24 +304,6 @@ export default function LeftPanel({
               placeholder="Search"
             />
           </div>
-
-          {/* Navigation */}
-          <nav className="flex gap-6 text-sm font-semibold flex-shrink-0">
-            <Link
-              to="student"
-              className="transition-colors hover:text-foreground/80"
-            >
-              <Small>Student</Small>
-            </Link>
-            <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
-            <Link to="#" className="text-[#007E85] hover:text-foreground/80">
-              <Small>Instructor</Small>
-            </Link>
-            <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
-            <Link to="#" className="transition-colors hover:text-foreground/80">
-              <Small>About</Small>
-            </Link>
-          </nav>
         </div>
       </header>
 

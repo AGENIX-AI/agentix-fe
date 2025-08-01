@@ -285,11 +285,11 @@ export default function LeftPanel({
         </div>
 
         {/* Right section - Search + Navigation - Pushed to the right */}
-        <div className="flex items-center gap-6 ml-auto min-w-0 mx-6">
+        <div className="flex items-center gap-6 ml-auto min-w-0 ">
           {/* Search - Made flexible to resize with header */}
           <div
             className={cn(
-              "relative w-full mx-6",
+              "relative w-full",
               isRightPanelCollapsed ? "min-w-[400px]" : "w-[250px]"
             )}
           >
@@ -297,27 +297,9 @@ export default function LeftPanel({
             <Input
               className="h-8 pl-8 w-full transition-all duration-300"
               type="search"
-              placeholder={t('student.navigation.search')}
+              placeholder={t("student.navigation.search")}
             />
           </div>
-
-          {/* Navigation */}
-          <nav className="flex gap-6 text-sm font-semibold flex-shrink-0">
-            <Link to="#" className="text-[#007E85] hover:text-foreground/80">
-              <Small>{t('student.navigation.student')}</Small>
-            </Link>
-            <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
-            <Link
-              to="/instructor"
-              className="transition-colors hover:text-foreground/80"
-            >
-              <Small>{t('student.navigation.instructor')}</Small>
-            </Link>
-            <Separator orientation="vertical" className="h-6 w-0.5 p-0" />
-            <Link to="#" className="transition-colors hover:text-foreground/80">
-              <Small>{t('student.navigation.about')}</Small>
-            </Link>
-          </nav>
         </div>
       </header>
 

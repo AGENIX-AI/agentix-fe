@@ -28,11 +28,12 @@ import {
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
-import { Link } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudent } from "@/contexts/StudentContext";
+import { UserIcon } from "lucide-react";
 
 export function UserMenu({
   showUserName,
@@ -48,6 +49,14 @@ export function UserMenu({
   const [language, setLanguage] = useState<string>(i18n.language);
   const { signOut } = useAuth();
   const { setRightPanel } = useStudent();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Determine current mode based on URL path
+  const [currentMode, setCurrentMode] = useState<string>(
+    location.pathname.includes("/instructor") ? "instructor" : "student"
+  );
+
   const colorModeOptions = [
     {
       value: "system",
@@ -77,7 +86,18 @@ export function UserMenu({
     },
   ];
 
-  useEffect(() => {}, []);
+  const modeOptions = [
+    {
+      value: "student",
+      label: "Student",
+      icon: UserIcon,
+    },
+    {
+      value: "instructor",
+      label: "Instructor",
+      icon: UserIcon,
+    },
+  ];
 
   const onLogout = () => {
     localStorage.removeItem("student_state");
@@ -140,6 +160,41 @@ export function UserMenu({
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
+
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
+            <UserIcon className="mr-2 size-5" />
+            <span className="text-xs ml-2">
+              {t("app.userMenu.mode", "Mode")}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="w-[280px] ml-2">
+              <DropdownMenuRadioGroup
+                value={currentMode}
+                onValueChange={(value) => {
+                  setCurrentMode(value);
+                  if (value === "student") {
+                    navigate("/student");
+                  } else {
+                    navigate("/instructor");
+                  }
+                }}
+              >
+                {modeOptions.map((option) => (
+                  <DropdownMenuRadioItem
+                    key={option.value}
+                    value={option.value}
+                    className="text-xs py-2"
+                  >
+                    <option.icon className="mr-2 size-5 opacity-50" />
+                    <span className="text-xs mr-2">{option.label}</span>
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
 
         {/* Color mode selection */}
         <DropdownMenuSub>
