@@ -10,6 +10,8 @@ import {
   Repeat,
   BookCopy,
   FileText,
+  Edit,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
@@ -27,6 +29,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Small } from "@/components/typography";
 import { Input } from "@/components/ui/input";
+import { EditDocumentSidebar } from "./EditDocumentSidebar";
+import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
 
 // Using DocumentType from types.ts
 
@@ -59,6 +63,23 @@ export function EmbeddedDocumentsComponent({
   const [updatingModeDocumentId, setUpdatingModeDocumentId] = useState<
     string | null
   >(null);
+
+  // Edit and delete states
+  const [editSidebar, setEditSidebar] = useState<{
+    isVisible: boolean;
+    document: Document | null;
+  }>({
+    isVisible: false,
+    document: null,
+  });
+
+  const [deleteDialog, setDeleteDialog] = useState<{
+    isOpen: boolean;
+    document: Document | null;
+  }>({
+    isOpen: false,
+    document: null,
+  });
 
   // Image handling states
   const [showImageSidebar, setShowImageSidebar] = useState(false);
@@ -373,6 +394,43 @@ export function EmbeddedDocumentsComponent({
     handleSubmitImages([], false);
   };
 
+  // Edit and delete handlers
+  const handleEditDocument = (document: Document) => {
+    setEditSidebar({
+      isVisible: true,
+      document,
+    });
+  };
+
+  const handleDeleteDocument = (document: Document) => {
+    setDeleteDialog({
+      isOpen: true,
+      document,
+    });
+  };
+
+  const handleEditClose = () => {
+    setEditSidebar({
+      isVisible: false,
+      document: null,
+    });
+  };
+
+  const handleEditSuccess = () => {
+    setLocalRefreshTrigger((prev) => prev + 1);
+  };
+
+  const handleDeleteClose = () => {
+    setDeleteDialog({
+      isOpen: false,
+      document: null,
+    });
+  };
+
+  const handleDeleteSuccess = () => {
+    setLocalRefreshTrigger((prev) => prev + 1);
+  };
+
   const renderDocumentTable = (
     documents: Document[],
     isLoading: boolean,
@@ -417,27 +475,57 @@ export function EmbeddedDocumentsComponent({
                 getStatusColor={getStatusColor}
                 onRowClick={onDocumentSelect}
                 renderActions={(document) => (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="h-7 px-2 text-xs"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleUpdateDocumentMode(
-                        document.id,
-                        targetMode === "original" ? "reference" : "original"
-                      );
-                    }}
-                    disabled={updatingModeDocumentId === document.id}
-                  >
-                    {updatingModeDocumentId === document.id ? (
-                      <Loader2 className="h-3 w-3 animate-spin mr-1" />
-                    ) : (
-                      <Repeat className="h-3 w-3 mr-1" />
-                    )}
-                    Move to{" "}
-                    {targetMode === "original" ? "Reference" : "Original"}
-                  </Button>
+                  <div className="flex gap-2">
+                    {/* Edit Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditDocument(document);
+                      }}
+                      title="Edit document"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+
+                    {/* Delete Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteDocument(document);
+                      }}
+                      title="Delete document"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </Button>
+
+                    {/* Move Button */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-7 w-7 p-0"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleUpdateDocumentMode(
+                          document.id,
+                          targetMode === "original" ? "reference" : "original"
+                        );
+                      }}
+                      disabled={updatingModeDocumentId === document.id}
+                      title={`Move to ${targetMode === "original" ? "Reference" : "Original"}`}
+                    >
+                      {updatingModeDocumentId === document.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        <Repeat className="h-3 w-3" />
+                      )}
+                    </Button>
+                  </div>
                 )}
               />
             </div>
@@ -737,6 +825,22 @@ export function EmbeddedDocumentsComponent({
           </div>
         </div>
       )}
+
+      {/* Edit Document Sidebar */}
+      <EditDocumentSidebar
+        isVisible={editSidebar.isVisible}
+        document={editSidebar.document}
+        onClose={handleEditClose}
+        onSuccess={handleEditSuccess}
+      />
+
+      {/* Delete Document Dialog */}
+      <DeleteDocumentDialog
+        isOpen={deleteDialog.isOpen}
+        document={deleteDialog.document}
+        onClose={handleDeleteClose}
+        onSuccess={handleDeleteSuccess}
+      />
     </div>
   );
 }

@@ -1027,3 +1027,69 @@ export async function indexUrls(data: {
 
   return await response.json();
 }
+
+/**
+ * Update document by ID
+ * @param documentId The ID of the document to update
+ * @param data The data to update (title, language, etc.)
+ * @returns Promise with the success status and message
+ */
+export async function updateDocumentById(
+  documentId: string,
+  data: {
+    title?: string;
+    language?: string;
+  }
+): Promise<{ success: boolean; message: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/update_document_by_id/${documentId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(data),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update document: ${response.statusText}`)
+    );
+    throw new Error(`Failed to update document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}
+
+/**
+ * Delete document by ID
+ * @param documentId The ID of the document to delete
+ * @returns Promise with the success status and message
+ */
+export async function deleteDocumentById(
+  documentId: string
+): Promise<{ success: boolean; message: string }> {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/delete_document_by_id/${documentId}`,
+    {
+      method: "DELETE",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to delete document: ${response.statusText}`)
+    );
+    throw new Error(`Failed to delete document: ${response.statusText}`);
+  }
+
+  return await response.json();
+}

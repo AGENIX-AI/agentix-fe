@@ -14,7 +14,9 @@ export default function KnowledgeNotesTab() {
   const handleSidebarSuccess = () => {
     // Refresh the knowledge component list
     setRefreshDocuments((prev) => prev + 1);
-    setShowDetails(true);
+    // Close the sidebar to show the updated list
+    setShowAddSidebar(false);
+    // Don't automatically navigate to details - let user see the updated list
   };
 
   if (showDetails) {

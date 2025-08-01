@@ -12,6 +12,8 @@ import { MediaCollectionsTable } from "./MediaCollectionsTable";
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
+import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
 
 export type MediaDocumentType = "image";
 
@@ -30,11 +32,19 @@ export function MediaCollectionsComponent({
   const { metaData, setMetaData } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingDocumentIds, setLoadingDocumentIds] = useState<string[]>([]);
+  const [loadingDocumentIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
+
+  // Edit/Delete state
+  const [showEditSidebar, setShowEditSidebar] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null
+  );
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -63,7 +73,7 @@ export function MediaCollectionsComponent({
     };
 
     fetchDocuments();
-  }, [currentPage, pageSize, searchQuery, refreshTrigger]);
+  }, [currentPage, pageSize, searchQuery, refreshTrigger, localRefreshTrigger]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -79,20 +89,13 @@ export function MediaCollectionsComponent({
     }
   };
 
-  const handleViewDocument = async (documentId: string) => {
-    try {
-      // TODO: Implement view functionality
-      toast.info(`View functionality to be implemented ${documentId}`);
-    } catch (error) {
-      console.error("Error viewing document:", error);
-      toast.error("Failed to view document");
-    }
-  };
-
   const handleEditDocument = async (documentId: string) => {
     try {
-      // TODO: Implement edit functionality
-      toast.info(`Edit functionality to be implemented ${documentId}`);
+      const document = documents.find((doc) => doc.id === documentId);
+      if (document) {
+        setSelectedDocument(document);
+        setShowEditSidebar(true);
+      }
     } catch (error) {
       console.error("Error editing document:", error);
       toast.error("Failed to edit document");
@@ -101,25 +104,29 @@ export function MediaCollectionsComponent({
 
   const handleDeleteDocument = async (documentId: string) => {
     try {
-      setLoadingDocumentIds((prev) => [...prev, documentId]);
-
-      // TODO: Implement delete API call
-      // For now, just show a confirmation toast
-      const confirmed = window.confirm(
-        "Are you sure you want to delete this media collection?"
-      );
-
-      if (confirmed) {
-        // Remove from local state for now
-        setDocuments(documents.filter((doc) => doc.id !== documentId));
-        toast.success("Media collection deleted successfully");
+      const document = documents.find((doc) => doc.id === documentId);
+      if (document) {
+        setSelectedDocument(document);
+        setShowDeleteDialog(true);
       }
     } catch (error) {
       console.error("Error deleting document:", error);
-      toast.error("Failed to delete document");
-    } finally {
-      setLoadingDocumentIds((prev) => prev.filter((id) => id !== documentId));
+      toast.error(t("documents.media.failedToDelete"));
     }
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh documents list by triggering a local refresh
+    setLocalRefreshTrigger((prev) => prev + 1);
+    setShowEditSidebar(false);
+    setSelectedDocument(null);
+  };
+
+  const handleDeleteSuccess = () => {
+    // Refresh documents list by triggering a local refresh
+    setLocalRefreshTrigger((prev) => prev + 1);
+    setShowDeleteDialog(false);
+    setSelectedDocument(null);
   };
 
   const handleRowClick = (documentId: string) => {
@@ -188,7 +195,6 @@ export function MediaCollectionsComponent({
                 <MediaCollectionsTable
                   documents={documents}
                   getStatusColor={getStatusColor}
-                  onView={handleViewDocument}
                   onEdit={handleEditDocument}
                   onDelete={handleDeleteDocument}
                   onRowClick={handleRowClick}
@@ -209,6 +215,28 @@ export function MediaCollectionsComponent({
           )}
         </>
       )}
+
+      {/* Edit Sidebar */}
+      <EditDocumentSidebar
+        isVisible={showEditSidebar}
+        onClose={() => {
+          setShowEditSidebar(false);
+          setSelectedDocument(null);
+        }}
+        onSuccess={handleEditSuccess}
+        document={selectedDocument}
+      />
+
+      {/* Delete Dialog */}
+      <DeleteDocumentDialog
+        isOpen={showDeleteDialog}
+        onClose={() => {
+          setShowDeleteDialog(false);
+          setSelectedDocument(null);
+        }}
+        onSuccess={handleDeleteSuccess}
+        document={selectedDocument}
+      />
     </div>
   );
 }

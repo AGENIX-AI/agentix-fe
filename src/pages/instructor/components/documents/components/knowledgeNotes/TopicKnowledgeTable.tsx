@@ -1,4 +1,4 @@
-import { Loader2, Eye, Edit, Trash2 } from "lucide-react";
+import { Loader2, Edit, Trash2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -7,11 +7,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import type { Document } from "@/api/documents";
 
 export interface TopicKnowledgeTableProps {
   documents: Document[];
-  onView?: (documentId: string) => void;
   onEdit?: (documentId: string) => void;
   onDelete?: (documentId: string) => void;
   onRowClick?: (documentId: string) => void;
@@ -20,7 +20,6 @@ export interface TopicKnowledgeTableProps {
 
 export function TopicKnowledgeTable({
   documents,
-  onView,
   onEdit,
   onDelete,
   onRowClick,
@@ -67,30 +66,33 @@ export function TopicKnowledgeTable({
                         <Loader2 className="h-3 w-3 animate-spin text-primary" />
                       ) : (
                         <>
-                          <button
-                            onClick={() => onView?.(document.id)}
-                            className="text-xs text-blue-600 hover:underline flex items-center gap-1"
-                            title="View knowledge component"
-                          >
-                            <Eye className="h-3 w-3" />
-                            View
-                          </button>
-                          <button
-                            onClick={() => onEdit?.(document.id)}
-                            className="text-xs text-amber-600 hover:underline flex items-center gap-1"
+                          {/* Edit Button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEdit?.(document.id);
+                            }}
                             title="Edit knowledge component"
                           >
                             <Edit className="h-3 w-3" />
-                            Edit
-                          </button>
-                          <button
-                            onClick={() => onDelete?.(document.id)}
-                            className="text-xs text-red-600 hover:underline flex items-center gap-1"
+                          </Button>
+
+                          {/* Delete Button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete?.(document.id);
+                            }}
                             title="Delete knowledge component"
                           >
                             <Trash2 className="h-3 w-3" />
-                            Delete
-                          </button>
+                          </Button>
                         </>
                       )}
                     </div>

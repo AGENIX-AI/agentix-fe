@@ -236,14 +236,6 @@ export default function WebDerivedKnowledgeDetailsView({
     );
   };
 
-  const handleViewImage = (imageId: string) => {
-    toast.info(
-      `${t(
-        "webDerivedKnowledge.view_functionality_to_be_implemented"
-      )} ${imageId}`
-    );
-  };
-
   const handleEditImage = (imageId: string) => {
     toast.info(
       `${t(
@@ -406,7 +398,6 @@ export default function WebDerivedKnowledgeDetailsView({
                   <div className="w-full max-w-full overflow-x-auto">
                     <MediaItemsTable
                       items={images}
-                      onView={handleViewImage}
                       onEdit={handleEditImage}
                       onDelete={handleDeleteImage}
                       loadingItemIds={[]}

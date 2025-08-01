@@ -1,6 +1,7 @@
 import type { Document } from "@/api/documents";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { Edit, Trash2, Loader2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -9,17 +10,24 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 
 interface WebDerivedKnowledgeTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
   onRowClick: (documentId: string) => void;
+  onEdit?: (documentId: string) => void;
+  onDelete?: (documentId: string) => void;
+  loadingDocumentIds?: string[];
 }
 
 export function WebDerivedKnowledgeTable({
   documents,
   getStatusColor,
   onRowClick,
+  onEdit,
+  onDelete,
+  loadingDocumentIds = [],
 }: WebDerivedKnowledgeTableProps) {
   const { t } = useTranslation();
 
@@ -59,6 +67,9 @@ export function WebDerivedKnowledgeTable({
                 <TableHead className="text-xs">
                   {t("documents.webKnowledge.tableCreated")}
                 </TableHead>
+                <TableHead className="text-right text-xs">
+                  {t("documents.table.actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -86,6 +97,43 @@ export function WebDerivedKnowledgeTable({
                   </TableCell>
                   <TableCell className="text-xs">
                     {new Date(document.created_at).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell className="text-right text-xs">
+                    <div className="flex gap-2 justify-end">
+                      {loadingDocumentIds.includes(document.id) ? (
+                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                      ) : (
+                        <>
+                          {/* Edit Button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onEdit?.(document.id);
+                            }}
+                            title="Edit web derived knowledge"
+                          >
+                            <Edit className="h-3 w-3" />
+                          </Button>
+
+                          {/* Delete Button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onDelete?.(document.id);
+                            }}
+                            title="Delete web derived knowledge"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </Button>
+                        </>
+                      )}
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}

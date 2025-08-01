@@ -11,6 +11,8 @@ import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { AddWebDerivedKnowledgeSidebar } from "./webdeviredKnowledge/WebDerivedKnowledgeSidebar";
 import { WebDerivedKnowledgeTable } from "./webdeviredKnowledge/WebDerivedKnowledgeTable";
+import { EditDocumentSidebar } from "./documentsTab/ownDocuments/EditDocumentSidebar";
+import { DeleteDocumentDialog } from "./documentsTab/ownDocuments/DeleteDocumentDialog";
 
 import WebDerivedKnowledgeDetailsView from "./webdeviredKnowledge/WebDerivedKnowledgeDetailsView";
 import { Input } from "@/components/ui/input";
@@ -26,11 +28,17 @@ export default function WebDerivedKnowledgeTab() {
   const [totalItems, setTotalItems] = useState(0);
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [showAddSidebar, setShowAddSidebar] = useState(false);
+  const [loadingDocumentIds] = useState<string[]>([]);
 
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
   const [showDetailsView, setShowDetailsView] = useState(false);
+  
+  // Edit/Delete state
+  const [showEditSidebar, setShowEditSidebar] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedDocumentForAction, setSelectedDocumentForAction] = useState<Document | null>(null);
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -107,6 +115,37 @@ export default function WebDerivedKnowledgeTab() {
     setShowAddSidebar(false);
   };
 
+  // Edit and delete handlers
+  const handleEdit = (documentId: string) => {
+    const document = documents.find(doc => doc.id === documentId);
+    if (document) {
+      setSelectedDocumentForAction(document);
+      setShowEditSidebar(true);
+    }
+  };
+
+  const handleDelete = (documentId: string) => {
+    const document = documents.find(doc => doc.id === documentId);
+    if (document) {
+      setSelectedDocumentForAction(document);
+      setShowDeleteDialog(true);
+    }
+  };
+
+  const handleEditSuccess = () => {
+    setShowEditSidebar(false);
+    setSelectedDocumentForAction(null);
+    // Refresh the documents list
+    setRefreshDocuments((prev) => prev + 1);
+  };
+
+  const handleDeleteSuccess = () => {
+    setShowDeleteDialog(false);
+    setSelectedDocumentForAction(null);
+    // Refresh the documents list
+    setRefreshDocuments((prev) => prev + 1);
+  };
+
   // Show details view if selected
   if (showDetailsView && selectedDocument) {
     return (
@@ -168,6 +207,9 @@ export default function WebDerivedKnowledgeTab() {
                       documents={documents}
                       getStatusColor={getStatusColor}
                       onRowClick={handleRowClick}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      loadingDocumentIds={loadingDocumentIds}
                     />
                   </div>
 
@@ -195,19 +237,31 @@ export default function WebDerivedKnowledgeTab() {
         setMetaData={setMetaData}
       />
 
-      {/* <EditWebDerivedKnowledgeSidebar
-        isVisible={showEditSidebar}
-        onClose={() => setShowEditSidebar(false)}
-        onSuccess={handleEditSidebarSuccess}
-        documentId={selectedDocumentId}
-      />
+      {/* Edit Document Sidebar */}
+      {selectedDocumentForAction && (
+        <EditDocumentSidebar
+          isVisible={showEditSidebar}
+          onClose={() => {
+            setShowEditSidebar(false);
+            setSelectedDocumentForAction(null);
+          }}
+          onSuccess={handleEditSuccess}
+          document={selectedDocumentForAction}
+        />
+      )}
 
-      <IndexCrawlDocumentSidebar
-        isVisible={showIndexSidebar}
-        onClose={() => setShowIndexSidebar(false)}
-        onSuccess={handleIndexSidebarSuccess}
-        documentId={selectedDocumentId}
-      /> */}
+      {/* Delete Document Dialog */}
+      {selectedDocumentForAction && (
+        <DeleteDocumentDialog
+          isOpen={showDeleteDialog}
+          onClose={() => {
+            setShowDeleteDialog(false);
+            setSelectedDocumentForAction(null);
+          }}
+          onSuccess={handleDeleteSuccess}
+          document={selectedDocumentForAction}
+        />
+      )}
     </div>
   );
 }

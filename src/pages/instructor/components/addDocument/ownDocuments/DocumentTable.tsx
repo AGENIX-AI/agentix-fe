@@ -1,6 +1,7 @@
 import { cn } from "@/lib/utils";
 import type { Document } from "@/api/documents";
 import { useTranslation } from "react-i18next";
+import { Loader2, Edit, Trash2, ExternalLink } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,12 +15,18 @@ interface DocumentTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
   getLinkStatus: (linked: boolean | undefined) => string;
+  onEdit?: (documentId: string) => void;
+  onDelete?: (documentId: string) => void;
+  loadingDocumentIds?: string[];
 }
 
 export function DocumentTable({ 
   documents, 
   getStatusColor,
-  getLinkStatus 
+  getLinkStatus,
+  onEdit,
+  onDelete,
+  loadingDocumentIds = []
 }: DocumentTableProps) {
   const { t } = useTranslation();
   return (
@@ -84,14 +91,50 @@ export function DocumentTable({
                 {new Date(doc.created_at).toLocaleDateString()}
               </TableCell>
               <TableCell className="p-2 text-xs">
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs inline-flex items-center gap-1 text-primary hover:underline"
-                >
-                  {t('document.table.view')}
-                </a>
+                <div className="flex gap-2 justify-start">
+                  {loadingDocumentIds.includes(doc.id) ? (
+                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                  ) : (
+                    <>
+                      <a
+                        href={doc.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs inline-flex items-center gap-1 text-blue-600 hover:underline"
+                        title={t('document.table.view')}
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        {t('document.table.view')}
+                      </a>
+                      {onEdit && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(doc.id);
+                          }}
+                          className="text-xs text-amber-600 hover:underline flex items-center gap-1"
+                          title="Edit document"
+                        >
+                          <Edit className="h-3 w-3" />
+                          Edit
+                        </button>
+                      )}
+                      {onDelete && (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(doc.id);
+                          }}
+                          className="text-xs text-red-600 hover:underline flex items-center gap-1"
+                          title="Delete document"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Delete
+                        </button>
+                      )}
+                    </>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

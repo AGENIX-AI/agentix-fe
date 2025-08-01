@@ -738,6 +738,21 @@ const enTranslation: Record<string, any> = {
     failed_to_link: "Failed to link document",
     failed_to_unlink: "Failed to unlink document",
     failed_to_update_mode: "Failed to update document mode",
+    // Edit and Delete
+    editDocument: "Edit Document",
+    deleteDocument: "Delete Document",
+    title: "Title",
+    language: "Language",
+    enterTitle: "Please enter a title",
+    selectLanguage: "Select language",
+    updated: "Document updated successfully",
+    deleted: "Document deleted successfully",
+    failedToUpdate: "Failed to update document",
+    failedToDelete: "Failed to delete document",
+    updating: "Updating...",
+    deleting: "Deleting...",
+    updateDocument: "Update Document",
+    deleteConfirmation: "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
     // Assistant Knowledge Tab
     assistantKnowledge: {
       failedToLoad: "Failed to load assistant data. Please try again.",
@@ -895,6 +910,13 @@ const enTranslation: Record<string, any> = {
       created: "Created",
       actions: "Actions",
       view: "View",
+      edit: "Edit",
+      delete: "Delete",
+      move: "Move",
+      editDocument: "Edit document",
+      deleteDocument: "Delete document",
+      moveToOriginal: "Move to Original",
+      moveToReference: "Move to Reference",
     },
     // Document Details
     details: {

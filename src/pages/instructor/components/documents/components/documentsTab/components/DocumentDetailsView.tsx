@@ -255,15 +255,6 @@ export default function DocumentDetailsView({
     }, 1000);
   };
 
-  const handleViewImage = (chunkIndex: string) => {
-    setLoadingImageIds((prev) => [...prev, chunkIndex]);
-    toast.info(`View image functionality to be implemented for ${chunkIndex}`);
-    // After operation completes (success or failure), remove from loading state
-    setTimeout(() => {
-      setLoadingImageIds((prev) => prev.filter((id) => id !== chunkIndex));
-    }, 1000);
-  };
-
   const handleAddNote = () => {
     setShowAddNoteSidebar(true);
   };
@@ -399,7 +390,6 @@ export default function DocumentDetailsView({
                   <div className="w-full max-w-full overflow-x-auto">
                     <MediaItemsTable
                       items={images}
-                      onView={handleViewImage}
                       onEdit={handleEditImage}
                       onDelete={handleDeleteImage}
                       loadingItemIds={loadingImageIds}

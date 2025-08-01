@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, Edit, Trash2 } from "lucide-react";
 
 import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import { Large } from "@/components/ui/typography";
+import { Button } from "@/components/ui/button";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { DocumentTable } from "./DocumentTable";
 import { Pagination } from "./Pagination";
+import { EditDocumentSidebar } from "./EditDocumentSidebar";
+import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
 
 export type DocumentType =
   | "document"
@@ -23,6 +26,11 @@ export default function OwnDocumentsComponent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
+  
+  // Edit/Delete state
+  const [showEditSidebar, setShowEditSidebar] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
 
   // Fetch documents when page, search, or document type changes
   useEffect(() => {
@@ -54,6 +62,81 @@ export default function OwnDocumentsComponent() {
 
     fetchDocuments();
   }, [assistantId, currentPage, pageSize, searchQuery]);
+
+  const handleEdit = (document: Document) => {
+    setSelectedDocument(document);
+    setShowEditSidebar(true);
+  };
+
+  const handleDelete = (document: Document) => {
+    setSelectedDocument(document);
+    setShowDeleteDialog(true);
+  };
+
+  const handleEditSuccess = () => {
+    // Refresh documents list
+    const fetchDocuments = async () => {
+      if (!assistantId) return;
+      setIsLoading(true);
+
+      try {
+        const response = await getOwnDocuments({
+          page_number: currentPage,
+          page_size: pageSize,
+          search: searchQuery || (undefined as unknown as string),
+          type: "document",
+          assistant_id: assistantId,
+          sort_by: "created_at",
+          sort_order: 1,
+        });
+
+        if (response.success) {
+          setDocuments(response.documents);
+          setTotalItems(response.total_items);
+        }
+      } catch (error) {
+        console.error("Error fetching documents:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchDocuments();
+  };
+
+  const handleDeleteSuccess = () => {
+    handleEditSuccess(); // Same refresh logic
+  };
+
+  const renderActions = (document: Document) => {
+    return (
+      <>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleEdit(document);
+          }}
+          className="h-6 px-2 text-xs"
+        >
+          <Edit className="h-3 w-3 mr-1" />
+          Edit
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete(document);
+          }}
+          className="h-6 px-2 text-xs text-red-600 hover:text-red-700"
+        >
+          <Trash2 className="h-3 w-3 mr-1" />
+          Delete
+        </Button>
+      </>
+    );
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -102,6 +185,7 @@ export default function OwnDocumentsComponent() {
                 <DocumentTable
                   documents={documents}
                   getStatusColor={getStatusColor}
+                  renderActions={renderActions}
                 />
 
                 <Pagination
@@ -116,6 +200,22 @@ export default function OwnDocumentsComponent() {
           </>
         )}
       </div>
+      
+      {/* Edit Sidebar */}
+      <EditDocumentSidebar
+        isVisible={showEditSidebar}
+        onClose={() => setShowEditSidebar(false)}
+        onSuccess={handleEditSuccess}
+        document={selectedDocument}
+      />
+      
+      {/* Delete Dialog */}
+      <DeleteDocumentDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onSuccess={handleDeleteSuccess}
+        document={selectedDocument}
+      />
     </div>
   );
 }

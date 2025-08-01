@@ -169,19 +169,7 @@ export default function DocumentImageDetails({
     fetchImages();
   };
 
-  const handleViewImage = async (chunkIndex: string) => {
-    try {
-      const image = images.find((img) => img.chunk_index === chunkIndex);
-      if (image) {
-        setSelectedImage(image);
-        setImageSidebarMode("view");
-        setShowViewEditImageSidebar(true);
-      }
-    } catch (error) {
-      console.error("Error viewing image:", error);
-      toast.error("Failed to view image");
-    }
-  };
+
 
   const handleEditImage = async (chunkIndex: string) => {
     try {
@@ -463,7 +451,6 @@ export default function DocumentImageDetails({
                   <div className="w-full max-w-full overflow-x-auto">
                     <MediaItemsTable
                       items={images}
-                      onView={handleViewImage}
                       onEdit={handleEditImage}
                       onDelete={handleDeleteImage}
                       loadingItemIds={loadingImageIds}
