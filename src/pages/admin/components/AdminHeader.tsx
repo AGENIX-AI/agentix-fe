@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchIcon } from "lucide-react";
 import { H3 } from "@/components/ui/typography";
@@ -8,16 +7,12 @@ interface AdminHeaderProps {
   title: string;
   searchQuery: string;
   onSearchChange: (query: string) => void;
-  showNewButton: boolean;
-  newButtonText: string;
 }
 
 export function AdminHeader({
   title,
   searchQuery,
   onSearchChange,
-  showNewButton,
-  newButtonText,
 }: AdminHeaderProps) {
   const [localSearchQuery, setLocalSearchQuery] = useState(searchQuery);
 
@@ -53,9 +48,6 @@ export function AdminHeader({
             className="pl-10 w-80 text-xs"
           />
         </div>
-
-        {/* New Button */}
-        {showNewButton && <Button className="text-xs">{newButtonText}</Button>}
       </div>
     </header>
   );

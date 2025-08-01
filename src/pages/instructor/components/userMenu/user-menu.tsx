@@ -23,6 +23,7 @@ import {
   LogOutIcon,
   MoonIcon,
   MoreVerticalIcon,
+  Notebook,
   SettingsIcon,
   SunIcon,
 } from "lucide-react";
@@ -53,7 +54,7 @@ export function UserMenu({
   const { setRightPanel } = useInstructor();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   // Determine current mode based on URL path
   const [currentMode, setCurrentMode] = useState<string>(
     location.pathname.includes("/instructor") ? "instructor" : "student"
@@ -159,7 +160,7 @@ export function UserMenu({
         </DropdownMenuLabel>
 
         <DropdownMenuSeparator />
-        
+
         {/* Mode selection */}
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
@@ -290,6 +291,16 @@ export function UserMenu({
               {t("app.userMenu.documentation", "Documentation")}
             </span>
           </a>
+        </DropdownMenuItem>
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
+          <div
+            onClick={() => {
+              setRightPanel("blogs");
+            }}
+          >
+            <Notebook className="mr-2 size-5" />
+            <span className="text-xs">{t("app.userMenu.blogs", "Blogs")}</span>
+          </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">

@@ -23,13 +23,14 @@ import {
   LogOutIcon,
   MoonIcon,
   MoreVerticalIcon,
+  Notebook,
   SettingsIcon,
   SunIcon,
 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudent } from "@/contexts/StudentContext";
@@ -288,6 +289,17 @@ export function UserMenu({
               {t("app.userMenu.documentation", "Documentation")}
             </span>
           </a>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">
+          <div
+            onClick={() => {
+              setRightPanel("blogs");
+            }}
+          >
+            <Notebook className="mr-2 size-5" />
+            <span className="text-xs">{t("app.userMenu.blogs", "Blogs")}</span>
+          </div>
         </DropdownMenuItem>
 
         <DropdownMenuItem asChild className="text-xs py-2 cursor-pointer">

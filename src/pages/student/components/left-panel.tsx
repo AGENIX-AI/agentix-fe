@@ -1,10 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { SearchIcon } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Small } from "@/components/ui/typography";
-import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Separator } from "@/components/ui/separator";
 import { Logo } from "@/components/ui/Logo";
 import { HistoryComponent } from "./history/history-component";
 import { ModifiedResizableLayout } from "./resizeable-layout";

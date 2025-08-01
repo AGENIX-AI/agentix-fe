@@ -212,6 +212,21 @@ const enTranslation: Record<string, any> = {
     edit: "Edit",
     confirm: "Confirm",
     instructor: "Instructor",
+    search: "Search...",
+    retry: "Retry",
+    loadMore: "Load More",
+    showing: "Showing",
+    of: "of",
+    noSearchResults: "No search results found",
+    error: {
+      failedToLoad: "Failed to load data. Please try again.",
+    },
+  },
+
+  blogs: {
+    blogs: "blogs",
+    noBlogsFound: "No blogs found",
+    updated: "Updated",
   },
 
   // Help Section
@@ -494,6 +509,7 @@ const enTranslation: Record<string, any> = {
       findInstructor: "Find Instructor",
       buyCredits: "Buy Credits",
       helpCenter: "Help Center",
+      blogs: "Blogs",
       homePage: "Home Page",
       rightPanel: "Right Panel",
     },

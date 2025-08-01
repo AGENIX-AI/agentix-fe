@@ -213,6 +213,21 @@ const viTranslation = {
     send: "Gửi",
     sending: "Đang gửi...",
     instructor: "Giảng viên",
+    search: "Tìm kiếm...",
+    retry: "Thử lại",
+    loadMore: "Tải thêm",
+    showing: "Hiển thị",
+    of: "của",
+    noSearchResults: "Không tìm thấy kết quả",
+    error: {
+      failedToLoad: "Không thể tải dữ liệu. Vui lòng thử lại.",
+    },
+  },
+
+  blogs: {
+    blogs: "blog",
+    noBlogsFound: "Không tìm thấy blog nào",
+    updated: "Đã cập nhật",
   },
 
   // Help Section
@@ -492,6 +507,7 @@ const viTranslation = {
       findInstructor: "Tìm giảng viên",
       buyCredits: "Mua tín dụng",
       helpCenter: "Trung tâm trợ giúp",
+      blogs: "Blog",
       homePage: "Trang chủ",
       rightPanel: "Bảng điều khiển bên phải",
     },

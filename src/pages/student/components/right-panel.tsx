@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
 import { BuyCredits } from "./buyCredits/BuyCredits";
 import { Helps } from "./helps/Helps";
+import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
 import { Large } from "@/components/ui/typography";
 import { memo } from "react";
 import {
@@ -169,6 +170,8 @@ export default function RightPanel({
         return t("student.rightPanel.buyCredits");
       case "helps":
         return t("student.rightPanel.helpCenter");
+      case "blogs":
+        return t("student.rightPanel.blogs");
       case "documents":
         return "Documents";
       case "empty":
@@ -270,6 +273,16 @@ export default function RightPanel({
             toggleMiniapp={toggleMiniapp}
           />
           <Helps />
+        </div>
+      );
+    case "blogs":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title={t("student.rightPanel.blogs")}
+            toggleMiniapp={toggleMiniapp}
+          />
+          <BlogsPanel />
         </div>
       );
     case "empty":

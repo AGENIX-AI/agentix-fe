@@ -8,6 +8,7 @@ import {
   Package,
   Ticket,
   HelpCircle,
+  FileText,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -67,6 +68,11 @@ export const adminSidebarData: SidebarData = {
           title: "Help Center",
           url: "/admin/help-center",
           icon: HelpCircle,
+        },
+        {
+          title: "Blogs",
+          url: "/admin/blogs",
+          icon: FileText,
         },
         {
           title: "Settings",

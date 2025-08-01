@@ -22,6 +22,8 @@ import { AlignJustify } from "lucide-react";
 import { DocumentsLayout } from "./documents";
 import AssistantManager from "./assistantList/AssistantList";
 import AssistantDetailsLayout from "./assistantManagement/AssistantDetailsLayout";
+import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
+import { t } from "i18next";
 
 const MiniappToggleButton = memo(
   ({
@@ -412,6 +414,16 @@ export default function RightPanel({
             defaultTab="knowledge"
             assistantId={metaData.assistantId}
           />
+        </div>
+      );
+    case "blogs":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader
+            title={t("student.rightPanel.blogs")}
+            toggleMiniapp={toggleMiniapp}
+          />
+          <BlogsPanel />
         </div>
       );
     default:

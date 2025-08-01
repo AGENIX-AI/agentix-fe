@@ -11,6 +11,7 @@ import { AdminPackages } from "./AdminPackages";
 import { AdminVouchers } from "./AdminVouchers";
 import { AdminSettings } from "./AdminSettings";
 import { AdminHelpCenter } from "./AdminHelpCenter";
+import { AdminBlogs } from "./AdminBlogs";
 
 interface AdminLayoutProps {
   onSidebarToggle: (collapsed: boolean) => void;
@@ -33,27 +34,9 @@ export default function AdminLayout({
     if (path.includes("/packages")) return "Package Management";
     if (path.includes("/vouchers")) return "Voucher Management";
     if (path.includes("/help-center")) return "Help Center";
+    if (path.includes("/blogs")) return "Blogs";
     if (path.includes("/settings")) return "Settings";
     return "Dashboard";
-  };
-
-  const showNewButton = () => {
-    const path = location.pathname;
-    return (
-      path.includes("/assistants") ||
-      path.includes("/instructors") ||
-      path.includes("/students") ||
-      path.includes("/vouchers")
-    );
-  };
-
-  const getNewButtonText = () => {
-    const path = location.pathname;
-    if (path.includes("/assistants")) return "New Assistant";
-    if (path.includes("/instructors")) return "New Instructor";
-    if (path.includes("/students")) return "New Student";
-    if (path.includes("/vouchers")) return "New Voucher";
-    return "New";
   };
 
   return (
@@ -71,8 +54,6 @@ export default function AdminLayout({
           title={getPageTitle()}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
-          showNewButton={showNewButton()}
-          newButtonText={getNewButtonText()}
         />
 
         {/* Content */}
@@ -98,6 +79,10 @@ export default function AdminLayout({
               element={<AdminVouchers searchQuery={searchQuery} />}
             />
             <Route path="/help-center" element={<AdminHelpCenter />} />
+            <Route
+              path="/blogs"
+              element={<AdminBlogs searchQuery={searchQuery} />}
+            />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/" element={<AdminDashboard />} />
           </Routes>
