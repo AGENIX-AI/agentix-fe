@@ -48,8 +48,8 @@ export const fetchBlogs = async (
     queryParams.append("sort_order", params.sort_order.toString());
   if (params?.search) queryParams.append("search", params.search);
 
-  const url = `/blog${
-    queryParams.toString() ? `?${queryParams.toString()}/` : "/"
+  const url = `/blog/${
+    queryParams.toString() ? `?${queryParams.toString()}` : ""
   }`;
   const response = await axiosInstance.get(url);
   return response.data;
