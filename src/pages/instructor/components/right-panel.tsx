@@ -7,7 +7,7 @@ import { Dashboard } from "./dashboard/dashboard";
 import ReviewDocument from "./reviewDocument/review-document";
 
 import { EditProfile } from "./editProfile/EditProfile";
-import { BuyCredits } from "./buyCredits/BuyCredits";
+import { BuyCredits } from "../../../components/reused/buyCredits/BuyCredits";
 import { SharingTopics } from "./history/SharingTopics";
 import { Helps } from "./helps/Helps";
 import { Large } from "@/components/ui/typography";

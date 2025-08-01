@@ -61,7 +61,7 @@ export const fetchBlog = async (id: string): Promise<Blog> => {
 };
 
 export const createBlog = async (data: CreateBlogRequest): Promise<Blog> => {
-  const response = await axiosInstance.post("/blog", data);
+  const response = await axiosInstance.post("/blog/", data);
   return response.data;
 };
 

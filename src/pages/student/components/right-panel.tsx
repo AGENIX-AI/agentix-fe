@@ -4,7 +4,7 @@ import { FollowingPosts } from "./followingPosts/FollowingPosts";
 import { AssistantView } from "./assistantProfile/layout";
 import { useTranslation } from "react-i18next";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
-import { BuyCredits } from "./buyCredits/BuyCredits";
+import { BuyCredits } from "../../../components/reused/buyCredits/BuyCredits";
 import { Helps } from "./helps/Helps";
 import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
 import { Large } from "@/components/ui/typography";

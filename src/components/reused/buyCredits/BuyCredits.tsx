@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Loader2, CreditCard, CheckCircle } from "lucide-react";
+import { Loader2, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import {
   redeemVoucher,
   type Package,
 } from "@/api/payments";
+import { Small } from "@/components/typography";
 
 const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
 
@@ -33,6 +34,9 @@ export function BuyCredits() {
     "idle" | "success" | "failed"
   >("idle");
 
+  // Carousel state
+  const [currentPackageIndex, setCurrentPackageIndex] = useState(0);
+
   // Fetch packages on component mount
   useEffect(() => {
     const fetchPackages = async () => {
@@ -42,6 +46,10 @@ export function BuyCredits() {
 
         if (response.success && response.packages) {
           setPackages(response.packages);
+          // Auto-select the first package
+          if (response.packages.length > 0) {
+            handlePackageSelect(response.packages[0]);
+          }
         } else {
           toast.error(t("credits.errors.load_failed"));
         }
@@ -59,6 +67,31 @@ export function BuyCredits() {
   const handlePackageSelect = (pkg: Package) => {
     setSelectedPackage(pkg);
     setShowPayPal(true);
+  };
+
+  const goToNextPackage = () => {
+    const nextIndex =
+      currentPackageIndex === packages.length - 1 ? 0 : currentPackageIndex + 1;
+    setCurrentPackageIndex(nextIndex);
+    if (packages[nextIndex]) {
+      handlePackageSelect(packages[nextIndex]);
+    }
+  };
+
+  const goToPreviousPackage = () => {
+    const prevIndex =
+      currentPackageIndex === 0 ? packages.length - 1 : currentPackageIndex - 1;
+    setCurrentPackageIndex(prevIndex);
+    if (packages[prevIndex]) {
+      handlePackageSelect(packages[prevIndex]);
+    }
+  };
+
+  const goToPackage = (index: number) => {
+    setCurrentPackageIndex(index);
+    if (packages[index]) {
+      handlePackageSelect(packages[index]);
+    }
   };
 
   const createOrder = async (): Promise<string> => {
@@ -100,7 +133,7 @@ export function BuyCredits() {
           toast.success(
             t("credits.success.payment_complete", {
               count: selectedPackage?.credit,
-              formattedCount: selectedPackage?.credit.toLocaleString()
+              formattedCount: selectedPackage?.credit.toLocaleString(),
             })
           );
           setPaymentStatus("completed");
@@ -111,14 +144,14 @@ export function BuyCredits() {
           throw new Error(t("credits.errors.payment_incomplete"));
         }
       } else {
-        throw new Error(response.message || t("credits.errors.payment_processing"));
+        throw new Error(
+          response.message || t("credits.errors.payment_processing")
+        );
       }
     } catch (error) {
       console.error("Error processing payment:", error);
       setPaymentStatus("failed");
-      toast.error(
-        t("credits.errors.payment_failed_contact")
-      );
+      toast.error(t("credits.errors.payment_failed_contact"));
       setIsProcessing(false);
     }
   };
@@ -132,9 +165,7 @@ export function BuyCredits() {
     } catch (error) {
       console.error("Error in payment approval flow:", error);
       setPaymentStatus("failed");
-      toast.error(
-        t("credits.errors.payment_failed_contact")
-      );
+      toast.error(t("credits.errors.payment_failed_contact"));
       setIsProcessing(false);
     }
   };
@@ -185,7 +216,9 @@ export function BuyCredits() {
       console.error("Error redeeming voucher:", error);
       setVoucherRedemptionStatus("failed");
       toast.error(
-        error instanceof Error ? error.message : t("credits.errors.redeem_voucher")
+        error instanceof Error
+          ? error.message
+          : t("credits.errors.redeem_voucher")
       );
     } finally {
       setIsRedeemingVoucher(false);
@@ -194,14 +227,6 @@ export function BuyCredits() {
 
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Header */}
-      <div className="sticky top-0 z-20 bg-background flex items-center h-18 border-b w-full p-4">
-        <div className="flex items-center gap-3">
-          <CreditCard className="size-6 text-primary" />
-          <h1 className="text-2xl font-bold">{t("credits.title")}</h1>
-        </div>
-      </div>
-
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl mx-auto">
@@ -211,13 +236,13 @@ export function BuyCredits() {
               <div className="mb-4 bg-primary/10 p-4 rounded-full">
                 <CheckCircle className="size-12 text-primary" />
               </div>
-              <h2 className="text-2xl font-semibold mb-2">
+              <Small className="text-2xl font-semibold mb-2">
                 {t("credits.success.title")}
-              </h2>
+              </Small>
               <p className="text-muted-foreground mb-6">
                 {t("credits.success.credits_added", {
                   count: selectedPackage?.credit,
-                  formattedCount: selectedPackage?.credit.toLocaleString()
+                  formattedCount: selectedPackage?.credit.toLocaleString(),
                 })}
               </p>
               <Button
@@ -234,9 +259,9 @@ export function BuyCredits() {
             <>
               {/* Description */}
               <div className="text-center mb-8">
-                <h2 className="text-xl font-semibold mb-2">
+                <Small className="text-xl font-semibold mb-2">
                   {t("credits.choose_package")}
-                </h2>
+                </Small>
                 <p className="text-muted-foreground">
                   {t("credits.description")}
                 </p>
@@ -245,9 +270,9 @@ export function BuyCredits() {
               {/* Voucher Redemption Section */}
               <Card className="p-6 mb-8">
                 <div className="text-center mb-4">
-                  <h3 className="text-lg font-semibold mb-2">
+                  <Small className="text-lg font-semibold mb-2">
                     {t("credits.voucher.title")}
-                  </h3>
+                  </Small>
                   <p className="text-sm text-muted-foreground">
                     {t("credits.voucher.description")}
                   </p>
@@ -262,7 +287,7 @@ export function BuyCredits() {
                         setVoucherCode(e.target.value.toUpperCase())
                       }
                       placeholder={t("credits.voucher.placeholder")}
-                      className="flex-1 px-3 py-2 border border-border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                      className="flex-1 px-3 py-2 border border-border rounded-md text-xs min-w-65"
                       disabled={isRedeemingVoucher}
                       onKeyPress={(e) => {
                         if (e.key === "Enter") {
@@ -304,68 +329,132 @@ export function BuyCredits() {
                 </div>
               </Card>
 
-              {/* Credit Packages */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                {isLoadingPackages
-                  ? // Loading skeleton
-                    Array.from({ length: 4 }).map((_, index) => (
-                      <Card key={index} className="p-6 animate-pulse">
-                        <div className="text-center">
-                          <div className="h-8 bg-gray-200 rounded mb-2"></div>
-                          <div className="h-6 bg-gray-200 rounded mb-1"></div>
-                          <div className="h-4 bg-gray-200 rounded mb-4"></div>
-                          <div className="h-3 bg-gray-200 rounded"></div>
-                        </div>
-                      </Card>
-                    ))
-                  : packages.map((pkg: Package) => (
-                      <Card
-                        key={pkg.id}
-                        className={`relative p-6 cursor-pointer transition-all border-2 hover:shadow-lg ${
-                          selectedPackage?.id === pkg.id
-                            ? "border-primary bg-primary/5"
-                            : "border-border hover:border-primary/50"
-                        } ${pkg.popular ? "ring-2 ring-primary/20" : ""}`}
-                        onClick={() => handlePackageSelect(pkg)}
-                      >
-                        {pkg.popular && (
-                          <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                            <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap">
-                              {t("credits.package.most_popular")}
-                            </span>
-                          </div>
-                        )}
+              {/* Credit Packages Carousel */}
+              <div className="mb-8">
+                {isLoadingPackages ? (
+                  // Loading skeleton
+                  <div className="flex justify-center">
+                    <Card className="p-4 animate-pulse w-full max-w-xs">
+                      <div className="text-center">
+                        <div className="h-6 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-8 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-6 bg-gray-200 rounded mb-1"></div>
+                        <div className="h-3 bg-gray-200 rounded mb-3"></div>
+                        <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                        <div className="h-3 bg-gray-200 rounded"></div>
+                      </div>
+                    </Card>
+                  </div>
+                ) : packages.length > 0 ? (
+                  <div className="relative">
+                    {/* Main Package Display */}
+                    <div className="flex justify-center mb-4">
+                      <div className="relative w-full max-w-xs h-64">
+                        {packages.map((pkg: Package, index) => (
+                          <Card
+                            key={pkg.id}
+                            className={`absolute inset-0 p-4 cursor-pointer transition-opacity duration-300 border-2 hover:shadow-lg ${
+                              index === currentPackageIndex
+                                ? "opacity-100 z-10"
+                                : "opacity-0 z-0"
+                            } ${
+                              selectedPackage?.id === pkg.id
+                                ? "border-primary bg-primary/5"
+                                : "border-border hover:border-primary/50"
+                            } ${pkg.popular ? "ring-2 ring-primary/20" : ""}`}
+                            onClick={() => handlePackageSelect(pkg)}
+                          >
+                            {pkg.popular && (
+                              <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
+                                <span className="bg-primary text-primary-foreground px-2 py-0.5 rounded-full text-xs font-medium whitespace-nowrap">
+                                  {t("credits.package.most_popular")}
+                                </span>
+                              </div>
+                            )}
 
-                        <div className="text-center">
-                          <div className="text-lg font-bold mb-2">
-                            {pkg.name}
-                          </div>
-                          <div className="text-3xl font-bold text-primary mb-2">
-                            ${pkg.price}
-                          </div>
-                          <div className="text-2xl font-semibold mb-1">
-                            {pkg.credit.toLocaleString()}
-                          </div>
-                          <div className="text-sm text-muted-foreground mb-3">
-                            {t("credits.package.credits")}
-                          </div>
-                          <div className="text-xs text-muted-foreground mb-3 px-2">
-                            {pkg.description}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            {t("credits.package.per_thousand", {
-                              price: (pkg.price / (pkg.credit / 1000)).toFixed(3)
-                            })}
-                          </div>
-                        </div>
+                            <div className="text-center">
+                              <div className="text-lg font-bold mb-2">
+                                {pkg.name}
+                              </div>
+                              <div className="text-3xl font-bold text-primary mb-2">
+                                ${pkg.price}
+                              </div>
+                              <div className="text-2xl font-semibold mb-1">
+                                {pkg.credit.toLocaleString()}
+                              </div>
+                              <div className="text-sm text-muted-foreground mb-3">
+                                {t("credits.package.credits")}
+                              </div>
+                              <div className="text-xs text-muted-foreground mb-3 px-1">
+                                {pkg.description}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {t("credits.package.per_thousand", {
+                                  price: (
+                                    pkg.price /
+                                    (pkg.credit / 1000)
+                                  ).toFixed(3),
+                                })}
+                              </div>
+                            </div>
 
-                        {selectedPackage?.id === pkg.id && (
-                          <div className="absolute top-2 right-2">
-                            <CheckCircle className="size-5 text-primary" />
-                          </div>
-                        )}
-                      </Card>
-                    ))}
+                            {selectedPackage?.id === pkg.id && (
+                              <div className="absolute top-2 right-2">
+                                <CheckCircle className="size-5 text-primary" />
+                              </div>
+                            )}
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Navigation Arrows */}
+                    {packages.length > 1 && (
+                      <>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="absolute left-2 top-1/2 transform -translate-y-1/2 z-20 rounded-full shadow-md h-8 w-8 p-0"
+                          onClick={goToPreviousPackage}
+                        >
+                          <ChevronLeft className="size-3" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="absolute right-2 top-1/2 transform -translate-y-1/2 z-20 rounded-full shadow-md h-8 w-8 p-0"
+                          onClick={goToNextPackage}
+                        >
+                          <ChevronRight className="size-3" />
+                        </Button>
+                      </>
+                    )}
+
+                    {/* Package Indicators */}
+                    {packages.length > 1 && (
+                      <div className="flex justify-center space-x-1.5 mt-3">
+                        {packages.map((_, index) => (
+                          <button
+                            key={index}
+                            className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                              index === currentPackageIndex
+                                ? "bg-primary scale-125"
+                                : "bg-muted-foreground/30 hover:bg-muted-foreground/50"
+                            }`}
+                            onClick={() => goToPackage(index)}
+                          />
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Package Counter */}
+                    {packages.length > 1 && (
+                      <div className="text-center mt-1 text-xs text-muted-foreground">
+                        {currentPackageIndex + 1} of {packages.length}
+                      </div>
+                    )}
+                  </div>
+                ) : null}
               </div>
 
               {/* PayPal Payment Section */}
@@ -379,7 +468,7 @@ export function BuyCredits() {
                       {t("credits.payment.purchasing", {
                         count: selectedPackage.credit,
                         formattedCount: selectedPackage.credit.toLocaleString(),
-                        price: selectedPackage.price
+                        price: selectedPackage.price,
                       })}
                     </p>
                   </div>
