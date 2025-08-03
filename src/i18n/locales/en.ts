@@ -1059,7 +1059,12 @@ const enTranslation: Record<string, any> = {
       complete_purchase: "Complete Your Purchase",
       purchasing: "You're purchasing {{formattedCount}} credits for ${{price}}",
       capturing: "Capturing payment...",
-      processing: "Processing payment...",
+      processing: "Processing...",
+      buy_now: "Buy Now",
+      pay_with_polar: "Pay with Polar",
+      redirecting: "Redirecting to payment...",
+      success: "Payment successful!",
+      cancelled: "Payment cancelled",
       failed: "Payment failed. Please try again or contact support.",
     },
     voucher: {
@@ -1084,8 +1089,8 @@ const enTranslation: Record<string, any> = {
       cancel: "Cancel",
     },
     security: {
-      secure_payment: "🔒 Secure payment processing powered by PayPal",
-      encrypted: "Your payment information is encrypted and protected",
+      secure_payment: "Secure payment powered by Polar",
+      encrypted: "All transactions are encrypted and secure",
     },
     errors: {
       load_failed: "Failed to load credit packages. Please try again.",

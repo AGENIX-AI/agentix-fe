@@ -3,29 +3,26 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Loader2, CheckCircle, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
-import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import { useTranslation } from "react-i18next";
 import {
   getPackages,
-  createPaymentIntent,
-  captureAndCheckPayment,
+  createPolarPayment,
   redeemVoucher,
   type Package,
+  type CreatePolarPaymentRequest,
 } from "@/api/payments";
 import { Small } from "@/components/typography";
-
-const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function BuyCredits() {
   const { t } = useTranslation();
   const [packages, setPackages] = useState<Package[]>([]);
   const [selectedPackage, setSelectedPackage] = useState<Package | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [showPayPal, setShowPayPal] = useState(false);
+  // Removed showPayment state as payment button is now in package cards
   const [isLoadingPackages, setIsLoadingPackages] = useState(true);
-  const [paymentStatus, setPaymentStatus] = useState<
-    "pending" | "capturing" | "completed" | "failed"
-  >("pending");
+  type PaymentStatus = "pending" | "processing" | "completed" | "failed";
+  const [paymentStatus, setPaymentStatus] = useState<PaymentStatus>("pending");
 
   // Voucher redemption states
   const [voucherCode, setVoucherCode] = useState("");
@@ -33,6 +30,7 @@ export function BuyCredits() {
   const [voucherRedemptionStatus, setVoucherRedemptionStatus] = useState<
     "idle" | "success" | "failed"
   >("idle");
+  const { userInfo } = useAuth();
 
   // Carousel state
   const [currentPackageIndex, setCurrentPackageIndex] = useState(0);
@@ -47,8 +45,9 @@ export function BuyCredits() {
         if (response.success && response.packages) {
           setPackages(response.packages);
           // Auto-select the first package
+          // Auto-select first package for carousel display
           if (response.packages.length > 0) {
-            handlePackageSelect(response.packages[0]);
+            setCurrentPackageIndex(0);
           }
         } else {
           toast.error(t("credits.errors.load_failed"));
@@ -64,129 +63,124 @@ export function BuyCredits() {
     fetchPackages();
   }, []);
 
-  const handlePackageSelect = (pkg: Package) => {
-    setSelectedPackage(pkg);
-    setShowPayPal(true);
-  };
+  // Remove unused handlePackageSelect function
 
   const goToNextPackage = () => {
     const nextIndex =
       currentPackageIndex === packages.length - 1 ? 0 : currentPackageIndex + 1;
     setCurrentPackageIndex(nextIndex);
-    if (packages[nextIndex]) {
-      handlePackageSelect(packages[nextIndex]);
-    }
+    // Package selection is now handled by individual payment buttons
   };
 
   const goToPreviousPackage = () => {
     const prevIndex =
       currentPackageIndex === 0 ? packages.length - 1 : currentPackageIndex - 1;
     setCurrentPackageIndex(prevIndex);
-    if (packages[prevIndex]) {
-      handlePackageSelect(packages[prevIndex]);
-    }
+    // Package selection is now handled by individual payment buttons
   };
 
   const goToPackage = (index: number) => {
     setCurrentPackageIndex(index);
-    if (packages[index]) {
-      handlePackageSelect(packages[index]);
-    }
+    // Package selection is now handled by individual payment buttons
   };
 
-  const createOrder = async (): Promise<string> => {
-    if (!selectedPackage) {
-      toast.error(t("credits.errors.select_package"));
-      throw new Error("No package selected");
-    }
+  const handlePolarPayment = async (pkg: Package) => {
+    setSelectedPackage(pkg);
+    if (!userInfo?.id) return;
 
     try {
       setIsProcessing(true);
-      const response = await createPaymentIntent(selectedPackage.id);
+      setPaymentStatus("processing");
 
-      if (response.success && response.order_id) {
-        return response.order_id;
+      // Create callback URLs that won't interfere with main app cookies
+      const baseUrl = window.location.origin;
+      const successUrl = `${baseUrl}/payment-callback.html?payment_status=success`;
+      const cancelUrl = `${baseUrl}/payment-callback.html?payment_status=cancelled`;
+
+      const request: CreatePolarPaymentRequest = {
+        polar_product_id: pkg.polar_product_id,
+        success_url: successUrl,
+        cancel_url: cancelUrl,
+        metadata: {
+          credits: pkg.credit,
+          user_id: userInfo?.id,
+        },
+      };
+
+      const response = await createPolarPayment(request);
+
+      if (response.success && response.data?.checkout_url) {
+        // Open Polar checkout in a new tab
+        const paymentTab = window.open(response.data.checkout_url, "_blank");
+
+        if (paymentTab) {
+          let paymentCompleted = false; // Flag to track if payment was completed successfully
+
+          // Listen for messages from the payment tab
+          const messageListener = (event: MessageEvent) => {
+            if (event.origin !== window.location.origin) return;
+
+            if (event.data.type === "PAYMENT_SUCCESS") {
+              paymentCompleted = true; // Mark payment as completed
+              setPaymentStatus("completed");
+              toast.success(t("credits.payment.success"));
+              setIsProcessing(false);
+              // Reset state after successful payment
+              setTimeout(() => {
+                setSelectedPackage(null);
+                setPaymentStatus("pending");
+              }, 2000);
+              window.removeEventListener("message", messageListener);
+            } else if (event.data.type === "PAYMENT_CANCELLED") {
+              paymentCompleted = true; // Mark as handled to prevent duplicate notifications
+              setPaymentStatus("failed");
+              toast.error(t("credits.payment.cancelled"));
+              setIsProcessing(false);
+              setSelectedPackage(null);
+              window.removeEventListener("message", messageListener);
+            }
+          };
+
+          window.addEventListener("message", messageListener);
+
+          // Check if tab is closed manually (only show cancellation if payment wasn't completed)
+          const checkClosed = setInterval(() => {
+            if (paymentTab.closed) {
+              clearInterval(checkClosed);
+              window.removeEventListener("message", messageListener);
+
+              // Only show cancellation notification if payment wasn't completed successfully
+              if (!paymentCompleted) {
+                setIsProcessing(false);
+                setPaymentStatus("pending");
+                setSelectedPackage(null);
+                toast.info(t("credits.payment.cancelled"));
+              }
+            }
+          }, 1000);
+        } else {
+          throw new Error(
+            "Failed to open payment window. Please check your popup blocker."
+          );
+        }
       } else {
         throw new Error(response.message || t("credits.errors.create_order"));
       }
     } catch (error) {
-      console.error("Error creating order:", error);
+      console.error("Error creating Polar payment:", error);
       toast.error(t("credits.errors.payment_order"));
-      throw error;
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
-  // Function to process payment after PayPal approval
-  const processPayment = async (orderId: string) => {
-    if (!orderId) return;
-
-    try {
-      setPaymentStatus("capturing");
-      // Capture payment and check status in one call
-      const response = await captureAndCheckPayment(orderId);
-
-      if (response.success) {
-        if (response.is_completed) {
-          // Payment is completed
-          toast.success(
-            t("credits.success.payment_complete", {
-              count: selectedPackage?.credit,
-              formattedCount: selectedPackage?.credit.toLocaleString(),
-            })
-          );
-          setPaymentStatus("completed");
-          setShowPayPal(false);
-          setIsProcessing(false);
-        } else {
-          // Payment failed or incomplete
-          throw new Error(t("credits.errors.payment_incomplete"));
-        }
-      } else {
-        throw new Error(
-          response.message || t("credits.errors.payment_processing")
-        );
-      }
-    } catch (error) {
-      console.error("Error processing payment:", error);
       setPaymentStatus("failed");
-      toast.error(t("credits.errors.payment_failed_contact"));
       setIsProcessing(false);
     }
   };
 
-  const onApprove = async (data: { orderID: string }) => {
-    try {
-      setIsProcessing(true);
-
-      // Process payment (capture and check status)
-      await processPayment(data.orderID);
-    } catch (error) {
-      console.error("Error in payment approval flow:", error);
-      setPaymentStatus("failed");
-      toast.error(t("credits.errors.payment_failed_contact"));
-      setIsProcessing(false);
-    }
-  };
-
-  const onError = (err: unknown) => {
-    console.error("PayPal error:", err);
-    toast.error(t("credits.errors.payment_failed"));
-    setPaymentStatus("failed");
-    setIsProcessing(false);
-  };
+  // No longer need to handle payment redirects in the main component
+  // Payment callbacks are now handled by the dedicated payment-callback.html page
 
   const resetPaymentState = () => {
-    setShowPayPal(false);
-    setSelectedPackage(null);
     setPaymentStatus("pending");
     setIsProcessing(false);
-  };
-
-  const onCancel = () => {
-    toast.info(t("credits.info.payment_cancelled"));
-    resetPaymentState();
+    setSelectedPackage(null);
   };
 
   const handleVoucherRedeem = async () => {
@@ -349,11 +343,11 @@ export function BuyCredits() {
                   <div className="relative">
                     {/* Main Package Display */}
                     <div className="flex justify-center mb-4">
-                      <div className="relative w-full max-w-xs h-64">
+                      <div className="relative w-full max-w-xs h-72">
                         {packages.map((pkg: Package, index) => (
                           <Card
                             key={pkg.id}
-                            className={`absolute inset-0 p-4 cursor-pointer transition-opacity duration-300 border-2 hover:shadow-lg ${
+                            className={`absolute inset-0 p-4 transition-opacity duration-300 border-2 hover:shadow-lg ${
                               index === currentPackageIndex
                                 ? "opacity-100 z-10"
                                 : "opacity-0 z-0"
@@ -362,7 +356,6 @@ export function BuyCredits() {
                                 ? "border-primary bg-primary/5"
                                 : "border-border hover:border-primary/50"
                             } ${pkg.popular ? "ring-2 ring-primary/20" : ""}`}
-                            onClick={() => handlePackageSelect(pkg)}
                           >
                             {pkg.popular && (
                               <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
@@ -372,7 +365,7 @@ export function BuyCredits() {
                               </div>
                             )}
 
-                            <div className="text-center">
+                            <div className="text-center h-full flex flex-col">
                               <div className="text-lg font-bold mb-2">
                                 {pkg.name}
                               </div>
@@ -388,7 +381,7 @@ export function BuyCredits() {
                               <div className="text-xs text-muted-foreground mb-3 px-1">
                                 {pkg.description}
                               </div>
-                              <div className="text-xs text-muted-foreground">
+                              <div className="text-xs text-muted-foreground mb-4">
                                 {t("credits.package.per_thousand", {
                                   price: (
                                     pkg.price /
@@ -396,11 +389,39 @@ export function BuyCredits() {
                                   ).toFixed(3),
                                 })}
                               </div>
+
+                              {/* Payment Button */}
+                              <div className="mt-auto mb-3">
+                                <Button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePolarPayment(pkg);
+                                  }}
+                                  disabled={isProcessing}
+                                  className="w-full"
+                                  size="sm"
+                                >
+                                  {isProcessing &&
+                                  selectedPackage?.id === pkg.id ? (
+                                    <>
+                                      <Loader2 className="size-4 mr-2 animate-spin" />
+                                      {t("credits.payment.processing")}
+                                    </>
+                                  ) : (
+                                    t("credits.payment.buy_now")
+                                  )}
+                                </Button>
+                              </div>
                             </div>
 
                             {selectedPackage?.id === pkg.id && (
                               <div className="absolute top-2 right-2">
                                 <CheckCircle className="size-5 text-primary" />
+                              </div>
+                            )}
+                            {isProcessing && selectedPackage?.id === pkg.id && (
+                              <div className="absolute top-2 right-2">
+                                <Loader2 className="size-4 animate-spin text-primary" />
                               </div>
                             )}
                           </Card>
@@ -457,80 +478,28 @@ export function BuyCredits() {
                 ) : null}
               </div>
 
-              {/* PayPal Payment Section */}
-              {showPayPal && selectedPackage && (
-                <Card className="p-6">
-                  <div className="text-center mb-6">
-                    <h3 className="text-lg font-semibold mb-2">
-                      {t("credits.payment.complete_purchase")}
-                    </h3>
-                    <p className="text-muted-foreground">
-                      {t("credits.payment.purchasing", {
-                        count: selectedPackage.credit,
-                        formattedCount: selectedPackage.credit.toLocaleString(),
-                        price: selectedPackage.price,
-                      })}
-                    </p>
-                  </div>
-
-                  <div className="max-w-md mx-auto">
-                    <PayPalScriptProvider
-                      options={{
-                        clientId: PAYPAL_CLIENT_ID,
-                        currency: "USD",
-                        intent: "capture",
-                      }}
-                    >
-                      <PayPalButtons
-                        style={{
-                          layout: "vertical",
-                          color: "blue",
-                          shape: "rect",
-                          label: "paypal",
-                        }}
-                        createOrder={createOrder}
-                        onApprove={onApprove}
-                        onError={onError}
-                        onCancel={onCancel}
-                        disabled={isProcessing}
-                      />
-                    </PayPalScriptProvider>
-
-                    {isProcessing && (
-                      <div className="flex items-center justify-center mt-4">
-                        <Loader2 className="size-4 mr-2 animate-spin" />
-                        <span className="text-sm text-muted-foreground">
-                          {paymentStatus === "capturing"
-                            ? t("credits.payment.capturing")
-                            : t("credits.payment.processing")}
-                        </span>
-                      </div>
-                    )}
-
-                    {paymentStatus === "failed" && !isProcessing && (
-                      <div className="flex items-center justify-center mt-4 text-destructive">
-                        <span className="text-sm font-medium">
-                          {t("credits.payment.failed")}
-                        </span>
-                      </div>
-                    )}
-
-                    <div className="mt-4 text-center">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => {
-                          setShowPayPal(false);
-                          setSelectedPackage(null);
-                        }}
-                        disabled={isProcessing}
-                      >
-                        {t("credits.actions.cancel")}
-                      </Button>
-                    </div>
+              {/* Payment status notifications */}
+              {(paymentStatus as PaymentStatus) === "completed" && (
+                <Card className="p-4 mb-6 bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+                  <div className="flex items-center justify-center text-green-600 dark:text-green-400">
+                    <CheckCircle className="size-5 mr-2" />
+                    <span className="font-medium">
+                      {t("credits.payment.success")}
+                    </span>
                   </div>
                 </Card>
               )}
+
+              {(paymentStatus as PaymentStatus) === "failed" &&
+                !isProcessing && (
+                  <Card className="p-4 mb-6 bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800">
+                    <div className="flex items-center justify-center text-red-600 dark:text-red-400">
+                      <span className="font-medium">
+                        {t("credits.payment.failed")}
+                      </span>
+                    </div>
+                  </Card>
+                )}
 
               {/* Security Note */}
               <div className="mt-8 text-center text-sm text-muted-foreground">

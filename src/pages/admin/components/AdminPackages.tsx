@@ -43,6 +43,7 @@ export function AdminPackages() {
     description: "",
     price: 0,
     credit: 0,
+    currency: "usd",
   });
 
   const fetchPackages = async () => {
@@ -64,6 +65,7 @@ export function AdminPackages() {
       description: "",
       price: 0,
       credit: 0,
+      currency: "usd",
     });
   };
 
@@ -79,6 +81,7 @@ export function AdminPackages() {
         description: formData.description.trim(),
         price: formData.price,
         credit: formData.credit,
+        currency: formData.currency,
       };
 
       await adminApi.createPackage(packageData);
@@ -109,6 +112,7 @@ export function AdminPackages() {
         description: formData.description.trim(),
         price: formData.price,
         credit: formData.credit,
+        currency: formData.currency,
       };
 
       await adminApi.updatePackage(editingPackage.id, packageData);
@@ -145,6 +149,7 @@ export function AdminPackages() {
       description: pkg.description,
       price: pkg.price,
       credit: pkg.credit,
+      currency: pkg.currency || "usd",
     });
     setIsEditDialogOpen(true);
   };
@@ -216,10 +221,10 @@ export function AdminPackages() {
                     className="text-xs min-h-[80px]"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-3 gap-4">
                   <div className="grid gap-2">
                     <Label htmlFor="price" className="text-xs">
-                      Price (USD)
+                      Price
                     </Label>
                     <Input
                       id="price"
@@ -233,6 +238,20 @@ export function AdminPackages() {
                           ...formData,
                           price: parseFloat(e.target.value) || 0,
                         })
+                      }
+                      className="text-xs"
+                    />
+                  </div>
+                  <div className="grid gap-2">
+                    <Label htmlFor="currency" className="text-xs">
+                      Currency
+                    </Label>
+                    <Input
+                      id="currency"
+                      placeholder="usd"
+                      value={formData.currency}
+                      onChange={(e) =>
+                        setFormData({ ...formData, currency: e.target.value })
                       }
                       className="text-xs"
                     />
@@ -299,6 +318,9 @@ export function AdminPackages() {
                   Price
                 </TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">
+                  Currency
+                </TableHead>
+                <TableHead className="text-xs font-medium text-muted-foreground">
                   Credits
                 </TableHead>
                 <TableHead className="text-xs font-medium text-muted-foreground">
@@ -351,6 +373,11 @@ export function AdminPackages() {
                           {formatCurrency(pkg.price)}
                         </span>
                       </div>
+                    </TableCell>
+                    <TableCell className="text-xs">
+                      <span className="uppercase text-muted-foreground font-medium">
+                        {pkg.currency || 'USD'}
+                      </span>
                     </TableCell>
                     <TableCell className="text-xs">
                       <div className="flex items-center space-x-1">
@@ -435,10 +462,10 @@ export function AdminPackages() {
                 className="text-xs min-h-[80px]"
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="edit-price" className="text-xs">
-                  Price (USD)
+                  Price
                 </Label>
                 <Input
                   id="edit-price"
@@ -452,6 +479,20 @@ export function AdminPackages() {
                       ...formData,
                       price: parseFloat(e.target.value) || 0,
                     })
+                  }
+                  className="text-xs"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-currency" className="text-xs">
+                  Currency
+                </Label>
+                <Input
+                  id="edit-currency"
+                  placeholder="usd"
+                  value={formData.currency}
+                  onChange={(e) =>
+                    setFormData({ ...formData, currency: e.target.value })
                   }
                   className="text-xs"
                 />

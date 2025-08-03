@@ -29,6 +29,8 @@ export interface Package {
   popular: boolean;
   name: string;
   description: string;
+  currency: string;
+  polar_product_id: string;
 }
 
 // Credits response interface
@@ -97,6 +99,45 @@ export interface RedeemVoucherResponse {
   new_balance?: number;
 }
 
+// Polar payment interfaces
+export interface PolarProduct {
+  id: string;
+  name: string;
+  description: string;
+  is_recurring: boolean;
+  is_archived: boolean;
+  prices: {
+    id: string;
+    type: string;
+    price_amount: number;
+    price_currency: string;
+  }[];
+}
+
+export interface PolarProductsResponse {
+  products: PolarProduct[];
+  total_count: number;
+}
+
+export interface CreatePolarPaymentRequest {
+  polar_product_id: string;
+  success_url: string;
+  cancel_url: string;
+  metadata: {
+    credits: number;
+    user_id: string;
+  };
+}
+
+export interface CreatePolarPaymentResponse {
+  checkout_id: string;
+  checkout_url: string;
+  amount: number;
+  currency: string;
+  status: string;
+  expires_at: string;
+}
+
 /**
  * Get list of available packages
  * @returns Promise with the list of packages
@@ -107,45 +148,21 @@ export const getPackages = async (): Promise<{
   message?: string;
 }> => {
   try {
-    // Return hardcoded packages data as requested
-    const packages: Package[] = [
-      {
-        id: "289edfe9-fca3-4c65-9348-82e5dc221342",
-        credit: 2000,
-        price: 2,
-        popular: false,
-        name: "Starter Pack",
-        description: "Ideal for new users to explore basic features.",
-      },
-      {
-        id: "094ca33c-699f-48fb-a2f8-7ffaa903ed79",
-        credit: 6500,
-        price: 5,
-        popular: true,
-        name: "Value Pack",
-        description: "A balanced option for regular use at a good price.",
-      },
-      {
-        id: "f2c23850-efb3-4bdd-a6a8-8c2a655c4b15",
-        credit: 9000,
-        price: 7,
-        popular: false,
-        name: "Pro Pack",
-        description: "Great for power users needing more credits.",
-      },
-      {
-        id: "0ad317c9-6a41-492a-a6af-529242850700",
-        credit: 13000,
-        price: 10,
-        popular: false,
-        name: "Max Pack",
-        description: "Best value for heavy users with maximum savings.",
-      },
-    ];
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const response = await fetch(`${baseUrl}/package/get_package`, {
+      method: "GET",
+      headers: getAuthHeaders(),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const data = await response.json();
 
     return {
       success: true,
-      packages,
+      packages: data,
     };
   } catch (error) {
     console.error("Error getting packages:", error);
@@ -512,6 +529,102 @@ export const redeemVoucher = async (
       success: false,
       message:
         error instanceof Error ? error.message : "Failed to redeem voucher",
+    };
+  }
+};
+
+/**
+ * Get Polar products
+ * @returns Promise with the list of Polar products
+ */
+export const getPolarProducts = async (): Promise<{
+  success: boolean;
+  data?: PolarProductsResponse;
+  message?: string;
+}> => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(`${baseUrl}/payment/polar/products`, {
+      method: "GET",
+      credentials: "include",
+      headers,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to get Polar products: ${response.statusText}`)
+      );
+      throw new Error(
+        errorData.detail ||
+          `Failed to get Polar products: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error("Error getting Polar products:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error ? error.message : "Failed to get Polar products",
+    };
+  }
+};
+
+/**
+ * Create Polar payment checkout
+ * @param request - The payment request data
+ * @returns Promise with the checkout response
+ */
+export const createPolarPayment = async (
+  request: CreatePolarPaymentRequest
+): Promise<{
+  success: boolean;
+  data?: CreatePolarPaymentResponse;
+  message?: string;
+}> => {
+  try {
+    const baseUrl = import.meta.env.VITE_API_URL || "";
+    const headers = getAuthHeaders();
+
+    const response = await fetch(`${baseUrl}/payment/polar/create_payment`, {
+      method: "POST",
+      credentials: "include",
+      headers,
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      Sentry.captureException(
+        new Error(`Failed to create Polar payment: ${response.statusText}`)
+      );
+      throw new Error(
+        errorData.detail ||
+          `Failed to create Polar payment: ${response.statusText}`
+      );
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error("Error creating Polar payment:", error);
+    return {
+      success: false,
+      message:
+        error instanceof Error
+          ? error.message
+          : "Failed to create Polar payment",
     };
   }
 };

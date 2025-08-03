@@ -184,6 +184,7 @@ export interface Package {
   popular: boolean;
   name: string;
   description: string;
+  currency: string;
 }
 
 export interface CreatePackageRequest {
@@ -191,6 +192,7 @@ export interface CreatePackageRequest {
   description: string;
   price: number;
   credit: number;
+  currency: string;
 }
 
 export interface UpdatePackageRequest {
@@ -198,6 +200,7 @@ export interface UpdatePackageRequest {
   description: string;
   price: number;
   credit: number;
+  currency?: string;
 }
 
 export interface CountStatsResponse {

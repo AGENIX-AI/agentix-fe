@@ -1059,7 +1059,12 @@ const viTranslation = {
       complete_purchase: "Hoàn tất mua hàng",
       purchasing: "Bạn đang mua {{formattedCount}} tín dụng với giá ${{price}}",
       capturing: "Đang xử lý thanh toán...",
-      processing: "Đang xử lý thanh toán...",
+      processing: "Đang xử lý...",
+      buy_now: "Mua ngay",
+      pay_with_polar: "Thanh toán với Polar",
+      redirecting: "Đang chuyển hướng đến thanh toán...",
+      success: "Thanh toán thành công!",
+      cancelled: "Thanh toán đã bị hủy",
       failed: "Thanh toán thất bại. Vui lòng thử lại hoặc liên hệ hỗ trợ.",
     },
     voucher: {
@@ -1084,8 +1089,8 @@ const viTranslation = {
       cancel: "Hủy",
     },
     security: {
-      secure_payment: "🔒 Xử lý thanh toán an toàn được cung cấp bởi PayPal",
-      encrypted: "Thông tin thanh toán của bạn được mã hóa và bảo vệ",
+      secure_payment: "Thanh toán an toàn được cung cấp bởi Polar",
+      encrypted: "Tất cả giao dịch đều được mã hóa và bảo mật",
     },
     errors: {
       load_failed: "Không thể tải gói tín dụng. Vui lòng thử lại.",
