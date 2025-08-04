@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/sidebar-data";
 import { Separator } from "@/components/ui/separator";
-import { UserMenu } from "@/components/ui/user-menu";
+import { UserMenu } from "@/pages/student/components/sidebar/user-menu";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
 import { NotificationCenter } from "@/components/custom/NotificationCenter";
@@ -300,7 +300,9 @@ export function ResizableSidebar({
               </TooltipContent>
             </Tooltip>
             {!isCollapsed && (
-              <Large className="font-semibold">{t('student.sidebar.navigation')}</Large>
+              <Large className="font-semibold">
+                {t("student.sidebar.navigation")}
+              </Large>
             )}
           </div>
 
@@ -473,9 +475,9 @@ export function ResizableSidebar({
               />
               {!isCollapsed && (
                 <span className="ml-2 flex-1 truncate text-left">
-                  {t("student.sidebar.creditsDisplay", { 
-                    count: credits.balance, 
-                    formattedCount: credits.balance.toLocaleString() 
+                  {t("student.sidebar.creditsDisplay", {
+                    count: credits.balance,
+                    formattedCount: credits.balance.toLocaleString(),
                   })}
                 </span>
               )}

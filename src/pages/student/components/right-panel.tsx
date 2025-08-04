@@ -5,7 +5,7 @@ import { AssistantView } from "./assistantProfile/layout";
 import { useTranslation } from "react-i18next";
 import { InstructorFinder } from "./instructorFinder/instructor-finder";
 import { BuyCredits } from "../../../components/reused/buyCredits/BuyCredits";
-import { Helps } from "./helps/Helps";
+import { Helps } from "@/components/reused/helps/Helps";
 import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
 import { Large } from "@/components/ui/typography";
 import { memo } from "react";
@@ -16,6 +16,11 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
+import {
+  fetchHelpMainTopics,
+  fetchHelpTopicsByMainId,
+  fetchHelpTopic,
+} from "@/api/admin/helpCenter";
 
 const MiniappToggleButton = memo(
   ({
@@ -272,7 +277,11 @@ export default function RightPanel({
             title={t("student.rightPanel.helpCenter")}
             toggleMiniapp={toggleMiniapp}
           />
-          <Helps />
+          <Helps
+            fetchHelpMainTopics={fetchHelpMainTopics}
+            fetchHelpTopicsByMainId={fetchHelpTopicsByMainId}
+            fetchHelpTopic={fetchHelpTopic}
+          />
         </div>
       );
     case "blogs":

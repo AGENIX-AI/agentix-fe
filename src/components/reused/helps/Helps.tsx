@@ -1,15 +1,22 @@
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  fetchHelpMainTopics,
-  fetchHelpTopicsByMainId,
-} from "@/api/admin/helpCenter";
+
 import type { HelpMainTopic, HelpTopic } from "@/api/admin/helpCenter";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { HelpContentSidebar } from "./HelpContentSidebar";
 
-export const Helps = () => {
+interface HelpsProps {
+  fetchHelpMainTopics: () => Promise<HelpMainTopic[]>;
+  fetchHelpTopicsByMainId: (id: string) => Promise<HelpTopic[]>;
+  fetchHelpTopic: (id: string) => Promise<HelpTopic>;
+}
+
+export const Helps = ({
+  fetchHelpMainTopics,
+  fetchHelpTopicsByMainId,
+  fetchHelpTopic,
+}: HelpsProps) => {
   const { t } = useTranslation();
   const [helpMainTopics, setHelpMainTopics] = useState<HelpMainTopic[]>([]);
   const [helpTopicsMap, setHelpTopicsMap] = useState<
@@ -45,7 +52,12 @@ export const Helps = () => {
 
         setError(null);
       } catch (err) {
-        setError(t("help.fetch_failed", "Failed to fetch help topics. Please try again later."));
+        setError(
+          t(
+            "help.fetch_failed",
+            "Failed to fetch help topics. Please try again later."
+          )
+        );
         console.error("Error fetching help topics:", err);
       } finally {
         setIsLoading(false);
@@ -69,7 +81,12 @@ export const Helps = () => {
       setHelpTopicsMap((prev) => ({ ...prev, [mainTopicId]: sortedTopics }));
     } catch (err) {
       console.error("Error fetching topics for main topic:", err);
-      setError(t("help.load_topics_failed", "Failed to load topics. Please try again later."));
+      setError(
+        t(
+          "help.load_topics_failed",
+          "Failed to load topics. Please try again later."
+        )
+      );
     } finally {
       setLoadingTopics((prev) => ({ ...prev, [mainTopicId]: false }));
     }
@@ -112,7 +129,12 @@ export const Helps = () => {
 
       setError(null);
     } catch (err) {
-      setError(t("help.refresh_failed", "Failed to refresh help topics. Please try again later."));
+      setError(
+        t(
+          "help.refresh_failed",
+          "Failed to refresh help topics. Please try again later."
+        )
+      );
       console.error("Error refreshing help topics:", err);
     } finally {
       setIsLoading(false);
@@ -192,6 +214,7 @@ export const Helps = () => {
         isVisible={showSidebar}
         onClose={() => setShowSidebar(false)}
         topicId={selectedTopicId}
+        fetchHelpTopic={fetchHelpTopic}
       />
     </div>
   );

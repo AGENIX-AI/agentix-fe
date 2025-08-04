@@ -9,7 +9,7 @@ import ReviewDocument from "./reviewDocument/review-document";
 import { EditProfile } from "./editProfile/EditProfile";
 import { BuyCredits } from "../../../components/reused/buyCredits/BuyCredits";
 import { SharingTopics } from "./history/SharingTopics";
-import { Helps } from "./helps/Helps";
+import { Helps } from "@/components/reused/helps/Helps";
 import { Large } from "@/components/ui/typography";
 import { memo } from "react";
 import {
@@ -24,6 +24,11 @@ import AssistantManager from "./assistantList/AssistantList";
 import AssistantDetailsLayout from "./assistantManagement/AssistantDetailsLayout";
 import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
 import { t } from "i18next";
+import {
+  fetchHelpMainTopics,
+  fetchHelpTopicsByMainId,
+  fetchHelpTopic,
+} from "@/api/admin/helpCenterInstructor";
 
 const MiniappToggleButton = memo(
   ({
@@ -323,7 +328,11 @@ export default function RightPanel({
       return (
         <div className="flex flex-col h-full">
           <RightPanelHeader title="Help Center" toggleMiniapp={toggleMiniapp} />
-          <Helps />
+          <Helps
+            fetchHelpMainTopics={fetchHelpMainTopics}
+            fetchHelpTopicsByMainId={fetchHelpTopicsByMainId}
+            fetchHelpTopic={fetchHelpTopic}
+          />
         </div>
       );
     case "documents":

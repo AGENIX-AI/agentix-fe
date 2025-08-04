@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { sidebarData } from "@/lib/utils/instructor-sidebar-data";
 import { Separator } from "@/components/ui/separator";
 import { useInstructor } from "@/contexts/InstructorContext";
-import { UserMenu } from "../userMenu/user-menu";
+import { UserMenu } from "./user-menu";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
 import { NotificationCenter } from "@/components/custom/NotificationCenter";
 import { useAuth } from "@/contexts/AuthContext";

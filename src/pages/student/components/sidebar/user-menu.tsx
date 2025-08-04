@@ -1,5 +1,5 @@
 import { DropdownMenuSub } from "@radix-ui/react-dropdown-menu";
-import { UserAvatar } from "./user-avatar";
+import { UserAvatar } from "../../../../components/ui/user-avatar";
 
 import {
   DropdownMenu,
@@ -13,7 +13,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-} from "./dropdown-menu";
+} from "../../../../components/ui/dropdown-menu";
 import {
   BookIcon,
   CreditCardIcon,

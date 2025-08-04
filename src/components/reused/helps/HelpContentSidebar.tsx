@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { X } from "lucide-react";
-import { fetchHelpTopic } from "@/api/admin/helpCenterInstructor";
-import type { HelpTopic } from "@/api/admin/helpCenterInstructor";
+import { useTranslation } from "react-i18next";
+import type { HelpTopic } from "@/api/admin/helpCenter";
 import ReactMarkdown from "react-markdown";
 import { Large } from "@/components/ui/typography";
 
@@ -10,17 +9,19 @@ interface HelpContentSidebarProps {
   isVisible: boolean;
   onClose: () => void;
   topicId: string | null;
+  fetchHelpTopic: (id: string) => Promise<HelpTopic>;
 }
 
 export const HelpContentSidebar = ({
   isVisible,
   onClose,
   topicId,
+  fetchHelpTopic,
 }: HelpContentSidebarProps) => {
-  const { t } = useTranslation();
   const [content, setContent] = useState<HelpTopic | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const fetchContent = async () => {
@@ -32,7 +33,12 @@ export const HelpContentSidebar = ({
         const helpContent = await fetchHelpTopic(topicId);
         setContent(helpContent);
       } catch (err) {
-        setError(t("help.content_failed"));
+        setError(
+          t(
+            "help.content_failed",
+            "Failed to load help content. Please try again later."
+          )
+        );
         console.error("Error fetching help content:", err);
       } finally {
         setIsLoading(false);
@@ -125,7 +131,9 @@ export const HelpContentSidebar = ({
             </ReactMarkdown>
           </div>
         ) : (
-          <div className="text-gray-500 text-xs">{t("help.select_topic")}</div>
+          <div className="text-gray-500 text-xs">
+            {t("help.select_topic", "Select a topic to view its content")}
+          </div>
         )}
       </div>
     </div>
