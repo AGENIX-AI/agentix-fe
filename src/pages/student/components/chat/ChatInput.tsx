@@ -1,7 +1,7 @@
 import { ClipboardList, SendIcon } from "lucide-react";
 import { useState, useRef, type ClipboardEvent, useEffect } from "react";
-import { ImageInput } from "./ImageInput";
-import { ImagePreview } from "./ImagePreview";
+import { ImageInput } from "../../../../components/reused/chat/ImageInput";
+import { ImagePreview } from "../../../../components/reused/chat/ImagePreview";
 import { TaskMenu, ChatTasks } from "./ChatTasks";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -12,7 +12,7 @@ import { useDebouncedLocalStorage } from "@/hooks/useDebouncedLocalStorage";
 import type { Conversation } from "@/services/conversation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { type UserInfo } from "@/api/conversations";
-import "./ChatBox.css";
+import "../../../../components/reused/chat/ChatBox.css";
 
 interface ChatInputProps {
   onSendMessageWithImage?: (message: string, imageData: string) => void;

@@ -44,7 +44,9 @@ export function ImagePreview({ imageUrl, onRemove }: ImagePreviewProps) {
           className="absolute right-1 top-1 h-6 w-6 rounded-full bg-background/80 text-foreground hover:bg-background/90"
           onClick={onRemove}
         >
-          <Small className="sr-only">{t("chat.image.removeImage", "Remove image")}</Small>
+          <Small className="sr-only">
+            {t("chat.image.removeImage", "Remove image")}
+          </Small>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="16"

@@ -1,8 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PlayIcon, StopCircleIcon, Loader2 } from "lucide-react";
-import { MessageContent } from "./MessageContent";
-import { formatMessageDate, getInitials } from "./utils";
+import { MessageContent } from "../../../../components/reused/chat/MessageContent";
+import {
+  formatMessageDate,
+  getInitials,
+} from "@/lib/utils/message-content-parse";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useState, useRef } from "react";
@@ -109,19 +112,19 @@ export function MessageBubble({
     if (isCurrentUser) {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          ({t('chat.roles.instructor')})
+          ({t("chat.roles.instructor")})
         </span>
       );
     } else if (message.sender === "student") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          ({t('chat.roles.student')})
+          ({t("chat.roles.student")})
         </span>
       );
     } else if (message.sender === "agent") {
       return (
         <span className="text-[10px] ml-1 text-muted-foreground">
-          ({t('chat.roles.assistant')})
+          ({t("chat.roles.assistant")})
         </span>
       );
     }

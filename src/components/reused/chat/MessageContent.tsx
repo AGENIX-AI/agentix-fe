@@ -1,8 +1,8 @@
-import { processMessageContent } from "./utils";
+import { processMessageContent } from "@/lib/utils/message-content-parse";
 import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { ImageViewer } from "./ImageViewer";
-import { parseMessageCard } from "./messageCards/types";
-import { MessageCardRenderer } from "./messageCards/MessageCardRenderer";
+import { parseMessageCard } from "../../../pages/instructor/components/chat/messageCards/types";
+import { MessageCardRenderer } from "../../../pages/instructor/components/chat/messageCards/MessageCardRenderer";
 import { useTranslation } from "react-i18next";
 
 interface UserInfo {

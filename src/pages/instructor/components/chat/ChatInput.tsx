@@ -1,7 +1,7 @@
 import { ClipboardList, SendIcon } from "lucide-react";
 import { useState, useRef, type ClipboardEvent, useEffect } from "react";
-import { ImageInput } from "./ImageInput";
-import { ImagePreview } from "./ImagePreview";
+import { ImageInput } from "@/components/reused/chat/ImageInput";
+import { ImagePreview } from "@/components/reused/chat/ImagePreview";
 import { TaskMenu } from "./ChatTasks";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -90,7 +90,8 @@ export function ChatInput({
     const textarea = textareaRef?.current || localTextareaRef.current;
     if (!textarea) return;
 
-    const studentName = conversationData.studentInfo.name || t('chat.roles.student');
+    const studentName =
+      conversationData.studentInfo.name || t("chat.roles.student");
 
     // Replace the @query with the student's name in brackets format
     const beforeMention = input.substring(0, mentionPosition.start);
@@ -175,7 +176,8 @@ export function ChatInput({
   const processMentionsForBackend = (text: string) => {
     if (!conversationData?.studentInfo) return text;
 
-    const studentName = conversationData.studentInfo.name || t('chat.roles.student');
+    const studentName =
+      conversationData.studentInfo.name || t("chat.roles.student");
     const studentId = conversationData.studentInfo.id;
 
     // Replace @[StudentName] with @studentId for backend processing
@@ -359,7 +361,7 @@ export function ChatInput({
                 className="absolute bottom-full left-0 mb-1 w-64 bg-white dark:bg-gray-900 border border-border rounded-md shadow-lg z-20"
               >
                 <div className="p-2 text-xs font-medium text-muted-foreground border-b border-border">
-                  {t('chat.input.mention_student')}
+                  {t("chat.input.mention_student")}
                 </div>
                 <div
                   className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer transition-colors"
@@ -368,7 +370,10 @@ export function ChatInput({
                   <Avatar className="h-6 w-6">
                     <AvatarImage
                       src={conversationData.studentInfo?.avatar_url}
-                      alt={conversationData.studentInfo?.name || t('chat.roles.student')}
+                      alt={
+                        conversationData.studentInfo?.name ||
+                        t("chat.roles.student")
+                      }
                     />
                     <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
                       {conversationData.studentInfo?.name
@@ -376,11 +381,12 @@ export function ChatInput({
                             .split(" ")
                             .map((n) => n[0])
                             .join("")
-                        : t('chat.roles.student_initials')}
+                        : t("chat.roles.student_initials")}
                     </AvatarFallback>
                   </Avatar>
                   <span className="text-sm">
-                    {conversationData.studentInfo?.name || t('chat.roles.student')}
+                    {conversationData.studentInfo?.name ||
+                      t("chat.roles.student")}
                   </span>
                 </div>
               </div>
@@ -403,7 +409,9 @@ export function ChatInput({
         </Button>
       </div>
       <div className="text-[9px] text-center mt-2">
-        {t('chat.assistant.verification_warning', { name: assistantInfo?.name || t('chat.roles.assistant_the') })}
+        {t("chat.assistant.verification_warning", {
+          name: assistantInfo?.name || t("chat.roles.assistant_the"),
+        })}
       </div>
     </div>
   );

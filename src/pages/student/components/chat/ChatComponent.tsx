@@ -1,4 +1,4 @@
-import { ChatHeader } from "./ChatHeader";
+import { ChatHeader } from "@/components/reused/chat/ChatHeader";
 import { Loader2Icon } from "lucide-react";
 import { memo, useEffect, useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";

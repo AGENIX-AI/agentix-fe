@@ -1,8 +1,0 @@
-/* Custom styles for chat message content */
-.chat-message-content p {
-  margin-bottom: 0.7rem;
-}
-
-.chat-message-content p:last-child {
-  margin-bottom: 0;
-}

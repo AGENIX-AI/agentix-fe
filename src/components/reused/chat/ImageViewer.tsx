@@ -9,7 +9,7 @@ interface ImageViewerProps {
 
 export function ImageViewer({ currentImageUrl, onClose }: ImageViewerProps) {
   const { t } = useTranslation();
-  
+
   // Reset scale when a new image is shown
   useEffect(() => {
     // No-op for now
@@ -20,7 +20,8 @@ export function ImageViewer({ currentImageUrl, onClose }: ImageViewerProps) {
       image={{
         id: "viewer",
         url: currentImageUrl,
-        file_name: currentImageUrl.split("/").pop() || t('chat.image.defaultFileName'),
+        file_name:
+          currentImageUrl.split("/").pop() || t("chat.image.defaultFileName"),
         content: "",
         summary: "",
         created_at: new Date().toISOString(),

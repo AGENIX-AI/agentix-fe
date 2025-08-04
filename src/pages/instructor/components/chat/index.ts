@@ -3,6 +3,6 @@ export * from "./ChatInput";
 export * from "./ImageInput";
 export * from "./ImagePreview";
 export * from "./MessageBubble";
-export * from "./MessageContent";
+export * from "../../../../components/reused/chat/MessageContent";
 export * from "./TypingIndicator";
 export * from "./utils";

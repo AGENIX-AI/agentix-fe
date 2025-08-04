@@ -2,11 +2,11 @@ import { useRef, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { ChatInput } from "./ChatInput";
 import { MessageBubble } from "./MessageBubble";
-import "./ChatBox.css";
+import "../../../../components/reused/chat/ChatBox.css";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "@/lib/utils/cn";
 import { useStudent } from "@/contexts/StudentContext";
-import { TypingIndicator } from "./TypingIndicator";
+import { TypingIndicator } from "../../../../components/reused/chat/TypingIndicator";
 import { getConversationById } from "@/api/conversations";
 import type { Conversation } from "@/services/conversation";
 

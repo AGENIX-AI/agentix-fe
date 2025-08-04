@@ -1,6 +1,6 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { format } from "date-fns";
-import { getInitials } from "./utils";
+import { getInitials } from "../../../lib/utils/message-content-parse";
 import { useTranslation } from "react-i18next";
 
 interface TypingIndicatorProps {
@@ -15,7 +15,10 @@ export function TypingIndicator({ avatar_url, name }: TypingIndicatorProps) {
     <div className="flex flex-col items-start space-y-1">
       <div className="flex items-center space-x-2">
         <Avatar className="h-6 w-6">
-          <AvatarImage src={avatar_url} alt={name || t("common.assistant", "Assistant")} />
+          <AvatarImage
+            src={avatar_url}
+            alt={name || t("common.assistant", "Assistant")}
+          />
           <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
             {getInitials(name || "")}
           </AvatarFallback>

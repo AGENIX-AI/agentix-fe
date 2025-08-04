@@ -1,8 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PlayIcon, StopCircleIcon, Loader2 } from "lucide-react";
-import { MessageContent } from "./MessageContent";
-import { formatMessageDate, getInitials } from "./utils";
+import { MessageContent } from "@/components/reused/chat/MessageContent";
+import {
+  formatMessageDate,
+  getInitials,
+} from "../../../../lib/utils/message-content-parse";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 import { useState, useRef } from "react";
