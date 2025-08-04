@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { fetchBlogs } from "@/api/admin/blogs";
 import type { Blog, BlogsQueryParams } from "@/api/admin/blogs";
 import { useTranslation } from "react-i18next";
-import { Search, Calendar, Clock } from "lucide-react";
+import { Search, Calendar, Clock, ChevronDown, ChevronUp } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,6 +18,7 @@ export const BlogsPanel: React.FC = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
+  const [expandedBlogs, setExpandedBlogs] = useState<Set<string>>(new Set());
 
   const loadBlogs = async (params?: BlogsQueryParams) => {
     try {
@@ -60,6 +61,35 @@ export const BlogsPanel: React.FC = () => {
 
   const handleLoadMore = () => {
     setCurrentPage((prev) => prev + 1);
+  };
+
+  const toggleExpanded = (blogId: string) => {
+    setExpandedBlogs((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(blogId)) {
+        newSet.delete(blogId);
+      } else {
+        newSet.add(blogId);
+      }
+      return newSet;
+    });
+  };
+
+  const getPreviewContent = (content: string) => {
+    // Remove markdown formatting for preview
+    const plainText = content
+      .replace(/#{1,6}\s+/g, "") // Remove headers
+      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
+      .replace(/\*(.*?)\*/g, "$1") // Remove italic
+      .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links
+      .replace(/`(.*?)`/g, "$1") // Remove inline code
+      .replace(/\n/g, " ") // Replace newlines with spaces
+      .trim();
+
+    // Split into words and take first ~30 words for 2 lines
+    const words = plainText.split(" ");
+    const previewWords = words.slice(0, 30);
+    return previewWords.join(" ") + (words.length > 30 ? "..." : "");
   };
 
   const hasMorePages = currentPage * pageSize < totalCount;
@@ -133,92 +163,136 @@ export const BlogsPanel: React.FC = () => {
         ) : (
           <>
             {/* Blog entries */}
-            <div className="space-y-8">
-              {blogs.map((blog, index) => (
-                <div key={blog.id}>
-                  <article className="space-y-4">
-                    {/* Blog title */}
-                    <h2 className="text-xl font-bold text-foreground hover:text-primary cursor-pointer transition-colors">
-                      {blog.title}
-                    </h2>
-
-                    {/* Blog metadata */}
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{formatDate(blog.created_at)}</span>
-                      </div>
-                      {blog.updated_at !== blog.created_at && (
-                        <div className="flex items-center gap-1">
-                          <Clock className="h-3 w-3" />
-                          <span>
-                            {t("blogs.updated")} {formatDate(blog.updated_at)}
-                          </span>
+            <div className="space-y-4">
+              {blogs.map((blog) => {
+                const isExpanded = expandedBlogs.has(blog.id);
+                return (
+                  <div key={blog.id} className="border rounded-lg p-4">
+                    <article className="space-y-2">
+                      {/* Title and Date Row */}
+                      <div className="flex items-start justify-between gap-4">
+                        <h3 className="text-sm font-medium text-foreground leading-tight flex-1">
+                          {blog.title}
+                        </h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+                          <Calendar className="h-3 w-3" />
+                          <span>{formatDate(blog.created_at)}</span>
+                          {blog.updated_at !== blog.created_at && (
+                            <>
+                              <Clock className="h-3 w-3 ml-2" />
+                              <span>{formatDate(blog.updated_at)}</span>
+                            </>
+                          )}
                         </div>
-                      )}
-                    </div>
+                      </div>
 
-                    {/* Blog content as markdown */}
-                    <div className="prose prose-sm max-w-none dark:prose-invert">
-                      <ReactMarkdown
-                        components={{
-                          h1: ({ children }) => (
-                            <h1 className="text-2xl font-bold mb-4">
-                              {children}
-                            </h1>
-                          ),
-                          h2: ({ children }) => (
-                            <h2 className="text-xl font-semibold mb-3">
-                              {children}
-                            </h2>
-                          ),
-                          h3: ({ children }) => (
-                            <h3 className="text-lg font-medium mb-2">
-                              {children}
-                            </h3>
-                          ),
-                          p: ({ children }) => (
-                            <p className="mb-3 leading-relaxed">{children}</p>
-                          ),
-                          ul: ({ children }) => (
-                            <ul className="list-disc list-inside mb-3 space-y-1">
-                              {children}
-                            </ul>
-                          ),
-                          ol: ({ children }) => (
-                            <ol className="list-decimal list-inside mb-3 space-y-1">
-                              {children}
-                            </ol>
-                          ),
-                          li: ({ children }) => (
-                            <li className="text-sm">{children}</li>
-                          ),
-                          blockquote: ({ children }) => (
-                            <blockquote className="border-l-4 border-muted pl-4 italic text-muted-foreground mb-3">
-                              {children}
-                            </blockquote>
-                          ),
-                          code: ({ children }) => (
-                            <code className="bg-muted px-1 py-0.5 rounded text-sm font-mono">
-                              {children}
-                            </code>
-                          ),
-                          pre: ({ children }) => (
-                            <pre className="bg-muted p-3 rounded-md overflow-x-auto mb-3">
-                              {children}
-                            </pre>
-                          ),
-                        }}
-                      >
-                        {blog.content}
-                      </ReactMarkdown>
-                    </div>
-                  </article>
+                      {/* Separator */}
+                      <Separator className="my-2" />
 
-                  {/* Separator between blogs */}
-                  {index < blogs.length - 1 && <Separator className="my-8" />}
-                </div>
-              ))}
+                      {/* Content Preview or Full Content */}
+                      <div className="text-sm text-muted-foreground">
+                        {isExpanded ? (
+                          <div className="text-xs space-y-2">
+                            <ReactMarkdown
+                              components={{
+                                h1: ({ children }) => (
+                                  <h1 className="text-[16px] font-bold mb-2">
+                                    {children}
+                                  </h1>
+                                ),
+                                h2: ({ children }) => (
+                                  <h2 className="text-[14px] font-bold mb-2">
+                                    {children}
+                                  </h2>
+                                ),
+                                h3: ({ children }) => (
+                                  <h3 className="text-[12px] font-bold mb-1">
+                                    {children}
+                                  </h3>
+                                ),
+                                h4: ({ children }) => (
+                                  <h4 className="text-[10px] font-bold mb-1">
+                                    {children}
+                                  </h4>
+                                ),
+                                h5: ({ children }) => (
+                                  <h5 className="text-xs font-bold mb-1">
+                                    {children}
+                                  </h5>
+                                ),
+                                h6: ({ children }) => (
+                                  <h6 className="text-xs font-bold mb-1">
+                                    {children}
+                                  </h6>
+                                ),
+                                p: ({ children }) => (
+                                  <p className="text-xs mb-2">{children}</p>
+                                ),
+                                ul: ({ children }) => (
+                                  <ul className="text-xs list-disc pl-4 mb-2 space-y-1">
+                                    {children}
+                                  </ul>
+                                ),
+                                ol: ({ children }) => (
+                                  <ol className="text-xs list-decimal pl-4 mb-2 space-y-1">
+                                    {children}
+                                  </ol>
+                                ),
+                                li: ({ children }) => (
+                                  <li className="text-xs">{children}</li>
+                                ),
+                                strong: ({ children }) => (
+                                  <strong className="text-xs font-bold">
+                                    {children}
+                                  </strong>
+                                ),
+                                em: ({ children }) => (
+                                  <em className="text-xs italic">{children}</em>
+                                ),
+                                blockquote: ({ children }) => (
+                                  <blockquote className="text-xs border-l-2 border-gray-300 pl-3 italic">
+                                    {children}
+                                  </blockquote>
+                                ),
+                                code: ({ children }) => (
+                                  <code className="text-xs bg-gray-100 px-1 py-0.5 rounded">
+                                    {children}
+                                  </code>
+                                ),
+                                pre: ({ children }) => (
+                                  <pre className="text-xs bg-gray-100 p-2 rounded-md overflow-x-auto mb-2">
+                                    {children}
+                                  </pre>
+                                ),
+                              }}
+                            >
+                              {blog.content}
+                            </ReactMarkdown>
+                          </div>
+                        ) : (
+                          <p className="line-clamp-2 leading-relaxed">
+                            {getPreviewContent(blog.content)}
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Expand/Collapse Button */}
+                      <div className="flex justify-center mt-2">
+                        <button
+                          onClick={() => toggleExpanded(blog.id)}
+                          className="text-primary"
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4" />
+                          )}
+                        </button>
+                      </div>
+                    </article>
+                  </div>
+                );
+              })}
             </div>
 
             {/* Load more button */}

@@ -311,8 +311,6 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
         onSave={handleSaveBlogFromSidebar}
       />
 
-
-
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
