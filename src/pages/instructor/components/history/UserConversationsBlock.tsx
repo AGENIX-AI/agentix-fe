@@ -13,13 +13,11 @@ import { ConversationItem } from "./ConversationItem";
 interface UserConversationsBlockProps {
   setIsChatLoading: (loading: boolean) => void;
   conversationsData: ConversationListItem[];
-  assistantId: string | null;
 }
 
 function UserConversationsBlockComponent({
   setIsChatLoading,
   conversationsData,
-  assistantId,
 }: UserConversationsBlockProps) {
   const { t } = useTranslation();
   const {
@@ -29,11 +27,13 @@ function UserConversationsBlockComponent({
     isChatLoading,
     metaData,
     setMetaData,
+    conversationId,
   } = useInstructor();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     conversationsData || []
   );
+  console.log(conversations);
   const conversationsRef = useRef<ConversationListItem[]>([]);
   const [isLoading, setIsLoading] = useState(false); // Changed to false since data comes from props
 
@@ -207,8 +207,7 @@ function UserConversationsBlockComponent({
           <ConversationItem
             conversation={conversation}
             onClick={handleConversationClick}
-            assistantId={assistantId}
-            conversationId={null}
+            conversationId={conversationId}
           />
         </div>
       ))}

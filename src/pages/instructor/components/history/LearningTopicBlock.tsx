@@ -227,7 +227,6 @@ function LearningTopicBlockComponent({
             <ConversationItem
               conversation={topic}
               onClick={handleTopicClick}
-              assistantId={null}
               conversationId={conversationId}
               isLearningTopic={true}
             />

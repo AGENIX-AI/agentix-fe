@@ -13,15 +13,18 @@ import { useTranslation } from "react-i18next";
 function SystemAssistantBlockComponent({
   setIsChatLoading,
   systemAssistantData,
-  assistantId,
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
   systemAssistantData?: SystemAssistantResponse | null;
-  assistantId: string | null;
 }) {
   const { t } = useTranslation();
-  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
-    useStudent();
+  const {
+    setAssistantId,
+    setConversationId,
+    setRightPanel,
+    isChatLoading,
+    conversationId,
+  } = useStudent();
 
   const [systemAssistant, setSystemAssistant] =
     useState<SystemAssistantResponse | null>(systemAssistantData || null);
@@ -104,7 +107,7 @@ function SystemAssistantBlockComponent({
   if (isLoading) {
     return (
       <LoadingState
-        message={t('student.systemAssistant.loading')}
+        message={t("student.systemAssistant.loading")}
         size="medium"
         className="h-16 mb-3"
       />
@@ -120,10 +123,12 @@ function SystemAssistantBlockComponent({
     id: systemAssistant.id || "",
     assistants: systemAssistant.assistants,
     last_message: systemAssistant.last_message,
-    conversation_name: systemAssistant.assistants?.name || t('student.systemAssistant.defaultName'),
+    conversation_name:
+      systemAssistant.assistants?.name ||
+      t("student.systemAssistant.defaultName"),
     conversation_description:
       systemAssistant.assistants?.tagline ||
-      t('student.systemAssistant.defaultDescription'),
+      t("student.systemAssistant.defaultDescription"),
   };
 
   return (
@@ -131,8 +136,7 @@ function SystemAssistantBlockComponent({
       <ConversationItem
         conversation={systemAssistantConversation}
         isSystemAssistant={true}
-        assistantId={assistantId}
-        conversationId={systemAssistant.id || null}
+        conversationId={conversationId}
         onClick={handleSystemAssistantClick}
       />
     </div>

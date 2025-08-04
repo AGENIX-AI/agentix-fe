@@ -11,21 +11,19 @@ interface UserConversationsBlockProps {
   searchQuery: string;
   setIsChatLoading: (loading: boolean) => void;
   conversationsData?: ConversationListItem[];
-  assistantId: string | null;
 }
 
 function UserConversationsBlockComponent({
   searchQuery,
   setIsChatLoading,
   conversationsData,
-  assistantId,
 }: UserConversationsBlockProps) {
   const { t } = useTranslation();
   const {
     setAssistantId,
     setConversationId,
     setRightPanel,
-
+    conversationId,
     isChatLoading,
   } = useStudent();
 
@@ -180,7 +178,7 @@ function UserConversationsBlockComponent({
   if (showLoadingState) {
     return (
       <LoadingState
-        message={t('student.userConversations.loadingConversations')}
+        message={t("student.userConversations.loadingConversations")}
         size="medium"
         className="h-32"
       />
@@ -194,8 +192,7 @@ function UserConversationsBlockComponent({
           <ConversationItem
             conversation={conversation}
             onClick={handleConversationClick}
-            assistantId={assistantId}
-            conversationId={null}
+            conversationId={conversationId}
           />
         </div>
       ))}

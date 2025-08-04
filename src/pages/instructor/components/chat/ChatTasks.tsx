@@ -40,7 +40,8 @@ let tasks: TaskData[];
 
 export function TaskMenu({ onClose }: TaskMenuProps) {
   const { t } = useTranslation();
-  const { assistantInfo, setRightPanel } = useInstructor();
+  const { assistantInfo, setRightPanel, metaData, setMetaData } =
+    useInstructor();
   const [isCreateAssistantDialogOpen, setIsCreateAssistantDialogOpen] =
     useState(false);
   const [isCreateLearningTopicDialogOpen, setIsCreateLearningTopicDialogOpen] =
@@ -50,7 +51,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-assisstant",
-        title: t('chat.tasks.create_assistant'),
+        title: t("chat.tasks.create_assistant"),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -59,7 +60,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-knowledge-base",
-        title: t('chat.tasks.create_knowledge_base'),
+        title: t("chat.tasks.create_knowledge_base"),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <FileText className="h-4 w-4 text-secondary" />
@@ -68,7 +69,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "create-topic-knowledge",
-        title: t('chat.tasks.create_knowledge_component'),
+        title: t("chat.tasks.create_knowledge_component"),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Brain className="h-4 w-4 text-secondary" />
@@ -80,7 +81,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
     tasks = [
       {
         id: "create-training-topic",
-        title: t('chat.tasks.create_training_topic'),
+        title: t("chat.tasks.create_training_topic"),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Sparkles className="h-4 w-4 text-secondary" />
@@ -98,7 +99,7 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       },
       {
         id: "manage-knowledge-space",
-        title: t('chat.tasks.manage_knowledge_space'),
+        title: t("chat.tasks.manage_knowledge_space"),
         icon: (
           <div className="w-4 h-4 flex items-center justify-center rounded">
             <Settings className="h-4 w-4 text-secondary" />
@@ -109,13 +110,21 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
   }
   const handleSelectTask = (id: string) => {
     if (id === "modify-assistant" && setRightPanel) {
-      setRightPanel("modifyAssisstant");
+      setRightPanel("assistant-profile");
+      setMetaData({
+        ...metaData,
+        assistantId: assistantInfo?.id,
+      });
       onClose();
       return;
     }
 
     if (id === "manage-knowledge-space" && setRightPanel) {
-      setRightPanel("modifyDocument");
+      setRightPanel("assistant-knowledge");
+      setMetaData({
+        ...metaData,
+        assistantId: assistantInfo?.id,
+      });
       onClose();
       return;
     }
@@ -206,13 +215,13 @@ export function TaskMenu({ onClose }: TaskMenuProps) {
       <CreateAssisstantForm
         open={isCreateAssistantDialogOpen}
         onOpenChange={setIsCreateAssistantDialogOpen}
-        taskTitle={t('chat.tasks.create_assistant').toUpperCase()}
+        taskTitle={t("chat.tasks.create_assistant").toUpperCase()}
       />
 
       <CreateLearningTopicForm
         open={isCreateLearningTopicDialogOpen}
         onOpenChange={setIsCreateLearningTopicDialogOpen}
-        taskTitle={t('chat.tasks.create_training_topic').toUpperCase()}
+        taskTitle={t("chat.tasks.create_training_topic").toUpperCase()}
       />
     </>
   );

@@ -296,7 +296,6 @@ export function HistoryComponent({
             <UserConversationsBlock
               setIsChatLoading={setIsChatLoading}
               conversationsData={conversations}
-              assistantId={assistantId}
             />
           )}
         </HistorySection>

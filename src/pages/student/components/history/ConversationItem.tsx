@@ -7,7 +7,6 @@ interface ConversationItemProps {
   conversation: ConversationListItem;
   isSystemAssistant?: boolean;
   onClick: (conversation: ConversationListItem) => void;
-  assistantId: string | null;
   conversationId?: string | null;
   isLearningTopic?: boolean;
 }
@@ -15,20 +14,15 @@ interface ConversationItemProps {
 function ConversationItemComponent({
   conversation,
   onClick,
-  assistantId,
   conversationId,
   isLearningTopic,
 }: ConversationItemProps) {
   const { t } = useTranslation();
-  // Determine if this item should be highlighted
-  const isHighlighted = isLearningTopic
-    ? conversationId === conversation.id
-    : assistantId === conversation.assistants?.id;
 
   return (
     <div
       className={`flex items-center gap-2 py-1 cursor-pointer transition-all duration-200 rounded-2xl ${
-        isHighlighted ? "bg-accent" : "hover:bg-accent/30 "
+        conversationId === conversation.id ? "bg-accent" : "hover:bg-accent/30 "
       }`}
       onClick={() => onClick(conversation)}
     >
@@ -40,7 +34,8 @@ function ConversationItemComponent({
           <p className="text-xs">
             {isLearningTopic
               ? conversation.conversation_name
-              : conversation.assistants?.name || t('student.conversationItem.assistant')}
+              : conversation.assistants?.name ||
+                t("student.conversationItem.assistant")}
           </p>
         </div>
       </div>

@@ -277,7 +277,6 @@ export function HistoryComponent({
           <SystemAssistantBlock
             setIsChatLoading={setIsChatLoading}
             systemAssistantData={systemAssistant}
-            assistantId={assistantId}
           />
 
           {/* BLOCK 2: User Conversations */}
@@ -285,7 +284,6 @@ export function HistoryComponent({
             searchQuery={searchQuery}
             setIsChatLoading={setIsChatLoading}
             conversationsData={conversations}
-            assistantId={assistantId}
           />
         </HistorySection>
       )}

@@ -10,15 +10,19 @@ import { ConversationItem } from "./ConversationItem";
 function SystemAssistantBlockComponent({
   setIsChatLoading,
   systemAssistantData,
-  assistantId,
 }: {
   setIsChatLoading: (isLoading: boolean) => void;
   systemAssistantData: SystemAssistantResponse | null;
   assistantId: string | null;
 }) {
   const { t } = useTranslation();
-  const { setAssistantId, setConversationId, setRightPanel, isChatLoading } =
-    useInstructor();
+  const {
+    setAssistantId,
+    setConversationId,
+    setRightPanel,
+    isChatLoading,
+    conversationId,
+  } = useInstructor();
 
   const [systemAssistant, setSystemAssistant] =
     useState<SystemAssistantResponse | null>(systemAssistantData);
@@ -79,7 +83,8 @@ function SystemAssistantBlockComponent({
     id: systemAssistant.id || "",
     assistants: systemAssistant.assistants,
     last_message: systemAssistant.last_message,
-    conversation_name: systemAssistant.assistants.name || t("history.systemAssistant"),
+    conversation_name:
+      systemAssistant.assistants.name || t("history.systemAssistant"),
     conversation_description:
       systemAssistant.assistants.tagline ||
       t("history.systemAssistantDescription"),
@@ -91,8 +96,7 @@ function SystemAssistantBlockComponent({
         conversation={systemAssistantConversation}
         isSystemAssistant={true}
         onClick={handleSystemAssistantClick}
-        assistantId={assistantId}
-        conversationId={systemAssistant.id || null}
+        conversationId={conversationId}
       />
     </div>
   );
