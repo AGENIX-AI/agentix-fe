@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { SystemAssistantBlock } from "./SystemAssistantBlock";
 import { UserConversationsBlock } from "./UserConversationsBlock";
 import { SharingBlock } from "./SharingBlock";
