@@ -1,17 +1,9 @@
-import { AlignJustify, ChevronDown, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Large } from "@/components/ui/typography";
-import { Button } from "@/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Avatar, AvatarImage } from "@/components/ui/avatar";
 import { SystemAssistantBlock } from "./SystemAssistantBlock";
 import { UserConversationsBlock } from "./UserConversationsBlock";
-import { SharingBlock } from "../../../instructor/components/history/SharingBlock";
+import { SharingBlock } from "./SharingBlock";
 import { LearningTopicBlock } from "./LearningTopicBlock";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -28,6 +20,12 @@ import type {
 } from "@/api/conversations";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { t } from "i18next";
+import {
+  BaseHistoryComponent,
+  HistorySection,
+  HistoryAvatar,
+  DualAvatar,
+} from "@/components/reused/history";
 
 interface HistoryComponentProps {
   className?: string;
@@ -86,7 +84,6 @@ export function HistoryComponent({
         // Fetch system assistant
         const systemResponse = await getSystemAssistantConversation();
         setSystemAssistant(systemResponse);
-        console.log("systemResponse", systemResponse);
 
         if (systemResponse.id && !conversationId) {
           setConversationId(systemResponse.id);
@@ -168,9 +165,6 @@ export function HistoryComponent({
         setConversationId(conv.id);
         setRightPanel("tasks");
       }
-
-      // DON'T auto-expand - let user manually expand if they want
-      // toggleHistory();  // <-- Removed this line
     } finally {
       setIsChatLoading(false);
     }
@@ -192,306 +186,166 @@ export function HistoryComponent({
         assistantId: conversation.conversation_info.assistants?.id,
       });
       setRightPanel("assistant-dashboard");
-      setIsChatLoading(false);
     } finally {
       setIsChatLoading(false);
     }
   };
 
-  // Collapsed state - show avatars and expand button
-  if (!isHistoryVisible) {
-    return (
-      <div className={cn(className, "border-r border-border w-16")}>
-        <div className="bg-background h-[calc(100vh-3.5rem)] p-4 pt-3 mt-[2px]">
-          <div className="flex flex-col h-full">
-            {/* Header - matching expanded state */}
-            <div>
-              <div className="flex items-center justify-center pb-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`transition-all duration-300 border-none ${className}`}
-                      onClick={toggleHistory}
-                      aria-label={
-                        isHistoryVisible
-                          ? t("history.collapseHistory")
-                          : t("history.expandHistory")
-                      }
-                    >
-                      <AlignJustify className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {isHistoryVisible
-                      ? t("history.collapseHistory")
-                      : t("history.expandHistory")}
-                  </TooltipContent>
-                </Tooltip>
-              </div>
-            </div>
+  // Generate version info string
+  const versionInfo = `v.${import.meta.env.VITE_APP_VERSION}.${
+    import.meta.env.VITE_APP_LAST_BUILD_DATE
+  }`;
 
-            {/* Navigation section */}
-            <div
-              className="overflow-y-auto no-scrollbar"
-              style={{ maxHeight: "calc(100vh - 200px)" }}
+  // Collapsed content for BaseHistoryComponent
+  const collapsedContent = (
+    <div className="mb-4">
+      <ul className="space-y-1">
+        {/* System Assistant Avatar */}
+        {systemAssistant && (
+          <li>
+            <button
+              className={cn(
+                "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                "justify-center"
+              )}
+              onClick={() => handleAvatarClick(systemAssistant, true)}
+              title={
+                systemAssistant.assistants?.name || t("history.edvaraAssistant")
+              }
             >
-              <div className="mb-4">
-                <ul className="space-y-1">
-                  {/* Avatar buttons */}
+              <HistoryAvatar
+                imageSrc={systemAssistant.assistants?.image || ""}
+                alt={
+                  systemAssistant.assistants?.name ||
+                  t("history.edvaraAssistant")
+                }
+              />
+            </button>
+          </li>
+        )}
 
-                  {/* System Assistant Avatar */}
-                  {systemAssistant && (
-                    <li>
-                      <button
-                        className={cn(
-                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                          "justify-center"
-                        )}
-                        onClick={() => handleAvatarClick(systemAssistant, true)}
-                        title={
-                          systemAssistant.assistants?.name ||
-                          t("history.edvaraAssistant")
-                        }
-                      >
-                        <Avatar className="overflow-hidden h-5 w-5">
-                          <AvatarImage
-                            src={systemAssistant.assistants?.image || ""}
-                          />
-                        </Avatar>
-                      </button>
-                    </li>
-                  )}
-
-                  {/* User Conversations Avatars */}
-                  {conversations.slice(0, 8).map((conversation) => (
-                    <li key={conversation.id}>
-                      <button
-                        className={cn(
-                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                          "justify-center"
-                        )}
-                        onClick={() => handleAvatarClick(conversation, false)}
-                        title={
-                          conversation.assistants?.name ||
-                          t("history.assistant")
-                        }
-                      >
-                        <Avatar className="overflow-hidden h-5 w-5">
-                          <AvatarImage
-                            src={conversation.assistants?.image || ""}
-                          />
-                        </Avatar>
-                      </button>
-                    </li>
-                  ))}
-                  <Separator />
-
-                  {/* Sharing Students Avatars */}
-                  {sharedConversations.slice(0, 5).map((conversation) => (
-                    <li key={conversation.id}>
-                      <button
-                        className={cn(
-                          "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
-                          "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
-                          "justify-center"
-                        )}
-                        title={conversation.student_info.name}
-                        onClick={() => handleCollaborativeClick(conversation)}
-                      >
-                        <div className="relative flex items-center justify-center h-8 w-8">
-                          <Avatar className="h-5 w-5 absolute left-0 bottom-0 cursor-pointer border border-accent overflow-hidden">
-                            <AvatarImage
-                              src={conversation.student_info.avatar_url}
-                              alt={conversation.student_info.name}
-                            />
-                          </Avatar>
-                          <Avatar className="h-5 w-5 absolute right-0 top-0 cursor-pointer border border-accent overflow-hidden">
-                            <AvatarImage
-                              src={
-                                conversation.conversation_info?.assistants
-                                  ?.image || ""
-                              }
-                              alt="Assistant"
-                            />
-                          </Avatar>
-                        </div>
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
-  console.log("conversationsssId", conversationId);
-  // Expanded state - show full history component
-  return (
-    <div className={cn(className, "")}>
-      <div className="bg-background text-sm p-4 flex flex-col overflow-hidden h-[calc(100vh-4.7rem)] pt-3 pb-2 mt-[2px]">
-        <div className="flex flex-col flex-grow min-h-0 w-full h-full">
-          {/* Header */}
-          <div>
-            <div className="flex items-center justify-between pb-3">
-              <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className={`transition-all duration-300 border-none ${className}`}
-                      onClick={toggleHistory}
-                      aria-label={
-                        isHistoryVisible
-                          ? t("history.collapseHistory")
-                          : t("history.expandHistory")
-                      }
-                    >
-                      <AlignJustify className="h-4 w-4" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom">
-                    {isHistoryVisible
-                      ? t("history.collapseHistory")
-                      : t("history.expandHistory")}
-                  </TooltipContent>
-                </Tooltip>
-                <Large>{t("student.history.title")}</Large>
-              </div>
-            </div>
-          </div>
-
-          {/* Scrollable content area with flex-grow to take available space */}
-          <div className="flex-grow overflow-hidden ml-[3px]">
-            <div className="h-full overflow-y-auto">
-              {/* ZONE 1: Chats */}
-              {(systemAssistant || conversations.length > 0) && (
-                <div className="mb-3 ">
-                  {/* Chats Section Header */}
-                  <div
-                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                    onClick={() => setIsChatsExpanded(!isChatsExpanded)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {isChatsExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <span className="font-medium text-xs">
-                        {t("history.assistants")}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Chats Content */}
-                  {isChatsExpanded && (
-                    <div className="ml-1">
-                      {/* BLOCK 1: System Assistant */}
-                      {systemAssistant && (
-                        <SystemAssistantBlock
-                          setIsChatLoading={setIsChatLoading}
-                          systemAssistantData={systemAssistant}
-                          assistantId={assistantId}
-                        />
-                      )}
-
-                      {/* BLOCK 2: User Conversations */}
-                      {conversations.length > 0 && (
-                        <UserConversationsBlock
-                          setIsChatLoading={setIsChatLoading}
-                          conversationsData={conversations}
-                          assistantId={assistantId}
-                        />
-                      )}
-                    </div>
-                  )}
-                </div>
+        {/* User Conversations Avatars */}
+        {conversations.slice(0, 8).map((conversation) => (
+          <li key={conversation.id}>
+            <button
+              className={cn(
+                "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                "justify-center"
               )}
+              onClick={() => handleAvatarClick(conversation, false)}
+              title={conversation.assistants?.name || t("history.assistant")}
+            >
+              <HistoryAvatar
+                imageSrc={conversation.assistants?.image || ""}
+                alt={conversation.assistants?.name || t("history.assistant")}
+              />
+            </button>
+          </li>
+        ))}
+        <Separator />
 
-              {/* ZONE 2: Learning Topics */}
-              {learningTopics.length > 0 && (
-                <div className="mb-3">
-                  {/* Learning Topics Section Header */}
-                  <div
-                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                    onClick={() =>
-                      setIsLearningTopicsExpanded(!isLearningTopicsExpanded)
-                    }
-                  >
-                    <div className="flex items-center gap-2">
-                      {isLearningTopicsExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <span className="font-medium text-xs">
-                        {t("history.trainingTopics")}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Learning Topics Content */}
-                  {isLearningTopicsExpanded && (
-                    <div className="ml-1">
-                      <LearningTopicBlock
-                        searchQuery={searchQuery}
-                        setIsChatLoading={setIsChatLoading}
-                        learningTopicsData={learningTopics}
-                        conversationId={conversationId}
-                      />
-                    </div>
-                  )}
-                </div>
+        {/* Sharing Students Avatars */}
+        {sharedConversations.slice(0, 5).map((conversation) => (
+          <li key={conversation.id}>
+            <button
+              className={cn(
+                "flex items-center w-full px-2 py-2 text-sm rounded-md cursor-pointer",
+                "transition-colors duration-200 hover:bg-accent hover:text-accent-foreground",
+                "justify-center"
               )}
-
-              {/* ZONE 3: Sharing */}
-              {sharedConversations.length > 0 && (
-                <div className="">
-                  {/* Sharing Section Header */}
-                  <div
-                    className="flex items-center justify-between hover:bg-accent/30 rounded-md cursor-pointer transition-colors py-1"
-                    onClick={() => setIsSharingExpanded(!isSharingExpanded)}
-                  >
-                    <div className="flex items-center gap-2">
-                      {isSharingExpanded ? (
-                        <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                      ) : (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      )}
-                      <span className="font-medium text-xs ">
-                        {t("history.collaborativeTopics")}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Sharing Content */}
-                  {isSharingExpanded && (
-                    <SharingBlock
-                      searchQuery={searchQuery}
-                      sharingData={sharedConversations}
-                    />
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
-          <div className="text-[10px] text-center">
-            {/* {renderDisclaimerText()} */}
-            <span className="text-[9px] block font-normal text-xs truncate pb-[4px]">
-              v.{import.meta.env.VITE_APP_VERSION}.
-              {import.meta.env.VITE_APP_LAST_BUILD_DATE}
-            </span>
-          </div>
-        </div>
-      </div>
+              title={conversation.student_info.name}
+              onClick={() => handleCollaborativeClick(conversation)}
+            >
+              <DualAvatar
+                primaryImageSrc={conversation.student_info.avatar_url}
+                secondaryImageSrc={
+                  conversation.conversation_info?.assistants?.image || ""
+                }
+                primaryAlt={conversation.student_info.name}
+                secondaryAlt="Assistant"
+              />
+            </button>
+          </li>
+        ))}
+      </ul>
     </div>
+  );
+
+  // Expanded sections for BaseHistoryComponent
+  const expandedSections = (
+    <>
+      {/* ZONE 1: Chats */}
+      {(systemAssistant || conversations.length > 0) && (
+        <HistorySection
+          title={t("history.assistants")}
+          isExpanded={isChatsExpanded}
+          toggleExpanded={() => setIsChatsExpanded(!isChatsExpanded)}
+        >
+          {/* BLOCK 1: System Assistant */}
+          {systemAssistant && (
+            <SystemAssistantBlock
+              setIsChatLoading={setIsChatLoading}
+              systemAssistantData={systemAssistant}
+              assistantId={assistantId}
+            />
+          )}
+
+          {/* BLOCK 2: User Conversations */}
+          {conversations.length > 0 && (
+            <UserConversationsBlock
+              setIsChatLoading={setIsChatLoading}
+              conversationsData={conversations}
+              assistantId={assistantId}
+            />
+          )}
+        </HistorySection>
+      )}
+
+      {/* ZONE 2: Learning Topics */}
+      {learningTopics.length > 0 && (
+        <HistorySection
+          title={t("history.trainingTopics")}
+          isExpanded={isLearningTopicsExpanded}
+          toggleExpanded={() =>
+            setIsLearningTopicsExpanded(!isLearningTopicsExpanded)
+          }
+        >
+          <LearningTopicBlock
+            searchQuery={searchQuery}
+            setIsChatLoading={setIsChatLoading}
+            learningTopicsData={learningTopics}
+            conversationId={conversationId}
+          />
+        </HistorySection>
+      )}
+
+      {/* ZONE 3: Sharing */}
+      {sharedConversations.length > 0 && (
+        <HistorySection
+          title={t("history.collaborativeTopics")}
+          isExpanded={isSharingExpanded}
+          toggleExpanded={() => setIsSharingExpanded(!isSharingExpanded)}
+        >
+          <SharingBlock
+            searchQuery={searchQuery}
+            sharingData={sharedConversations}
+          />
+        </HistorySection>
+      )}
+    </>
+  );
+
+  return (
+    <BaseHistoryComponent
+      className={className}
+      isHistoryVisible={isHistoryVisible}
+      toggleHistory={toggleHistory}
+      historyTitle={t("student.history.title")}
+      collapsedContent={collapsedContent}
+      expandedSections={expandedSections}
+      versionInfo={versionInfo}
+    />
   );
 }

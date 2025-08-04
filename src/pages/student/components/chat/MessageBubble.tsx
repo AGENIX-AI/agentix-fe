@@ -1,7 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { PlayIcon, StopCircleIcon, Loader2 } from "lucide-react";
-import { MessageContent } from "@/components/reused/chat/MessageContent";
+import { StudentMessageContent } from "./StudentMessageContent";
 import {
   formatMessageDate,
   getInitials,
@@ -199,7 +199,7 @@ export function MessageBubble({
           "text-xs dark:prose-invert max-w-none variant-attr-cell leading-relaxed chat-message-content ml-8"
         )}
       >
-        <MessageContent
+        <StudentMessageContent
           content={message.content}
           messageIndex={index}
           invocation_id={message.invocation_id}

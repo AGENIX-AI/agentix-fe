@@ -2,8 +2,8 @@ import { processMessageContent } from "@/lib/utils/message-content-parse";
 import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { ImageViewer } from "./ImageViewer";
 import { parseMessageCard } from "../../../pages/instructor/components/chat/messageCards/types";
-import { MessageCardRenderer } from "../../../pages/instructor/components/chat/messageCards/MessageCardRenderer";
 import { useTranslation } from "react-i18next";
+import { Small } from "@/components/ui/typography";
 
 interface UserInfo {
   id: string;
@@ -25,6 +25,11 @@ interface MessageContentProps {
       image: string;
     };
   };
+  renderCard?: (
+    card: any,
+    className?: string,
+    invocationId?: string
+  ) => React.ReactNode;
 }
 
 // Function to parse mentions and convert UUIDs to user names
@@ -70,6 +75,7 @@ function MessageContentComponent({
   messageIndex,
   invocation_id,
   conversationData,
+  renderCard,
 }: MessageContentProps) {
   // State for image viewer
   const { t } = useTranslation();
@@ -185,9 +191,15 @@ function MessageContentComponent({
   return (
     <div className="!p-0 !m-0" style={{ padding: 0, margin: 0 }}>
       {/* Render message card if present */}
-      {card && (
-        <MessageCardRenderer card={card} invocation_id={invocation_id} />
-      )}
+      {card && renderCard ? (
+        renderCard(card, undefined, invocation_id)
+      ) : card ? (
+        <div className="text-sm text-muted-foreground p-2 border rounded-md">
+          <Small>
+            {t("chat.messageCards.noRenderer", "No card renderer provided")}
+          </Small>
+        </div>
+      ) : null}
 
       {/* Render content with inline images, lists, and LaTeX */}
       {cleanedContent && (
