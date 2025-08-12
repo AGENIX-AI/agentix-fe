@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   Loader2,
   Plus,
@@ -12,6 +12,7 @@ import {
   FileText,
   Edit,
   Trash2,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
@@ -31,6 +32,7 @@ import { Small } from "@/components/typography";
 import { Input } from "@/components/ui/input";
 import { EditDocumentSidebar } from "./EditDocumentSidebar";
 import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
+import { DocumentBlocksRenderer } from "@/components/reused/documents";
 
 // Using DocumentType from types.ts
 
@@ -90,6 +92,11 @@ export function EmbeddedDocumentsComponent({
   const [isSubmittingImages, setIsSubmittingImages] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  // View sidebar states
+  const [showViewSidebar, setShowViewSidebar] = useState(false);
+  const [viewDocument, setViewDocument] = useState<Document | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
   // Fetch original documents
   useEffect(() => {
     const fetchOriginalDocuments = async () => {
@@ -99,10 +106,10 @@ export function EmbeddedDocumentsComponent({
           page_number: currentPageOriginal,
           page_size: pageSize,
           search: searchQueryOriginal || "",
-          type: "document",
+          type: "upload_document",
           assistant_id: assistantId || undefined,
           sort_by: "created_at",
-          sort_order: 1,
+          sort_order: -1,
           mode: "original",
         });
 
@@ -136,10 +143,10 @@ export function EmbeddedDocumentsComponent({
           page_number: currentPageReference,
           page_size: pageSize,
           search: searchQueryReference || "",
-          type: "document",
+          type: "upload_document",
           assistant_id: assistantId || undefined,
           sort_by: "created_at",
-          sort_order: 1,
+          sort_order: -1,
           mode: "reference",
         });
 
@@ -242,7 +249,7 @@ export function EmbeddedDocumentsComponent({
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${documentId}`,
+        `${baseUrl}/pages/index/image/${documentId}`,
         {
           method: "GET",
           headers,
@@ -337,7 +344,7 @@ export function EmbeddedDocumentsComponent({
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${currentDocumentId}`,
+        `${baseUrl}/pages/index/image/${currentDocumentId}`,
         {
           method: "PUT",
           headers,
@@ -431,6 +438,17 @@ export function EmbeddedDocumentsComponent({
     setLocalRefreshTrigger((prev) => prev + 1);
   };
 
+  // View handlers
+  const handleViewDocument = async (document: Document) => {
+    setViewDocument(document);
+    setShowViewSidebar(true);
+  };
+
+  const handleCloseViewSidebar = () => {
+    setShowViewSidebar(false);
+    setViewDocument(null);
+  };
+
   const renderDocumentTable = (
     documents: Document[],
     isLoading: boolean,
@@ -476,6 +494,20 @@ export function EmbeddedDocumentsComponent({
                 onRowClick={onDocumentSelect}
                 renderActions={(document) => (
                   <div className="flex gap-2">
+                    {/* View Button */}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewDocument(document);
+                      }}
+                      title="View document content"
+                    >
+                      <Eye className="h-3 w-3" />
+                    </Button>
+
                     {/* Edit Button */}
                     <Button
                       variant="ghost"
@@ -517,7 +549,9 @@ export function EmbeddedDocumentsComponent({
                         );
                       }}
                       disabled={updatingModeDocumentId === document.id}
-                      title={`Move to ${targetMode === "original" ? "Reference" : "Original"}`}
+                      title={`Move to ${
+                        targetMode === "original" ? "Reference" : "Original"
+                      }`}
                     >
                       {updatingModeDocumentId === document.id ? (
                         <Loader2 className="h-3 w-3 animate-spin" />
@@ -841,6 +875,47 @@ export function EmbeddedDocumentsComponent({
         onClose={handleDeleteClose}
         onSuccess={handleDeleteSuccess}
       />
+
+      {/* View Document Sidebar */}
+      {showViewSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1" onClick={handleCloseViewSidebar} />
+          <div className="w-1/2 bg-background border-l shadow-lg flex flex-col">
+            {/* Header */}
+            <div className="border-b px-6 py-4 flex items-center justify-between h-18">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  {viewDocument?.title || "Document Content"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {viewDocument?.file_name}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseViewSidebar}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto p-6"
+            >
+              {viewDocument && (
+                <DocumentBlocksRenderer
+                  documentId={viewDocument.id}
+                  pageSize={20}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

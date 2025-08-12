@@ -67,7 +67,16 @@ export interface GetDocumentsParams {
   sort_by?: string;
   sort_order?: number;
   search?: string;
-  type?: "document" | "image" | "topic_knowledge" | "crawl_document" | "all";
+  type?:
+    | "upload_document"
+    | "media_document"
+    | "note_collection"
+    | "media_collection"
+    | "online_source_collection"
+    | "topic_knowledge"
+    | "image"
+    | "crawl_document"
+    | "all";
   assistant_id?: string;
   mode?: "original" | "reference";
   only_link?: boolean;
@@ -84,6 +93,84 @@ export interface GetDocumentsResponse {
 }
 
 export interface GetAssistantDocumentsResponse extends GetDocumentsResponse {}
+
+/**
+ * Document block interfaces for EditorJS
+ */
+export interface DocumentBlock {
+  id: string;
+  type: string;
+  data: {
+    text?: string;
+    level?: number;
+    items?: string[];
+    style?: string;
+    [key: string]: any;
+  };
+}
+
+export interface GetDocumentBlocksParams {
+  page_number?: number;
+  page_size?: number;
+  sort_order?: number;
+  sort_by?: string;
+}
+
+export interface GetDocumentBlocksResponse {
+  items: DocumentBlock[];
+  total_items: number;
+  page_number: number;
+  page_size: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+}
+
+/**
+ * Note Collection interfaces
+ */
+export interface NoteCollection {
+  id: string;
+  user_id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+  type: "note_collection";
+}
+
+export interface GetNoteCollectionsParams {
+  page_number?: number;
+  page_size?: number;
+  sort_order?: number;
+  sort_by?: string;
+  search?: string;
+  type?: "note_collection";
+}
+
+export interface GetNoteCollectionsResponse {
+  success: boolean;
+  collections: NoteCollection[];
+  total_count: number;
+  page_number: number;
+  page_size: number;
+}
+
+export interface GetCollectionDocumentsParams {
+  page_number?: number;
+  page_size?: number;
+  sort_order?: number;
+  sort_by?: string;
+  search?: string;
+  type?: "topic_knowledge";
+}
+
+export interface GetCollectionDocumentsResponse {
+  success: boolean;
+  documents: Document[];
+  total_count: number;
+  page_number: number;
+  page_size: number;
+}
 
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
@@ -127,7 +214,7 @@ export const getImageDocuments = async (
   });
 
   const response = await fetch(
-    `${baseUrl}/documents/get_image_documents/${characterId}?${queryParams.toString()}`,
+    `${baseUrl}/pages/get_image_documents/${characterId}?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -167,7 +254,7 @@ export const getImageDocument = async (
   });
 
   const response = await fetch(
-    `${baseUrl}/documents/get_image_document/${documentId}?${queryParams.toString()}`,
+    `${baseUrl}/pages/get_image_document/${documentId}?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -208,7 +295,7 @@ export const uploadImageDocument = async (
     headers["X-Refresh-Token"] = refreshToken;
   }
 
-  const response = await fetch(`${baseUrl}/documents/upload_image_document`, {
+  const response = await fetch(`${baseUrl}/pages/upload_image_document`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -259,7 +346,7 @@ export const uploadDocument = async (
     headers["X-Refresh-Token"] = refreshToken;
   }
 
-  const response = await fetch(`${baseUrl}/documents/upload_image_document`, {
+  const response = await fetch(`${baseUrl}/pages/upload_image_document`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -311,7 +398,7 @@ export const uploadDocumentFile = async (
     headers["X-Refresh-Token"] = refreshToken;
   }
 
-  const response = await fetch(`${baseUrl}/documents/upload_document`, {
+  const response = await fetch(`${baseUrl}/pages/upload_document`, {
     method: "POST",
     credentials: "include",
     body: formData,
@@ -350,7 +437,7 @@ export const createImageIndex = async (
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/create_image_index`, {
+  const response = await fetch(`${baseUrl}/pages/create_image_index`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -399,7 +486,7 @@ export const getAssistantDocuments = async (
   }
 
   const response = await fetch(
-    `${baseUrl}/documents/get_assisstant_documents/${assistantId}?${queryParams.toString()}`,
+    `${baseUrl}/pages/get_assisstant_documents/${assistantId}?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -453,7 +540,7 @@ export const getOwnDocuments = async (
   }
 
   const response = await fetch(
-    `${baseUrl}/documents/get_own_documents?${queryParams.toString()}`,
+    `${baseUrl}/pages/get_own_documents?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -478,7 +565,7 @@ export async function linkDocument(documentId: string, assistantId: string) {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/link_document`, {
+  const response = await fetch(`${baseUrl}/pages/link_document`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -505,7 +592,7 @@ export async function unlinkDocument(documentId: string, assistantId: string) {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/unlink_document`, {
+  const response = await fetch(`${baseUrl}/pages/unlink_document`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -547,7 +634,7 @@ export async function getTopicKnowledgeReferenceDocuments(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/reference/${topicKnowledgeId}`,
+    `${baseUrl}/pages/topic_knowledge/reference/${topicKnowledgeId}`,
     {
       method: "GET",
       credentials: "include",
@@ -600,7 +687,7 @@ export async function getTopicKnowledgeItems(
   });
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/${topicKnowledgeId}?${queryParams.toString()}`,
+    `${baseUrl}/pages/topic_knowledge/${topicKnowledgeId}?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -631,7 +718,7 @@ export async function createTopicKnowledge(data: {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/create_topic_knowledge`, {
+  const response = await fetch(`${baseUrl}/pages/create_topic_knowledge`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -655,7 +742,7 @@ export async function createMediaCollection(data: {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/create_media_collection`, {
+  const response = await fetch(`${baseUrl}/pages/create_media_collection`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -691,7 +778,7 @@ export async function createTopicKnowledgeManual(data: {
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/manual_create`,
+    `${baseUrl}/pages/topic_knowledge/manual_create`,
     {
       method: "POST",
       credentials: "include",
@@ -733,7 +820,7 @@ export async function createTopicKnowledgeFramework(data: {
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/framework_create`,
+    `${baseUrl}/pages/topic_knowledge/framework_create`,
     {
       method: "POST",
       credentials: "include",
@@ -777,7 +864,7 @@ export async function modifyTopicKnowledge(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/modify_topic_knowledge/${chunkIndex}`,
+    `${baseUrl}/pages/topic_knowledge/modify_topic_knowledge/${chunkIndex}`,
     {
       method: "PUT",
       credentials: "include",
@@ -807,7 +894,7 @@ export async function deleteTopicKnowledge(chunkIndex: string): Promise<{
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/topic_knowledge/delete_topic_knowledge/${chunkIndex}`,
+    `${baseUrl}/pages/topic_knowledge/delete_topic_knowledge/${chunkIndex}`,
     {
       method: "DELETE",
       credentials: "include",
@@ -842,7 +929,7 @@ export async function createWebDerivedKnowledge(data: {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(`${baseUrl}/documents/crawl_document`, {
+  const response = await fetch(`${baseUrl}/pages/crawl_document`, {
     method: "POST",
     credentials: "include",
     headers,
@@ -873,7 +960,7 @@ export async function getCrawlDocuments(documentId: string): Promise<any[]> {
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/get_crawl_document/${documentId}`,
+    `${baseUrl}/pages/get_crawl_document/${documentId}`,
     {
       method: "GET",
       credentials: "include",
@@ -912,7 +999,7 @@ export async function indexCrawlDocument(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/index_crawl_document/${documentId}`,
+    `${baseUrl}/pages/index_crawl_document/${documentId}`,
     {
       method: "POST",
       credentials: "include",
@@ -939,7 +1026,7 @@ export async function updateModeDocument(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/update_mode_document/${documentId}`,
+    `${baseUrl}/pages/update_mode_document/${documentId}`,
     {
       method: "PUT",
       credentials: "include",
@@ -977,7 +1064,7 @@ export async function getCrawlUrls(
   });
 
   const response = await fetch(
-    `${baseUrl}/documents/crawl_document/get_crawl_urls?${queryParams.toString()}`,
+    `${baseUrl}/pages/crawl_document/get_crawl_urls?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -1008,15 +1095,12 @@ export async function indexUrls(data: {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
-  const response = await fetch(
-    `${baseUrl}/documents/crawl_document/index_urls`,
-    {
-      method: "POST",
-      credentials: "include",
-      headers,
-      body: JSON.stringify(data),
-    }
-  );
+  const response = await fetch(`${baseUrl}/pages/crawl_document/index_urls`, {
+    method: "POST",
+    credentials: "include",
+    headers,
+    body: JSON.stringify(data),
+  });
 
   if (!response.ok) {
     Sentry.captureException(
@@ -1045,7 +1129,7 @@ export async function updateDocumentById(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/update_document_by_id/${documentId}`,
+    `${baseUrl}/pages/update_document_by_id/${documentId}`,
     {
       method: "PUT",
       credentials: "include",
@@ -1065,6 +1149,45 @@ export async function updateDocumentById(
 }
 
 /**
+ * Get document blocks for EditorJS rendering
+ * @param documentId ID of the document
+ * @param params Parameters for filtering and pagination
+ * @returns Promise with the list of document blocks
+ */
+export const getDocumentBlocks = async (
+  documentId: string,
+  params: GetDocumentBlocksParams = {}
+): Promise<GetDocumentBlocksResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({
+    page_number: params.page_number?.toString() ?? "1",
+    page_size: params.page_size?.toString() ?? "10",
+    sort_order: params.sort_order?.toString() ?? "0",
+    sort_by: params.sort_by ?? "order",
+  });
+
+  const response = await fetch(
+    `${baseUrl}/pages/get_blocks/${documentId}?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch document blocks: ${response.statusText}`)
+    );
+    throw new Error(`Failed to fetch document blocks: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
  * Delete document by ID
  * @param documentId The ID of the document to delete
  * @returns Promise with the success status and message
@@ -1076,7 +1199,7 @@ export async function deleteDocumentById(
   const headers = getAuthHeaders();
 
   const response = await fetch(
-    `${baseUrl}/documents/delete_document_by_id/${documentId}`,
+    `${baseUrl}/pages/delete_document_by_id/${documentId}`,
     {
       method: "DELETE",
       credentials: "include",

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Loader2, Edit, Trash2 } from "lucide-react";
+import { Loader2, Edit, Trash2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -16,6 +16,7 @@ export interface MediaCollectionsTableProps {
   getStatusColor: (status: string) => string;
   onEdit?: (documentId: string) => void;
   onDelete?: (documentId: string) => void;
+  onView?: (document: Document) => void;
   onRowClick?: (documentId: string) => void;
   loadingDocumentIds?: string[];
 }
@@ -25,6 +26,7 @@ export function MediaCollectionsTable({
   getStatusColor,
   onEdit,
   onDelete,
+  onView,
   onRowClick,
   loadingDocumentIds = [],
 }: MediaCollectionsTableProps) {
@@ -79,11 +81,28 @@ export function MediaCollectionsTable({
                   {new Date(document.created_at).toLocaleDateString()}
                 </TableCell>
                 <TableCell className="text-right text-xs w-[15%]">
-                  <div className="flex gap-2 justify-end">
+                  <div className="flex items-center gap-1 justify-end">
                     {loadingDocumentIds.includes(document.id) ? (
                       <Loader2 className="h-3 w-3 animate-spin text-primary" />
                     ) : (
                       <>
+                        {/* View Button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onView?.(document);
+                          }}
+                          title="View media collection"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </Button>
+
+                        {/* Separator */}
+                        <div className="h-4 w-px bg-border mx-1" />
+
                         {/* Edit Button */}
                         <Button
                           variant="ghost"
@@ -97,6 +116,9 @@ export function MediaCollectionsTable({
                         >
                           <Edit className="h-3 w-3" />
                         </Button>
+
+                        {/* Separator */}
+                        <div className="h-4 w-px bg-border mx-1" />
 
                         {/* Delete Button */}
                         <Button

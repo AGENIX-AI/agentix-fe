@@ -68,7 +68,9 @@ export default function DocumentUpload({
       const droppedFile = e.dataTransfer.files[0];
       if (validateFile(droppedFile)) {
         setFile(droppedFile);
-        setDocumentTitle(droppedFile.name.split(".")[0] || t("documents.upload.document"));
+        setDocumentTitle(
+          droppedFile.name.split(".")[0] || t("documents.upload.document")
+        );
       }
     }
   };
@@ -78,7 +80,9 @@ export default function DocumentUpload({
       const selectedFile = e.target.files[0];
       if (validateFile(selectedFile)) {
         setFile(selectedFile);
-        setDocumentTitle(selectedFile.name.split(".")[0] || t("documents.upload.document"));
+        setDocumentTitle(
+          selectedFile.name.split(".")[0] || t("documents.upload.document")
+        );
       }
     }
   };
@@ -97,7 +101,9 @@ export default function DocumentUpload({
     try {
       const result = await uploadDocumentFile(
         file,
-        documentTitle || file.name.split(".")[0] || t("documents.upload.document"),
+        documentTitle ||
+          file.name.split(".")[0] ||
+          t("documents.upload.document"),
         isParse
       );
 
@@ -128,7 +134,7 @@ export default function DocumentUpload({
           {t("documents.upload.instructions")}
         </p>
       </div>
-      
+
       {/* Search Bar */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -160,8 +166,12 @@ export default function DocumentUpload({
             className={`${isDragging ? "text-primary" : "text-primary/70"}`}
           />
         </div>
-        <p className="text-xs font-medium mb-1">{t("documents.upload.dragDrop")}</p>
-        <p className="text-xs text-muted-foreground mb-2">{t("documents.upload.or")}</p>
+        <p className="text-xs font-medium mb-1">
+          {t("documents.upload.dragDrop")}
+        </p>
+        <p className="text-xs text-muted-foreground mb-2">
+          {t("documents.upload.or")}
+        </p>
 
         <input
           type="file"
@@ -177,7 +187,7 @@ export default function DocumentUpload({
           size="sm"
           className="bg-background hover:bg-accent/50 transition-colors"
         >
-{t("documents.upload.browseFiles")}
+          {t("documents.upload.browseFiles")}
         </Button>
       </div>
 
@@ -185,7 +195,9 @@ export default function DocumentUpload({
         <div className="w-full space-y-2">
           <div className="flex items-center space-x-2">
             <div className="w-1 h-3 bg-primary rounded-full"></div>
-            <p className="text-xs font-medium">{t("documents.upload.selectedDocument")}</p>
+            <p className="text-xs font-medium">
+              {t("documents.upload.selectedDocument")}
+            </p>
           </div>
 
           <div className="flex items-start space-x-6 p-3 border rounded-md bg-accent/5 hover:bg-accent/10 transition-colors">

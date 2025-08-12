@@ -325,7 +325,7 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
 
         // Refresh the main documents list
         fetchDocuments(type);
-        
+
         // Refresh the sidebar documents if sidebar is open
         if (showSidebar && sidebarType === type) {
           fetchAvailableDocuments(type);

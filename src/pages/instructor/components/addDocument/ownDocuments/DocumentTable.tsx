@@ -20,13 +20,13 @@ interface DocumentTableProps {
   loadingDocumentIds?: string[];
 }
 
-export function DocumentTable({ 
-  documents, 
+export function DocumentTable({
+  documents,
   getStatusColor,
   getLinkStatus,
   onEdit,
   onDelete,
-  loadingDocumentIds = []
+  loadingDocumentIds = [],
 }: DocumentTableProps) {
   const { t } = useTranslation();
   return (
@@ -35,22 +35,22 @@ export function DocumentTable({
         <TableHeader>
           <TableRow className="bg-muted/50 text-xs">
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.title')}
+              {t("document.table.title")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.type')}
+              {t("document.table.type")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.status')}
+              {t("document.table.status")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.linked')}
+              {t("document.table.linked")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.created')}
+              {t("document.table.created")}
             </TableHead>
             <TableHead className="text-left p-2 text-xs font-medium">
-              {t('document.table.actions')}
+              {t("document.table.actions")}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -63,9 +63,7 @@ export function DocumentTable({
                   {doc.file_name}
                 </div>
               </TableCell>
-              <TableCell className="p-2 text-xs">
-                {doc.type}
-              </TableCell>
+              <TableCell className="p-2 text-xs">{doc.type}</TableCell>
               <TableCell className="p-2 text-xs">
                 <span
                   className={cn(
@@ -84,7 +82,9 @@ export function DocumentTable({
                     getLinkStatus(doc.linked)
                   )}
                 >
-                  {doc.linked ? t('document.table.linked_status.linked') : t('document.table.linked_status.not_linked')}
+                  {doc.linked
+                    ? t("document.table.linked_status.linked")
+                    : t("document.table.linked_status.not_linked")}
                 </span>
               </TableCell>
               <TableCell className="p-2 text-xs">
@@ -101,10 +101,10 @@ export function DocumentTable({
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-xs inline-flex items-center gap-1 text-blue-600 hover:underline"
-                        title={t('document.table.view')}
+                        title={t("document.table.view")}
                       >
                         <ExternalLink className="h-3 w-3" />
-                        {t('document.table.view')}
+                        {t("document.table.view")}
                       </a>
                       {onEdit && (
                         <button

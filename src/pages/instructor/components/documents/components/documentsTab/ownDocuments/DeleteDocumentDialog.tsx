@@ -72,11 +72,7 @@ export function DeleteDocumentDialog({
         </DialogHeader>
 
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button
-            variant="outline"
-            onClick={handleClose}
-            disabled={isDeleting}
-          >
+          <Button variant="outline" onClick={handleClose} disabled={isDeleting}>
             {t("common.cancel")}
           </Button>
           <Button

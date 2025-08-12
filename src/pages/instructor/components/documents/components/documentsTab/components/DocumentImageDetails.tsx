@@ -169,8 +169,6 @@ export default function DocumentImageDetails({
     fetchImages();
   };
 
-
-
   const handleEditImage = async (chunkIndex: string) => {
     try {
       const image = images.find((img) => img.chunk_index === chunkIndex);

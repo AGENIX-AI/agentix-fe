@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Loader2, Plus, Search } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
@@ -14,6 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
 import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
+import { DocumentBlocksRenderer } from "@/components/reused/documents";
 
 export type MediaDocumentType = "image";
 
@@ -45,6 +46,11 @@ export function MediaCollectionsComponent({
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
+
+  // View sidebar states
+  const [showViewSidebar, setShowViewSidebar] = useState(false);
+  const [viewDocument, setViewDocument] = useState<Document | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -129,6 +135,17 @@ export function MediaCollectionsComponent({
     setSelectedDocument(null);
   };
 
+  // View handlers
+  const handleViewDocument = async (document: Document) => {
+    setViewDocument(document);
+    setShowViewSidebar(true);
+  };
+
+  const handleCloseViewSidebar = () => {
+    setShowViewSidebar(false);
+    setViewDocument(null);
+  };
+
   const handleRowClick = (documentId: string) => {
     try {
       // Update metaData with currentMediaCollectionId
@@ -197,6 +214,7 @@ export function MediaCollectionsComponent({
                   getStatusColor={getStatusColor}
                   onEdit={handleEditDocument}
                   onDelete={handleDeleteDocument}
+                  onView={handleViewDocument}
                   onRowClick={handleRowClick}
                   loadingDocumentIds={loadingDocumentIds}
                 />
@@ -237,6 +255,47 @@ export function MediaCollectionsComponent({
         onSuccess={handleDeleteSuccess}
         document={selectedDocument}
       />
+
+      {/* View Document Sidebar */}
+      {showViewSidebar && (
+        <div className="fixed inset-0 z-50 flex">
+          <div className="flex-1" onClick={handleCloseViewSidebar} />
+          <div className="w-1/2 bg-background border-l shadow-lg flex flex-col">
+            {/* Header */}
+            <div className="border-b px-6 py-4 flex items-center justify-between h-18">
+              <div>
+                <h2 className="text-lg font-semibold">
+                  {viewDocument?.title || "Media Collection Content"}
+                </h2>
+                <p className="text-sm text-muted-foreground">
+                  {viewDocument?.file_name}
+                </p>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleCloseViewSidebar}
+                className="h-8 w-8 p-0"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+
+            {/* Content */}
+            <div
+              ref={scrollContainerRef}
+              className="flex-1 overflow-y-auto p-6"
+            >
+              {viewDocument && (
+                <DocumentBlocksRenderer
+                  documentId={viewDocument.id}
+                  pageSize={20}
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

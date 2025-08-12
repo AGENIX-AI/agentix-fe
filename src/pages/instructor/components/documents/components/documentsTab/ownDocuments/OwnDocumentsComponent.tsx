@@ -12,7 +12,7 @@ import { EditDocumentSidebar } from "./EditDocumentSidebar";
 import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
 
 export type DocumentType =
-  | "document"
+  | "upload_document"
   | "image"
   | "topic_knowledge"
   | "all"
@@ -26,11 +26,13 @@ export default function OwnDocumentsComponent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  
+
   // Edit/Delete state
   const [showEditSidebar, setShowEditSidebar] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
+    null
+  );
 
   // Fetch documents when page, search, or document type changes
   useEffect(() => {
@@ -43,7 +45,7 @@ export default function OwnDocumentsComponent() {
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || (undefined as unknown as string),
-          type: "document",
+          type: "upload_document",
           assistant_id: assistantId, // Optional: filter by assistant ID if needed
           sort_by: "created_at",
           sort_order: 1,
@@ -84,7 +86,7 @@ export default function OwnDocumentsComponent() {
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || (undefined as unknown as string),
-          type: "document",
+          type: "upload_document",
           assistant_id: assistantId,
           sort_by: "created_at",
           sort_order: 1,
@@ -200,7 +202,7 @@ export default function OwnDocumentsComponent() {
           </>
         )}
       </div>
-      
+
       {/* Edit Sidebar */}
       <EditDocumentSidebar
         isVisible={showEditSidebar}
@@ -208,7 +210,7 @@ export default function OwnDocumentsComponent() {
         onSuccess={handleEditSuccess}
         document={selectedDocument}
       />
-      
+
       {/* Delete Dialog */}
       <DeleteDocumentDialog
         isOpen={showDeleteDialog}

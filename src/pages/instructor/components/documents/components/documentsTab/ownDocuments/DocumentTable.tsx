@@ -30,17 +30,29 @@ export function DocumentTable({
       <Table>
         <TableHeader>
           <TableRow className="bg-muted/50 text-xs">
-            <TableHead className="text-left p-2 text-xs font-medium" style={{ width: '40%' }}>
+            <TableHead
+              className="text-left p-2 text-xs font-medium"
+              style={{ width: "40%" }}
+            >
               {t("documents.table.title")}
             </TableHead>
 
-            <TableHead className="text-left p-2 text-xs font-medium" style={{ width: '20%' }}>
+            <TableHead
+              className="text-left p-2 text-xs font-medium"
+              style={{ width: "20%" }}
+            >
               {t("documents.table.status")}
             </TableHead>
-            <TableHead className="text-left p-2 text-xs font-medium" style={{ width: '20%' }}>
+            <TableHead
+              className="text-left p-2 text-xs font-medium"
+              style={{ width: "20%" }}
+            >
               {t("documents.table.created")}
             </TableHead>
-            <TableHead className="text-left p-2 text-xs font-medium" style={{ width: '20%' }}>
+            <TableHead
+              className="text-left p-2 text-xs font-medium"
+              style={{ width: "20%" }}
+            >
               {t("documents.table.actions")}
             </TableHead>
           </TableRow>
@@ -52,14 +64,14 @@ export function DocumentTable({
               className={onRowClick ? "cursor-pointer hover:bg-muted/50" : ""}
               onClick={() => onRowClick && onRowClick(doc)}
             >
-              <TableCell className="p-2 text-xs" style={{ width: '40%' }}>
+              <TableCell className="p-2 text-xs" style={{ width: "40%" }}>
                 <div className="font-medium">{doc.title}</div>
                 <div className="text-xs text-muted-foreground">
                   {doc.file_name}
                 </div>
               </TableCell>
 
-              <TableCell className="p-2 text-xs" style={{ width: '20%' }}>
+              <TableCell className="p-2 text-xs" style={{ width: "20%" }}>
                 <span
                   className={cn(
                     "px-2 py-1 rounded-md text-xs font-medium border",
@@ -70,10 +82,13 @@ export function DocumentTable({
                     doc.upload_status.slice(1).replace("_", " ")}
                 </span>
               </TableCell>
-              <TableCell className="p-2 text-xs" style={{ width: '20%' }}>
+              <TableCell className="p-2 text-xs" style={{ width: "20%" }}>
                 {new Date(doc.created_at).toLocaleDateString()}
               </TableCell>
-              <TableCell className="p-2 text-xs flex items-center space-x-2" style={{ width: '20%' }}>
+              <TableCell
+                className="p-2 text-xs flex items-center space-x-2"
+                style={{ width: "20%" }}
+              >
                 {renderActions && renderActions(doc)}
               </TableCell>
             </TableRow>

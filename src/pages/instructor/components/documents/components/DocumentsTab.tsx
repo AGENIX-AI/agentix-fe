@@ -67,7 +67,7 @@ export default function DocumentsTab() {
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${documentId}`,
+        `${baseUrl}/pages/index/image/${documentId}`,
         {
           method: "GET",
           headers,
@@ -169,7 +169,7 @@ export default function DocumentsTab() {
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${currentDocumentId}`,
+        `${baseUrl}/pages/index/image/${currentDocumentId}`,
         {
           method: "PUT",
           headers,

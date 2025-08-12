@@ -1,4 +1,4 @@
-import { Loader2, Edit, Trash2 } from "lucide-react";
+import { Loader2, Edit, Trash2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,7 +14,7 @@ export interface TopicKnowledgeTableProps {
   documents: Document[];
   onEdit?: (documentId: string) => void;
   onDelete?: (documentId: string) => void;
-  onRowClick?: (documentId: string) => void;
+  onView?: (document: Document) => void;
   loadingDocumentIds?: string[];
 }
 
@@ -22,7 +22,7 @@ export function TopicKnowledgeTable({
   documents,
   onEdit,
   onDelete,
-  onRowClick,
+  onView,
   loadingDocumentIds = [],
 }: TopicKnowledgeTableProps) {
   return (
@@ -40,11 +40,7 @@ export function TopicKnowledgeTable({
             </TableHeader>
             <TableBody>
               {documents.map((document) => (
-                <TableRow
-                  key={document.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => onRowClick?.(document.id)}
-                >
+                <TableRow key={document.id} className="hover:bg-muted/50">
                   <TableCell className="max-w-[200px] truncate">
                     <div className="text-xs">{document.title}</div>
                     {document.description && (
@@ -61,11 +57,28 @@ export function TopicKnowledgeTable({
                     {new Date(document.created_at).toLocaleDateString()}
                   </TableCell>
                   <TableCell className="text-right text-xs">
-                    <div className="flex gap-2 justify-end">
+                    <div className="flex items-center gap-1 justify-end">
                       {loadingDocumentIds.includes(document.id) ? (
                         <Loader2 className="h-3 w-3 animate-spin text-primary" />
                       ) : (
                         <>
+                          {/* View Button */}
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onView?.(document);
+                            }}
+                            title="View knowledge component"
+                          >
+                            <Eye className="h-3 w-3" />
+                          </Button>
+
+                          {/* Separator */}
+                          <div className="h-4 w-px bg-border mx-1" />
+
                           {/* Edit Button */}
                           <Button
                             variant="ghost"
@@ -79,6 +92,9 @@ export function TopicKnowledgeTable({
                           >
                             <Edit className="h-3 w-3" />
                           </Button>
+
+                          {/* Separator */}
+                          <div className="h-4 w-px bg-border mx-1" />
 
                           {/* Delete Button */}
                           <Button

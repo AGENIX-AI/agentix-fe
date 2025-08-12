@@ -98,7 +98,9 @@ export function AddTopicKnowledgeSidebar({
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
-          <h2 className="text-lg font-semibold">{t("documents.knowledgeNotes.addNotes")}</h2>
+          <h2 className="text-lg font-semibold">
+            {t("documents.knowledgeNotes.addNotes")}
+          </h2>
           <Button
             variant="ghost"
             size="icon"
@@ -127,14 +129,20 @@ export function AddTopicKnowledgeSidebar({
 
           {/* Language Selection */}
           <div className="space-y-2">
-            <Label className="text-xs">{t("documents.knowledgeNotes.languageLabel")}</Label>
+            <Label className="text-xs">
+              {t("documents.knowledgeNotes.languageLabel")}
+            </Label>
             <Select
               value={language}
               onValueChange={setLanguage}
               disabled={isSubmitting}
             >
               <SelectTrigger className="text-xs">
-                <SelectValue placeholder={t("documents.knowledgeNotes.languagePlaceholder")} />
+                <SelectValue
+                  placeholder={t(
+                    "documents.knowledgeNotes.languagePlaceholder"
+                  )}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="English" className="text-xs">

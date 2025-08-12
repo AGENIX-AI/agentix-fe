@@ -76,7 +76,7 @@ export default function AddDocument() {
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${documentId}`,
+        `${baseUrl}/pages/index/image/${documentId}`,
         {
           method: "GET",
           headers,
@@ -191,7 +191,7 @@ export default function AddDocument() {
       }
 
       const response = await fetch(
-        `${baseUrl}/documents/index/image/${currentDocumentId}`,
+        `${baseUrl}/pages/index/image/${currentDocumentId}`,
         {
           method: "PUT",
           headers,
@@ -213,7 +213,9 @@ export default function AddDocument() {
         imagesToSubmit.length > 0
           ? t("documents.documentsTab.imageIndexUpdated", {
               count: result.remaining_files.length,
-              type: isAllImages ? t("documents.documentsTab.submitted") : t("documents.documentsTab.selected")
+              type: isAllImages
+                ? t("documents.documentsTab.submitted")
+                : t("documents.documentsTab.selected"),
             })
           : t("documents.documentsTab.documentSubmittedNoImages");
 
@@ -302,7 +304,9 @@ export default function AddDocument() {
           <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
-              <h2 className="text-lg font-semibold">{t("documents.documentsTab.addDocument")}</h2>
+              <h2 className="text-lg font-semibold">
+                {t("documents.documentsTab.addDocument")}
+              </h2>
               <Button
                 variant="ghost"
                 size="icon"
@@ -352,7 +356,9 @@ export default function AddDocument() {
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <div className="flex items-center space-x-4">
-                <h2 className="text-lg font-semibold">{t("documents.documentsTab.documentImages")}</h2>
+                <h2 className="text-lg font-semibold">
+                  {t("documents.documentsTab.documentImages")}
+                </h2>
                 {documentImages.length > 0 && !isSubmittingImages && (
                   <div className="flex items-center space-x-2">
                     <Checkbox
@@ -365,8 +371,8 @@ export default function AddDocument() {
                       disabled={isSubmittingImages}
                     />
                     <Label htmlFor="select-all" className="text-xs">
-                      {t("documents.documentsTab.selectAll")} ({selectedImages.length}/
-                      {documentImages.length})
+                      {t("documents.documentsTab.selectAll")} (
+                      {selectedImages.length}/{documentImages.length})
                     </Label>
                   </div>
                 )}
@@ -412,7 +418,9 @@ export default function AddDocument() {
                         <div className="relative">
                           <img
                             src={fullImageUrl}
-                            alt={`${t("documents.documentsTab.documentPage")} ${index + 1}`}
+                            alt={`${t("documents.documentsTab.documentPage")} ${
+                              index + 1
+                            }`}
                             className="w-full h-40 object-cover"
                             loading="lazy"
                           />
@@ -439,7 +447,9 @@ export default function AddDocument() {
                   <div className="p-2 rounded-full bg-accent mx-auto w-fit">
                     <Upload size={20} className="text-primary/70" />
                   </div>
-                  <p className="text-sm font-medium">{t("documents.documentsTab.noImages")}</p>
+                  <p className="text-sm font-medium">
+                    {t("documents.documentsTab.noImages")}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     {t("documents.documentsTab.noImagesAvailable")}
                   </p>
@@ -463,7 +473,9 @@ export default function AddDocument() {
                         {t("documents.documentsTab.submitting")}
                       </>
                     ) : (
-                      `${t("documents.documentsTab.submitAllImages")} (${documentImages.length})`
+                      `${t("documents.documentsTab.submitAllImages")} (${
+                        documentImages.length
+                      })`
                     )}
                   </Button>
 
@@ -480,7 +492,9 @@ export default function AddDocument() {
                         {t("documents.documentsTab.submitting")}
                       </>
                     ) : (
-                      `${t("documents.documentsTab.submitSelectedImages")} (${selectedImages.length})`
+                      `${t("documents.documentsTab.submitSelectedImages")} (${
+                        selectedImages.length
+                      })`
                     )}
                   </Button>
                 </>
