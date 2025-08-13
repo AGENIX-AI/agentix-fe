@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 
@@ -21,22 +21,8 @@ import {
 import { Small } from "@/components/ui/typography";
 import { Checkbox } from "@/components/ui/checkbox";
 
-interface AddKnowledgeChunkSidebarProps {
-  isVisible: boolean;
-  topicKnowledgeId: string;
-  onClose: () => void;
-  onSuccess?: () => void;
-  onCreateManualNote?: (data: {
-    title: string;
-    content: string;
-    ai_parse?: boolean;
-  }) => Promise<boolean>;
-  onCreateFrameworkNotes?: (framework: Framework) => Promise<boolean>;
-}
-
-type Mode = "Manual" | "Framework";
-
-const frameworkDescriptions: Record<Framework, string> = {
+// Constants
+const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
   FWOH: "5W1H framework analyzes Who, What, When, Where, Why, and How aspects of information to provide comprehensive understanding.",
   PESTEL:
     "PESTEL framework examines Political, Economic, Social, Technological, Environmental, and Legal factors affecting a situation.",
@@ -45,11 +31,72 @@ const frameworkDescriptions: Record<Framework, string> = {
     "Bloom's Taxonomy framework categorizes learning objectives across cognitive levels from basic knowledge to advanced evaluation.",
 };
 
-const frameworkLabels: Record<Framework, string> = {
+const FRAMEWORK_LABELS: Record<Framework, string> = {
   FWOH: "5W1H",
   PESTEL: "PESTEL",
   SWOT: "SWOT",
   BLOOMTAXONOMY: "Bloom's Taxonomy",
+};
+
+// Types
+type Mode = "Manual" | "Framework";
+
+interface ManualNoteData {
+  title: string;
+  content: string;
+  ai_parse?: boolean;
+}
+
+interface AddKnowledgeChunkSidebarProps {
+  isVisible: boolean;
+  topicKnowledgeId: string;
+  onClose: () => void;
+  onSuccess?: () => void;
+  onCreateManualNote?: (data: ManualNoteData) => Promise<boolean>;
+  onCreateFrameworkNotes?: (framework: Framework) => Promise<boolean>;
+}
+
+// Custom hook for form state management
+const useFormState = () => {
+  const [mode, setMode] = useState<Mode>("Manual");
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
+  const [aiParse, setAiParse] = useState(false);
+  const [framework, setFramework] = useState<Framework>("FWOH");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const resetForm = useCallback(() => {
+    setMode("Manual");
+    setTitle("");
+    setContent("");
+    setAiParse(false);
+    setFramework("FWOH");
+  }, []);
+
+  const isSubmitDisabled = useCallback(() => {
+    if (isSubmitting) return true;
+    if (mode === "Manual") {
+      return !title.trim() || !content.trim();
+    }
+    return false;
+  }, [isSubmitting, mode, title, content]);
+
+  return {
+    mode,
+    setMode,
+    title,
+    setTitle,
+    content,
+    setContent,
+    aiParse,
+    setAiParse,
+    framework,
+    setFramework,
+    isSubmitting,
+    setIsSubmitting,
+    resetForm,
+    isSubmitDisabled,
+  };
 };
 
 export function AddKnowledgeChunkSidebar({
@@ -60,14 +107,24 @@ export function AddKnowledgeChunkSidebar({
   onCreateManualNote,
   onCreateFrameworkNotes,
 }: AddKnowledgeChunkSidebarProps) {
-  const [mode, setMode] = useState<Mode>("Manual");
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [aiParse, setAiParse] = useState(false);
-  const [framework, setFramework] = useState<Framework>("FWOH");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    mode,
+    setMode,
+    title,
+    setTitle,
+    content,
+    setContent,
+    aiParse,
+    setAiParse,
+    framework,
+    setFramework,
+    isSubmitting,
+    setIsSubmitting,
+    resetForm,
+    isSubmitDisabled,
+  } = useFormState();
 
-  const handleSubmit = async () => {
+  const handleSubmit = useCallback(async () => {
     if (mode === "Manual") {
       if (!title.trim()) {
         toast.error("Please enter a title");
@@ -85,16 +142,14 @@ export function AddKnowledgeChunkSidebar({
 
       if (mode === "Manual") {
         if (onCreateManualNote) {
-          // Use the custom callback if provided
           success = await onCreateManualNote({
             title: title.trim(),
             content: content.trim(),
             ai_parse: aiParse,
           });
         } else {
-          // Fall back to default implementation
           const response = await createTopicKnowledgeManual({
-            document_id: topicKnowledgeId,
+            page_id: topicKnowledgeId,
             title: title.trim(),
             content: content.trim(),
             ai_parse: aiParse,
@@ -107,18 +162,16 @@ export function AddKnowledgeChunkSidebar({
         }
       } else {
         if (onCreateFrameworkNotes) {
-          // Use the custom callback if provided
           success = await onCreateFrameworkNotes(framework);
         } else {
-          // Fall back to default implementation
           const response = await createTopicKnowledgeFramework({
-            document_id: topicKnowledgeId,
+            page_id: topicKnowledgeId,
             framework,
           });
 
           if (response.success) {
             toast.success(
-              `${response.output.length} notes created using ${frameworkLabels[framework]} framework!`
+              `${response.output.length} notes created using ${FRAMEWORK_LABELS[framework]} framework!`
             );
             success = true;
           }
@@ -135,36 +188,122 @@ export function AddKnowledgeChunkSidebar({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [
+    mode,
+    title,
+    content,
+    aiParse,
+    framework,
+    topicKnowledgeId,
+    onCreateManualNote,
+    onCreateFrameworkNotes,
+    onSuccess,
+  ]);
 
-  const handleClose = () => {
-    // Reset form
-    setMode("Manual");
-    setTitle("");
-    setContent("");
-    setAiParse(false);
-    setFramework("FWOH");
+  const handleClose = useCallback(() => {
+    resetForm();
     onClose();
-  };
+  }, [resetForm, onClose]);
 
-  const isSubmitDisabled = () => {
-    if (isSubmitting) return true;
-    if (mode === "Manual") {
-      return !title.trim() || !content.trim();
-    }
-    return false;
-  };
+  // Render mode selection
+  const renderModeSelection = () => (
+    <div className="space-y-2">
+      <Label>Mode</Label>
+      <Select
+        value={mode}
+        onValueChange={(value: Mode) => setMode(value)}
+        disabled={isSubmitting}
+      >
+        <SelectTrigger>
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="Manual">Manual</SelectItem>
+          <SelectItem value="Framework">Framework</SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+
+  // Render manual mode form
+  const renderManualMode = () => (
+    <>
+      <div className="space-y-2">
+        <Label htmlFor="title">Title</Label>
+        <Input
+          id="title"
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Enter knowledge chunk title"
+          disabled={isSubmitting}
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="content">Content</Label>
+        <Textarea
+          id="content"
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          placeholder="Enter knowledge chunk content"
+          rows={6}
+          disabled={isSubmitting}
+        />
+      </div>
+
+      <div className="flex items-center space-x-2">
+        <Checkbox
+          id="aiParse"
+          checked={aiParse}
+          onCheckedChange={(checked) => setAiParse(checked as boolean)}
+          disabled={isSubmitting}
+        />
+        <Label htmlFor="aiParse" className="text-sm cursor-pointer">
+          AI Parse
+        </Label>
+      </div>
+    </>
+  );
+
+  // Render framework mode form
+  const renderFrameworkMode = () => (
+    <>
+      <div className="space-y-2">
+        <Label>Analytical Framework</Label>
+        <Select
+          value={framework}
+          onValueChange={(value: Framework) => setFramework(value)}
+          disabled={isSubmitting}
+        >
+          <SelectTrigger>
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="FWOH">5W1H</SelectItem>
+            <SelectItem value="PESTEL">PESTEL</SelectItem>
+            <SelectItem value="SWOT">SWOT</SelectItem>
+            <SelectItem value="BLOOMTAXONOMY">Bloom's Taxonomy</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+
+      <div className="p-4 bg-muted/50 rounded-lg">
+        <Small className="text-muted-foreground">
+          <strong>{FRAMEWORK_LABELS[framework]} Framework:</strong>
+          <br />
+          {FRAMEWORK_DESCRIPTIONS[framework]}
+        </Small>
+      </div>
+    </>
+  );
 
   if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/20" onClick={handleClose} />
 
-      {/* Sidebar */}
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">Add Notes</h2>
           <Button
@@ -177,103 +316,11 @@ export function AddKnowledgeChunkSidebar({
           </Button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          {/* Mode Selection */}
-          <div className="space-y-2">
-            <Label>Mode</Label>
-            <Select
-              value={mode}
-              onValueChange={(value: Mode) => setMode(value)}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Manual">Manual</SelectItem>
-                <SelectItem value="Framework">Framework</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Manual Mode */}
-          {mode === "Manual" && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="title">Title</Label>
-                <Input
-                  id="title"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="Enter knowledge chunk title"
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="content">Content</Label>
-                <Textarea
-                  id="content"
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  placeholder="Enter knowledge chunk content"
-                  rows={6}
-                  disabled={isSubmitting}
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="aiParse"
-                  checked={aiParse}
-                  onCheckedChange={(checked) => setAiParse(checked as boolean)}
-                  disabled={isSubmitting}
-                />
-                <Label htmlFor="aiParse" className="text-sm cursor-pointer">
-                  AI Parse
-                </Label>
-              </div>
-            </>
-          )}
-
-          {/* Framework Mode */}
-          {mode === "Framework" && (
-            <>
-              <div className="space-y-2">
-                <Label>Analytical Framework</Label>
-                <Select
-                  value={framework}
-                  onValueChange={(value: Framework) => setFramework(value)}
-                  disabled={isSubmitting}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="FWOH">5W1H</SelectItem>
-                    <SelectItem value="PESTEL">PESTEL</SelectItem>
-                    <SelectItem value="SWOT">SWOT</SelectItem>
-                    <SelectItem value="BLOOMTAXONOMY">
-                      Bloom's Taxonomy
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Framework Description */}
-              <div className="p-4 bg-muted/50 rounded-lg">
-                <Small className="text-muted-foreground">
-                  <strong>{frameworkLabels[framework]} Framework:</strong>
-                  <br />
-                  {frameworkDescriptions[framework]}
-                </Small>
-              </div>
-            </>
-          )}
+          {renderModeSelection()}
+          {mode === "Manual" ? renderManualMode() : renderFrameworkMode()}
         </div>
 
-        {/* Footer */}
         <div className="border-t h-16 px-6 py-4 flex items-center justify-between">
           <div className="flex gap-3">
             <Button

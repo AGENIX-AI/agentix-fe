@@ -224,7 +224,7 @@ export function DocumentBlocksRenderer({
     if (!container) return;
 
     const { scrollTop, scrollHeight, clientHeight } = container;
-    const threshold = 100; // Load more when 100px from bottom
+    const threshold = 50; // Reduced threshold for more responsive loading
     const distanceFromBottom = scrollHeight - (scrollTop + clientHeight);
 
     // Additional safety check: don't load if we've already loaded all items
@@ -245,7 +245,7 @@ export function DocumentBlocksRenderer({
         if (!isLoadingMoreBlocks && hasMoreBlocks) {
           loadMoreBlocks();
         }
-      }, 300); // Increased delay to 300ms
+      }, 150); // Reduced delay for more responsive loading
     }
   }, [
     isLoadingMoreBlocks,
@@ -260,9 +260,27 @@ export function DocumentBlocksRenderer({
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    container.addEventListener("scroll", handleScroll);
+    // Handle both scroll and wheel events for better compatibility
+    const handleScrollEvent = () => {
+      handleScroll();
+    };
+
+    const handleWheelEvent = () => {
+      // Debounce wheel events to prevent excessive calls
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+      scrollTimeoutRef.current = setTimeout(() => {
+        handleScroll();
+      }, 100);
+    };
+
+    container.addEventListener("scroll", handleScrollEvent, { passive: true });
+    container.addEventListener("wheel", handleWheelEvent, { passive: true });
+
     return () => {
-      container.removeEventListener("scroll", handleScroll);
+      container.removeEventListener("scroll", handleScrollEvent);
+      container.removeEventListener("wheel", handleWheelEvent);
       // Clear any pending timeouts
       if (scrollTimeoutRef.current) {
         clearTimeout(scrollTimeoutRef.current);
@@ -349,6 +367,74 @@ export function DocumentBlocksRenderer({
               </div>
             )}
 
+            {/* Table blocks */}
+            {block.type === "table" && (
+              <div className="mb-4">
+                <div className="overflow-x-auto border border-border rounded-md">
+                  <table className="w-full border-collapse text-sm">
+                    {Array.isArray(block.data.rows) &&
+                      block.data.rows.length > 0 && (
+                        <>
+                          <thead>
+                            <tr className="bg-muted/40">
+                              {block.data.rows[0].map(
+                                (cell: string, idx: number) => (
+                                  <th
+                                    key={`head-${idx}`}
+                                    className="text-left px-3 py-2 border-b border-border font-medium text-foreground"
+                                  >
+                                    {cell}
+                                  </th>
+                                )
+                              )}
+                            </tr>
+                          </thead>
+                          {block.data.rows.length > 1 && (
+                            <tbody>
+                              {block.data.rows
+                                .slice(1)
+                                .map((row: string[], rIdx: number) => (
+                                  <tr
+                                    key={`row-${rIdx}`}
+                                    className={
+                                      rIdx % 2 === 0
+                                        ? "bg-background"
+                                        : "bg-muted/10"
+                                    }
+                                  >
+                                    {row.map((cell: string, cIdx: number) => (
+                                      <td
+                                        key={`cell-${rIdx}-${cIdx}`}
+                                        className="px-3 py-2 border-b border-border text-foreground"
+                                      >
+                                        {cell}
+                                      </td>
+                                    ))}
+                                  </tr>
+                                ))}
+                            </tbody>
+                          )}
+                        </>
+                      )}
+                    {(!block.data.rows || block.data.rows.length === 0) && (
+                      <tbody>
+                        <tr>
+                          <td className="px-3 py-2 text-muted-foreground">
+                            No data
+                          </td>
+                        </tr>
+                      </tbody>
+                    )}
+                  </table>
+                </div>
+                {block.data.caption && (
+                  <p className="text-xs text-muted-foreground mt-2 text-center italic">
+                    {block.data.caption}
+                  </p>
+                )}
+              </div>
+            )}
+
             {/* Image blocks */}
             {block.type === "image" && (
               <div className="mb-4">
@@ -415,15 +501,10 @@ export function DocumentBlocksRenderer({
         </div>
       )}
 
-      {/* Load More Button (fallback) */}
-      {!isLoadingMoreBlocks && hasMoreBlocks && (
-        <div className="text-center py-4">
-          <button
-            onClick={loadMoreBlocks}
-            className="px-4 py-2 text-sm bg-primary text-primary-foreground rounded-md hover:bg-primary/90 transition-colors"
-          >
-            Load More Content
-          </button>
+      {/* Subtle loading indicator when approaching bottom */}
+      {!isLoadingMoreBlocks && hasMoreBlocks && documentBlocks.length > 0 && (
+        <div className="flex justify-center items-center py-2 opacity-50">
+          <div className="h-4 w-4 border-2 border-muted-foreground/30 border-t-transparent rounded-full animate-spin"></div>
         </div>
       )}
 

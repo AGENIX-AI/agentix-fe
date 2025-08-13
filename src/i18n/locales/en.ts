@@ -752,7 +752,8 @@ const enTranslation: Record<string, any> = {
     updating: "Updating...",
     deleting: "Deleting...",
     updateDocument: "Update Document",
-    deleteConfirmation: "Are you sure you want to delete \"{{title}}\"? This action cannot be undone.",
+    deleteConfirmation:
+      'Are you sure you want to delete "{{title}}"? This action cannot be undone.',
     // Assistant Knowledge Tab
     assistantKnowledge: {
       failedToLoad: "Failed to load assistant data. Please try again.",
@@ -960,6 +961,7 @@ const enTranslation: Record<string, any> = {
       failedToCreate: "Failed to create knowledge component",
       enterTitle: "Please enter a title",
       selectLanguage: "Please select a language",
+      add: "Add Note Collection",
     },
     // Media
     media: {

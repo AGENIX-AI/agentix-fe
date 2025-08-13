@@ -1,41 +1,62 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { TopicKnowledgeComponent } from "./knowledgeNotes/TopicKnowledgeComponent";
-
 import { AddTopicKnowledgeSidebar } from "./knowledgeNotes/AddTopicKnowledgeSidebar";
-// import { EmbeddedDocumentsComponent } from "../addDocument/ownDocuments/EmbeddedDocumentsComponent";
 import { useInstructor } from "@/contexts/InstructorContext";
-import TopicKnowledgeDetails from "./knowledgeNotes/topic-knowledge-details";
 
-export default function KnowledgeNotesTab() {
+// Types
+interface KnowledgeNotesTabProps {
+  // Add any props if needed in the future
+}
+
+// Custom hook for managing sidebar state
+const useSidebarState = () => {
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [showAddSidebar, setShowAddSidebar] = useState(false);
-  const { metaData, setMetaData } = useInstructor();
-  const [showDetails, setShowDetails] = useState(false);
-  const handleSidebarSuccess = () => {
-    // Refresh the knowledge component list
-    setRefreshDocuments((prev) => prev + 1);
-    // Close the sidebar to show the updated list
-    setShowAddSidebar(false);
-    // Don't automatically navigate to details - let user see the updated list
-  };
 
-  if (showDetails) {
-    return <TopicKnowledgeDetails setShowDetails={setShowDetails} />;
-  }
+  const handleSidebarSuccess = useCallback(() => {
+    setRefreshDocuments((prev) => prev + 1);
+    setShowAddSidebar(false);
+  }, []);
+
+  const handleAddTopicKnowledge = useCallback(() => {
+    setShowAddSidebar(true);
+  }, []);
+
+  const handleCloseSidebar = useCallback(() => {
+    setShowAddSidebar(false);
+  }, []);
+
+  return {
+    refreshDocuments,
+    showAddSidebar,
+    handleSidebarSuccess,
+    handleAddTopicKnowledge,
+    handleCloseSidebar,
+  };
+};
+
+export default function KnowledgeNotesTab({}: KnowledgeNotesTabProps) {
+  const { metaData, setMetaData } = useInstructor();
+  const {
+    refreshDocuments,
+    showAddSidebar,
+    handleSidebarSuccess,
+    handleAddTopicKnowledge,
+    handleCloseSidebar,
+  } = useSidebarState();
 
   return (
     <div className="flex flex-col h-full">
       <div className="flex-1 overflow-y-auto">
         <TopicKnowledgeComponent
           refreshTrigger={refreshDocuments}
-          onAddTopicKnowledge={() => setShowAddSidebar(true)}
-          setShowDetails={setShowDetails}
+          onAddTopicKnowledge={handleAddTopicKnowledge}
         />
       </div>
 
       <AddTopicKnowledgeSidebar
         isVisible={showAddSidebar}
-        onClose={() => setShowAddSidebar(false)}
+        onClose={handleCloseSidebar}
         onSuccess={handleSidebarSuccess}
         setMetaData={setMetaData}
         metaData={metaData}

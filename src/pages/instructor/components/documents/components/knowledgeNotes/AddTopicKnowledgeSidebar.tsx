@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { X, Loader2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
@@ -15,6 +15,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+// Types
 interface AddTopicKnowledgeSidebarProps {
   isVisible: boolean;
   onClose: () => void;
@@ -22,6 +23,50 @@ interface AddTopicKnowledgeSidebarProps {
   setMetaData: (metaData: any) => void;
   metaData: any;
 }
+
+interface FormData {
+  title: string;
+  language: string;
+  framework: Framework;
+}
+
+// Custom hook for form state management
+const useFormState = () => {
+  const [formData, setFormData] = useState<FormData>({
+    title: "",
+    language: "",
+    framework: "FWOH",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const updateFormData = useCallback(
+    (field: keyof FormData, value: string | Framework) => {
+      setFormData((prev) => ({ ...prev, [field]: value }));
+    },
+    []
+  );
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      title: "",
+      language: "",
+      framework: "FWOH",
+    });
+  }, []);
+
+  const isSubmitDisabled = useCallback(() => {
+    return isSubmitting || !formData.title.trim() || !formData.language;
+  }, [isSubmitting, formData.title, formData.language]);
+
+  return {
+    formData,
+    updateFormData,
+    isSubmitting,
+    setIsSubmitting,
+    resetForm,
+    isSubmitDisabled,
+  };
+};
 
 export function AddTopicKnowledgeSidebar({
   isVisible,
@@ -31,36 +76,39 @@ export function AddTopicKnowledgeSidebar({
   metaData,
 }: AddTopicKnowledgeSidebarProps) {
   const { t } = useTranslation();
-  const [title, setTitle] = useState("");
-  const [language, setLanguage] = useState<string>("");
-  const [framework, setFramework] = useState<Framework>("FWOH");
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const {
+    formData,
+    updateFormData,
+    isSubmitting,
+    setIsSubmitting,
+    resetForm,
+    isSubmitDisabled,
+  } = useFormState();
 
-  const handleSubmit = async () => {
-    if (!title.trim()) {
+  const handleSubmit = useCallback(async () => {
+    if (!formData.title.trim()) {
       toast.error(t("documents.knowledgeNotes.enterTitle"));
       return;
     }
 
-    if (!language) {
+    if (!formData.language) {
       toast.error(t("documents.knowledgeNotes.selectLanguage"));
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Create knowledge component with framework
       const createResponse = await createTopicKnowledge({
-        title: title.trim(),
-        language,
-        framework,
+        title: formData.title.trim(),
+        language: formData.language,
+        framework: formData.framework,
       });
 
-      if (createResponse.document_id) {
+      if (createResponse.page_id) {
         toast.success(t("documents.knowledgeNotes.created"));
         setMetaData({
-          ...metaData,
-          currentTopicKnowledgeId: createResponse.document_id,
+          ...(metaData || {}),
+          currentTopicKnowledgeId: createResponse.page_id,
         });
         handleClose();
         onSuccess?.();
@@ -71,32 +119,64 @@ export function AddTopicKnowledgeSidebar({
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [formData, t, setMetaData, metaData, onSuccess]);
 
-  const handleClose = () => {
-    // Reset form
-    setTitle("");
-    setLanguage("");
-    setFramework("FWOH");
+  const handleClose = useCallback(() => {
+    resetForm();
     onClose();
-  };
+  }, [resetForm, onClose]);
 
-  const isSubmitDisabled = () => {
-    if (isSubmitting) return true;
-    if (!title.trim() || !language) return true;
-    return false;
-  };
+  // Render title input
+  const renderTitleInput = () => (
+    <div className="space-y-2">
+      <Label htmlFor="title" className="text-xs">
+        {t("documents.knowledgeNotes.titleLabel")}
+      </Label>
+      <Input
+        id="title"
+        value={formData.title}
+        onChange={(e) => updateFormData("title", e.target.value)}
+        placeholder={t("documents.knowledgeNotes.titlePlaceholder")}
+        disabled={isSubmitting}
+      />
+    </div>
+  );
+
+  // Render language selection
+  const renderLanguageSelection = () => (
+    <div className="space-y-2">
+      <Label className="text-xs">
+        {t("documents.knowledgeNotes.languageLabel")}
+      </Label>
+      <Select
+        value={formData.language}
+        onValueChange={(value) => updateFormData("language", value)}
+        disabled={isSubmitting}
+      >
+        <SelectTrigger className="text-xs">
+          <SelectValue
+            placeholder={t("documents.knowledgeNotes.languagePlaceholder")}
+          />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="English" className="text-xs">
+            {t("documents.languages.english")}
+          </SelectItem>
+          <SelectItem value="Vietnamese" className="text-xs">
+            {t("documents.languages.vietnamese")}
+          </SelectItem>
+        </SelectContent>
+      </Select>
+    </div>
+  );
 
   if (!isVisible) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/20" onClick={handleClose} />
 
-      {/* Sidebar */}
       <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">
             {t("documents.knowledgeNotes.addNotes")}
@@ -111,52 +191,11 @@ export function AddTopicKnowledgeSidebar({
           </Button>
         </div>
 
-        {/* Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
-          {/* Title Input */}
-          <div className="space-y-2">
-            <Label htmlFor="title" className="text-xs">
-              {t("documents.knowledgeNotes.titleLabel")}
-            </Label>
-            <Input
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder={t("documents.knowledgeNotes.titlePlaceholder")}
-              disabled={isSubmitting}
-            />
-          </div>
-
-          {/* Language Selection */}
-          <div className="space-y-2">
-            <Label className="text-xs">
-              {t("documents.knowledgeNotes.languageLabel")}
-            </Label>
-            <Select
-              value={language}
-              onValueChange={setLanguage}
-              disabled={isSubmitting}
-            >
-              <SelectTrigger className="text-xs">
-                <SelectValue
-                  placeholder={t(
-                    "documents.knowledgeNotes.languagePlaceholder"
-                  )}
-                />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="English" className="text-xs">
-                  {t("documents.languages.english")}
-                </SelectItem>
-                <SelectItem value="Vietnamese" className="text-xs">
-                  {t("documents.languages.vietnamese")}
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+          {renderTitleInput()}
+          {renderLanguageSelection()}
         </div>
 
-        {/* Footer */}
         <div className="border-t h-16 px-6 py-4 flex items-center justify-between">
           <Button
             variant="outline"

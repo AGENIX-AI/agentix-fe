@@ -61,7 +61,7 @@ export default function DocumentDetailsView({
   }) => {
     try {
       const response = await createTopicKnowledgeManual({
-        document_id: document.id,
+        page_id: document.id,
         title: data.title,
         content: data.content,
         ai_parse: data.ai_parse,
@@ -86,7 +86,7 @@ export default function DocumentDetailsView({
   const onCreateFrameworkNotes = async (framework: Framework) => {
     try {
       const response = await createTopicKnowledgeFramework({
-        document_id: document.id,
+        page_id: document.id,
         framework,
       });
 

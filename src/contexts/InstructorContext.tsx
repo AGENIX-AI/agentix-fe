@@ -86,6 +86,7 @@ export function InstructorContextProvider({
       assistantId: null,
       conversationId: null,
       rightPanel: "dashboard",
+      metaData: {},
     };
   };
   const initialState = getInitialState();
@@ -120,7 +121,7 @@ export function InstructorContextProvider({
     localStorage.setItem("instructor_state", JSON.stringify(state));
     // Optionally, you can log for debugging
     // console.log("instructor_state", state);
-  }, [rightPanel, conversationId, assistantId]);
+  }, [rightPanel, conversationId, assistantId, metaData]);
 
   // Define fetchAssistantData outside useEffect and memoize it with useCallback
   const fetchAssistantData = useCallback(async () => {

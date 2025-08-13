@@ -172,6 +172,52 @@ export interface GetCollectionDocumentsResponse {
   page_size: number;
 }
 
+/**
+ * Get children pages of a collection
+ * Response shape is the same as getOwnDocuments
+ */
+export const getCollectionChildrenDocuments = async (
+  collectionId: string,
+  params: GetDocumentsParams = {}
+): Promise<GetDocumentsResponse> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams();
+  queryParams.append("collection_id", collectionId);
+  queryParams.append("page_number", params.page_number?.toString() ?? "1");
+  queryParams.append("page_size", params.page_size?.toString() ?? "10");
+  queryParams.append("sort_by", params.sort_by ?? "created_at");
+  queryParams.append("sort_order", params.sort_order?.toString() ?? "1");
+
+  if (params.search) {
+    queryParams.append("search", params.search);
+  }
+  if (params.type) {
+    queryParams.append("type", params.type);
+  }
+
+  const response = await fetch(
+    `${baseUrl}/pages/get_collection_children?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch collection children: ${response.statusText}`)
+    );
+    throw new Error(
+      `Failed to fetch collection children: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
   const accessToken = Cookies.get("edvara_access_token");
@@ -714,7 +760,12 @@ export async function createTopicKnowledge(data: {
   title: string;
   language: string;
   framework?: string;
-}): Promise<{ success: boolean; document_id: string }> {
+}): Promise<{
+  success: boolean;
+  message: string;
+  page_id: string;
+  title: string;
+}> {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -763,7 +814,7 @@ export async function createMediaCollection(data: {
  * Create topic knowledge manually
  */
 export async function createTopicKnowledgeManual(data: {
-  document_id: string;
+  page_id: string;
   title: string;
   content: string;
   ai_parse?: boolean;
@@ -810,7 +861,7 @@ export type Framework = "FWOH" | "PESTEL" | "SWOT" | "BLOOMTAXONOMY";
  * Create topic knowledge using framework
  */
 export async function createTopicKnowledgeFramework(data: {
-  document_id: string;
+  page_id: string;
   framework: Framework;
 }): Promise<{
   success: boolean;
@@ -851,7 +902,7 @@ export async function modifyTopicKnowledge(
   data: {
     title: string;
     content: string;
-    document_id: string;
+    page_id: string;
   }
 ): Promise<{
   success: boolean;

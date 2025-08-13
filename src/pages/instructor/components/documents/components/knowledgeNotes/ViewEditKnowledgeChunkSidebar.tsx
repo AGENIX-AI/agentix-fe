@@ -58,7 +58,7 @@ export function ViewEditKnowledgeChunkSidebar({
       const response = await modifyTopicKnowledge(item.chunk_index, {
         title: title.trim(),
         content: content.trim(),
-        document_id: topicKnowledgeId,
+        page_id: topicKnowledgeId,
       });
 
       if (response.success) {

@@ -35,7 +35,11 @@ interface AssistantKnowledgeProps {
   assistant: Assistant;
 }
 
-type DocumentType = "document" | "image" | "topic_knowledge" | "crawl_document";
+type DocumentType =
+  | "upload_document"
+  | "topic_knowledge"
+  | "crawl_document"
+  | "image";
 
 interface TableSection {
   type: DocumentType;
@@ -49,7 +53,7 @@ interface TableSection {
 
 const tableSections: TableSection[] = [
   {
-    type: "document",
+    type: "upload_document",
     titleKey: "documents.assistantKnowledge.documents_tab",
     icon: <FileText className="h-4 w-4" />,
     searchKey: "documents.assistantKnowledge.search_documents",
@@ -90,13 +94,13 @@ const tableSections: TableSection[] = [
 export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<Record<DocumentType, Document[]>>({
-    document: [],
+    upload_document: [],
     image: [],
     topic_knowledge: [],
     crawl_document: [],
   });
   const [loading, setLoading] = useState<Record<DocumentType, boolean>>({
-    document: false,
+    upload_document: false,
     image: false,
     topic_knowledge: false,
     crawl_document: false,
@@ -104,19 +108,19 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
   const [searchQueries, setSearchQueries] = useState<
     Record<DocumentType, string>
   >({
-    document: "",
+    upload_document: "",
     image: "",
     topic_knowledge: "",
     crawl_document: "",
   });
   const [pageNumbers, setPageNumbers] = useState<Record<DocumentType, number>>({
-    document: 1,
+    upload_document: 1,
     image: 1,
     topic_knowledge: 1,
     crawl_document: 1,
   });
   const [totalItems, setTotalItems] = useState<Record<DocumentType, number>>({
-    document: 0,
+    upload_document: 0,
     image: 0,
     topic_knowledge: 0,
     crawl_document: 0,
@@ -349,7 +353,7 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
 
   const getTypeName = (type: DocumentType): string => {
     switch (type) {
-      case "document":
+      case "upload_document":
         return t("documents.assistantKnowledge.type_document");
       case "image":
         return t("documents.assistantKnowledge.type_image");
