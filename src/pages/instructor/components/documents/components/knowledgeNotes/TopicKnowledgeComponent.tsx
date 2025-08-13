@@ -4,7 +4,6 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
-import type { Document } from "@/api/documents";
 import type { NoteCollection } from "@/api/documents/note-collections";
 
 import { NoteCollectionsTable } from "./NoteCollectionsTable";
