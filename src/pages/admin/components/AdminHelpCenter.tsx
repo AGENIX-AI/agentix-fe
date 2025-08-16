@@ -14,7 +14,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import type { HelpMainTopic, HelpTopic } from "@/api/admin/helpCenter";
+import type {
+  HelpMainTopic,
+  HelpTopic,
+  ContentBlock,
+} from "@/api/admin/helpCenter";
 import {
   createHelpMainTopic as createStudentHelpMainTopic,
   deleteHelpMainTopic as deleteStudentHelpMainTopic,
@@ -145,13 +149,22 @@ export function AdminHelpCenter() {
       setLoading(true);
       const { fetchHelpMainTopics } = getApiFunctions();
       const topics = await fetchHelpMainTopics();
-      setMainTopics(topics);
+
+      // Ensure topics is an array
+      if (Array.isArray(topics)) {
+        setMainTopics(topics);
+      } else {
+        console.warn("fetchHelpMainTopics returned non-array:", topics);
+        setMainTopics([]);
+      }
+
       // Reset expanded and topics map when switching tabs
       setExpanded({});
       setTopicsMap({});
     } catch (error) {
       console.error("Failed to load help main topics:", error);
       toast.error("Failed to load help categories");
+      setMainTopics([]);
     } finally {
       setLoading(false);
     }
@@ -167,9 +180,18 @@ export function AdminHelpCenter() {
         try {
           const { fetchHelpTopicsByMainId } = getApiFunctions();
           const topics = await fetchHelpTopicsByMainId(mainId);
-          setTopicsMap((prev) => ({ ...prev, [mainId]: topics }));
+
+          // Ensure topics is an array
+          if (Array.isArray(topics)) {
+            setTopicsMap((prev) => ({ ...prev, [mainId]: topics }));
+          } else {
+            console.warn("fetchHelpTopicsByMainId returned non-array:", topics);
+            setTopicsMap((prev) => ({ ...prev, [mainId]: [] }));
+          }
         } catch (error) {
+          console.error("Failed to load topics:", error);
           toast.error("Failed to load topics");
+          setTopicsMap((prev) => ({ ...prev, [mainId]: [] }));
         } finally {
           setTopicsLoading((prev) => ({ ...prev, [mainId]: false }));
         }
@@ -190,6 +212,10 @@ export function AdminHelpCenter() {
       const newTopic = await createHelpMainTopic({
         title: newTopicTitle,
         order: newOrder,
+        type:
+          activeTab === "instructor"
+            ? "instructor_help_collection"
+            : "student_help_collection",
       });
 
       setMainTopics([...mainTopics, newTopic]);
@@ -389,7 +415,7 @@ export function AdminHelpCenter() {
   // New function to handle saving from the sidebar
   const handleSaveTopicFromSidebar = async (
     mainId: string,
-    topic: Partial<HelpTopic> & { title: string; content: string }
+    topic: Partial<HelpTopic> & { title: string; content: ContentBlock[] }
   ) => {
     if (!topic.title.trim()) {
       toast.error("Title is required");
@@ -414,7 +440,7 @@ export function AdminHelpCenter() {
         // Creating
         const newOrder = (topicsMap[mainId]?.length || 0) + 1;
         const newTopic = await createHelpTopic({
-          help_main_id: mainId,
+          collection_id: mainId,
           title: topic.title,
           content: topic.content,
           order: newOrder,
@@ -817,6 +843,7 @@ export function AdminHelpCenter() {
         mode={topicFormSidebar.mode}
         mainId={topicFormSidebar.mainId}
         topic={topicFormSidebar.topic}
+        activeTab={activeTab}
         onClose={() =>
           setTopicFormSidebar({ open: false, mode: "create", mainId: "" })
         }

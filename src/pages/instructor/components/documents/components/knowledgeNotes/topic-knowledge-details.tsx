@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { useInstructor } from "@/contexts/InstructorContext";
 import { Button } from "@/components/ui/button";
 import {
@@ -11,10 +11,10 @@ import {
   Edit,
   Trash2,
 } from "lucide-react";
-import { toast } from "sonner";
+// import { toast } from "sonner";
 import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/Pagination";
 import { DocumentTable } from "../documentsTab/ownDocuments/DocumentTable";
-import { getCollectionChildrenDocuments } from "@/api/documents";
+import { useCollectionDocuments } from "../shared/useCollectionDocuments";
 import type { Document, NoteCollection } from "@/api/documents";
 import { AddKnowledgeChunkSidebar } from "./AddKnowledgeChunkSidebar";
 import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
@@ -22,49 +22,7 @@ import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumen
 import { DocumentBlocksRenderer } from "@/components/reused/documents";
 import { Input } from "@/components/ui/input";
 
-// Custom hook for fetching collection documents
-const useCollectionDocuments = (
-  collectionId: string,
-  currentPage: number,
-  pageSize: number,
-  searchQuery: string
-) => {
-  const [documents, setDocuments] = useState<Document[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [totalItems, setTotalItems] = useState(0);
-
-  const fetchDocuments = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const response = await getCollectionChildrenDocuments(collectionId, {
-        page_number: currentPage,
-        page_size: pageSize,
-        search: searchQuery,
-        sort_by: "created_at",
-        sort_order: 1,
-        type: "topic_knowledge",
-      });
-
-      if (response.success) {
-        setDocuments(response.documents);
-        setTotalItems(response.total_items);
-      } else {
-        throw new Error("Failed to fetch collection documents");
-      }
-    } catch (error) {
-      console.error("Error fetching collection documents:", error);
-      toast.error("Failed to fetch collection documents");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [collectionId, currentPage, pageSize, searchQuery]);
-
-  useEffect(() => {
-    fetchDocuments();
-  }, [fetchDocuments]);
-
-  return { documents, isLoading, totalItems, refetch: fetchDocuments };
-};
+// moved to shared hook
 
 // Custom hook for managing metadata
 const useMetadataUpdate = (collectionId: string) => {
@@ -92,12 +50,10 @@ export default function TopicKnowledgeDetails({
   collection,
   onBack,
 }: TopicKnowledgeDetailsProps) {
-  const { metaData } = useMetadataUpdate(collection.id);
+  useMetadataUpdate(collection.id);
 
   // Pagination and search state
-  const [currentPage, setCurrentPage] = useState(1);
-  const [pageSize] = useState(10);
-  const [searchQuery, setSearchQuery] = useState("");
+  const pageSize = 10;
 
   // Sidebar states
   const [showAddNoteSidebar, setShowAddNoteSidebar] = useState(false);
@@ -124,8 +80,18 @@ export default function TopicKnowledgeDetails({
     documents,
     isLoading: isLoadingDocuments,
     totalItems,
+    currentPage,
+    setCurrentPage,
+    searchQuery,
+    setSearchQuery,
     refetch: fetchDocuments,
-  } = useCollectionDocuments(collection.id, currentPage, pageSize, searchQuery);
+  } = useCollectionDocuments(
+    collection.id,
+    "topic_knowledge",
+    pageSize,
+    "created_at",
+    1
+  );
 
   const getStatusColor = useCallback((status: string) => {
     switch (status) {

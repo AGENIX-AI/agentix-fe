@@ -2,13 +2,16 @@ import { useState } from "react";
 import { MediaCollectionsComponent } from "./media/MediaCollectionsComponent";
 import { AddMediaCollectionSidebar } from "./media/AddMediaCollectionSidebar";
 import { useInstructor } from "@/contexts/InstructorContext";
-import MediaItemsDetails from "./media/media-items-details";
+import type { Document } from "@/api/documents";
+import MediaCollectionDetails from "./media/media-collection-details";
 
 export default function MediaTab() {
   const [refreshDocuments, setRefreshDocuments] = useState(0);
   const [showAddSidebar, setShowAddSidebar] = useState(false);
   const { metaData, setMetaData } = useInstructor();
-  const [showDetails, setShowDetails] = useState(false);
+  const [selectedCollection, setSelectedCollection] = useState<Document | null>(
+    null
+  );
 
   const handleSidebarSuccess = () => {
     // Refresh the media collections list
@@ -18,8 +21,13 @@ export default function MediaTab() {
     // Don't automatically navigate to details - let user see the updated list
   };
 
-  if (showDetails) {
-    return <MediaItemsDetails setShowDetails={setShowDetails} />;
+  if (selectedCollection) {
+    return (
+      <MediaCollectionDetails
+        collection={selectedCollection}
+        onBack={() => setSelectedCollection(null)}
+      />
+    );
   }
 
   return (
@@ -28,7 +36,7 @@ export default function MediaTab() {
         <MediaCollectionsComponent
           refreshTrigger={refreshDocuments}
           onAddMediaCollection={() => setShowAddSidebar(true)}
-          setShowDetails={setShowDetails}
+          onSelectCollection={(doc) => setSelectedCollection(doc)}
         />
       </div>
 

@@ -17,7 +17,11 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { ArrowLeft, PlusCircle, Pencil, Trash, Eye } from "lucide-react";
-import type { HelpTopic, HelpMainTopic } from "@/api/admin/helpCenter";
+import type {
+  HelpTopic,
+  HelpMainTopic,
+  ContentBlock,
+} from "@/api/admin/helpCenter";
 import {
   createHelpTopic,
   deleteHelpTopic,
@@ -86,6 +90,81 @@ export function AdminHelpTopics() {
     }
   };
 
+  // Convert markdown content to content blocks
+  const convertMarkdownToContentBlocks = (markdown: string): ContentBlock[] => {
+    if (!markdown.trim()) {
+      return [];
+    }
+
+    const lines = markdown.split("\n");
+    const blocks: ContentBlock[] = [];
+    let order = 0;
+
+    for (const line of lines) {
+      const trimmedLine = line.trim();
+      if (!trimmedLine) continue;
+
+      if (trimmedLine.startsWith("#")) {
+        // Header block
+        const level = trimmedLine.match(/^#+/)?.[0].length || 1;
+        const text = trimmedLine.replace(/^#+\s*/, "");
+        blocks.push({
+          type: "header",
+          data: { text, level },
+          order: order++,
+        });
+      } else if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
+        // List block
+        const items = [trimmedLine.replace(/^[-*]\s*/, "")];
+        blocks.push({
+          type: "list",
+          data: { style: "unordered", items },
+          order: order++,
+        });
+      } else if (trimmedLine.startsWith("```")) {
+        // Code block
+        const code = trimmedLine.replace(/^```/, "");
+        blocks.push({
+          type: "code",
+          data: { code, language: "text" },
+          order: order++,
+        });
+      } else {
+        // Paragraph block
+        blocks.push({
+          type: "paragraph",
+          data: { text: trimmedLine },
+          order: order++,
+        });
+      }
+    }
+
+    return blocks;
+  };
+
+  // Convert content blocks to markdown for display
+  const convertContentBlocksToMarkdown = (blocks: ContentBlock[]): string => {
+    return blocks
+      .map((block) => {
+        switch (block.type) {
+          case "header":
+            const level = block.data.level || 1;
+            return "#".repeat(level) + " " + block.data.text;
+          case "paragraph":
+            return block.data.text;
+          case "list":
+            return block.data.items
+              .map((item: string) => `- ${item}`)
+              .join("\n");
+          case "code":
+            return "```\n" + block.data.code + "\n```";
+          default:
+            return block.data.text || "";
+        }
+      })
+      .join("\n\n");
+  };
+
   const handleCreateTopic = async () => {
     if (!mainTopicId || !newTopicTitle.trim()) {
       toast.error("Title is required");
@@ -93,10 +172,12 @@ export function AdminHelpTopics() {
     }
     try {
       const newOrder = topics.length + 1;
+      const contentBlocks = convertMarkdownToContentBlocks(newTopicContent);
+
       const newTopic = await createHelpTopic({
-        help_main_id: mainTopicId,
+        collection_id: mainTopicId,
         title: newTopicTitle,
-        content: newTopicContent,
+        content: contentBlocks,
         order: newOrder,
       });
       setTopics([...topics, newTopic]);
@@ -126,9 +207,11 @@ export function AdminHelpTopics() {
     }
 
     try {
+      const contentBlocks = convertMarkdownToContentBlocks(newTopicContent);
+
       const updatedTopic = await updateHelpTopic(currentTopic.id, {
         title: newTopicTitle,
-        content: newTopicContent,
+        content: contentBlocks,
       });
 
       setTopics(
@@ -170,7 +253,7 @@ export function AdminHelpTopics() {
   const openEditDialog = (topic: HelpTopic) => {
     setCurrentTopic(topic);
     setNewTopicTitle(topic.title);
-    setNewTopicContent(topic.content);
+    setNewTopicContent(convertContentBlocksToMarkdown(topic.content));
     setIsEditDialogOpen(true);
     setActiveTab("edit");
   };
@@ -205,6 +288,56 @@ export function AdminHelpTopics() {
         className="prose prose-sm dark:prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: content }}
       />
+    );
+  };
+
+  const renderContentBlocks = (blocks: ContentBlock[]) => {
+    return (
+      <div className="prose prose-sm dark:prose-invert max-w-none">
+        {blocks.map((block, index) => {
+          switch (block.type) {
+            case "header":
+              const level = block.data.level || 1;
+              const headerText = block.data.text || "";
+
+              switch (level) {
+                case 1:
+                  return <h1 key={index}>{headerText}</h1>;
+                case 2:
+                  return <h2 key={index}>{headerText}</h2>;
+                case 3:
+                  return <h3 key={index}>{headerText}</h3>;
+                case 4:
+                  return <h4 key={index}>{headerText}</h4>;
+                case 5:
+                  return <h5 key={index}>{headerText}</h5>;
+                case 6:
+                  return <h6 key={index}>{headerText}</h6>;
+                default:
+                  return <h2 key={index}>{headerText}</h2>;
+              }
+            case "paragraph":
+              return <p key={index}>{block.data.text}</p>;
+            case "list":
+              const ListTag = block.data.style === "ordered" ? "ol" : "ul";
+              return (
+                <ListTag key={index}>
+                  {block.data.items.map((item: string, itemIndex: number) => (
+                    <li key={itemIndex}>{item}</li>
+                  ))}
+                </ListTag>
+              );
+            case "code":
+              return (
+                <pre key={index}>
+                  <code>{block.data.code}</code>
+                </pre>
+              );
+            default:
+              return <p key={index}>{block.data.text || ""}</p>;
+          }
+        })}
+      </div>
     );
   };
 
@@ -458,9 +591,7 @@ Write your content using Markdown formatting..."
             <DialogTitle>{currentTopic?.title}</DialogTitle>
           </DialogHeader>
           <ScrollArea className="h-[60vh] pr-4">
-            <div className="prose prose-sm dark:prose-invert max-w-none">
-              {currentTopic && renderMarkdown(currentTopic.content)}
-            </div>
+            {currentTopic && renderContentBlocks(currentTopic.content)}
           </ScrollArea>
           <DialogFooter>
             <DialogClose asChild>

@@ -1,119 +1,250 @@
 import axiosInstance from "../axios-instance";
 
+// Content block types
+export interface ContentBlock {
+  id: string;
+  section_id: string; // Changed from section to section_id to match API response
+  type:
+    | "header"
+    | "paragraph"
+    | "list"
+    | "code"
+    | "image"
+    | "quote"
+    | "checklist"
+    | "separator"
+    | "url";
+  data: Record<string, any>;
+  order: number;
+  block_id?: string | null; // null for new blocks, existing ID for existing blocks
+}
+
 export interface HelpMainTopic {
   id: string;
   order: number;
   title: string;
   topics_count: number;
+  type: string;
 }
 
 export interface HelpTopic {
   id: string;
-  help_main_id: string;
+  collection_id: string;
   order: number;
   title: string;
-  content: string;
+  content: ContentBlock[];
 }
 
 export interface CreateHelpMainTopicRequest {
-  order: number;
   title: string;
+  order: number;
+  type: string;
 }
 
 export interface UpdateHelpMainTopicRequest {
-  order: number;
-  title: string;
+  title?: string;
+  order?: number;
 }
 
 export interface CreateHelpTopicRequest {
-  help_main_id: string;
-  order: number;
   title: string;
-  content: string;
+  collection_id: string;
+  order: number;
+  content: ContentBlock[];
 }
 
 export interface UpdateHelpTopicRequest {
-  title: string;
-  content: string;
+  title?: string;
+  collection_id?: string;
+  order?: number;
+  content?: ContentBlock[];
+}
+
+// API Response wrapper
+interface ApiResponse<T> {
+  data: T;
+  message: string;
+  status: string;
 }
 
 // Help Main Topics API
 export const fetchHelpMainTopics = async (): Promise<HelpMainTopic[]> => {
-  const response = await axiosInstance.get("/systems/student/help_main");
-  return response.data;
+  try {
+    const response = await axiosInstance.get<ApiResponse<HelpMainTopic[]>>(
+      "/systems/student/help_main"
+    );
+    // Handle both new API response format and direct array response
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data || [];
+    }
+    // Fallback for direct array response
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("Error fetching help main topics:", error);
+    return [];
+  }
 };
 
 export const createHelpMainTopic = async (
   data: CreateHelpMainTopicRequest
 ): Promise<HelpMainTopic> => {
-  const response = await axiosInstance.post("/systems/student/help_main", data);
-  return response.data;
+  try {
+    const response = await axiosInstance.post<ApiResponse<HelpMainTopic>>(
+      "/systems/student/help_main",
+      data
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error creating help main topic:", error);
+    throw error;
+  }
 };
 
 export const updateHelpMainTopic = async (
   id: string,
   data: UpdateHelpMainTopicRequest
 ): Promise<HelpMainTopic> => {
-  const response = await axiosInstance.put(
-    `/systems/student/help_main/${id}`,
-    data
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.put<ApiResponse<HelpMainTopic>>(
+      `/systems/student/help_main/${id}`,
+      data
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error updating help main topic:", error);
+    throw error;
+  }
 };
 
 export const deleteHelpMainTopic = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/systems/student/help_main/${id}`);
+  try {
+    await axiosInstance.delete(`/systems/student/help_main/${id}`);
+  } catch (error) {
+    console.error("Error deleting help main topic:", error);
+    throw error;
+  }
 };
 
 // Help Topics API
 export const fetchHelpTopicsByMainId = async (
-  mainId: string
+  collectionId: string
 ): Promise<HelpTopic[]> => {
-  const response = await axiosInstance.get(
-    `/systems/student/help_topics/main/${mainId}`
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.get<ApiResponse<HelpTopic[]>>(
+      `/systems/student/help_topics/main/${collectionId}`
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data || [];
+    }
+    return Array.isArray(response.data) ? response.data : [];
+  } catch (error) {
+    console.error("Error fetching help topics by main ID:", error);
+    return [];
+  }
 };
 
 export const fetchHelpTopic = async (id: string): Promise<HelpTopic> => {
-  const response = await axiosInstance.get(
-    `/systems/student/help_topics/${id}`
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.get<ApiResponse<HelpTopic>>(
+      `/systems/student/help_topics/${id}`
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching help topic:", error);
+    throw error;
+  }
 };
 
 export const createHelpTopic = async (
   data: CreateHelpTopicRequest
 ): Promise<HelpTopic> => {
-  const response = await axiosInstance.post(
-    "/systems/student/help_topics",
-    data
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.post<ApiResponse<HelpTopic>>(
+      "/systems/student/help_topics",
+      data
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error creating help topic:", error);
+    throw error;
+  }
 };
 
 export const updateHelpTopic = async (
   id: string,
   data: UpdateHelpTopicRequest
 ): Promise<HelpTopic> => {
-  const response = await axiosInstance.put(
-    `/systems/student/help_topics/${id}`,
-    data
-  );
-  return response.data;
+  try {
+    const response = await axiosInstance.put<ApiResponse<HelpTopic>>(
+      `/systems/student/help_topics/${id}`,
+      data
+    );
+    if (
+      response.data &&
+      typeof response.data === "object" &&
+      "data" in response.data
+    ) {
+      return response.data.data;
+    }
+    return response.data;
+  } catch (error) {
+    console.error("Error updating help topic:", error);
+    throw error;
+  }
 };
 
 export const deleteHelpTopic = async (id: string): Promise<void> => {
-  await axiosInstance.delete(`/systems/student/help_topics/${id}`);
+  try {
+    await axiosInstance.delete(`/systems/student/help_topics/${id}`);
+  } catch (error) {
+    console.error("Error deleting help topic:", error);
+    throw error;
+  }
 };
 
 // Reorder API
 export const reorderHelpMainTopic = async (
-  mainId: string,
+  collectionId: string,
   newOrder: number
 ): Promise<void> => {
   await axiosInstance.put("/systems/student/help_main/reorder", {
-    main_id: mainId,
+    collection_id: collectionId,
     new_order: newOrder,
   });
 };

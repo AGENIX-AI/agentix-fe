@@ -28,7 +28,6 @@ import Placeholder from "@tiptap/extension-placeholder";
 import TurndownService from "turndown";
 import { marked } from "marked";
 import type { Blog } from "@/api/admin/blogs";
-import "@/styles/tiptap.css";
 
 interface BlogFormSidebarProps {
   isVisible: boolean;
@@ -231,7 +230,9 @@ export function BlogFormSidebar({
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => editor.chain().focus().toggleBulletList().run()}
+                  onClick={() =>
+                    editor.chain().focus().toggleBulletList().run()
+                  }
                   className={`h-8 w-8 p-0 ${
                     editor.isActive("bulletList") ? "bg-muted" : ""
                   }`}

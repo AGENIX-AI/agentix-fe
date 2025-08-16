@@ -1,56 +1,40 @@
-import { useState, useEffect, useRef } from "react";
-import { Loader2, Plus, Search, X } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Loader2, Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
 import type { Document } from "@/api/documents";
-import { useInstructor } from "@/contexts/InstructorContext";
+import type { NoteCollection } from "@/api/documents/note-collections";
+import { NoteCollectionsTable } from "../knowledgeNotes/NoteCollectionsTable";
 
 import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/Pagination";
-import { MediaCollectionsTable } from "./MediaCollectionsTable";
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
-import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
-import { DocumentBlocksRenderer } from "@/components/reused/documents";
 
 export type MediaDocumentType = "image";
 
 interface MediaCollectionsComponentProps {
   refreshTrigger?: number;
   onAddMediaCollection?: () => void;
-  setShowDetails?: (show: boolean) => void;
+  onSelectCollection?: (collection: Document) => void;
 }
 
 export function MediaCollectionsComponent({
   refreshTrigger,
   onAddMediaCollection,
-  setShowDetails,
+  onSelectCollection,
 }: MediaCollectionsComponentProps) {
   const { t } = useTranslation();
-  const { metaData, setMetaData } = useInstructor();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loadingDocumentIds] = useState<string[]>([]);
+  // const [loadingDocumentIds] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
-  const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
-
-  // Edit/Delete state
-  const [showEditSidebar, setShowEditSidebar] = useState(false);
-  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<Document | null>(
-    null
-  );
-
-  // View sidebar states
-  const [showViewSidebar, setShowViewSidebar] = useState(false);
-  const [viewDocument, setViewDocument] = useState<Document | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  // const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -61,7 +45,7 @@ export function MediaCollectionsComponent({
           page_number: currentPage,
           page_size: pageSize,
           search: searchQuery || "",
-          type: "image",
+          type: "media_collection",
           sort_by: "created_at",
           sort_order: 1,
         });
@@ -79,86 +63,28 @@ export function MediaCollectionsComponent({
     };
 
     fetchDocuments();
-  }, [currentPage, pageSize, searchQuery, refreshTrigger, localRefreshTrigger]);
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "completed":
-        return "text-green-600 bg-green-50 border-green-100 dark:bg-green-950/30 dark:border-green-900";
-      case "pending":
-      case "not_complete":
-        return "text-amber-600 bg-amber-50 border-amber-100 dark:bg-amber-950/30 dark:border-amber-900";
-      case "failed":
-        return "text-red-600 bg-red-50 border-red-100 dark:bg-red-950/30 dark:border-red-900";
-      default:
-        return "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
-    }
-  };
-
-  const handleEditDocument = async (documentId: string) => {
-    try {
-      const document = documents.find((doc) => doc.id === documentId);
-      if (document) {
-        setSelectedDocument(document);
-        setShowEditSidebar(true);
-      }
-    } catch (error) {
-      console.error("Error editing document:", error);
-      toast.error("Failed to edit document");
-    }
-  };
-
-  const handleDeleteDocument = async (documentId: string) => {
-    try {
-      const document = documents.find((doc) => doc.id === documentId);
-      if (document) {
-        setSelectedDocument(document);
-        setShowDeleteDialog(true);
-      }
-    } catch (error) {
-      console.error("Error deleting document:", error);
-      toast.error(t("documents.media.failedToDelete"));
-    }
-  };
-
-  const handleEditSuccess = () => {
-    // Refresh documents list by triggering a local refresh
-    setLocalRefreshTrigger((prev) => prev + 1);
-    setShowEditSidebar(false);
-    setSelectedDocument(null);
-  };
-
-  const handleDeleteSuccess = () => {
-    // Refresh documents list by triggering a local refresh
-    setLocalRefreshTrigger((prev) => prev + 1);
-    setShowDeleteDialog(false);
-    setSelectedDocument(null);
-  };
-
-  // View handlers
-  const handleViewDocument = async (document: Document) => {
-    setViewDocument(document);
-    setShowViewSidebar(true);
-  };
-
-  const handleCloseViewSidebar = () => {
-    setShowViewSidebar(false);
-    setViewDocument(null);
-  };
+  }, [currentPage, pageSize, searchQuery, refreshTrigger]);
 
   const handleRowClick = (documentId: string) => {
     try {
-      // Update metaData with currentMediaCollectionId
-      setMetaData?.({
-        ...metaData,
-        currentMediaCollectionId: documentId,
-      });
-      setShowDetails?.(true);
+      const doc = documents.find((d) => d.id === documentId);
+      if (!doc) return;
+      onSelectCollection?.(doc);
     } catch (error) {
       console.error("Error selecting media collection:", error);
       toast.error("Failed to select media collection");
     }
   };
+
+  const mappedCollections: NoteCollection[] = documents.map((doc) => ({
+    id: doc.id,
+    user_id: doc.user_id,
+    title: doc.title,
+    created_at: doc.created_at,
+    updated_at: doc.updated_at,
+    type: "note_collection",
+    language: (doc as any).language,
+  }));
 
   return (
     <div className="">
@@ -209,14 +135,10 @@ export function MediaCollectionsComponent({
           ) : (
             <div className="w-full max-w-full overflow-hidden">
               <div className="w-full max-w-full overflow-x-auto">
-                <MediaCollectionsTable
-                  documents={documents}
-                  getStatusColor={getStatusColor}
-                  onEdit={handleEditDocument}
-                  onDelete={handleDeleteDocument}
-                  onView={handleViewDocument}
-                  onRowClick={handleRowClick}
-                  loadingDocumentIds={loadingDocumentIds}
+                <NoteCollectionsTable
+                  collections={mappedCollections}
+                  isLoading={isLoading}
+                  onCollectionSelect={(c) => handleRowClick(c.id)}
                 />
               </div>
 
@@ -232,69 +154,6 @@ export function MediaCollectionsComponent({
             </div>
           )}
         </>
-      )}
-
-      {/* Edit Sidebar */}
-      <EditDocumentSidebar
-        isVisible={showEditSidebar}
-        onClose={() => {
-          setShowEditSidebar(false);
-          setSelectedDocument(null);
-        }}
-        onSuccess={handleEditSuccess}
-        document={selectedDocument}
-      />
-
-      {/* Delete Dialog */}
-      <DeleteDocumentDialog
-        isOpen={showDeleteDialog}
-        onClose={() => {
-          setShowDeleteDialog(false);
-          setSelectedDocument(null);
-        }}
-        onSuccess={handleDeleteSuccess}
-        document={selectedDocument}
-      />
-
-      {/* View Document Sidebar */}
-      {showViewSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1" onClick={handleCloseViewSidebar} />
-          <div className="w-1/2 bg-background border-l shadow-lg flex flex-col">
-            {/* Header */}
-            <div className="border-b px-6 py-4 flex items-center justify-between h-18">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {viewDocument?.title || "Media Collection Content"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {viewDocument?.file_name}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseViewSidebar}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-
-            {/* Content */}
-            <div
-              ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto p-6"
-            >
-              {viewDocument && (
-                <DocumentBlocksRenderer
-                  documentId={viewDocument.id}
-                  pageSize={20}
-                />
-              )}
-            </div>
-          </div>
-        </div>
       )}
     </div>
   );

@@ -76,6 +76,7 @@ export interface GetDocumentsParams {
     | "topic_knowledge"
     | "image"
     | "crawl_document"
+    | "crawl_collection"
     | "all";
   assistant_id?: string;
   mode?: "original" | "reference";
@@ -488,7 +489,7 @@ export const createImageIndex = async (
     credentials: "include",
     headers,
     body: JSON.stringify({
-      document_id: documentId,
+      media_collection_id: documentId,
       description,
       title,
       url,

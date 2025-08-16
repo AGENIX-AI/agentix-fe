@@ -986,7 +986,7 @@ const enTranslation: Record<string, any> = {
     },
     // Web Derived Knowledge
     webKnowledge: {
-      title: "Online Sources",
+      title: "Online Sources Collection",
       addSources: "Add Online Sources",
       searchPlaceholder: "Search online sources...",
       noSources: "No online sources found",

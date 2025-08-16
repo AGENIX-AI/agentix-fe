@@ -11,6 +11,7 @@ export interface NoteCollection {
   created_at: string;
   updated_at: string;
   type: "note_collection";
+  language?: string;
 }
 
 export interface GetNoteCollectionsParams {
@@ -141,7 +142,9 @@ export const getCollectionDocuments = async (
     Sentry.captureException(
       new Error(`Failed to fetch collection documents: ${response.statusText}`)
     );
-    throw new Error(`Failed to fetch collection documents: ${response.statusText}`);
+    throw new Error(
+      `Failed to fetch collection documents: ${response.statusText}`
+    );
   }
 
   return await response.json();

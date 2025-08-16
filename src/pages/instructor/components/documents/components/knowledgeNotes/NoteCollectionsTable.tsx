@@ -20,6 +20,7 @@ export interface NoteCollectionsTableProps {
 // Constants
 const TABLE_HEADERS = {
   name: "Collection Name",
+  language: "Language",
   created: "Created",
   actions: "Actions",
 } as const;
@@ -72,6 +73,9 @@ const CollectionRow = ({
         </div>
       </div>
     </TableCell>
+    <TableCell className="text-xs max-w-[140px] truncate">
+      {collection.language || "-"}
+    </TableCell>
     <TableCell className="text-xs">
       {formatDate(collection.created_at)}
     </TableCell>
@@ -114,6 +118,9 @@ export function NoteCollectionsTable({
               <TableRow>
                 <TableHead className="text-xs max-w-[300px]">
                   {TABLE_HEADERS.name}
+                </TableHead>
+                <TableHead className="text-xs">
+                  {TABLE_HEADERS.language}
                 </TableHead>
                 <TableHead className="text-xs">
                   {TABLE_HEADERS.created}
