@@ -2,8 +2,7 @@ import axiosInstance from "../axios-instance";
 
 // Content block types
 export interface ContentBlock {
-  id: string; // Added id field
-  section_id: string; // Added section_id field to match API response
+  id: string;
   type:
     | "header"
     | "paragraph"
@@ -16,7 +15,6 @@ export interface ContentBlock {
     | "url";
   data: Record<string, any>;
   order: number;
-  block_id?: string | null; // null for new blocks, existing ID for existing blocks
 }
 
 export interface HelpMainTopic {

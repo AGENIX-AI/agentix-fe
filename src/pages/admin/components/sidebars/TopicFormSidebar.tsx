@@ -1,4 +1,3 @@
-import type { ContentBlock as PlateContentBlock } from "@/components/custom/PlateContentBlockEditor";
 import type {
   HelpTopic,
   ContentBlock as ApiContentBlock,

@@ -12,6 +12,8 @@ import { AdminVouchers } from "./AdminVouchers";
 import { AdminSettings } from "./AdminSettings";
 import { AdminHelpCenter } from "./AdminHelpCenter";
 import { AdminBlogs } from "./AdminBlogs";
+import HelpTopicEditPage from "./HelpTopicEditPage";
+import HelpTopicCreatePage from "./HelpTopicCreatePage";
 
 interface AdminLayoutProps {
   onSidebarToggle: (collapsed: boolean) => void;
@@ -79,6 +81,14 @@ export default function AdminLayout({
               element={<AdminVouchers searchQuery={searchQuery} />}
             />
             <Route path="/help-center" element={<AdminHelpCenter />} />
+            <Route
+              path="/help-center/topics/:topicId/edit"
+              element={<HelpTopicEditPage />}
+            />
+            <Route
+              path="/help-center/collections/:mainId/topics/new"
+              element={<HelpTopicCreatePage />}
+            />
             <Route
               path="/blogs"
               element={<AdminBlogs searchQuery={searchQuery} />}

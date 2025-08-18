@@ -1,16 +1,13 @@
-import { useState, useEffect, useMemo, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import type { ContentBlock as PlateContentBlock } from "@/components/custom/PlateContentBlockEditor";
-import type {
-  HelpTopic,
-  ContentBlock as ApiContentBlock,
-} from "@/api/admin/helpCenter";
-import { PlateContentEditor } from "@/components/editor/plate-content-editor";
+import { TiptapContentBlocksEditor } from "@/components/editor/TiptapContentBlocksEditor";
+import type { HelpTopic, ContentBlock } from "@/api/admin/helpCenter";
 import { fetchHelpTopic } from "@/api/admin/helpCenter";
 import { fetchHelpTopic as fetchInstructorHelpTopic } from "@/api/admin/helpCenterInstructor";
+// Styles are imported within the editor component
 
 interface TopicEditSidebarProps {
   isVisible: boolean;
@@ -18,47 +15,11 @@ interface TopicEditSidebarProps {
   topic: HelpTopic;
   onSave: (
     mainId: string,
-    topic: Partial<HelpTopic> & { title: string; content: ApiContentBlock[] }
+    topic: Partial<HelpTopic> & { title: string; content: ContentBlock[] }
   ) => void;
   onClose: () => void;
   activeTab?: "student" | "instructor";
 }
-
-// Convert API ContentBlocks to Plate ContentBlocks
-const convertApiContentToPlateBlocks = (
-  apiContent: ApiContentBlock[]
-): PlateContentBlock[] => {
-  if (!apiContent || apiContent.length === 0) return [];
-
-  return apiContent.map((block, index) => {
-    return {
-      id: block.id, // Use the existing ID from API, don't generate new one
-      type: block.type,
-      data: block.data,
-      order: index,
-      section: block.section_id, // Use section_id from API
-      // Store the original block_id if it exists for later API updates
-      originalBlockId: block.block_id || block.id, // Use block.id as originalBlockId if block_id doesn't exist
-    };
-  });
-};
-
-// Convert Plate ContentBlocks back to API ContentBlocks
-const convertPlateBlocksToApiContent = (
-  plateBlocks: PlateContentBlock[]
-): ApiContentBlock[] => {
-  if (!plateBlocks || plateBlocks.length === 0) return [];
-
-  return plateBlocks.map((block, index) => ({
-    id: block.id,
-    type: block.type,
-    data: block.data,
-    order: index,
-    section_id: block.section, // Map section back to section_id
-    // Include block_id: null for new blocks, original ID for existing blocks
-    block_id: block.originalBlockId || null,
-  }));
-};
 
 export function TopicEditSidebar({
   isVisible,
@@ -69,28 +30,25 @@ export function TopicEditSidebar({
   activeTab = "student",
 }: TopicEditSidebarProps) {
   const [title, setTitle] = useState("");
-  const [contentBlocks, setContentBlocks] = useState<PlateContentBlock[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>(
+    topic?.content || []
+  );
+  const previousBlocksRef = useRef<ContentBlock[]>(topic?.content || []);
 
-  // Use ref to track current content for comparison without causing re-renders
-  const currentContentRef = useRef<PlateContentBlock[]>([]);
-
-  // Initialize content blocks from existing topic immediately
+  // Initialize content from existing topic
   useEffect(() => {
     if (isVisible && topic && !isInitialized) {
       setTitle(topic.title);
-
-      // Convert API content to Plate content blocks
-      const initialBlocks = convertApiContentToPlateBlocks(topic.content || []);
-      setContentBlocks(initialBlocks);
-      currentContentRef.current = initialBlocks;
+      setContentBlocks(topic.content || []);
+      previousBlocksRef.current = topic.content || [];
       setIsInitialized(true);
     }
   }, [isVisible, topic, isInitialized]);
 
-  // Fetch full topic content from API (optional enhancement)
+  // Fetch full topic content from API
   useEffect(() => {
     if (isVisible && topic && isInitialized) {
       setIsLoading(true);
@@ -104,23 +62,14 @@ export function TopicEditSidebar({
               : fetchHelpTopic;
           const fullTopic = await apiFunction(topic.id);
 
-          // Convert API content to Plate content blocks
-          const apiBlocks = convertApiContentToPlateBlocks(fullTopic.content);
-
-          // Only update if the content is actually different
-          const isContentDifferent =
-            fullTopic.title !== title ||
-            JSON.stringify(apiBlocks) !==
-              JSON.stringify(currentContentRef.current);
-
-          if (isContentDifferent) {
+          if (fullTopic.title !== title) {
             setTitle(fullTopic.title);
-            setContentBlocks(apiBlocks);
-            currentContentRef.current = apiBlocks;
           }
+
+          setContentBlocks(fullTopic.content || []);
+          previousBlocksRef.current = fullTopic.content || [];
         } catch (err) {
           setError("Failed to load topic content. Please try again.");
-          // Keep the current content, don't reset
         } finally {
           setIsLoading(false);
         }
@@ -128,16 +77,16 @@ export function TopicEditSidebar({
 
       fetchTopicContent();
     }
-  }, [isVisible, topic, isInitialized, activeTab, title]); // Removed contentBlocks dependency
+  }, [isVisible, topic, isInitialized, activeTab, title]);
 
   // Reset state when sidebar closes
   useEffect(() => {
     if (!isVisible) {
       setIsInitialized(false);
       setTitle("");
-      setContentBlocks([]);
       setIsLoading(false);
       setError(null);
+      setContentBlocks([]);
     }
   }, [isVisible]);
 
@@ -145,25 +94,14 @@ export function TopicEditSidebar({
     if (!title.trim()) {
       return;
     }
-
-    // Convert Plate ContentBlocks to API ContentBlocks
-    const apiContentBlocks = convertPlateBlocksToApiContent(contentBlocks);
-
     const topicData = {
       id: topic?.id,
       title: title.trim(),
-      content: apiContentBlocks,
+      content: contentBlocks,
     };
     onSave(mainId, topicData);
+    previousBlocksRef.current = contentBlocks;
   }, [title, contentBlocks, topic?.id, mainId, onSave]);
-
-  const handleEditorSave = useCallback(
-    (newBlocks: PlateContentBlock[]) => {
-      setContentBlocks(newBlocks);
-      currentContentRef.current = newBlocks; // Keep ref in sync
-    },
-    [] // Remove dependency to prevent infinite re-renders
-  );
 
   if (!isVisible) return null;
 
@@ -204,10 +142,11 @@ export function TopicEditSidebar({
               <div className="text-destructive">{error}</div>
             </div>
           ) : (
-            <PlateContentEditor
-              key={`editor-${topic?.id}`}
-              contentBlocks={contentBlocks}
-              onSave={handleEditorSave}
+            <TiptapContentBlocksEditor
+              blocks={contentBlocks}
+              previousBlocks={previousBlocksRef.current}
+              onChange={setContentBlocks}
+              placeholder="Type '/' for commands..."
             />
           )}
         </div>

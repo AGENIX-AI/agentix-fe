@@ -3,7 +3,6 @@ import axiosInstance from "../axios-instance";
 // Content block types
 export interface ContentBlock {
   id: string;
-  section_id: string; // Changed from section to section_id to match API response
   type:
     | "header"
     | "paragraph"
@@ -16,7 +15,6 @@ export interface ContentBlock {
     | "url";
   data: Record<string, any>;
   order: number;
-  block_id?: string | null; // null for new blocks, existing ID for existing blocks
 }
 
 export interface HelpMainTopic {

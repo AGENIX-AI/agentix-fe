@@ -36,3 +36,9 @@ div[role="tablist"].bg-secondary {
 input[cmdk-input] {
   @apply border-none focus-visible:ring-0;
 }
+
+/* Ensure Tiptap suggestion menus and slash menus appear above content */
+.tiptap-suggestion-menu,
+[data-selector="tiptap-slash-dropdown-menu"] {
+  z-index: 4000 !important;
+}

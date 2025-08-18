@@ -3,12 +3,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { X } from "lucide-react";
-import type { ContentBlock as PlateContentBlock } from "@/components/custom/PlateContentBlockEditor";
-import type {
-  HelpTopic,
-  ContentBlock as ApiContentBlock,
-} from "@/api/admin/helpCenter";
-import { PlateContentEditor } from "@/components/editor/plate-content-editor";
+import type { HelpTopic, ContentBlock } from "@/api/admin/helpCenter";
+// import { NotionEditorWrapper } from "@/components/editor/notion-editor-wrapper";
 
 interface TopicCreateSidebarProps {
   isVisible: boolean;
@@ -16,22 +12,9 @@ interface TopicCreateSidebarProps {
   onClose: () => void;
   onSave: (
     mainId: string,
-    topic: Partial<HelpTopic> & { title: string; content: ApiContentBlock[] }
+    topic: Partial<HelpTopic> & { title: string; content: ContentBlock[] }
   ) => void;
 }
-
-// Convert Plate ContentBlocks to API ContentBlocks
-const convertPlateBlocksToApiContent = (
-  plateBlocks: PlateContentBlock[]
-): ApiContentBlock[] => {
-  if (!plateBlocks || plateBlocks.length === 0) return [];
-
-  return plateBlocks.map((block, index) => ({
-    type: block.type,
-    data: block.data,
-    order: index,
-  }));
-};
 
 export function TopicCreateSidebar({
   isVisible,
@@ -40,7 +23,7 @@ export function TopicCreateSidebar({
   onSave,
 }: TopicCreateSidebarProps) {
   const [title, setTitle] = useState("");
-  const [contentBlocks, setContentBlocks] = useState<PlateContentBlock[]>([]);
+  const [contentBlocks, setContentBlocks] = useState<ContentBlock[]>([]);
 
   const handleSave = useCallback(() => {
     if (!title.trim()) {
@@ -48,13 +31,11 @@ export function TopicCreateSidebar({
       return;
     }
 
-    // Convert Plate ContentBlocks to API ContentBlocks
-    const apiContentBlocks = convertPlateBlocksToApiContent(contentBlocks);
-    console.log("Creating topic with API content blocks:", apiContentBlocks);
+    console.log("Creating topic with content blocks:", contentBlocks);
 
     const topicData = {
       title: title.trim(),
-      content: apiContentBlocks,
+      content: contentBlocks,
     };
     onSave(mainId, topicData);
   }, [title, contentBlocks, mainId, onSave]);
@@ -65,8 +46,8 @@ export function TopicCreateSidebar({
     onClose();
   }, [onClose]);
 
-  const handleEditorSave = useCallback((newBlocks: PlateContentBlock[]) => {
-    console.log("Plate editor saved blocks:", newBlocks);
+  const handleEditorSave = useCallback((newBlocks: ContentBlock[]) => {
+    console.log("Tiptap editor saved blocks:", newBlocks);
     setContentBlocks(newBlocks);
   }, []);
 
@@ -100,11 +81,12 @@ export function TopicCreateSidebar({
       {/* Editor Content */}
       <div className="flex-1 p-6 overflow-y-auto">
         <div className="h-full flex flex-col">
-          <PlateContentEditor
+          {/* <NotionEditorWrapper
             key="create-editor"
             contentBlocks={[]}
             onSave={handleEditorSave}
-          />
+            placeholder="Type '/' for commands..."
+          /> */}
         </div>
       </div>
 

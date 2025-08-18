@@ -62,12 +62,14 @@ import {
 } from "@/components/ui/table";
 import { HelpMainTopicDetailSidebar } from "./sidebars/HelpMainTopicDetailSidebar";
 import { HelpTopicDetailSidebar } from "./sidebars/HelpTopicDetailSidebar";
+import { useNavigate } from "react-router-dom";
 import { Dialog as TopicDialog } from "@/components/ui/dialog";
 import { TopicFormSidebar } from "./sidebars/TopicFormSidebar";
 
 type UserType = "student" | "instructor";
 
 export function AdminHelpCenter() {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<UserType>("student");
   const [mainTopics, setMainTopics] = useState<HelpMainTopic[]>([]);
   const [loading, setLoading] = useState(true);
@@ -596,11 +598,9 @@ export function AdminHelpCenter() {
                             variant="ghost"
                             size="icon"
                             onClick={() =>
-                              setTopicFormSidebar({
-                                open: true,
-                                mode: "create",
-                                mainId: topic.id,
-                              })
+                              navigate(
+                                `/admin/help-center/collections/${topic.id}/topics/new?tab=${activeTab}`
+                              )
                             }
                             title="Add New Topic"
                           >
@@ -675,14 +675,11 @@ export function AdminHelpCenter() {
                                           <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() =>
-                                              setTopicFormSidebar({
-                                                open: true,
-                                                mode: "edit",
-                                                mainId: topic.id,
-                                                topic: helpTopic,
-                                              })
-                                            }
+                                            onClick={() => {
+                                              navigate(
+                                                `/admin/help-center/topics/${helpTopic.id}/edit?tab=${activeTab}`
+                                              );
+                                            }}
                                             title="Edit"
                                           >
                                             <Pencil className="h-4 w-4" />

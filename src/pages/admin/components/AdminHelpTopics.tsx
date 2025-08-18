@@ -9,14 +9,12 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+// import { Input } from "@/components/ui/input";
+// import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { ArrowLeft, PlusCircle, Pencil, Trash, Eye } from "lucide-react";
+import { ArrowLeft, PlusCircle, Pencil, Trash } from "lucide-react";
 import type {
   HelpTopic,
   HelpMainTopic,
@@ -29,8 +27,7 @@ import {
   fetchHelpTopicsByMainId,
   updateHelpTopic,
 } from "@/api/admin/helpCenter";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ScrollArea } from "@/components/ui/scroll-area";
+// import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableHeader,
@@ -39,7 +36,7 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { HelpTopicDetailSidebar } from "./sidebars/HelpTopicDetailSidebar";
+import { TopicFormSidebar } from "./sidebars/TopicFormSidebar";
 
 export function AdminHelpTopics() {
   const { mainTopicId } = useParams<{ mainTopicId: string }>();
@@ -47,16 +44,13 @@ export function AdminHelpTopics() {
   const [topics, setTopics] = useState<HelpTopic[]>([]);
   const [mainTopic, setMainTopic] = useState<HelpMainTopic | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-  const [isPreviewDialogOpen, setIsPreviewDialogOpen] = useState(false);
   const [currentTopic, setCurrentTopic] = useState<HelpTopic | null>(null);
-  const [newTopicTitle, setNewTopicTitle] = useState("");
-  const [newTopicContent, setNewTopicContent] = useState("");
-  const [activeTab, setActiveTab] = useState<"edit" | "preview">("edit");
-  const [sidebarVisible, setSidebarVisible] = useState(false);
   const [selectedTopic, setSelectedTopic] = useState<HelpTopic | null>(null);
+  const [isFormSidebarVisible, setIsFormSidebarVisible] = useState(false);
+  const [formMode, setFormMode] = useState<"create" | "edit" | "view">(
+    "create"
+  );
 
   useEffect(() => {
     if (mainTopicId) {
@@ -90,140 +84,48 @@ export function AdminHelpTopics() {
     }
   };
 
-  // Convert markdown content to content blocks
-  const convertMarkdownToContentBlocks = (markdown: string): ContentBlock[] => {
-    if (!markdown.trim()) {
-      return [];
-    }
-
-    const lines = markdown.split("\n");
-    const blocks: ContentBlock[] = [];
-    let order = 0;
-
-    for (const line of lines) {
-      const trimmedLine = line.trim();
-      if (!trimmedLine) continue;
-
-      if (trimmedLine.startsWith("#")) {
-        // Header block
-        const level = trimmedLine.match(/^#+/)?.[0].length || 1;
-        const text = trimmedLine.replace(/^#+\s*/, "");
-        blocks.push({
-          type: "header",
-          data: { text, level },
-          order: order++,
+  const handleSaveTopic = async (
+    mainId: string,
+    topicData: Partial<HelpTopic> & { title: string; content: ContentBlock[] }
+  ) => {
+    try {
+      if (topicData.id) {
+        const updated = await updateHelpTopic(topicData.id, {
+          title: topicData.title,
+          content: topicData.content,
         });
-      } else if (trimmedLine.startsWith("- ") || trimmedLine.startsWith("* ")) {
-        // List block
-        const items = [trimmedLine.replace(/^[-*]\s*/, "")];
-        blocks.push({
-          type: "list",
-          data: { style: "unordered", items },
-          order: order++,
-        });
-      } else if (trimmedLine.startsWith("```")) {
-        // Code block
-        const code = trimmedLine.replace(/^```/, "");
-        blocks.push({
-          type: "code",
-          data: { code, language: "text" },
-          order: order++,
-        });
+        setTopics((prev) =>
+          prev.map((t) => (t.id === updated.id ? updated : t))
+        );
+        toast.success("Help topic updated successfully");
       } else {
-        // Paragraph block
-        blocks.push({
-          type: "paragraph",
-          data: { text: trimmedLine },
-          order: order++,
-        });
-      }
-    }
-
-    return blocks;
-  };
-
-  // Convert content blocks to markdown for display
-  const convertContentBlocksToMarkdown = (blocks: ContentBlock[]): string => {
-    return blocks
-      .map((block) => {
-        switch (block.type) {
-          case "header":
-            const level = block.data.level || 1;
-            return "#".repeat(level) + " " + block.data.text;
-          case "paragraph":
-            return block.data.text;
-          case "list":
-            return block.data.items
-              .map((item: string) => `- ${item}`)
-              .join("\n");
-          case "code":
-            return "```\n" + block.data.code + "\n```";
-          default:
-            return block.data.text || "";
+        if (!mainId) {
+          toast.error("Missing main topic id");
+          return;
         }
-      })
-      .join("\n\n");
-  };
-
-  const handleCreateTopic = async () => {
-    if (!mainTopicId || !newTopicTitle.trim()) {
-      toast.error("Title is required");
-      return;
-    }
-    try {
-      const newOrder = topics.length + 1;
-      const contentBlocks = convertMarkdownToContentBlocks(newTopicContent);
-
-      const newTopic = await createHelpTopic({
-        collection_id: mainTopicId,
-        title: newTopicTitle,
-        content: contentBlocks,
-        order: newOrder,
-      });
-      setTopics([...topics, newTopic]);
-
-      // Update main topic count
-      if (mainTopic) {
-        setMainTopic({
-          ...mainTopic,
-          topics_count: mainTopic.topics_count + 1,
+        const newOrder = topics.length + 1;
+        const created = await createHelpTopic({
+          collection_id: mainId,
+          title: topicData.title,
+          content: topicData.content,
+          order: newOrder,
         });
+        setTopics((prev) => [...prev, created]);
+        if (mainTopic) {
+          setMainTopic({
+            ...mainTopic,
+            topics_count: (mainTopic.topics_count || 0) + 1,
+          });
+        }
+        toast.success("Help topic created successfully");
       }
-
-      setNewTopicTitle("");
-      setNewTopicContent("");
-      setIsCreateDialogOpen(false);
-      toast.success("Help topic created successfully");
     } catch (error) {
-      console.error("Failed to create help topic:", error);
-      toast.error("Failed to create help topic");
-    }
-  };
-
-  const handleUpdateTopic = async () => {
-    if (!currentTopic || !newTopicTitle.trim()) {
-      toast.error("Title is required");
+      console.error("Failed to save help topic:", error);
+      toast.error("Failed to save help topic");
       return;
-    }
-
-    try {
-      const contentBlocks = convertMarkdownToContentBlocks(newTopicContent);
-
-      const updatedTopic = await updateHelpTopic(currentTopic.id, {
-        title: newTopicTitle,
-        content: contentBlocks,
-      });
-
-      setTopics(
-        topics.map((topic) =>
-          topic.id === currentTopic.id ? updatedTopic : topic
-        )
-      );
-      setIsEditDialogOpen(false);
-      toast.success("Help topic updated successfully");
-    } catch (error) {
-      console.error("Failed to update help topic:", error);
-      toast.error("Failed to update help topic");
+    } finally {
+      setIsFormSidebarVisible(false);
+      setSelectedTopic(null);
     }
   };
 
@@ -251,11 +153,7 @@ export function AdminHelpTopics() {
   };
 
   const openEditDialog = (topic: HelpTopic) => {
-    setCurrentTopic(topic);
-    setNewTopicTitle(topic.title);
-    setNewTopicContent(convertContentBlocksToMarkdown(topic.content));
-    setIsEditDialogOpen(true);
-    setActiveTab("edit");
+    navigate(`/admin/help-center/topics/${topic.id}/edit?tab=student`);
   };
 
   const openDeleteDialog = (topic: HelpTopic) => {
@@ -263,82 +161,24 @@ export function AdminHelpTopics() {
     setIsDeleteDialogOpen(true);
   };
 
-  const openPreviewDialog = (topic: HelpTopic) => {
-    setCurrentTopic(topic);
-    setIsPreviewDialogOpen(true);
-  };
-
-  const openSidebar = (topic: HelpTopic) => {
+  const openViewSidebar = (topic: HelpTopic) => {
     setSelectedTopic(topic);
-    setSidebarVisible(true);
+    setFormMode("view");
+    setIsFormSidebarVisible(true);
   };
-  const closeSidebar = () => {
-    setSidebarVisible(false);
+  const openCreateSidebar = () => {
+    if (!mainTopicId) return;
+    navigate(
+      `/admin/help-center/collections/${mainTopicId}/topics/new?tab=student`
+    );
+  };
+  const closeFormSidebar = () => {
+    setIsFormSidebarVisible(false);
     setSelectedTopic(null);
   };
 
   const goBack = () => {
     navigate("/admin/help-center");
-  };
-
-  const renderMarkdown = (content: string) => {
-    // This is a simple implementation - you might want to use a proper Markdown renderer
-    return (
-      <div
-        className="prose prose-sm dark:prose-invert max-w-none"
-        dangerouslySetInnerHTML={{ __html: content }}
-      />
-    );
-  };
-
-  const renderContentBlocks = (blocks: ContentBlock[]) => {
-    return (
-      <div className="prose prose-sm dark:prose-invert max-w-none">
-        {blocks.map((block, index) => {
-          switch (block.type) {
-            case "header":
-              const level = block.data.level || 1;
-              const headerText = block.data.text || "";
-
-              switch (level) {
-                case 1:
-                  return <h1 key={index}>{headerText}</h1>;
-                case 2:
-                  return <h2 key={index}>{headerText}</h2>;
-                case 3:
-                  return <h3 key={index}>{headerText}</h3>;
-                case 4:
-                  return <h4 key={index}>{headerText}</h4>;
-                case 5:
-                  return <h5 key={index}>{headerText}</h5>;
-                case 6:
-                  return <h6 key={index}>{headerText}</h6>;
-                default:
-                  return <h2 key={index}>{headerText}</h2>;
-              }
-            case "paragraph":
-              return <p key={index}>{block.data.text}</p>;
-            case "list":
-              const ListTag = block.data.style === "ordered" ? "ol" : "ul";
-              return (
-                <ListTag key={index}>
-                  {block.data.items.map((item: string, itemIndex: number) => (
-                    <li key={itemIndex}>{item}</li>
-                  ))}
-                </ListTag>
-              );
-            case "code":
-              return (
-                <pre key={index}>
-                  <code>{block.data.code}</code>
-                </pre>
-              );
-            default:
-              return <p key={index}>{block.data.text || ""}</p>;
-          }
-        })}
-      </div>
-    );
   };
 
   return (
@@ -359,81 +199,10 @@ export function AdminHelpTopics() {
 
       <div className="flex justify-between items-center">
         <div></div>
-        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="space-x-2">
-              <PlusCircle className="h-4 w-4" />
-              <span>New Topic</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-4xl">
-            <DialogHeader>
-              <DialogTitle>Create Help Topic</DialogTitle>
-              <DialogDescription>
-                Add a new help topic to this category.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-4 gap-4">
-                <div className="space-y-2 col-span-4">
-                  <Label htmlFor="title">Title</Label>
-                  <Input
-                    id="title"
-                    placeholder="e.g. Getting Started Guide"
-                    value={newTopicTitle}
-                    onChange={(e) => setNewTopicTitle(e.target.value)}
-                  />
-                </div>
-                {/* Order is auto-set, so no order input here */}
-              </div>
-
-              <Tabs
-                value={activeTab}
-                onValueChange={(v) => setActiveTab(v as "edit" | "preview")}
-              >
-                <TabsList className="mb-2">
-                  <TabsTrigger value="edit">Edit</TabsTrigger>
-                  <TabsTrigger value="preview">Preview</TabsTrigger>
-                </TabsList>
-                <TabsContent value="edit" className="mt-0">
-                  <div className="space-y-2">
-                    <Label htmlFor="content">Content (Markdown)</Label>
-                    <Textarea
-                      id="content"
-                      placeholder="# Topic Title
-                      
-## Section 1
-Write your content using Markdown formatting..."
-                      value={newTopicContent}
-                      onChange={(e) => setNewTopicContent(e.target.value)}
-                      className="min-h-[300px] font-mono"
-                    />
-                  </div>
-                </TabsContent>
-                <TabsContent
-                  value="preview"
-                  className="mt-0 border rounded-md p-4 min-h-[300px]"
-                >
-                  {newTopicContent ? (
-                    <div className="prose prose-sm dark:prose-invert max-w-none">
-                      {renderMarkdown(newTopicContent)}
-                    </div>
-                  ) : (
-                    <p className="text-muted-foreground text-center py-8">
-                      Enter content in the Edit tab to see preview here
-                    </p>
-                  )}
-                </TabsContent>
-              </Tabs>
-            </div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button onClick={handleCreateTopic}>Create</Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+        <Button className="space-x-2" onClick={openCreateSidebar}>
+          <PlusCircle className="h-4 w-4" />
+          <span>New Topic</span>
+        </Button>
       </div>
 
       {loading ? (
@@ -482,17 +251,9 @@ Write your content using Markdown formatting..."
                           variant="ghost"
                           size="sm"
                           className="text-xs text-blue-600 hover:text-blue-800"
-                          onClick={() => openSidebar(topic)}
+                          onClick={() => openViewSidebar(topic)}
                         >
                           View Details
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => openPreviewDialog(topic)}
-                          title="Preview"
-                        >
-                          <Eye className="h-4 w-4" />
                         </Button>
                         <Button
                           variant="ghost"
@@ -519,99 +280,6 @@ Write your content using Markdown formatting..."
           </Table>
         </div>
       )}
-
-      {/* Edit Dialog */}
-      <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>Edit Help Topic</DialogTitle>
-            <DialogDescription>
-              Update the details of this help topic.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="edit-title">Title</Label>
-              <Input
-                id="edit-title"
-                placeholder="Topic title"
-                value={newTopicTitle}
-                onChange={(e) => setNewTopicTitle(e.target.value)}
-              />
-            </div>
-
-            <Tabs
-              value={activeTab}
-              onValueChange={(v) => setActiveTab(v as "edit" | "preview")}
-            >
-              <TabsList className="mb-2">
-                <TabsTrigger value="edit">Edit</TabsTrigger>
-                <TabsTrigger value="preview">Preview</TabsTrigger>
-              </TabsList>
-              <TabsContent value="edit" className="mt-0">
-                <div className="space-y-2">
-                  <Label htmlFor="edit-content">Content (Markdown)</Label>
-                  <Textarea
-                    id="edit-content"
-                    value={newTopicContent}
-                    onChange={(e) => setNewTopicContent(e.target.value)}
-                    className="min-h-[400px] font-mono"
-                  />
-                </div>
-              </TabsContent>
-              <TabsContent
-                value="preview"
-                className="mt-0 border rounded-md p-4 min-h-[400px]"
-              >
-                {newTopicContent ? (
-                  <div className="prose prose-sm dark:prose-invert max-w-none">
-                    {renderMarkdown(newTopicContent)}
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground text-center py-8">
-                    Enter content in the Edit tab to see preview here
-                  </p>
-                )}
-              </TabsContent>
-            </Tabs>
-          </div>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">Cancel</Button>
-            </DialogClose>
-            <Button onClick={handleUpdateTopic}>Save Changes</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Preview Dialog */}
-      <Dialog open={isPreviewDialogOpen} onOpenChange={setIsPreviewDialogOpen}>
-        <DialogContent className="max-w-4xl">
-          <DialogHeader>
-            <DialogTitle>{currentTopic?.title}</DialogTitle>
-          </DialogHeader>
-          <ScrollArea className="h-[60vh] pr-4">
-            {currentTopic && renderContentBlocks(currentTopic.content)}
-          </ScrollArea>
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button>Close</Button>
-            </DialogClose>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsPreviewDialogOpen(false);
-                if (currentTopic) {
-                  openEditDialog(currentTopic);
-                }
-              }}
-            >
-              Edit
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent>
@@ -632,12 +300,29 @@ Write your content using Markdown formatting..."
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
-      <HelpTopicDetailSidebar
-        isVisible={sidebarVisible}
-        onClose={closeSidebar}
-        topic={selectedTopic}
-      />
+      {isFormSidebarVisible && formMode === "view" && (
+        <TopicFormSidebar
+          isVisible={isFormSidebarVisible}
+          mode={formMode}
+          mainId={mainTopicId || ""}
+          topic={selectedTopic || undefined}
+          onClose={closeFormSidebar}
+          onSave={handleSaveTopic}
+          onEdit={() => {
+            if (selectedTopic) {
+              setFormMode("edit");
+            }
+          }}
+          onDelete={(topicId: string) => {
+            const found = topics.find((t) => t.id === topicId) || null;
+            if (found) {
+              setCurrentTopic(found);
+              setIsDeleteDialogOpen(true);
+            }
+          }}
+          activeTab="student"
+        />
+      )}
     </div>
   );
 }

@@ -1,7 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { X, Edit, Trash2 } from "lucide-react";
-import type { ContentBlock as PlateContentBlock } from "@/components/custom/PlateContentBlockEditor";
+// import type { ContentBlock as PlateContentBlock } from "@/components/custom/PlateContentBlockEditor";
 import type {
   HelpTopic,
   ContentBlock as ApiContentBlock,
@@ -21,7 +22,7 @@ interface TopicViewSidebarProps {
 // Convert API ContentBlocks to Plate ContentBlocks for display
 const convertApiContentToPlateBlocks = (
   apiContent: ApiContentBlock[]
-): PlateContentBlock[] => {
+): any[] => {
   if (!apiContent || apiContent.length === 0) return [];
 
   return apiContent.map((block, index) => {
@@ -30,11 +31,13 @@ const convertApiContentToPlateBlocks = (
       type: block.type,
       data: block.data,
       order: index,
-      section: block.section_id, // Use section_id from API
-      originalBlockId: block.block_id || block.id, // Store original block_id for consistency
+      // section_id and block_id removed per new interface; id is the block id
     };
   });
 };
+
+// Local alias for rendering content blocks
+type PlateContentBlock = ApiContentBlock;
 
 // Render content blocks in read-only mode
 const renderContentBlocks = (blocks: PlateContentBlock[]) => {
@@ -159,6 +162,7 @@ export function TopicViewSidebar({
   onDelete,
   activeTab = "student",
 }: TopicViewSidebarProps) {
+  const navigate = useNavigate();
   const [fullTopic, setFullTopic] = useState<HelpTopic | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -242,7 +246,15 @@ export function TopicViewSidebar({
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">View Topic</h2>
           <div className="flex items-center gap-2">
-            <Button variant="ghost" size="icon" onClick={onEdit}>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() =>
+                navigate(
+                  `/admin/help-center/topics/${topic.id}/edit?tab=${activeTab}`
+                )
+              }
+            >
               <Edit className="h-4 w-4" />
             </Button>
             <Button variant="ghost" size="icon" onClick={handleDelete}>
