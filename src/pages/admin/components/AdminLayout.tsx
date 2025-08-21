@@ -14,6 +14,7 @@ import { AdminHelpCenter } from "./AdminHelpCenter";
 import { AdminBlogs } from "./AdminBlogs";
 import HelpTopicEditPage from "./HelpTopicEditPage";
 import HelpTopicCreatePage from "./HelpTopicCreatePage";
+import BlogCreatePage from "./BlogCreatePage";
 
 interface AdminLayoutProps {
   onSidebarToggle: (collapsed: boolean) => void;
@@ -93,6 +94,7 @@ export default function AdminLayout({
               path="/blogs"
               element={<AdminBlogs searchQuery={searchQuery} />}
             />
+            <Route path="/blogs/new" element={<BlogCreatePage />} />
             <Route path="/settings" element={<AdminSettings />} />
             <Route path="/" element={<AdminDashboard />} />
           </Routes>

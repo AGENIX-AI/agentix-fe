@@ -1,38 +1,34 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import {
   Loader2,
   Plus,
-  Search,
   X,
   AlertCircle,
   Check,
   Upload,
-  Repeat,
   BookCopy,
   FileText,
-  Edit,
-  Trash2,
-  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import Cookies from "js-cookie";
 
-import { getOwnDocuments, updateModeDocument } from "@/api/documents";
-import type { Document } from "@/api/documents";
+import { updateModeDocument } from "@/api/documents";
+import { getOwnDocuments } from "@/api/page";
+
+import type { Document } from "@/api/page";
 import { useInstructor } from "@/contexts/InstructorContext";
 
-import { DocumentTable } from "./DocumentTable";
-import { Pagination } from "./Pagination";
 import { Button } from "@/components/ui/button";
 import DocumentUpload from "../components/DocumentUpload";
 import DocumentGuidelines from "../components/DocumentGuidelines";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { Small } from "@/components/typography";
-import { Input } from "@/components/ui/input";
 import { EditDocumentSidebar } from "./EditDocumentSidebar";
 import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
-import { DocumentBlocksRenderer } from "@/components/reused/documents";
+import { DocumentListSection } from "./DocumentListSection";
+import { ViewDocumentSidebar } from "./ViewDocumentSidebar";
+import { UpdateDocumentSidebar } from "./UpdateDocumentSidebar";
 
 // Using DocumentType from types.ts
 
@@ -95,7 +91,10 @@ export function EmbeddedDocumentsComponent({
   // View sidebar states
   const [showViewSidebar, setShowViewSidebar] = useState(false);
   const [viewDocument, setViewDocument] = useState<Document | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  // Update content sidebar states
+  const [showUpdateSidebar, setShowUpdateSidebar] = useState(false);
+  const [updateDocument, setUpdateDocument] = useState<Document | null>(null);
 
   // Fetch original documents
   useEffect(() => {
@@ -401,12 +400,19 @@ export function EmbeddedDocumentsComponent({
     handleSubmitImages([], false);
   };
 
-  // Edit and delete handlers
-  const handleEditDocument = (document: Document) => {
-    setEditSidebar({
-      isVisible: true,
-      document,
-    });
+  // Update content handlers
+  const handleOpenUpdateSidebar = async (document: Document) => {
+    setShowUpdateSidebar(true);
+    setUpdateDocument(document);
+  };
+
+  const handleCloseUpdateSidebar = () => {
+    setShowUpdateSidebar(false);
+    setUpdateDocument(null);
+  };
+
+  const handleSaveUpdatedBlocks = async () => {
+    setLocalRefreshTrigger((prev) => prev + 1);
   };
 
   const handleDeleteDocument = (document: Document) => {
@@ -449,136 +455,6 @@ export function EmbeddedDocumentsComponent({
     setViewDocument(null);
   };
 
-  const renderDocumentTable = (
-    documents: Document[],
-    isLoading: boolean,
-    currentPage: number,
-    setCurrentPage: React.Dispatch<React.SetStateAction<number>>,
-    totalItems: number,
-    targetMode: "original" | "reference",
-    searchQuery: string,
-    setSearchQuery: React.Dispatch<React.SetStateAction<string>>
-  ) => {
-    return (
-      <div className="w-full max-w-full overflow-hidden">
-        {/* Search Input */}
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="relative flex-1">
-            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder={`Search ${targetMode} documents...`}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-8 pr-3 py-2 border border-border rounded-md text-xs"
-            />
-          </div>
-        </div>
-
-        {isLoading ? (
-          <div className="flex justify-center items-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : documents.length === 0 ? (
-          <div className="text-center py-8 border rounded-lg">
-            <h3 className="mt-2 text-xs font-medium">No documents found</h3>
-            <p className="text-xs text-muted-foreground mt-1">
-              No documents available in {targetMode} mode
-            </p>
-          </div>
-        ) : (
-          <>
-            <div className="w-full max-w-full overflow-x-auto">
-              <DocumentTable
-                documents={documents}
-                getStatusColor={getStatusColor}
-                onRowClick={onDocumentSelect}
-                renderActions={(document) => (
-                  <div className="flex gap-2">
-                    {/* View Button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewDocument(document);
-                      }}
-                      title="View document content"
-                    >
-                      <Eye className="h-3 w-3" />
-                    </Button>
-
-                    {/* Edit Button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditDocument(document);
-                      }}
-                      title="Edit document"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
-
-                    {/* Delete Button */}
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteDocument(document);
-                      }}
-                      title="Delete document"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-
-                    {/* Move Button */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="h-7 w-7 p-0"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleUpdateDocumentMode(
-                          document.id,
-                          targetMode === "original" ? "reference" : "original"
-                        );
-                      }}
-                      disabled={updatingModeDocumentId === document.id}
-                      title={`Move to ${
-                        targetMode === "original" ? "Reference" : "Original"
-                      }`}
-                    >
-                      {updatingModeDocumentId === document.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        <Repeat className="h-3 w-3" />
-                      )}
-                    </Button>
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className="mt-4">
-              <Pagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                pageSize={pageSize}
-                documentsCount={documents.length}
-                setCurrentPage={setCurrentPage}
-              />
-            </div>
-          </>
-        )}
-      </div>
-    );
-  };
-
   return (
     <div className="">
       <div className="mb-3 flex justify-end items-right">
@@ -608,38 +484,50 @@ export function EmbeddedDocumentsComponent({
       <div className="flex flex-col space-y-6">
         {/* Original Documents Section */}
         <div className="rounded-md">
-          <div className="flex items-center mb-4">
-            <FileText className="h-5 w-5 mr-2 text-primary" />
-            <Small className="font-semibold">Official Documents</Small>
-          </div>
-          {renderDocumentTable(
-            originalDocuments,
-            isLoadingOriginal,
-            currentPageOriginal,
-            setCurrentPageOriginal,
-            totalItemsOriginal,
-            "original",
-            searchQueryOriginal,
-            setSearchQueryOriginal
-          )}
+          <DocumentListSection
+            title="Official Documents"
+            icon={<FileText className="h-5 w-5 mr-2 text-primary" />}
+            documents={originalDocuments}
+            isLoading={isLoadingOriginal}
+            currentPage={currentPageOriginal}
+            setCurrentPage={setCurrentPageOriginal}
+            totalItems={totalItemsOriginal}
+            pageSize={pageSize}
+            searchQuery={searchQueryOriginal}
+            setSearchQuery={setSearchQueryOriginal}
+            targetMode="original"
+            updatingModeDocumentId={updatingModeDocumentId}
+            getStatusColor={getStatusColor}
+            onView={(doc) => handleViewDocument(doc)}
+            onDelete={(doc) => handleDeleteDocument(doc)}
+            onMove={(doc, newMode) => handleUpdateDocumentMode(doc.id, newMode)}
+            onUpdateContent={(doc) => handleOpenUpdateSidebar(doc)}
+            onRowClick={onDocumentSelect}
+          />
         </div>
 
         {/* Reference Documents Section */}
         <div className="rounded-md">
-          <div className="flex items-center mb-4">
-            <BookCopy className="h-5 w-5 mr-2 text-primary" />
-            <Small className="font-semibold">Reference Documents</Small>
-          </div>
-          {renderDocumentTable(
-            referenceDocuments,
-            isLoadingReference,
-            currentPageReference,
-            setCurrentPageReference,
-            totalItemsReference,
-            "reference",
-            searchQueryReference,
-            setSearchQueryReference
-          )}
+          <DocumentListSection
+            title="Reference Documents"
+            icon={<BookCopy className="h-5 w-5 mr-2 text-primary" />}
+            documents={referenceDocuments}
+            isLoading={isLoadingReference}
+            currentPage={currentPageReference}
+            setCurrentPage={setCurrentPageReference}
+            totalItems={totalItemsReference}
+            pageSize={pageSize}
+            searchQuery={searchQueryReference}
+            setSearchQuery={setSearchQueryReference}
+            targetMode="reference"
+            updatingModeDocumentId={updatingModeDocumentId}
+            getStatusColor={getStatusColor}
+            onView={(doc) => handleViewDocument(doc)}
+            onDelete={(doc) => handleDeleteDocument(doc)}
+            onMove={(doc, newMode) => handleUpdateDocumentMode(doc.id, newMode)}
+            onUpdateContent={(doc) => handleOpenUpdateSidebar(doc)}
+            onRowClick={onDocumentSelect}
+          />
         </div>
       </div>
 
@@ -877,45 +765,18 @@ export function EmbeddedDocumentsComponent({
       />
 
       {/* View Document Sidebar */}
-      {showViewSidebar && (
-        <div className="fixed inset-0 z-50 flex">
-          <div className="flex-1" onClick={handleCloseViewSidebar} />
-          <div className="w-1/2 bg-background border-l shadow-lg flex flex-col">
-            {/* Header */}
-            <div className="border-b px-6 py-4 flex items-center justify-between h-18">
-              <div>
-                <h2 className="text-lg font-semibold">
-                  {viewDocument?.title || "Document Content"}
-                </h2>
-                <p className="text-sm text-muted-foreground">
-                  {viewDocument?.file_name}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleCloseViewSidebar}
-                className="h-8 w-8 p-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
+      <ViewDocumentSidebar
+        isOpen={showViewSidebar}
+        document={viewDocument}
+        onClose={handleCloseViewSidebar}
+      />
 
-            {/* Content */}
-            <div
-              ref={scrollContainerRef}
-              className="flex-1 overflow-y-auto p-6"
-            >
-              {viewDocument && (
-                <DocumentBlocksRenderer
-                  documentId={viewDocument.id}
-                  pageSize={20}
-                />
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <UpdateDocumentSidebar
+        isOpen={showUpdateSidebar}
+        document={updateDocument}
+        onClose={handleCloseUpdateSidebar}
+        onSuccess={handleSaveUpdatedBlocks}
+      />
     </div>
   );
 }

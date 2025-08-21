@@ -16,21 +16,31 @@ import {
   Bold,
   Italic,
   List,
-  ListOrdered,
   Quote,
-  Code,
   Link as LinkIcon,
   Image as ImageIcon,
   Table as TableIcon,
   Undo,
   Redo,
-  Strikethrough,
   Underline,
   Highlighter,
   GripVertical,
 } from "lucide-react";
 import { DragHandle } from "@tiptap/extension-drag-handle-react";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+} from "@/components/ui/tooltip";
+import { Combobox } from "@/components/ui/combobox";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import type { ContentBlock } from "@/api/admin/helpCenter";
 import {
   convertBlocksToJSON,
@@ -144,7 +154,7 @@ export function TiptapContentBlocksEditor({
   }, [editor, showSlashCommands]);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-2 border border-border rounded-md">
       {editor && (
         <div className="tiptap-toolbar">
           <div className="flex flex-wrap gap-1">
@@ -173,18 +183,14 @@ export function TiptapContentBlocksEditor({
             </Button>
             <div className="tiptap-toolbar-divider" />
 
-            {/* Headings */}
-            <select
-              onChange={(e) => {
-                const level = parseInt(e.target.value);
-                if (level === 0) editor.chain().focus().setParagraph().run();
-                else
-                  editor
-                    .chain()
-                    .focus()
-                    .toggleHeading({ level: level as 1 | 2 | 3 })
-                    .run();
-              }}
+            {/* Headings combobox (Aa) */}
+            <Combobox
+              options={[
+                { value: "0", label: "P" },
+                { value: "1", label: "H1" },
+                { value: "2", label: "H2" },
+                { value: "3", label: "H3" },
+              ]}
               value={
                 editor.isActive("heading", { level: 1 })
                   ? "1"
@@ -194,40 +200,60 @@ export function TiptapContentBlocksEditor({
                   ? "3"
                   : "0"
               }
-              className="px-2 py-1 border rounded text-sm"
-            >
-              <option value="0">Paragraph</option>
-              <option value="1">H1</option>
-              <option value="2">H2</option>
-              <option value="3">H3</option>
-            </select>
+              triggerLabel={
+                <span className="flex text-sm">
+                  <span className="">Aa</span>
+                  <span className="pl-1">▾</span>
+                </span>
+              }
+              triggerClassName="h-8 p-0 px-2 w-auto min-w-0"
+              contentClassName="min-w-[100px] w-auto"
+              className="w-auto"
+              optionClassName="whitespace-nowrap"
+              optionLabelClassName="whitespace-nowrap"
+              triggerVariant="ghost"
+              triggerSize="sm"
+              onValueChange={(val) => {
+                const level = parseInt(val);
+                if (level === 0) editor.chain().focus().setParagraph().run();
+                else
+                  editor
+                    .chain()
+                    .focus()
+                    .toggleHeading({ level: level as 1 | 2 | 3 })
+                    .run();
+              }}
+            />
             <div className="tiptap-toolbar-divider" />
 
-            {/* Lists */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBulletList().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("bulletList")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <List className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleOrderedList().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("orderedList")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <ListOrdered className="h-4 w-4" />
-            </Button>
+            {/* Lists group */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 min-w-0"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-40">
+                <DropdownMenuItem
+                  onClick={() =>
+                    editor.chain().focus().toggleOrderedList().run()
+                  }
+                >
+                  Numbered list
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    editor.chain().focus().toggleBulletList().run()
+                  }
+                >
+                  Bullet list
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="sm"
@@ -242,112 +268,165 @@ export function TiptapContentBlocksEditor({
             </Button>
             <div className="tiptap-toolbar-divider" />
 
-            {/* Text Formatting */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleBold().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("bold")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Bold className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleItalic().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("italic")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Italic className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleStrike().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("strike")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Strikethrough className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleUnderline().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("underline")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Underline className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleHighlight().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("highlight")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Highlighter className="h-4 w-4" />
-            </Button>
+            {/* Text Formatting with tooltips + More group */}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleBold().run()}
+                  className={`h-8 w-8 p-0 ${
+                    editor.isActive("bold")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  <Bold className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Bold</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleItalic().run()}
+                  className={`h-8 w-8 p-0 ${
+                    editor.isActive("italic")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  <Italic className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Italic</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleUnderline().run()}
+                  className={`h-8 w-8 p-0 ${
+                    editor.isActive("underline")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  <Underline className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Underline</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHighlight().run()}
+                  className={`h-8 w-8 p-0 ${
+                    editor.isActive("highlight")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  <Highlighter className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Highlight</TooltipContent>
+            </Tooltip>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 min-w-0"
+                >
+                  •••
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => editor.chain().focus().toggleStrike().run()}
+                >
+                  Strikethrough
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() => editor.chain().focus().toggleCode().run()}
+                >
+                  Code
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  onClick={() =>
+                    editor.chain().focus().unsetAllMarks().clearNodes().run()
+                  }
+                >
+                  Clear formatting
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="tiptap-toolbar-divider" />
 
-            {/* Code */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleCode().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("code")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Code className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => editor.chain().focus().toggleCodeBlock().run()}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("codeBlock")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <Code className="h-4 w-4" />
-            </Button>
+            {/* Insert group */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 w-8 p-0 min-w-0"
+                >
+                  +
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                <DropdownMenuItem
+                  onClick={() => editor.chain().focus().toggleCodeBlock().run()}
+                >
+                  Code block
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    editor.chain().focus().toggleBlockquote().run()
+                  }
+                >
+                  Block quote
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  onClick={() =>
+                    editor.chain().focus().setHorizontalRule().run()
+                  }
+                >
+                  Divider
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             <div className="tiptap-toolbar-divider" />
 
             {/* Links */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                const url = window.prompt("Enter URL");
-                if (url) editor.chain().focus().setLink({ href: url }).run();
-              }}
-              className={`h-8 w-8 p-0 ${
-                editor.isActive("link")
-                  ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                  : ""
-              }`}
-            >
-              <LinkIcon className="h-4 w-4" />
-            </Button>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    const url = window.prompt("Enter URL");
+                    if (url)
+                      editor.chain().focus().setLink({ href: url }).run();
+                  }}
+                  className={`h-8 w-8 p-0 ${
+                    editor.isActive("link")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                >
+                  <LinkIcon className="h-4 w-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent sideOffset={6}>Insert link</TooltipContent>
+            </Tooltip>
             <Button
               variant="ghost"
               size="sm"
@@ -376,6 +455,101 @@ export function TiptapContentBlocksEditor({
             >
               <TableIcon className="h-4 w-4" />
             </Button>
+
+            {/* Table controls (visible only when selection is inside a table) */}
+            {editor.isActive("table") && (
+              <>
+                <div className="tiptap-toolbar-divider" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().addRowBefore().run()}
+                  className="h-8 px-2"
+                  title="Add row before"
+                >
+                  Row ↑
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().addRowAfter().run()}
+                  className="h-8 px-2"
+                  title="Add row after"
+                >
+                  Row ↓
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().deleteRow().run()}
+                  className="h-8 px-2"
+                  title="Delete row"
+                >
+                  Row ✕
+                </Button>
+                <div className="tiptap-toolbar-divider" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().addColumnBefore().run()}
+                  className="h-8 px-2"
+                  title="Add column before"
+                >
+                  Col ←
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().addColumnAfter().run()}
+                  className="h-8 px-2"
+                  title="Add column after"
+                >
+                  Col →
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().deleteColumn().run()}
+                  className="h-8 px-2"
+                  title="Delete column"
+                >
+                  Col ✕
+                </Button>
+                <div className="tiptap-toolbar-divider" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().toggleHeaderRow().run()}
+                  className={`h-8 px-2 ${
+                    editor.isActive("tableHeader")
+                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
+                      : ""
+                  }`}
+                  title="Toggle header row"
+                >
+                  Header
+                </Button>
+                <div className="tiptap-toolbar-divider" />
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().mergeOrSplit().run()}
+                  className="h-8 px-2"
+                  title="Merge or split cells"
+                >
+                  Merge/Split
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => editor.chain().focus().deleteTable().run()}
+                  className="h-8 px-2"
+                  title="Delete table"
+                >
+                  Delete
+                </Button>
+              </>
+            )}
             <Button
               variant="ghost"
               size="sm"
@@ -438,16 +612,26 @@ export function TiptapContentBlocksEditor({
               "heading_1",
               "heading_2",
               "bullet_list",
+              "ordered_list",
               "quote",
-            ],
+              "image",
+              "divider",
+              "task_list",
+              "table",
+            ] as any,
             showGroups: true,
             itemGroups: {
               text: "Style",
               heading_1: "Style",
               heading_2: "Style",
               bullet_list: "Lists",
+              ordered_list: "Lists",
               quote: "Style",
-            },
+              image: "Upload",
+              divider: "Insert",
+              task_list: "Style",
+              table: "Insert",
+            } as any,
           }}
         />
       </div>

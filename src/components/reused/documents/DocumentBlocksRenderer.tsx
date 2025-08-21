@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import { getDocumentBlocks } from "@/api/documents";
+import { getPageBlocks } from "@/api/page";
+import type { BlockData } from "@/api/page";
 
 export interface DocumentBlock {
   id: string;
@@ -39,7 +40,7 @@ export function DocumentBlocksRenderer({
 }: DocumentBlocksRendererProps) {
   // Internal state for managing document blocks
   const [documentBlocks, setDocumentBlocks] = useState<
-    (DocumentBlock | DocumentBlockItem)[]
+    (DocumentBlock | DocumentBlockItem | BlockData)[]
   >([]);
   const [isLoadingBlocks, setIsLoadingBlocks] = useState(false);
   const [isLoadingMoreBlocks, setIsLoadingMoreBlocks] = useState(false);
@@ -52,8 +53,22 @@ export function DocumentBlocksRenderer({
   const isInitialLoadRef = useRef<boolean>(false);
   const isLoadingAnyRef = useRef<boolean>(false);
 
+  type RenderableItem = DocumentBlock | DocumentBlockItem | BlockData;
+
+  // Helper to create a stable identity key for deduping and React keys
+  const getItemIdentityKey = (item: RenderableItem): string => {
+    if ("block" in item) {
+      const id = item.block.id ?? "";
+      const order = (item as any).block_order ?? "";
+      return `${id}-${order}`;
+    }
+    const id = (item as any).id ?? "";
+    const order = (item as any).order ?? "";
+    return `${id}-${order}`;
+  };
+
   // Helper function to extract block data from either structure
-  const getBlockData = (item: DocumentBlock | DocumentBlockItem) => {
+  const getBlockData = (item: RenderableItem) => {
     if ("block" in item) {
       // New structure: DocumentBlockItem
       return {
@@ -61,6 +76,15 @@ export function DocumentBlocksRenderer({
         type: item.block.type,
         data: item.block.data,
         order: item.block_order,
+      };
+    } else if ("data" in item && "type" in item && "order" in item) {
+      // Page API BlockData structure
+      const bd = item as BlockData;
+      return {
+        id: bd.id ?? null,
+        type: bd.type,
+        data: bd.data,
+        order: bd.order,
       };
     } else {
       // Old structure: DocumentBlock
@@ -108,7 +132,7 @@ export function DocumentBlocksRenderer({
     setIsLoadingMoreBlocks(true);
 
     try {
-      const response = await getDocumentBlocks(documentId, {
+      const response = await getPageBlocks(documentId, {
         page_number: nextPage,
         page_size: pageSize,
         sort_order: -1,
@@ -117,34 +141,16 @@ export function DocumentBlocksRenderer({
 
       if (response.items && response.items.length > 0) {
         setDocumentBlocks((prev) => {
-          // Handle new API structure where items have nested block objects
-          const newBlocks = response.items;
+          // Handle new API structure where items have nested block objects OR plain BlockData
+          const newBlocks = response.items as RenderableItem[];
 
-          // For the new structure, we need to check if we already have these blocks
-          // by comparing the block.id from the nested structure
-          if (newBlocks.length > 0 && "block" in newBlocks[0]) {
-            // New structure: check for duplicates using block.id
-            const existingIds = new Set(
-              prev.map((block) =>
-                "block" in block ? (block as any).block.id : block.id
-              )
-            );
-            const filteredBlocks = newBlocks.filter(
-              (item: any) => !existingIds.has(item.block.id)
-            );
-            return [...prev, ...filteredBlocks];
-          } else {
-            // Old structure: check for duplicates using block.id directly
-            const existingIds = new Set(
-              prev.map((block) =>
-                "block" in block ? block.block.id : block.id
-              )
-            );
-            const filteredBlocks = newBlocks.filter(
-              (block: any) => !existingIds.has(block.id)
-            );
-            return [...prev, ...filteredBlocks];
-          }
+          const existingKeys = new Set(
+            prev.map((item) => getItemIdentityKey(item as RenderableItem))
+          );
+          const filteredBlocks = newBlocks.filter(
+            (item) => !existingKeys.has(getItemIdentityKey(item))
+          );
+          return [...prev, ...filteredBlocks];
         });
 
         setCurrentPage(nextPage);
@@ -192,11 +198,12 @@ export function DocumentBlocksRenderer({
       lastLoadedPageRef.current = 0;
 
       try {
-        const response = await getDocumentBlocks(documentId, {
+        const response = await getPageBlocks(documentId, {
           page_number: 1,
           page_size: pageSize,
           sort_order: -1,
           sort_by: "order",
+          organize_by_section: true,
         });
 
         if (response.items) {
@@ -307,10 +314,11 @@ export function DocumentBlocksRenderer({
   return (
     <div ref={scrollContainerRef} className={`space-y-4 ${className}`}>
       {documentBlocks.map((item, index) => {
-        const block = getBlockData(item);
+        const block = getBlockData(item as RenderableItem);
+        const keyId = (block.id as any) ?? `order-${block.order}`;
         return (
           <div
-            key={`${block.id}-${block.order || index}`}
+            key={`${keyId}-${block.order || index}`}
             className="block-content"
           >
             {/* Header blocks */}
@@ -349,17 +357,17 @@ export function DocumentBlocksRenderer({
               <div className="mb-4">
                 {block.data.style === "ordered" ? (
                   <ol className="list-decimal list-inside space-y-1 text-sm">
-                    {block.data.items?.map((item, index) => (
-                      <li key={index} className="text-foreground">
-                        {item}
+                    {block.data.items?.map((listItem: string, idx: number) => (
+                      <li key={idx} className="text-foreground">
+                        {listItem}
                       </li>
                     ))}
                   </ol>
                 ) : (
                   <ul className="list-disc list-inside space-y-1 text-sm">
-                    {block.data.items?.map((item, index) => (
-                      <li key={index} className="text-foreground">
-                        {item}
+                    {block.data.items?.map((listItem: string, idx: number) => (
+                      <li key={idx} className="text-foreground">
+                        {listItem}
                       </li>
                     ))}
                   </ul>

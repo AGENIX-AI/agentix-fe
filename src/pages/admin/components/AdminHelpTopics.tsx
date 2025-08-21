@@ -37,6 +37,7 @@ import {
   TableCell,
 } from "@/components/ui/table";
 import { TopicFormSidebar } from "./sidebars/TopicFormSidebar";
+import { updatePageBlocks } from "@/api/page";
 
 export function AdminHelpTopics() {
   const { mainTopicId } = useParams<{ mainTopicId: string }>();
@@ -90,13 +91,11 @@ export function AdminHelpTopics() {
   ) => {
     try {
       if (topicData.id) {
-        const updated = await updateHelpTopic(topicData.id, {
+        await updatePageBlocks(topicData.id, {
           title: topicData.title,
           content: topicData.content,
         });
-        setTopics((prev) =>
-          prev.map((t) => (t.id === updated.id ? updated : t))
-        );
+
         toast.success("Help topic updated successfully");
       } else {
         if (!mainId) {

@@ -1,7 +1,8 @@
 import * as React from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
-import { Button } from "./button";
+import { Button, buttonVariants } from "./button";
+import type { VariantProps } from "class-variance-authority";
 import { Input } from "./input";
 import { Popover, PopoverContent, PopoverTrigger } from "./popover";
 import { cn } from "@/lib/utils";
@@ -21,6 +22,11 @@ interface ComboboxProps {
   className?: string;
   triggerClassName?: string;
   contentClassName?: string;
+  triggerLabel?: React.ReactNode;
+  optionClassName?: string;
+  optionLabelClassName?: string;
+  triggerVariant?: VariantProps<typeof buttonVariants>["variant"];
+  triggerSize?: VariantProps<typeof buttonVariants>["size"];
 }
 
 export function Combobox({
@@ -33,6 +39,11 @@ export function Combobox({
   className,
   triggerClassName,
   contentClassName,
+  triggerLabel,
+  optionClassName,
+  optionLabelClassName,
+  triggerVariant = "outline",
+  triggerSize = "default",
 }: ComboboxProps) {
   const [open, setOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -69,18 +80,24 @@ export function Combobox({
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <Button
-          variant="outline"
+          variant={triggerVariant}
+          size={triggerSize}
           role="combobox"
           aria-expanded={open}
           disabled={disabled}
           className={cn(
-            "w-full justify-between",
+            triggerLabel
+              ? "w-auto min-w-0 justify-center"
+              : "w-full justify-between",
             disabled && "opacity-50 cursor-not-allowed",
             triggerClassName
           )}
         >
-          {selectedOption ? selectedOption.label : placeholder}
-          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          {triggerLabel ??
+            (selectedOption ? selectedOption.label : placeholder)}
+          {!triggerLabel && (
+            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className={cn("p-0", contentClassName)}>
@@ -100,6 +117,7 @@ export function Combobox({
                   key={option.value}
                   className={cn(
                     "relative flex cursor-pointer select-none items-center rounded-sm p-2 my-0.5 text-sm outline-none hover:bg-accent hover:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
+                    optionClassName,
                     selectedValue === option.value &&
                       "bg-accent text-accent-foreground"
                   )}
@@ -113,7 +131,9 @@ export function Combobox({
                         : "opacity-0"
                     )}
                   />
-                  {option.label}
+                  <span className={cn(optionLabelClassName)}>
+                    {option.label}
+                  </span>
                 </div>
               ))
             ) : (

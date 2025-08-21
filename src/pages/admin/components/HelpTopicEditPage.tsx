@@ -12,6 +12,7 @@ import {
   fetchHelpTopic as fetchInstructorHelpTopic,
   updateHelpTopic as updateInstructorHelpTopic,
 } from "@/api/admin/helpCenterInstructor";
+import { updatePageBlocks } from "@/api/page";
 
 export default function HelpTopicEditPage() {
   const navigate = useNavigate();
@@ -37,7 +38,7 @@ export default function HelpTopicEditPage() {
     }
     return {
       fetchById: fetchHelpTopic,
-      updateById: updateHelpTopic,
+      updateById: updatePageBlocks,
     };
   }, [activeTab]);
 

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -12,13 +13,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { PlusCircle, Pencil, Trash, Eye, Search } from "lucide-react";
-import type { Blog, BlogsQueryParams } from "@/api/admin/blogs";
-import {
-  fetchBlogs,
-  createBlog,
-  updateBlog,
-  deleteBlog,
-} from "@/api/admin/blogs";
+import type { Blog } from "@/api/admin/blogs";
+import { deleteBlog } from "@/api/admin/blogs";
+import { getOwnDocuments, getPage, type GetDocumentsParams } from "@/api/page";
 import {
   Table,
   TableHeader,
@@ -27,28 +24,30 @@ import {
   TableHead,
   TableCell,
 } from "@/components/ui/table";
-import { BlogFormSidebar } from "./sidebars/BlogFormSidebar";
+import BlogBlocksSidebar from "./sidebars/BlogBlocksSidebar";
 
 interface AdminBlogsProps {
   searchQuery?: string;
 }
 
 export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
+  const navigate = useNavigate();
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize] = useState(10);
+  const fetchBlogs = getOwnDocuments;
 
   // Dialog states
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
-  // Sidebar states
-  const [blogFormSidebar, setBlogFormSidebar] = useState<{
+  // Blocks sidebar state (view/edit using page APIs)
+  const [blocksSidebar, setBlocksSidebar] = useState<{
     open: boolean;
-    mode: "create" | "edit";
+    mode: "view" | "edit";
     blog?: Blog;
-  }>({ open: false, mode: "create" });
+  }>({ open: false, mode: "view" });
 
   // Form states
   const [currentBlog, setCurrentBlog] = useState<Blog | null>(null);
@@ -67,11 +66,12 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
   const loadBlogs = async () => {
     try {
       setLoading(true);
-      const params: BlogsQueryParams = {
+      const params: GetDocumentsParams = {
         page_number: currentPage,
         page_size: pageSize,
         sort_by: "created_at",
         sort_order: -1, // Descending order (newest first)
+        type: "blog_document",
       };
 
       if (searchQuery.trim()) {
@@ -79,46 +79,29 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
       }
 
       const response = await fetchBlogs(params);
-      setBlogs(response.blogs);
-      setTotalCount(response.total_count);
+      // Hydrate with page details
+      const hydrated = await Promise.all(
+        response.documents.map(async (b) => {
+          try {
+            const page = await getPage(b.id);
+            return {
+              ...b,
+              title: page.page?.title || b.title,
+              created_at: page.page?.created_at || b.created_at,
+              updated_at: page.page?.updated_at || b.updated_at,
+            } as unknown as Blog;
+          } catch {
+            return b;
+          }
+        })
+      );
+      setBlogs(hydrated as Blog[]);
+      setTotalCount(response.total_items);
     } catch (error) {
       console.error("Failed to load blogs:", error);
       toast.error("Failed to load blogs");
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleSaveBlogFromSidebar = async (
-    blogData: Partial<Blog> & { title: string; content: string }
-  ) => {
-    try {
-      if (blogFormSidebar.mode === "create") {
-        const newBlog = await createBlog({
-          title: blogData.title,
-          content: blogData.content,
-        });
-
-        // Add to the beginning of the list (newest first)
-        setBlogs([newBlog, ...blogs]);
-        setTotalCount(totalCount + 1);
-        toast.success("Blog created successfully");
-      } else if (blogFormSidebar.mode === "edit" && blogData.id) {
-        const updatedBlog = await updateBlog(blogData.id, {
-          title: blogData.title,
-          content: blogData.content,
-        });
-
-        setBlogs(
-          blogs.map((blog) => (blog.id === blogData.id ? updatedBlog : blog))
-        );
-        toast.success("Blog updated successfully");
-      }
-
-      setBlogFormSidebar({ open: false, mode: "create" });
-    } catch (error) {
-      console.error("Failed to save blog:", error);
-      toast.error("Failed to save blog");
     }
   };
 
@@ -140,15 +123,17 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
   };
 
   const openEditSidebar = (blog: Blog) => {
-    setBlogFormSidebar({ open: true, mode: "edit", blog });
+    // Use blocks-based editor for edit
+    setBlocksSidebar({ open: true, mode: "edit", blog });
   };
 
   const openViewSidebar = (blog: Blog) => {
-    setBlogFormSidebar({ open: true, mode: "edit", blog });
+    // Use blocks-based viewer
+    setBlocksSidebar({ open: true, mode: "view", blog });
   };
 
   const openCreateSidebar = () => {
-    setBlogFormSidebar({ open: true, mode: "create" });
+    navigate("/admin/blogs/new");
   };
 
   const openDeleteDialog = (blog: Blog) => {
@@ -229,9 +214,6 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
                 <TableRow key={blog.id}>
                   <TableCell>
                     <div className="font-medium">{blog.title}</div>
-                    <div className="text-xs text-muted-foreground truncate max-w-md">
-                      {blog.content.substring(0, 100)}...
-                    </div>
                   </TableCell>
                   <TableCell className="text-xs text-muted-foreground">
                     {formatDate(blog.created_at)}
@@ -302,14 +284,22 @@ export function AdminBlogs({ searchQuery = "" }: AdminBlogsProps) {
         </div>
       )}
 
-      {/* Blog Form Sidebar */}
-      <BlogFormSidebar
-        isVisible={blogFormSidebar.open}
-        mode={blogFormSidebar.mode}
-        blog={blogFormSidebar.blog}
-        onClose={() => setBlogFormSidebar({ open: false, mode: "create" })}
-        onSave={handleSaveBlogFromSidebar}
-      />
+      {/* Blog Blocks Sidebar (view/edit using page APIs) */}
+      {blocksSidebar.open && blocksSidebar.blog && (
+        <BlogBlocksSidebar
+          isVisible={blocksSidebar.open}
+          mode={blocksSidebar.mode}
+          blog={blocksSidebar.blog}
+          onClose={() => setBlocksSidebar({ open: false, mode: "view" })}
+          onSaved={(u) => {
+            if (u?.id && u.title) {
+              setBlogs((prev) =>
+                prev.map((b) => (b.id === u.id ? { ...b, title: u.title! } : b))
+              );
+            }
+          }}
+        />
+      )}
 
       {/* Delete Confirmation Dialog */}
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>

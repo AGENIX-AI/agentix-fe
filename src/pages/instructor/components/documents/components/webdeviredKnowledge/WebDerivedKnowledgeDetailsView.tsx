@@ -9,6 +9,7 @@ import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSi
 import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
 import { DocumentBlocksRenderer } from "@/components/reused/documents";
 import { Input } from "@/components/ui/input";
+import { UpdateDocumentSidebar } from "../documentsTab/ownDocuments/UpdateDocumentSidebar";
 
 interface WebDerivedKnowledgeDetailsViewProps {
   collection: Document;
@@ -30,6 +31,8 @@ export default function WebDerivedKnowledgeDetailsView({
   }>({ isOpen: false, document: null });
   const [showViewSidebar, setShowViewSidebar] = useState(false);
   const [viewDocument, setViewDocument] = useState<Document | null>(null);
+  const [showUpdateSidebar, setShowUpdateSidebar] = useState(false);
+  const [updateDocument, setUpdateDocument] = useState<Document | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -97,6 +100,22 @@ export default function WebDerivedKnowledgeDetailsView({
     setShowViewSidebar(false);
     setViewDocument(null);
   }, []);
+
+  const handleOpenUpdateSidebar = useCallback((document: Document) => {
+    setUpdateDocument(document);
+    setShowUpdateSidebar(true);
+  }, []);
+
+  const handleCloseUpdateSidebar = useCallback(() => {
+    setShowUpdateSidebar(false);
+    setUpdateDocument(null);
+  }, []);
+
+  const handleUpdateSuccess = useCallback(() => {
+    setShowUpdateSidebar(false);
+    setUpdateDocument(null);
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   return (
     <div className="flex flex-col h-full">
@@ -175,6 +194,19 @@ export default function WebDerivedKnowledgeDetailsView({
                           title="View document content"
                         >
                           <Eye className="h-3 w-3" />
+                        </Button>
+
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenUpdateSidebar(document);
+                          }}
+                          title="Update content"
+                        >
+                          <Edit className="h-3 w-3" />
                         </Button>
 
                         <Button
@@ -280,6 +312,13 @@ export default function WebDerivedKnowledgeDetailsView({
           </div>
         </div>
       )}
+
+      <UpdateDocumentSidebar
+        isOpen={showUpdateSidebar}
+        document={(updateDocument as any) || null}
+        onClose={handleCloseUpdateSidebar}
+        onSuccess={handleUpdateSuccess}
+      />
     </div>
   );
 }

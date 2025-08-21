@@ -17,6 +17,7 @@ import { DocumentTable } from "../documentsTab/ownDocuments/DocumentTable";
 import { useCollectionDocuments } from "../shared/useCollectionDocuments";
 import type { Document, NoteCollection } from "@/api/documents";
 import { AddKnowledgeChunkSidebar } from "./AddKnowledgeChunkSidebar";
+import { UpdateDocumentSidebar } from "../documentsTab/ownDocuments/UpdateDocumentSidebar";
 import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
 import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
 import { DocumentBlocksRenderer } from "@/components/reused/documents";
@@ -73,6 +74,8 @@ export default function TopicKnowledgeDetails({
   });
   const [showViewSidebar, setShowViewSidebar] = useState(false);
   const [viewDocument, setViewDocument] = useState<Document | null>(null);
+  const [showUpdateSidebar, setShowUpdateSidebar] = useState(false);
+  const [updateDocument, setUpdateDocument] = useState<Document | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Fetch documents using custom hook
@@ -127,6 +130,11 @@ export default function TopicKnowledgeDetails({
     setShowViewSidebar(true);
   }, []);
 
+  const handleOpenUpdateSidebar = useCallback((document: Document) => {
+    setUpdateDocument(document);
+    setShowUpdateSidebar(true);
+  }, []);
+
   const handleEditClose = useCallback(() => {
     setEditSidebar({
       isVisible: false,
@@ -153,6 +161,17 @@ export default function TopicKnowledgeDetails({
     setShowViewSidebar(false);
     setViewDocument(null);
   }, []);
+
+  const handleCloseUpdateSidebar = useCallback(() => {
+    setShowUpdateSidebar(false);
+    setUpdateDocument(null);
+  }, []);
+
+  const handleUpdateSuccess = useCallback(() => {
+    setShowUpdateSidebar(false);
+    setUpdateDocument(null);
+    fetchDocuments();
+  }, [fetchDocuments]);
 
   const handleAddNoteSuccess = useCallback(() => {
     setShowAddNoteSidebar(false);
@@ -195,6 +214,19 @@ export default function TopicKnowledgeDetails({
                 title="View document content"
               >
                 <Eye className="h-3 w-3" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenUpdateSidebar(document);
+                }}
+                title="Update content"
+              >
+                <Edit className="h-3 w-3" />
               </Button>
 
               <Button
@@ -358,6 +390,13 @@ export default function TopicKnowledgeDetails({
       />
 
       {renderViewSidebar()}
+
+      <UpdateDocumentSidebar
+        isOpen={showUpdateSidebar}
+        document={(updateDocument as any) || null}
+        onClose={handleCloseUpdateSidebar}
+        onSuccess={handleUpdateSuccess}
+      />
     </div>
   );
 }
