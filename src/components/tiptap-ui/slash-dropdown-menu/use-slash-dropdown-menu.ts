@@ -196,7 +196,15 @@ const getItemImplementations = () => {
 
         editorChain.run();
 
-        editor.chain().focus().aiGenerationShow().run();
+        // Narrow the chain to include AI commands without loosening global types
+        const aiChain = editor.chain().focus() as unknown as {
+          aiGenerationShow: () => any;
+          run: () => void;
+        };
+        // Show AI generation UI if available
+        if (typeof (aiChain as any).aiGenerationShow === "function") {
+          (aiChain as any).aiGenerationShow().run();
+        }
 
         requestAnimationFrame(() => {
           const { hasContent, content } = hasContentAbove(editor);
@@ -208,15 +216,19 @@ const getItemImplementations = () => {
             ? `Context: ${snippet}\n\nContinue writing from where the text above ends. Write ONLY ONE SENTENCE. DONT REPEAT THE TEXT.`
             : "Start writing a new paragraph. Write ONLY ONE SENTENCE.";
 
-          editor
-            .chain()
-            .focus()
-            .aiTextPrompt({
-              stream: true,
-              format: "rich-text",
-              text: prompt,
-            })
-            .run();
+          const promptChain = editor.chain().focus() as unknown as {
+            aiTextPrompt: (options: { stream?: boolean; format?: "plain-text" | "rich-text"; text: string }) => any;
+            run: () => void;
+          };
+          if (typeof (promptChain as any).aiTextPrompt === "function") {
+            (promptChain as any)
+              .aiTextPrompt({
+                stream: true,
+                format: "rich-text",
+                text: prompt,
+              })
+              .run();
+          }
         });
       },
     },
@@ -234,8 +246,14 @@ const getItemImplementations = () => {
 
         editorChain.run();
 
-        editor.chain().focus().aiGenerationShow().run();
-      },
+        const aiChain = editor.chain().focus() as unknown as {
+          aiGenerationShow: () => any;
+          run: () => void;
+        };
+        if (typeof (aiChain as any).aiGenerationShow === "function") {
+          (aiChain as any).aiGenerationShow().run();
+        }
+      }
     },
 
     // Style

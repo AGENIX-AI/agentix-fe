@@ -7,7 +7,7 @@ import { TiptapContentBlocksEditor } from "@/components/editor/TiptapContentBloc
 import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import type { ContentBlock, HelpTopic } from "@/api/admin/helpCenter";
-import { fetchHelpTopic, updateHelpTopic } from "@/api/admin/helpCenter";
+import { fetchHelpTopic } from "@/api/admin/helpCenter";
 import {
   fetchHelpTopic as fetchInstructorHelpTopic,
   updateHelpTopic as updateInstructorHelpTopic,

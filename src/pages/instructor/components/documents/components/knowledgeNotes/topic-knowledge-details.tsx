@@ -20,7 +20,10 @@ import { AddKnowledgeChunkSidebar } from "./AddKnowledgeChunkSidebar";
 import { UpdateDocumentSidebar } from "../documentsTab/ownDocuments/UpdateDocumentSidebar";
 import { EditDocumentSidebar } from "../documentsTab/ownDocuments/EditDocumentSidebar";
 import { DeleteDocumentDialog } from "../documentsTab/ownDocuments/DeleteDocumentDialog";
-import { DocumentBlocksRenderer } from "@/components/reused/documents";
+import { TiptapContentBlocksViewer } from "@/components/editor/TiptapContentBlocksViewer";
+import { getPage } from "@/api/page";
+import type { BlockData } from "@/api/page";
+import type { ContentBlock } from "@/api/admin/helpCenter";
 import { Input } from "@/components/ui/input";
 
 // moved to shared hook
@@ -297,15 +300,10 @@ export default function TopicKnowledgeDetails({
               <X className="h-4 w-4" />
             </Button>
           </div>
-
-          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto p-6">
-            {viewDocument && (
-              <DocumentBlocksRenderer
-                documentId={viewDocument.id}
-                pageSize={20}
-              />
-            )}
-          </div>
+          <TopicViewContent
+            documentId={viewDocument?.id || ""}
+            scrollRef={scrollContainerRef}
+          />
         </div>
       </div>
     );
@@ -397,6 +395,63 @@ export default function TopicKnowledgeDetails({
         onClose={handleCloseUpdateSidebar}
         onSuccess={handleUpdateSuccess}
       />
+    </div>
+  );
+}
+
+function TopicViewContent({
+  documentId,
+  scrollRef,
+}: {
+  documentId: string;
+  scrollRef: React.RefObject<HTMLDivElement | null>;
+}) {
+  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    const load = async () => {
+      if (!documentId) return;
+      setLoading(true);
+      try {
+        const page = await getPage(documentId);
+        const mapped: ContentBlock[] = (page.blocks || [])
+          .sort((a: BlockData, b: BlockData) => (a.order ?? 0) - (b.order ?? 0))
+          .map((b: BlockData, idx: number) => ({
+            id: (b.id as string) || `block-${idx}-${Date.now()}`,
+            type: (b.type as ContentBlock["type"]) || "paragraph",
+            data: b.data || {},
+            order: b.order ?? idx,
+          }));
+        if (active) setBlocks(mapped);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to load document content:", e);
+        if (active) setBlocks([]);
+      } finally {
+        if (active) setLoading(false);
+      }
+    };
+    load();
+    return () => {
+      active = false;
+    };
+  }, [documentId]);
+
+  return (
+    <div ref={scrollRef} className="flex-1 overflow-y-auto p-6">
+      {loading ? (
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <TiptapContentBlocksViewer
+          blocks={blocks}
+          className="prose-sm"
+          placeholder="No content"
+        />
+      )}
     </div>
   );
 }

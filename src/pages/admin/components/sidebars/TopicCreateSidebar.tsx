@@ -46,11 +46,6 @@ export function TopicCreateSidebar({
     onClose();
   }, [onClose]);
 
-  const handleEditorSave = useCallback((newBlocks: ContentBlock[]) => {
-    console.log("Tiptap editor saved blocks:", newBlocks);
-    setContentBlocks(newBlocks);
-  }, []);
-
   if (!isVisible) return null;
 
   return (

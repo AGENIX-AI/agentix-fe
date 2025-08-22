@@ -25,7 +25,6 @@ import {
   deleteHelpTopic,
   fetchHelpMainTopics,
   fetchHelpTopicsByMainId,
-  updateHelpTopic,
 } from "@/api/admin/helpCenter";
 // import { ScrollArea } from "@/components/ui/scroll-area";
 import {

@@ -1,7 +1,11 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
-import { DocumentBlocksRenderer } from "@/components/reused/documents";
+import { Loader2, X } from "lucide-react";
 import type { Document } from "@/api/page";
+import { getPage } from "@/api/page";
+import type { BlockData } from "@/api/page";
+import type { ContentBlock } from "@/api/admin/helpCenter";
+import { TiptapContentBlocksViewer } from "@/components/editor/TiptapContentBlocksViewer";
 
 interface ViewDocumentSidebarProps {
   isOpen: boolean;
@@ -14,6 +18,35 @@ export function ViewDocumentSidebar({
   document,
   onClose,
 }: ViewDocumentSidebarProps) {
+  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isOpen || !document?.id) return;
+    const load = async () => {
+      setLoading(true);
+      try {
+        const page = await getPage(document.id);
+        const mapped: ContentBlock[] = (page.blocks || [])
+          .sort((a: BlockData, b: BlockData) => (a.order ?? 0) - (b.order ?? 0))
+          .map((b: BlockData, idx: number) => ({
+            id: (b.id as string) || `block-${idx}-${Date.now()}`,
+            type: (b.type as ContentBlock["type"]) || "paragraph",
+            data: b.data || {},
+            order: b.order ?? idx,
+          }));
+        setBlocks(mapped);
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.error("Failed to load page blocks:", e);
+        setBlocks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [isOpen, document?.id]);
+
   if (!isOpen) return null;
   return (
     <div className="fixed inset-0 z-50 flex">
@@ -38,9 +71,20 @@ export function ViewDocumentSidebar({
           </Button>
         </div>
         <div className="flex-1 overflow-y-auto p-6">
-          {document && (
-            <DocumentBlocksRenderer documentId={document.id} pageSize={20} />
-          )}
+          {loading ? (
+            <div className="flex flex-col items-center justify-center py-8 space-y-3">
+              <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              <p className="text-xs text-muted-foreground">
+                Loading content...
+              </p>
+            </div>
+          ) : document ? (
+            <TiptapContentBlocksViewer
+              blocks={blocks}
+              className="prose-sm"
+              placeholder="No content"
+            />
+          ) : null}
         </div>
       </div>
     </div>
