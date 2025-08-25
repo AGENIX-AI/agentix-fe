@@ -1224,7 +1224,7 @@ export const getDocumentBlocks = async (
   });
 
   const response = await fetch(
-    `${baseUrl}/documents/get_blocks/${documentId}?${queryParams.toString()}`,
+    `${baseUrl}/pages/${documentId}/blocks?${queryParams.toString()}`,
     {
       method: "GET",
       credentials: "include",
@@ -1237,6 +1237,54 @@ export const getDocumentBlocks = async (
       new Error(`Failed to fetch document blocks: ${response.statusText}`)
     );
     throw new Error(`Failed to fetch document blocks: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Child block item for aggregated children pages
+ */
+export interface PageChildBlockItem {
+  id: string;
+  page_id: string;
+  order: number;
+  type: string;
+  data: Record<string, any>;
+  created_at: string;
+}
+
+/**
+ * Get blocks from children pages filtered by type
+ * Example: type=media_document → returns image/related blocks from children
+ */
+export const getChildrenBlocksByType = async (
+  documentId: string,
+  type: string
+): Promise<PageChildBlockItem[]> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const queryParams = new URLSearchParams({ type });
+
+  const response = await fetch(
+    `${baseUrl}/documents/${documentId}/childrents/blocks?${queryParams.toString()}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(
+        `Failed to fetch children blocks by type: ${response.statusText}`
+      )
+    );
+    throw new Error(
+      `Failed to fetch children blocks by type: ${response.statusText}`
+    );
   }
 
   return await response.json();
