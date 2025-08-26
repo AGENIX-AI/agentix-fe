@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import { ArrowLeft, Loader2, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-  getImageDocument,
-  getTopicKnowledgeItems,
+  getCollectionChildrenDocuments,
   createTopicKnowledgeManual,
   createTopicKnowledgeFramework,
   createImageIndex,
@@ -151,23 +150,37 @@ export default function DocumentDetailsView({
 
       setIsLoadingImages(true);
       try {
-        const response = await getImageDocument(document.id, {
+        const response = await getCollectionChildrenDocuments(document.id, {
           page_number: currentImagePage,
           page_size: imagePageSize,
           search: imageSearchQuery,
-          sort_by: "chunk_index",
+          sort_by: "created_at",
           sort_order: 1,
+          type: "media_document",
         });
 
         if (response.success) {
-          setImages(response.documents);
+          const mapped = response.documents.map((doc) => ({
+            chunk_index: doc.id,
+            title: doc.title,
+            keywords: [],
+            summary: doc.description || "",
+            content: doc.description || "",
+            url: doc.url,
+            type: "image",
+            id: doc.id,
+            created_at: doc.created_at,
+            updated_at: doc.updated_at,
+            description: doc.description,
+          }));
+          setImages(mapped);
           setTotalImages(response.total_items);
         } else {
-          throw new Error("Failed to fetch document images");
+          throw new Error("Failed to fetch collection media items");
         }
       } catch (error) {
-        console.error("Error fetching document images:", error);
-        toast.error("Failed to fetch document images");
+        console.error("Error fetching collection media items:", error);
+        toast.error("Failed to fetch collection media items");
       } finally {
         setIsLoadingImages(false);
       }
@@ -183,23 +196,32 @@ export default function DocumentDetailsView({
 
       setIsLoadingNotes(true);
       try {
-        const response = await getTopicKnowledgeItems(document.id, {
+        const response = await getCollectionChildrenDocuments(document.id, {
           page_number: currentNotePage,
           page_size: notePageSize,
           search: noteSearchQuery,
-          sort_by: "chunk_index",
+          sort_by: "created_at",
           sort_order: 1,
+          type: "topic_knowledge",
         });
 
         if (response.success) {
-          setNotes(response.items);
+          const mapped = response.documents.map((doc) => ({
+            chunk_index: doc.id,
+            title: doc.title,
+            keywords: [],
+            summary: doc.description || "",
+            content: doc.description || "",
+            type: "topic_knowledge",
+          }));
+          setNotes(mapped);
           setTotalNotes(response.total_items);
         } else {
-          throw new Error("Failed to fetch topic knowledge items");
+          throw new Error("Failed to fetch collection knowledge notes");
         }
       } catch (error) {
-        console.error("Error fetching topic knowledge items:", error);
-        toast.error("Failed to fetch topic knowledge items");
+        console.error("Error fetching collection knowledge notes:", error);
+        toast.error("Failed to fetch collection knowledge notes");
       } finally {
         setIsLoadingNotes(false);
       }

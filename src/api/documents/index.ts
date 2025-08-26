@@ -77,6 +77,7 @@ export interface GetDocumentsParams {
     | "image"
     | "crawl_document"
     | "crawl_collection"
+    | "note_document"
     | "all";
   assistant_id?: string;
   mode?: "original" | "reference";
@@ -358,6 +359,71 @@ export const uploadImageDocument = async (
     );
     throw new Error(
       data.error || `Failed to upload image document: ${response.statusText}`
+    );
+  }
+
+  return await response.json();
+};
+
+/**
+ * Upload a video document
+ * @param data Video upload data including title, language, parent_page_id, and optional video_url or video file
+ * @returns Promise with the upload response
+ */
+export const uploadVideoDocument = async (data: {
+  title: string;
+  language: string;
+  parent_page_id: string;
+  video_url?: string;
+  video?: File;
+}): Promise<{
+  success: boolean;
+  page_id: string;
+  blocks: any[];
+  message: string;
+}> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const formData = new FormData();
+  formData.append("title", data.title);
+  formData.append("language", data.language);
+  formData.append("parent_page_id", data.parent_page_id);
+
+  if (data.video_url) {
+    formData.append("video_url", data.video_url);
+  }
+
+  if (data.video) {
+    formData.append("video", data.video);
+  }
+
+  const accessToken = Cookies.get("edvara_access_token");
+  const refreshToken = Cookies.get("edvara_refresh_token");
+  const headers: HeadersInit = {};
+
+  if (accessToken) {
+    headers["Authorization"] = `Bearer ${accessToken}`;
+  }
+
+  if (refreshToken) {
+    headers["X-Refresh-Token"] = refreshToken;
+  }
+
+  const response = await fetch(`${baseUrl}/documents/media/upload_video`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+    headers,
+    // Don't set Content-Type, browser will set it with boundary
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.error("Video upload failed:", data);
+    Sentry.captureException(
+      new Error(`Failed to upload video document: ${response.statusText}`)
+    );
+    throw new Error(
+      data.error || `Failed to upload video document: ${response.statusText}`
     );
   }
 
