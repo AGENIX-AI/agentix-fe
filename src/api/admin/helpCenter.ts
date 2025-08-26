@@ -8,6 +8,7 @@ export interface ContentBlock {
     | "paragraph"
     | "list"
     | "code"
+    | "table"
     | "image"
     | "quote"
     | "checklist"

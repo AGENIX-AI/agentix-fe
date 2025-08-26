@@ -74,7 +74,10 @@ export function TiptapContentBlocksEditor({
       }),
       Link.configure({ openOnClick: false }),
       Image,
-      TableKit,
+      // Enable rich table editing capabilities (column resize, header toggles, etc.)
+      TableKit.configure({
+        table: { resizable: true },
+      }),
       Mathematics,
       TaskList,
       TaskItem,
@@ -441,115 +444,95 @@ export function TiptapContentBlocksEditor({
             <div className="tiptap-toolbar-divider" />
 
             {/* Tables & Math */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() =>
-                editor
-                  .chain()
-                  .focus()
-                  .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
-                  .run()
-              }
-              className="h-8 w-8 p-0"
-            >
-              <TableIcon className="h-4 w-4" />
-            </Button>
-
-            {/* Table controls (visible only when selection is inside a table) */}
-            {editor.isActive("table") && (
-              <>
-                <div className="tiptap-toolbar-divider" />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={() => editor.chain().focus().addRowBefore().run()}
-                  className="h-8 px-2"
-                  title="Add row before"
+                  className="h-8 w-8 p-0 min-w-0"
+                  title="Table actions"
                 >
-                  Row ↑
+                  <TableIcon className="h-4 w-4" />
                 </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().addRowAfter().run()}
-                  className="h-8 px-2"
-                  title="Add row after"
-                >
-                  Row ↓
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().deleteRow().run()}
-                  className="h-8 px-2"
-                  title="Delete row"
-                >
-                  Row ✕
-                </Button>
-                <div className="tiptap-toolbar-divider" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().addColumnBefore().run()}
-                  className="h-8 px-2"
-                  title="Add column before"
-                >
-                  Col ←
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().addColumnAfter().run()}
-                  className="h-8 px-2"
-                  title="Add column after"
-                >
-                  Col →
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().deleteColumn().run()}
-                  className="h-8 px-2"
-                  title="Delete column"
-                >
-                  Col ✕
-                </Button>
-                <div className="tiptap-toolbar-divider" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().toggleHeaderRow().run()}
-                  className={`h-8 px-2 ${
-                    editor.isActive("tableHeader")
-                      ? "bg-blue-100 text-blue-600 dark:bg-blue-900 dark:text-blue-400"
-                      : ""
-                  }`}
-                  title="Toggle header row"
-                >
-                  Header
-                </Button>
-                <div className="tiptap-toolbar-divider" />
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().mergeOrSplit().run()}
-                  className="h-8 px-2"
-                  title="Merge or split cells"
-                >
-                  Merge/Split
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => editor.chain().focus().deleteTable().run()}
-                  className="h-8 px-2"
-                  title="Delete table"
-                >
-                  Delete
-                </Button>
-              </>
-            )}
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-56">
+                {!editor.isActive("table") ? (
+                  <DropdownMenuItem
+                    onClick={() =>
+                      editor
+                        .chain()
+                        .focus()
+                        .insertTable({ rows: 3, cols: 3, withHeaderRow: true })
+                        .run()
+                    }
+                  >
+                    Insert table
+                  </DropdownMenuItem>
+                ) : (
+                  <>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().addRowBefore().run()
+                      }
+                    >
+                      Add row before
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => editor.chain().focus().addRowAfter().run()}
+                    >
+                      Add row after
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => editor.chain().focus().deleteRow().run()}
+                    >
+                      Delete row
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().addColumnBefore().run()
+                      }
+                    >
+                      Add column before
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().addColumnAfter().run()
+                      }
+                    >
+                      Add column after
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().deleteColumn().run()
+                      }
+                    >
+                      Delete column
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().toggleHeaderRow().run()
+                      }
+                    >
+                      Toggle header row
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        editor.chain().focus().mergeOrSplit().run()
+                      }
+                    >
+                      Merge or split cells
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => editor.chain().focus().deleteTable().run()}
+                    >
+                      Delete table
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button
               variant="ghost"
               size="sm"

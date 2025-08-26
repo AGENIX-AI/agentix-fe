@@ -93,6 +93,26 @@ export const buildTextNodesFromTextAndMarks = (
 
 export const convertBlocksToJSON = (blocks: ContentBlock[]): any => {
   const doc: any = { type: "doc", content: [] as any[] };
+  const normalizeNode = (node: any): any => {
+    if (!node || typeof node !== "object") return node;
+    const cloned: any = { ...node };
+    if (Array.isArray(cloned.marks)) {
+      cloned.marks = cloned.marks.filter(Boolean);
+    }
+    if (cloned.type === "text") {
+      // Drop empty text nodes entirely
+      if (!cloned.text) return null;
+      cloned.text = String(cloned.text);
+      return cloned;
+    }
+    if (Array.isArray(cloned.content)) {
+      const normalizedChildren = cloned.content
+        .map(normalizeNode)
+        .filter((c: any) => c !== null);
+      cloned.content = normalizedChildren;
+    }
+    return cloned;
+  };
   for (const block of blocks || []) {
     switch (block.type) {
       case "header": {
@@ -119,7 +139,13 @@ export const convertBlocksToJSON = (blocks: ContentBlock[]): any => {
           content: (block.data.items || []).map((item: string) => ({
             type: "listItem",
             content: [
-              { type: "paragraph", content: [{ type: "text", text: item }] },
+              {
+                type: "paragraph",
+                content:
+                  String(item || "").length > 0
+                    ? [{ type: "text", text: String(item) }]
+                    : [],
+              },
             ],
           })),
         };
@@ -151,6 +177,20 @@ export const convertBlocksToJSON = (blocks: ContentBlock[]): any => {
           type: "image",
           attrs: { src: block.data.url || "", alt: block.data.caption || "" },
         });
+        break;
+      }
+      case "table": {
+        // Accept table blocks with table node directly at data (preferred)
+        // or legacy data.json / data.raw
+        const tableNode =
+          (block.data && block.data.type === "table" && block.data) ||
+          (block.data && (block.data as any).json) ||
+          (block.data && (block.data as any).raw) ||
+          null;
+        if (tableNode && tableNode.type === "table") {
+          const normalized = normalizeNode(tableNode);
+          if (normalized) doc.content.push(normalized as any);
+        }
         break;
       }
       case "separator": {
@@ -258,6 +298,18 @@ export const convertJSONToBlocks = (
             `block-${Date.now()}-${Math.random()}`,
           type: "code",
           data: { code: getTextFromNode(node), language: "plaintext" },
+          order,
+        };
+        break;
+      }
+      case "table": {
+        // Output a first-class table block that contains the TipTap table node directly
+        nextBlock = {
+          id:
+            previousBlocks?.[order]?.id ||
+            `block-${Date.now()}-${Math.random()}`,
+          type: "table",
+          data: node,
           order,
         };
         break;

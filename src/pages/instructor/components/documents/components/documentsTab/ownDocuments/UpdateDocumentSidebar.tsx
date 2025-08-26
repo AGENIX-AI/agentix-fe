@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-import type { Document } from "@/api/page";
-import { getPage, updatePageBlocks } from "@/api/page";
-import type { BlockData } from "@/api/page";
+import type { Document } from "@/api/documents";
+import { getDocumentBlocks } from "@/api/documents";
+import { updatePageBlocks } from "@/api/page";
 import type { ContentBlock } from "@/api/admin/helpCenter";
 import { TiptapContentBlocksEditor } from "@/components/editor/TiptapContentBlocksEditor";
 import { toast } from "sonner";
@@ -31,17 +31,34 @@ export function UpdateDocumentSidebar({
     const load = async () => {
       setLoading(true);
       try {
-        const page = await getPage(document.id);
-        const mapped: ContentBlock[] = (page.blocks || [])
-          .sort((a: BlockData, b: BlockData) => (a.order ?? 0) - (b.order ?? 0))
-          .map((b: BlockData, idx: number) => ({
-            id: (b.id as string) || `block-${idx}-${Date.now()}`,
+        const PAGE_SIZE = 50;
+        let pageNumber = 1;
+        let hasNext = true;
+        const allBlocks: ContentBlock[] = [];
+
+        while (hasNext) {
+          const response = await getDocumentBlocks(document.id, {
+            page_number: pageNumber,
+            page_size: PAGE_SIZE,
+            sort_by: "order",
+            sort_order: 0,
+          });
+          const items = response?.items || [];
+          const mapped: ContentBlock[] = items.map((b: any, idx: number) => ({
+            id: (b.id as string) || `block-${pageNumber}-${idx}-${Date.now()}`,
             type: (b.type as ContentBlock["type"]) || "paragraph",
             data: b.data || {},
-            order: b.order ?? idx,
+            order: (b as any).order ?? idx,
           }));
-        setBlocks(mapped);
-        setPreviousBlocks(mapped);
+          allBlocks.push(...mapped);
+          hasNext = Boolean((response as any)?.has_next);
+          pageNumber += 1;
+        }
+
+        // Ensure stable order just in case
+        allBlocks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+        setBlocks(allBlocks);
+        setPreviousBlocks(allBlocks);
       } catch (e) {
         console.error("Failed to load page blocks for update:", e);
         toast.error("Failed to load document content");
