@@ -55,7 +55,7 @@ export default function DocumentDetailsView({
   // Custom callbacks for AddKnowledgeChunkSidebar
   const onCreateManualNote = async (data: {
     title: string;
-    content: string;
+    content: any;
     ai_parse?: boolean;
   }) => {
     try {
@@ -202,7 +202,7 @@ export default function DocumentDetailsView({
           search: noteSearchQuery,
           sort_by: "created_at",
           sort_order: 1,
-          type: "topic_knowledge",
+          type: "note_document",
         });
 
         if (response.success) {
@@ -212,7 +212,7 @@ export default function DocumentDetailsView({
             keywords: [],
             summary: doc.description || "",
             content: doc.description || "",
-            type: "topic_knowledge",
+            type: "note_document",
           }));
           setNotes(mapped);
           setTotalNotes(response.total_items);

@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { Loader2, Edit, Trash2, Eye } from "lucide-react";
+import { Loader2, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,8 +14,6 @@ import type { Document } from "@/api/documents";
 export interface MediaCollectionsTableProps {
   documents: Document[];
   getStatusColor: (status: string) => string;
-  onEdit?: (documentId: string) => void;
-  onDelete?: (documentId: string) => void;
   onView?: (document: Document) => void;
   onRowClick?: (documentId: string) => void;
   loadingDocumentIds?: string[];
@@ -24,8 +22,6 @@ export interface MediaCollectionsTableProps {
 export function MediaCollectionsTable({
   documents,
   getStatusColor,
-  onEdit,
-  onDelete,
   onView,
   onRowClick,
   loadingDocumentIds = [],
@@ -100,39 +96,7 @@ export function MediaCollectionsTable({
                           <Eye className="h-3 w-3" />
                         </Button>
 
-                        {/* Separator */}
-                        <div className="h-4 w-px bg-border mx-1" />
-
-                        {/* Edit Button */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onEdit?.(document.id);
-                          }}
-                          title="Edit media collection"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-
-                        {/* Separator */}
-                        <div className="h-4 w-px bg-border mx-1" />
-
-                        {/* Delete Button */}
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onDelete?.(document.id);
-                          }}
-                          title="Delete media collection"
-                        >
-                          <Trash2 className="h-3 w-3" />
-                        </Button>
+                        {/* Only view button retained */}
                       </>
                     )}
                   </div>

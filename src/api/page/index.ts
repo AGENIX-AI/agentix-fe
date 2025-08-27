@@ -32,7 +32,7 @@ export interface GetDocumentsParams {
     | "note_collection"
     | "media_collection"
     | "online_source_collection"
-    | "topic_knowledge"
+    | "note_document"
     | "image"
     | "crawl_document"
     | "crawl_collection"
@@ -136,7 +136,11 @@ export interface Document {
   updated_at: string;
   file_name: string;
   title: string;
-  type: "document" | "image" | "topic_knowledge" | "crawl_document";
+  type:
+    | "upload_document"
+    | "media_document"
+    | "note_document"
+    | "crawl_document";
   linked?: boolean;
   description?: string;
   path?: string;
@@ -267,6 +271,28 @@ export const updatePageBlocks = async (
       new Error(`Failed to update page blocks: ${detail}`)
     );
     throw new Error(`Failed to update page blocks: ${detail}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Delete a page by ID
+ */
+export const deletePage = async (
+  pageId: string
+): Promise<{ success: boolean }> => {
+  const headers = getAuthHeaders();
+  const response = await fetch(`${baseUrl}/pages/${pageId}`, {
+    method: "DELETE",
+    credentials: "include",
+    headers,
+  });
+
+  if (!response.ok) {
+    const detail = await getErrorDetail(response);
+    Sentry.captureException(new Error(`Failed to delete page: ${detail}`));
+    throw new Error(`Failed to delete page: ${detail}`);
   }
 
   return await response.json();

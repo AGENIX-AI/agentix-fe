@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
-import { Loader2, Plus, Search } from "lucide-react";
+import { Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
+import { getChildrenBlocksByType } from "@/api/documents";
 import type { Document } from "@/api/documents";
 import type { NoteCollection } from "@/api/documents/note-collections";
 import { NoteCollectionsTable } from "../knowledgeNotes/NoteCollectionsTable";
@@ -12,6 +13,7 @@ import { Pagination } from "@/pages/instructor/components/modifyDocument/shared/
 import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { TiptapContentBlocksViewer } from "@/components/editor/TiptapContentBlocksViewer";
 
 export type MediaDocumentType = "image";
 
@@ -35,6 +37,11 @@ export function MediaCollectionsComponent({
   const [pageSize] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   // const [localRefreshTrigger, setLocalRefreshTrigger] = useState(0);
+
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerTitle, setViewerTitle] = useState("");
+  const [viewerBlocks, setViewerBlocks] = useState<any[]>([]);
+  const [viewerLoading, setViewerLoading] = useState(false);
 
   // Fetch documents when page, search, or refresh trigger changes
   useEffect(() => {
@@ -73,6 +80,31 @@ export function MediaCollectionsComponent({
     } catch (error) {
       console.error("Error selecting media collection:", error);
       toast.error("Failed to select media collection");
+    }
+  };
+
+  const handleViewCollection = async (collection: NoteCollection) => {
+    try {
+      setViewerLoading(true);
+      setViewerTitle(collection.title);
+      setShowViewer(true);
+      const blocks = await getChildrenBlocksByType(
+        collection.id,
+        "media_document"
+      );
+      const mapped = (blocks || [])
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+        .map((b) => ({
+          id: b.id,
+          type: b.type as any,
+          data: b.data ?? {},
+          order: b.order ?? 0,
+        }));
+      setViewerBlocks(mapped);
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setViewerLoading(false);
     }
   };
 
@@ -139,6 +171,7 @@ export function MediaCollectionsComponent({
                   collections={mappedCollections}
                   isLoading={isLoading}
                   onCollectionSelect={(c) => handleRowClick(c.id)}
+                  onView={handleViewCollection}
                 />
               </div>
 
@@ -154,6 +187,42 @@ export function MediaCollectionsComponent({
             </div>
           )}
         </>
+      )}
+
+      {showViewer && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowViewer(false)}
+          />
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col w-[720px] max-w-[90vw]">
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="text-sm font-semibold truncate pr-4">
+                {viewerTitle}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-xs"
+                onClick={() => setShowViewer(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {viewerLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : (
+                <TiptapContentBlocksViewer
+                  blocks={viewerBlocks as any}
+                  className="min-h-[200px]"
+                />
+              )}
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

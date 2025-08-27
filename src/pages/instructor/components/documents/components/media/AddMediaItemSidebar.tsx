@@ -314,7 +314,7 @@ export function AddMediaItemSidebar({
       <div className="absolute inset-0 bg-black/20" onClick={handleClose} />
 
       {/* Sidebar */}
-      <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+      <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">

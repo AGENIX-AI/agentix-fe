@@ -225,7 +225,7 @@ export function AddWebDerivedKnowledgeSidebar({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 w-full sm:w-96 md:w-[700px] bg-background border-l border-border shadow-lg z-50 overflow-hidden flex flex-col h-screen">
+    <div className="fixed inset-y-0 right-0 app-sidebar-panel bg-background border-l border-border shadow-lg z-50 overflow-hidden flex flex-col h-screen">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border h-18">
         <h2 className="text-lg font-semibold">

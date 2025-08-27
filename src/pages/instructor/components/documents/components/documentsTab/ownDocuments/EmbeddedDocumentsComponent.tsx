@@ -541,7 +541,7 @@ export function EmbeddedDocumentsComponent({
           />
 
           {/* Sidebar */}
-          <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <h2 className="text-lg font-semibold">Add Document</h2>
@@ -590,7 +590,7 @@ export function EmbeddedDocumentsComponent({
           />
 
           {/* Sidebar */}
-          <div className="relative ml-auto w-[600px] bg-background border-l shadow-xl h-full flex flex-col">
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <div className="flex items-center space-x-4">

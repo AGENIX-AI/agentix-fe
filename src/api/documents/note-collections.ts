@@ -37,7 +37,7 @@ export interface GetCollectionDocumentsParams {
   sort_order?: number;
   sort_by?: string;
   search?: string;
-  type?: "topic_knowledge";
+  type?: "note_document";
 }
 
 export interface GetCollectionDocumentsResponse {
@@ -126,7 +126,7 @@ export const getCollectionDocuments = async (
     sort_order: params.sort_order?.toString() ?? "1",
     sort_by: params.sort_by ?? "created_at",
     ...(params.search && { search: params.search }),
-    type: "topic_knowledge",
+    type: "note_document",
   });
 
   const response = await fetch(

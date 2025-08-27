@@ -42,3 +42,8 @@ input[cmdk-input] {
 [data-selector="tiptap-slash-dropdown-menu"] {
   z-index: 4000 !important;
 }
+
+/* Reusable sidebar panel width */
+.app-sidebar-panel {
+  width: 650px;
+}

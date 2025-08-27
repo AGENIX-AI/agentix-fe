@@ -3,7 +3,7 @@ import { Loader2, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
-import { deleteDocumentById, type Document } from "@/api/documents";
+import { deletePage, type Document as PageDocument } from "@/api/page";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,7 +18,7 @@ interface DeleteDocumentDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  document: Document | null;
+  document: PageDocument | null;
 }
 
 export function DeleteDocumentDialog({
@@ -35,7 +35,7 @@ export function DeleteDocumentDialog({
 
     setIsDeleting(true);
     try {
-      const response = await deleteDocumentById(document.id);
+      const response = await deletePage(document.id);
 
       if (response.success) {
         toast.success(t("documents.deleted"));

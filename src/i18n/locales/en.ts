@@ -1011,6 +1011,8 @@ const enTranslation: Record<string, any> = {
       statusCrawlCompleted: "Crawl Completed",
       tooltipView: "View web derived knowledge",
       tooltipIndex: "Index web derived knowledge",
+      collections: "Online Sources Collections",
+      addCollection: "Add Online Sources Collection",
     },
     // Languages
     languages: {

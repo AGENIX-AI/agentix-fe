@@ -93,7 +93,7 @@ export default function TopicKnowledgeDetails({
     refetch: fetchDocuments,
   } = useCollectionDocuments(
     collection.id,
-    "topic_knowledge",
+    "note_document",
     pageSize,
     "created_at",
     1
@@ -111,14 +111,6 @@ export default function TopicKnowledgeDetails({
       default:
         return "text-gray-600 bg-gray-50 border-gray-100 dark:bg-gray-900/30 dark:border-gray-800";
     }
-  }, []);
-
-  // Event handlers
-  const handleEditDocument = useCallback((document: Document) => {
-    setEditSidebar({
-      isVisible: true,
-      document,
-    });
   }, []);
 
   const handleDeleteDocument = useCallback((document: Document) => {
@@ -228,19 +220,6 @@ export default function TopicKnowledgeDetails({
                   handleOpenUpdateSidebar(document);
                 }}
                 title="Update content"
-              >
-                <Edit className="h-3 w-3" />
-              </Button>
-
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleEditDocument(document);
-                }}
-                title="Edit document"
               >
                 <Edit className="h-3 w-3" />
               </Button>

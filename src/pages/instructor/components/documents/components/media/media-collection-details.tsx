@@ -75,10 +75,6 @@ export default function MediaCollectionDetails({
     setShowViewSidebar(true);
   }, []);
 
-  const handleEditDocument = useCallback((document: Document) => {
-    setEditSidebar({ isVisible: true, document });
-  }, []);
-
   const handleDeleteDocument = useCallback((document: Document) => {
     setDeleteDialog({ isOpen: true, document });
   }, []);
@@ -169,78 +165,78 @@ export default function MediaCollectionDetails({
           </div>
         ) : (
           <div className="w-full max-w-full overflow-hidden">
-            <div className="w-full max-w-full overflow-x-auto">
-              <DocumentTable
-                documents={documents}
-                getStatusColor={getStatusColor}
-                onRowClick={handleViewDocument}
-                renderActions={(document) => (
-                  <div className="flex gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewDocument(document);
-                      }}
-                      title="View document content"
-                    >
-                      <Eye className="h-3 w-3" />
-                    </Button>
+            {documents.length === 0 ? (
+              <div className="text-center py-8 border rounded-lg">
+                <h3 className="mt-2 text-xs font-medium">
+                  No media items found in this collection
+                </h3>
+                <p className="text-xs text-muted-foreground mt-1">
+                  This collection doesn't contain any media items yet
+                </p>
+              </div>
+            ) : (
+              <>
+                <div className="w-full max-w-full overflow-x-auto">
+                  <DocumentTable
+                    documents={documents}
+                    getStatusColor={getStatusColor}
+                    onRowClick={handleViewDocument}
+                    renderActions={(document) => (
+                      <div className="flex gap-2">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleViewDocument(document);
+                          }}
+                          title="View document content"
+                        >
+                          <Eye className="h-3 w-3" />
+                        </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleOpenUpdateSidebar(document);
-                      }}
-                      title="Update content"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenUpdateSidebar(document);
+                          }}
+                          title="Update content"
+                        >
+                          <Edit className="h-3 w-3" />
+                        </Button>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-amber-600 hover:text-amber-700 hover:bg-amber-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEditDocument(document);
-                      }}
-                      title="Edit document"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDeleteDocument(document);
+                          }}
+                          title="Delete document"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
+                      </div>
+                    )}
+                  />
+                </div>
 
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteDocument(document);
-                      }}
-                      title="Delete document"
-                    >
-                      <Trash2 className="h-3 w-3" />
-                    </Button>
-                  </div>
-                )}
-              />
-            </div>
-
-            <div className="mt-4">
-              <Pagination
-                currentPage={currentPage}
-                totalItems={totalItems}
-                pageSize={pageSize}
-                documentsCount={documents.length}
-                setCurrentPage={setCurrentPage}
-              />
-            </div>
+                <div className="mt-4">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalItems={totalItems}
+                    pageSize={pageSize}
+                    documentsCount={documents.length}
+                    setCurrentPage={setCurrentPage}
+                  />
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

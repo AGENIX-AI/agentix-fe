@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 
 import { getOwnDocuments } from "@/api/documents";
+import { getChildrenBlocksByType } from "@/api/documents";
 import type { NoteCollection } from "@/api/documents/note-collections";
 
 import { NoteCollectionsTable } from "./NoteCollectionsTable";
@@ -12,6 +13,7 @@ import { Small } from "@/components/ui/typography";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import TopicKnowledgeDetails from "./topic-knowledge-details";
+import { TiptapContentBlocksViewer } from "@/components/editor/TiptapContentBlocksViewer";
 
 // Custom hook for fetching note collections
 const useNoteCollections = (refreshTrigger: number) => {
@@ -74,6 +76,10 @@ export function TopicKnowledgeComponent({
   const [selectedCollection, setSelectedCollection] =
     useState<NoteCollection | null>(null);
   const [showAddDocumentSidebar, setShowAddDocumentSidebar] = useState(false);
+  const [showViewer, setShowViewer] = useState(false);
+  const [viewerTitle, setViewerTitle] = useState("");
+  const [viewerBlocks, setViewerBlocks] = useState<any[]>([]);
+  const [viewerLoading, setViewerLoading] = useState(false);
 
   const handleCollectionSelect = useCallback((collection: NoteCollection) => {
     setSelectedCollection(collection);
@@ -90,6 +96,34 @@ export function TopicKnowledgeComponent({
   const handleAddDocumentSuccess = useCallback(() => {
     setShowAddDocumentSidebar(false);
   }, []);
+
+  const handleViewCollection = useCallback(
+    async (collection: NoteCollection) => {
+      try {
+        setViewerLoading(true);
+        setViewerTitle(collection.title);
+        setShowViewer(true);
+        const blocks = await getChildrenBlocksByType(
+          collection.id,
+          "note_document"
+        );
+        const mapped = (blocks || [])
+          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+          .map((b) => ({
+            id: b.id,
+            type: b.type as any,
+            data: b.data ?? {},
+            order: b.order ?? 0,
+          }));
+        setViewerBlocks(mapped);
+      } catch (e) {
+        console.error(e);
+      } finally {
+        setViewerLoading(false);
+      }
+    },
+    []
+  );
 
   // Render collections list
   const renderCollectionsList = () => (
@@ -122,13 +156,29 @@ export function TopicKnowledgeComponent({
           <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
       ) : (
-        <div className="w-full">
-          <NoteCollectionsTable
-            collections={collections}
-            onCollectionSelect={handleCollectionSelect}
-            isLoading={isLoading}
-          />
-        </div>
+        <>
+          {collections.length === 0 ? (
+            <div className="text-center py-8 border rounded-lg">
+              <h3 className="mt-2 text-xs font-medium">
+                No note collections found
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1">
+                No note collections available
+              </p>
+            </div>
+          ) : (
+            <div className="w-full max-w-full overflow-hidden">
+              <div className="w-full max-w-full overflow-x-auto">
+                <NoteCollectionsTable
+                  collections={collections}
+                  onCollectionSelect={handleCollectionSelect}
+                  onView={handleViewCollection}
+                  isLoading={isLoading}
+                />
+              </div>
+            </div>
+          )}
+        </>
       )}
     </>
   );
@@ -143,7 +193,7 @@ export function TopicKnowledgeComponent({
           className="absolute inset-0 bg-black/20"
           onClick={handleAddDocumentClose}
         />
-        <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+        <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
           <div className="flex items-center justify-between p-6 border-b h-18">
             <h2 className="text-lg font-semibold">Add Document</h2>
             <Button
@@ -182,6 +232,42 @@ export function TopicKnowledgeComponent({
       </div>
 
       {renderAddDocumentSidebar()}
+
+      {showViewer && (
+        <div className="fixed inset-0 z-50 flex">
+          <div
+            className="absolute inset-0 bg-black/20"
+            onClick={() => setShowViewer(false)}
+          />
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col w-[720px] max-w-[90vw]">
+            <div className="flex items-center justify-between p-4 border-b">
+              <div className="text-sm font-semibold truncate pr-4">
+                {viewerTitle}
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-xs"
+                onClick={() => setShowViewer(false)}
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {viewerLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
+                </div>
+              ) : (
+                <TiptapContentBlocksViewer
+                  blocks={viewerBlocks as any}
+                  className="min-h-[200px]"
+                />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

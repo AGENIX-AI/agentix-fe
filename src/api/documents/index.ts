@@ -38,6 +38,7 @@ export interface GetImageDocumentsResponse {
 export interface Document {
   id: string;
   user_id: string;
+  owner_id?: string;
   url: string;
   upload_status:
     | "completed"
@@ -49,11 +50,16 @@ export interface Document {
   updated_at: string;
   file_name: string;
   title: string;
-  type: "document" | "image" | "topic_knowledge" | "crawl_document";
+  type:
+    | "upload_document"
+    | "media_document"
+    | "note_document"
+    | "crawl_document";
   linked?: boolean;
   description?: string;
   path?: string;
   language?: string;
+  mode?: "original" | "reference";
   image_confirm?: boolean;
   base_documents?: string[];
   assistant_document?: {
@@ -73,7 +79,7 @@ export interface GetDocumentsParams {
     | "note_collection"
     | "media_collection"
     | "online_source_collection"
-    | "topic_knowledge"
+    | "note_document"
     | "image"
     | "crawl_document"
     | "crawl_collection"
@@ -83,7 +89,22 @@ export interface GetDocumentsParams {
   mode?: "original" | "reference";
   only_link?: boolean;
 }
-
+export interface ContentBlock {
+  id: string;
+  type:
+    | "header"
+    | "paragraph"
+    | "list"
+    | "code"
+    | "table"
+    | "image"
+    | "quote"
+    | "checklist"
+    | "separator"
+    | "url";
+  data: Record<string, any>;
+  order: number;
+}
 export interface GetAssistantDocumentsParams extends GetDocumentsParams {}
 
 export interface GetDocumentsResponse {
@@ -94,7 +115,15 @@ export interface GetDocumentsResponse {
   page_size: number;
 }
 
-export interface GetAssistantDocumentsResponse extends GetDocumentsResponse {}
+export interface GetAssistantDocumentsResponse {
+  items: Document[];
+  total_items: number;
+  page_number: number;
+  page_size: number;
+  total_pages: number;
+  has_next: boolean;
+  has_previous: boolean;
+}
 
 /**
  * Document block interfaces for EditorJS
@@ -163,7 +192,7 @@ export interface GetCollectionDocumentsParams {
   sort_order?: number;
   sort_by?: string;
   search?: string;
-  type?: "topic_knowledge";
+  type?: "note_document";
 }
 
 export interface GetCollectionDocumentsResponse {
@@ -856,7 +885,7 @@ export async function createTopicKnowledge(data: {
 export async function createMediaCollection(data: {
   title: string;
   language: string;
-}): Promise<{ success: boolean; document_id: string }> {
+}): Promise<Document> {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const headers = getAuthHeaders();
 
@@ -869,9 +898,11 @@ export async function createMediaCollection(data: {
 
   if (!response.ok) {
     Sentry.captureException(
-      new Error(`Failed to create topic knowledge: ${response.statusText}`)
+      new Error(`Failed to create media collection: ${response.statusText}`)
     );
-    throw new Error(`Failed to create topic knowledge: ${response.statusText}`);
+    throw new Error(
+      `Failed to create media collection: ${response.statusText}`
+    );
   }
 
   return await response.json();
@@ -883,7 +914,7 @@ export async function createMediaCollection(data: {
 export async function createTopicKnowledgeManual(data: {
   page_id: string;
   title: string;
-  content: string;
+  content: ContentBlock[];
   ai_parse?: boolean;
 }): Promise<{
   success: boolean;
@@ -901,7 +932,12 @@ export async function createTopicKnowledgeManual(data: {
       method: "POST",
       credentials: "include",
       headers,
-      body: JSON.stringify(data),
+      body: JSON.stringify({
+        page_id: data.page_id,
+        title: data.title,
+        blocks: data.content,
+        ai_parse: data.ai_parse,
+      }),
     }
   );
 

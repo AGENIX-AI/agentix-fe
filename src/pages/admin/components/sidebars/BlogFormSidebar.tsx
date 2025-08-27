@@ -127,7 +127,7 @@ export function BlogFormSidebar({
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-[600px] bg-background border-l border-border shadow-lg overflow-y-auto">
+    <div className="fixed inset-y-0 right-0 z-50 app-sidebar-panel bg-background border-l border-border shadow-lg overflow-y-auto">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-background border-b border-border p-6 h-18">
         <div className="flex items-center justify-between">

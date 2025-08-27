@@ -37,9 +37,9 @@ interface AssistantKnowledgeProps {
 
 type DocumentType =
   | "upload_document"
-  | "topic_knowledge"
   | "crawl_document"
-  | "image";
+  | "note_document"
+  | "media_document";
 
 interface TableSection {
   type: DocumentType;
@@ -62,7 +62,7 @@ const tableSections: TableSection[] = [
     noAvailableKey: "documents.assistantKnowledge.no_documents_available",
   },
   {
-    type: "topic_knowledge",
+    type: "note_document",
     titleKey: "documents.assistantKnowledge.notes_tab",
     icon: <BookOpen className="h-4 w-4" />,
     searchKey: "documents.assistantKnowledge.search_notes",
@@ -71,7 +71,7 @@ const tableSections: TableSection[] = [
     noAvailableKey: "documents.assistantKnowledge.no_notes_available",
   },
   {
-    type: "image",
+    type: "media_document",
     titleKey: "documents.assistantKnowledge.media_tab",
     icon: <Image className="h-4 w-4" />,
     searchKey: "documents.assistantKnowledge.search_media",
@@ -95,34 +95,34 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
   const { t } = useTranslation();
   const [documents, setDocuments] = useState<Record<DocumentType, Document[]>>({
     upload_document: [],
-    image: [],
-    topic_knowledge: [],
+    note_document: [],
+    media_document: [],
     crawl_document: [],
   });
   const [loading, setLoading] = useState<Record<DocumentType, boolean>>({
     upload_document: false,
-    image: false,
-    topic_knowledge: false,
+    note_document: false,
+    media_document: false,
     crawl_document: false,
   });
   const [searchQueries, setSearchQueries] = useState<
     Record<DocumentType, string>
   >({
     upload_document: "",
-    image: "",
-    topic_knowledge: "",
+    note_document: "",
+    media_document: "",
     crawl_document: "",
   });
   const [pageNumbers, setPageNumbers] = useState<Record<DocumentType, number>>({
     upload_document: 1,
-    image: 1,
-    topic_knowledge: 1,
+    note_document: 1,
+    media_document: 1,
     crawl_document: 1,
   });
   const [totalItems, setTotalItems] = useState<Record<DocumentType, number>>({
     upload_document: 0,
-    image: 0,
-    topic_knowledge: 0,
+    note_document: 0,
+    media_document: 0,
     crawl_document: 0,
   });
 
@@ -156,8 +156,8 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
         sort_by: "created_at",
       });
 
-      if (response.success) {
-        setDocuments((prev) => ({ ...prev, [type]: response.documents }));
+      if (response.items) {
+        setDocuments((prev) => ({ ...prev, [type]: response.items }));
         setTotalItems((prev) => ({
           ...prev,
           [type]: response.total_items,
@@ -355,10 +355,10 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
     switch (type) {
       case "upload_document":
         return t("documents.assistantKnowledge.type_document");
-      case "image":
-        return t("documents.assistantKnowledge.type_image");
-      case "topic_knowledge":
-        return t("documents.assistantKnowledge.type_topic_knowledge");
+      case "note_document":
+        return t("documents.assistantKnowledge.type_note");
+      case "media_document":
+        return t("documents.assistantKnowledge.type_media");
       case "crawl_document":
         return t("documents.assistantKnowledge.type_crawl_document");
       default:
@@ -538,7 +538,7 @@ export function AssistantKnowledge({ assistant }: AssistantKnowledgeProps) {
         />
 
         {/* Sidebar */}
-        <div className="relative ml-auto w-[600px] bg-background border-l shadow-xl h-full flex flex-col">
+        <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-6 border-b h-18">
             <h2 className="text-lg font-semibold">

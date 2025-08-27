@@ -123,7 +123,7 @@ export function BlogBlocksSidebar({
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-[800px] bg-background border-l border-border shadow-lg flex flex-col">
+    <div className="fixed inset-y-0 right-0 z-50 app-sidebar-panel bg-background border-l border-border shadow-lg flex flex-col">
       <div className="sticky top-0 z-10 bg-background border-b border-border p-6 h-18">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">

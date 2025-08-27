@@ -9,7 +9,8 @@ import Cookies from "js-cookie";
 import { useTranslation } from "react-i18next";
 
 import { EmbeddedDocumentsComponent } from "./ownDocuments";
-import DocumentDetailsView from "./components/DocumentDetailsView";
+// Removed details view in favor of sidebar viewer
+import { ViewDocumentSidebar } from "./ownDocuments/ViewDocumentSidebar";
 import type { Document } from "@/api/documents";
 
 // Removed unused interface
@@ -44,7 +45,7 @@ export default function AddDocument() {
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null
   );
-  const [showDocumentDetails, setShowDocumentDetails] = useState(false);
+  const [showViewSidebar, setShowViewSidebar] = useState(false);
 
   // Clear success message after 3 seconds
   useEffect(() => {
@@ -157,7 +158,7 @@ export default function AddDocument() {
   // Function to handle document selection for viewing details
   const handleDocumentSelect = (document: Document) => {
     setSelectedDocument(document);
-    setShowDocumentDetails(true);
+    setShowViewSidebar(true);
   };
 
   // Function to submit images (selected or all)
@@ -251,15 +252,7 @@ export default function AddDocument() {
     handleSubmitImages([], false);
   };
 
-  // If showing document details, render that component
-  if (showDocumentDetails && selectedDocument) {
-    return (
-      <DocumentDetailsView
-        document={selectedDocument}
-        onBack={() => setShowDocumentDetails(false)}
-      />
-    );
-  }
+  // No longer using full-page details view; using sidebar instead
 
   return (
     <div className="flex flex-col h-full">
@@ -301,7 +294,7 @@ export default function AddDocument() {
           />
 
           {/* Sidebar */}
-          <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <h2 className="text-lg font-semibold">
@@ -352,7 +345,7 @@ export default function AddDocument() {
           />
 
           {/* Sidebar */}
-          <div className="relative ml-auto w-[600px] bg-background border-l shadow-xl h-full flex flex-col">
+          <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
             {/* Header */}
             <div className="flex items-center justify-between p-6 border-b h-18">
               <div className="flex items-center space-x-4">
@@ -519,6 +512,13 @@ export default function AddDocument() {
           </div>
         </div>
       )}
+
+      {/* View Document Sidebar */}
+      <ViewDocumentSidebar
+        isOpen={showViewSidebar}
+        document={selectedDocument}
+        onClose={() => setShowViewSidebar(false)}
+      />
     </div>
   );
 }

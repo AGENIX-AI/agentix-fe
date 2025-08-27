@@ -1,4 +1,4 @@
-import { Loader2, FolderOpen } from "lucide-react";
+import { Loader2, FolderOpen, Eye } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,6 +14,7 @@ import type { NoteCollection } from "@/api/documents/note-collections";
 export interface NoteCollectionsTableProps {
   collections: NoteCollection[];
   onCollectionSelect?: (collection: NoteCollection) => void;
+  onView?: (collection: NoteCollection) => void;
   isLoading?: boolean;
 }
 
@@ -53,9 +54,11 @@ const EmptyState = () => (
 const CollectionRow = ({
   collection,
   onCollectionSelect,
+  onView,
 }: {
   collection: NoteCollection;
   onCollectionSelect?: (collection: NoteCollection) => void;
+  onView?: (collection: NoteCollection) => void;
 }) => (
   <TableRow
     key={collection.id}
@@ -83,14 +86,14 @@ const CollectionRow = ({
       <Button
         variant="ghost"
         size="sm"
-        className="h-7 px-3 text-xs text-primary hover:text-primary/80 hover:bg-primary/10"
+        className="h-7 w-7 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
         onClick={(e) => {
           e.stopPropagation();
-          onCollectionSelect?.(collection);
+          (onView ?? onCollectionSelect)?.(collection);
         }}
-        title="View collection documents"
+        title="View collection"
       >
-        View Documents
+        <Eye className="h-3 w-3" />
       </Button>
     </TableCell>
   </TableRow>
@@ -99,6 +102,7 @@ const CollectionRow = ({
 export function NoteCollectionsTable({
   collections,
   onCollectionSelect,
+  onView,
   isLoading = false,
 }: NoteCollectionsTableProps) {
   if (isLoading) {
@@ -136,6 +140,7 @@ export function NoteCollectionsTable({
                   key={collection.id}
                   collection={collection}
                   onCollectionSelect={onCollectionSelect}
+                  onView={onView}
                 />
               ))}
             </TableBody>

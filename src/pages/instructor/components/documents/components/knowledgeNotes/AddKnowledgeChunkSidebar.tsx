@@ -10,7 +10,6 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -20,6 +19,8 @@ import {
 } from "@/components/ui/select";
 import { Small } from "@/components/ui/typography";
 import { Checkbox } from "@/components/ui/checkbox";
+import { TiptapContentBlocksEditor } from "@/components/editor/TiptapContentBlocksEditor";
+import type { ContentBlock } from "@/api/admin/helpCenter";
 
 // Constants
 const FRAMEWORK_DESCRIPTIONS: Record<Framework, string> = {
@@ -43,7 +44,7 @@ type Mode = "Manual" | "Framework";
 
 interface ManualNoteData {
   title: string;
-  content: string;
+  content: ContentBlock[];
   ai_parse?: boolean;
 }
 
@@ -60,7 +61,7 @@ interface AddKnowledgeChunkSidebarProps {
 const useFormState = () => {
   const [mode, setMode] = useState<Mode>("Manual");
   const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
+  const [blocks, setBlocks] = useState<ContentBlock[]>([]);
   const [aiParse, setAiParse] = useState(false);
   const [framework, setFramework] = useState<Framework>("FWOH");
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -68,7 +69,7 @@ const useFormState = () => {
   const resetForm = useCallback(() => {
     setMode("Manual");
     setTitle("");
-    setContent("");
+    setBlocks([]);
     setAiParse(false);
     setFramework("FWOH");
   }, []);
@@ -76,18 +77,18 @@ const useFormState = () => {
   const isSubmitDisabled = useCallback(() => {
     if (isSubmitting) return true;
     if (mode === "Manual") {
-      return !title.trim() || !content.trim();
+      return !title.trim() || blocks.length === 0;
     }
     return false;
-  }, [isSubmitting, mode, title, content]);
+  }, [isSubmitting, mode, title, blocks]);
 
   return {
     mode,
     setMode,
     title,
     setTitle,
-    content,
-    setContent,
+    blocks,
+    setBlocks,
     aiParse,
     setAiParse,
     framework,
@@ -112,8 +113,8 @@ export function AddKnowledgeChunkSidebar({
     setMode,
     title,
     setTitle,
-    content,
-    setContent,
+    blocks,
+    setBlocks,
     aiParse,
     setAiParse,
     framework,
@@ -130,8 +131,8 @@ export function AddKnowledgeChunkSidebar({
         toast.error("Please enter a title");
         return;
       }
-      if (!content.trim()) {
-        toast.error("Please enter content");
+      if (blocks.length === 0) {
+        toast.error("Please add some content blocks");
         return;
       }
     }
@@ -144,14 +145,14 @@ export function AddKnowledgeChunkSidebar({
         if (onCreateManualNote) {
           success = await onCreateManualNote({
             title: title.trim(),
-            content: content.trim(),
+            content: blocks,
             ai_parse: aiParse,
           });
         } else {
           const response = await createTopicKnowledgeManual({
             page_id: topicKnowledgeId,
             title: title.trim(),
-            content: content.trim(),
+            content: blocks,
             ai_parse: aiParse,
           });
 
@@ -191,7 +192,7 @@ export function AddKnowledgeChunkSidebar({
   }, [
     mode,
     title,
-    content,
+    blocks,
     aiParse,
     framework,
     topicKnowledgeId,
@@ -240,14 +241,12 @@ export function AddKnowledgeChunkSidebar({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="content">Content</Label>
-        <Textarea
-          id="content"
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Enter knowledge chunk content"
-          rows={6}
-          disabled={isSubmitting}
+        <Label>Content</Label>
+        <TiptapContentBlocksEditor
+          blocks={blocks}
+          previousBlocks={[]}
+          onChange={(updated) => setBlocks(updated)}
+          placeholder="Type '/' for commands..."
         />
       </div>
 
@@ -303,7 +302,7 @@ export function AddKnowledgeChunkSidebar({
     <div className="fixed inset-0 z-50 flex">
       <div className="absolute inset-0 bg-black/20" onClick={handleClose} />
 
-      <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+      <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
         <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">Add Notes</h2>
           <Button

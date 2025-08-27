@@ -747,7 +747,8 @@ const viTranslation = {
     failed_to_delete: "Không thể xóa tài liệu",
     editDocument: "Chỉnh sửa tài liệu",
     deleteDocument: "Xóa tài liệu",
-    deleteConfirmation: "Bạn có chắc chắn muốn xóa \"{{title}}\" không? Hành động này không thể hoàn tác.",
+    deleteConfirmation:
+      'Bạn có chắc chắn muốn xóa "{{title}}" không? Hành động này không thể hoàn tác.',
     deleting: "Đang xóa...",
     updating: "Đang cập nhật...",
     title: "Tiêu đề",
@@ -904,7 +905,7 @@ const viTranslation = {
     },
     // Document Table
     table: {
-      title: "Tiêu đề", 
+      title: "Tiêu đề",
       status: "Trạng thái",
       linked: "Đã liên kết",
       notLinked: "Chưa liên kết",
@@ -1009,6 +1010,7 @@ const viTranslation = {
       statusCrawlCompleted: "Thu thập hoàn tất",
       tooltipView: "Xem kiến thức từ web",
       tooltipIndex: "Lập chỉ mục kiến thức từ web",
+      collections: "Bộ sưu tập",
     },
     // Languages
     languages: {

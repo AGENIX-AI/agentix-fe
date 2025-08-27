@@ -176,7 +176,7 @@ export function AddTopicKnowledgeSidebar({
     <div className="fixed inset-0 z-50 flex">
       <div className="absolute inset-0 bg-black/20" onClick={handleClose} />
 
-      <div className="relative ml-auto w-[500px] bg-background border-l shadow-xl h-full flex flex-col">
+      <div className="relative ml-auto app-sidebar-panel bg-background border-l shadow-xl h-full flex flex-col">
         <div className="flex items-center justify-between p-6 border-b h-18">
           <h2 className="text-lg font-semibold">
             {t("documents.knowledgeNotes.addNotes")}

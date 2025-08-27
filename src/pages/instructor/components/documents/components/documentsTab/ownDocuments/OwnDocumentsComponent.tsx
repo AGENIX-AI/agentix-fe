@@ -13,8 +13,8 @@ import { DeleteDocumentDialog } from "./DeleteDocumentDialog";
 
 export type DocumentType =
   | "upload_document"
-  | "image"
-  | "topic_knowledge"
+  | "media_document"
+  | "note_document"
   | "all"
   | undefined;
 

@@ -1,9 +1,9 @@
 import type { Document as ApiDocument } from "@/api/documents";
 
 export type DocumentType =
-  | "document"
-  | "image"
-  | "topic_knowledge"
+  | "upload_document"
+  | "media_document"
+  | "note_document"
   | "all"
   | undefined;
 

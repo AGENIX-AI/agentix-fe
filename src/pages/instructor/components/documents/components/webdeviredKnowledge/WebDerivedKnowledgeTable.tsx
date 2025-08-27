@@ -1,7 +1,18 @@
 import type { Document } from "@/api/documents";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { useState } from "react";
 import { Edit, Trash2, Loader2, Eye } from "lucide-react";
+import { toast } from "sonner";
+import { deletePage } from "@/api/page";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -32,6 +43,8 @@ export function WebDerivedKnowledgeTable({
   loadingDocumentIds = [],
 }: WebDerivedKnowledgeTableProps) {
   const { t } = useTranslation();
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Function to get a user-friendly status text
   const getStatusText = (status: string): string => {
@@ -147,7 +160,7 @@ export function WebDerivedKnowledgeTable({
                             className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
                             onClick={(e) => {
                               e.stopPropagation();
-                              onDelete?.(document.id);
+                              setConfirmDeleteId(document.id);
                             }}
                             title="Delete web derived knowledge"
                           >
@@ -163,6 +176,60 @@ export function WebDerivedKnowledgeTable({
           </Table>
         </div>
       </div>
+      <Dialog
+        open={!!confirmDeleteId}
+        onOpenChange={() => (isDeleting ? null : setConfirmDeleteId(null))}
+      >
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              {t("documents.deleteDocument")}
+            </DialogTitle>
+            <DialogDescription>
+              {t("documents.deleteConfirmation", { title: "this document" })}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <Button
+              variant="outline"
+              onClick={() => setConfirmDeleteId(null)}
+              disabled={isDeleting}
+            >
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={async () => {
+                if (!confirmDeleteId) return;
+                setIsDeleting(true);
+                try {
+                  const res = await deletePage(confirmDeleteId);
+                  if (res.success) {
+                    toast.success(t("documents.deleted"));
+                    const id = confirmDeleteId;
+                    setConfirmDeleteId(null);
+                    onDelete?.(id);
+                  }
+                } catch (e) {
+                  toast.error(t("documents.failedToDelete"));
+                } finally {
+                  setIsDeleting(false);
+                }
+              }}
+              disabled={isDeleting}
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {t("documents.deleting")}
+                </>
+              ) : (
+                t("common.delete")
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
