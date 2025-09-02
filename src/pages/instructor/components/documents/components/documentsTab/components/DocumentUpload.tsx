@@ -9,7 +9,7 @@ import { uploadDocumentFile } from "@/api/documents";
 import { useTranslation } from "react-i18next";
 
 interface DocumentUploadProps {
-  onUploadSuccess: (documentId: string) => void;
+  onUploadSuccess: (payload: { documentId: string; images: string[] }) => void;
   onError: (error: string) => void;
 }
 
@@ -110,7 +110,10 @@ export default function DocumentUpload({
       console.log("Document uploaded:", result);
 
       if (result.success) {
-        onUploadSuccess(result.document_id);
+        onUploadSuccess({
+          documentId: result.document_id,
+          images: result.list_images || [],
+        });
         setFile(null);
         setDocumentTitle("");
         if (fileInputRef.current) {

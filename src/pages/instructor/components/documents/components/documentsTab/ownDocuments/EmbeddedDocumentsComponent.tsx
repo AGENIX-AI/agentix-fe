@@ -10,7 +10,7 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import Cookies from "js-cookie";
+import { updateDocumentImageIndex } from "@/api/documents";
 
 import { updateModeDocument } from "@/api/documents";
 import { getOwnDocuments } from "@/api/page";
@@ -84,7 +84,7 @@ export function EmbeddedDocumentsComponent({
   const [currentDocumentId, setCurrentDocumentId] = useState<string>("");
   const [documentImages, setDocumentImages] = useState<string[]>([]);
   const [selectedImages, setSelectedImages] = useState<string[]>([]);
-  const [isLoadingImages, setIsLoadingImages] = useState(false);
+  const [isLoadingImages] = useState(false);
   const [isSubmittingImages, setIsSubmittingImages] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -228,55 +228,15 @@ export function EmbeddedDocumentsComponent({
     }
   };
 
-  // Function to fetch document images
-  const fetchDocumentImages = async (documentId: string) => {
-    setIsLoadingImages(true);
-    try {
-      const baseUrl = import.meta.env.VITE_API_URL || "";
-      const accessToken = Cookies.get("edvara_access_token");
-      const refreshToken = Cookies.get("edvara_refresh_token");
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
+  // No longer fetching document images after upload; consume returned list instead
 
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (refreshToken) {
-        headers["X-Refresh-Token"] = refreshToken;
-      }
-
-      const response = await fetch(
-        `${baseUrl}/pages/index/image/${documentId}`,
-        {
-          method: "GET",
-          headers,
-          credentials: "include",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          `Failed to fetch document images: ${response.statusText}`
-        );
-      }
-
-      const imageUrls = await response.json();
-      console.log("Document images:", imageUrls);
-      setDocumentImages(imageUrls);
-    } catch (err) {
-      console.error("Error fetching document images:", err);
-      setError("Failed to fetch document images.");
-    } finally {
-      setIsLoadingImages(false);
-    }
-  };
-
-  const handleUploadSuccess = async (documentId: string) => {
+  const handleUploadSuccess = async (payload: {
+    documentId: string;
+    images: string[];
+  }) => {
     setSuccessMessage("Document successfully uploaded!");
-    setCurrentDocumentId(documentId);
-    await fetchDocumentImages(documentId);
+    setCurrentDocumentId(payload.documentId);
+    setDocumentImages(payload.images || []);
     setShowImageSidebar(true);
     setShowAddDocumentSidebar(false);
   };
@@ -326,39 +286,10 @@ export function EmbeddedDocumentsComponent({
     setError(null);
 
     try {
-      const baseUrl = import.meta.env.VITE_API_URL || "";
-      const accessToken = Cookies.get("edvara_access_token");
-      const refreshToken = Cookies.get("edvara_refresh_token");
-
-      const headers: HeadersInit = {
-        "Content-Type": "application/json",
-      };
-
-      if (accessToken) {
-        headers["Authorization"] = `Bearer ${accessToken}`;
-      }
-
-      if (refreshToken) {
-        headers["X-Refresh-Token"] = refreshToken;
-      }
-
-      const response = await fetch(
-        `${baseUrl}/pages/index/image/${currentDocumentId}`,
-        {
-          method: "PUT",
-          headers,
-          credentials: "include",
-          body: JSON.stringify({
-            list_image: imagesToSubmit,
-          }),
-        }
+      const result = await updateDocumentImageIndex(
+        currentDocumentId,
+        imagesToSubmit
       );
-
-      if (!response.ok) {
-        throw new Error(`Failed to update image index: ${response.statusText}`);
-      }
-
-      const result = await response.json();
       console.log("Image index updated:", result);
 
       const messageText =

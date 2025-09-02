@@ -521,7 +521,12 @@ export const uploadDocumentFile = async (
   file: File,
   title: string,
   isParse: boolean
-): Promise<{ success: boolean; message: string; document_id: string }> => {
+): Promise<{
+  success: boolean;
+  message: string;
+  document_id: string;
+  list_images?: string[];
+}> => {
   const baseUrl = import.meta.env.VITE_API_URL || "";
   const formData = new FormData();
   formData.append("file", file);
@@ -1339,6 +1344,66 @@ export const getDocumentBlocks = async (
       new Error(`Failed to fetch document blocks: ${response.statusText}`)
     );
     throw new Error(`Failed to fetch document blocks: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Get document images (thumbnails/pages) for a document ID
+ * Moved from pages/index/image → documents/index/image
+ */
+export const getDocumentImages = async (
+  documentId: string
+): Promise<string[]> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/index/image/${documentId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers,
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to fetch document images: ${response.statusText}`)
+    );
+    throw new Error(`Failed to fetch document images: ${response.statusText}`);
+  }
+
+  return await response.json();
+};
+
+/**
+ * Update document image index with selected image paths
+ * Moved from pages/index/image → documents/index/image
+ */
+export const updateDocumentImageIndex = async (
+  documentId: string,
+  images: string[]
+): Promise<any> => {
+  const baseUrl = import.meta.env.VITE_API_URL || "";
+  const headers = getAuthHeaders();
+
+  const response = await fetch(
+    `${baseUrl}/documents/index/image/${documentId}`,
+    {
+      method: "PUT",
+      credentials: "include",
+      headers,
+      body: JSON.stringify({ list_image: images }),
+    }
+  );
+
+  if (!response.ok) {
+    Sentry.captureException(
+      new Error(`Failed to update image index: ${response.statusText}`)
+    );
+    throw new Error(`Failed to update image index: ${response.statusText}`);
   }
 
   return await response.json();

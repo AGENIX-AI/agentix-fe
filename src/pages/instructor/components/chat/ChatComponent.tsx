@@ -250,6 +250,8 @@ export function ChatComponent() {
       }, 100);
     } catch (error) {
       console.error("Error fetching messages:", error);
+      setConversationId(null);
+
       Sentry.captureException(error);
     } finally {
       setIsChatLoading(false);

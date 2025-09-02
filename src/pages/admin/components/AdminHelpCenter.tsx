@@ -21,25 +21,21 @@ import type {
 } from "@/api/admin/helpCenter";
 import {
   createHelpMainTopic as createStudentHelpMainTopic,
-  deleteHelpMainTopic as deleteStudentHelpMainTopic,
   fetchHelpMainTopics as fetchStudentHelpMainTopics,
   updateHelpMainTopic as updateStudentHelpMainTopic,
   fetchHelpTopicsByMainId as fetchStudentHelpTopicsByMainId,
   createHelpTopic as createStudentHelpTopic,
   updateHelpTopic as updateStudentHelpTopic,
-  deleteHelpTopic as deleteStudentHelpTopic,
   reorderHelpMainTopic as reorderStudentHelpMainTopic,
   reorderHelpTopic as reorderStudentHelpTopic,
 } from "@/api/admin/helpCenter";
 import {
   createHelpMainTopic as createInstructorHelpMainTopic,
-  deleteHelpMainTopic as deleteInstructorHelpMainTopic,
   fetchHelpMainTopics as fetchInstructorHelpMainTopics,
   updateHelpMainTopic as updateInstructorHelpMainTopic,
   fetchHelpTopicsByMainId as fetchInstructorHelpTopicsByMainId,
   createHelpTopic as createInstructorHelpTopic,
   updateHelpTopic as updateInstructorHelpTopic,
-  deleteHelpTopic as deleteInstructorHelpTopic,
   reorderHelpMainTopic as reorderInstructorHelpMainTopic,
   reorderHelpTopic as reorderInstructorHelpTopic,
 } from "@/api/admin/helpCenterInstructor";
@@ -65,6 +61,7 @@ import { HelpTopicDetailSidebar } from "./sidebars/HelpTopicDetailSidebar";
 import { useNavigate } from "react-router-dom";
 import { Dialog as TopicDialog } from "@/components/ui/dialog";
 import { TopicFormSidebar } from "./sidebars/TopicFormSidebar";
+import { deletePage } from "@/api/page";
 
 type UserType = "student" | "instructor";
 
@@ -122,11 +119,11 @@ export function AdminHelpCenter() {
         fetchHelpMainTopics: fetchInstructorHelpMainTopics,
         createHelpMainTopic: createInstructorHelpMainTopic,
         updateHelpMainTopic: updateInstructorHelpMainTopic,
-        deleteHelpMainTopic: deleteInstructorHelpMainTopic,
+        deleteHelpMainTopic: deletePage,
         fetchHelpTopicsByMainId: fetchInstructorHelpTopicsByMainId,
         createHelpTopic: createInstructorHelpTopic,
         updateHelpTopic: updateInstructorHelpTopic,
-        deleteHelpTopic: deleteInstructorHelpTopic,
+        deleteHelpTopic: deletePage,
         reorderHelpMainTopic: reorderInstructorHelpMainTopic,
         reorderHelpTopic: reorderInstructorHelpTopic,
       };
@@ -135,11 +132,11 @@ export function AdminHelpCenter() {
         fetchHelpMainTopics: fetchStudentHelpMainTopics,
         createHelpMainTopic: createStudentHelpMainTopic,
         updateHelpMainTopic: updateStudentHelpMainTopic,
-        deleteHelpMainTopic: deleteStudentHelpMainTopic,
+        deleteHelpMainTopic: deletePage,
         fetchHelpTopicsByMainId: fetchStudentHelpTopicsByMainId,
         createHelpTopic: createStudentHelpTopic,
         updateHelpTopic: updateStudentHelpTopic,
-        deleteHelpTopic: deleteStudentHelpTopic,
+        deleteHelpTopic: deletePage,
         reorderHelpMainTopic: reorderStudentHelpMainTopic,
         reorderHelpTopic: reorderStudentHelpTopic,
       };
