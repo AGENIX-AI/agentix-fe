@@ -71,11 +71,11 @@ export interface FeedbackResponse {
 }
 
 // Helper function to get auth headers
-const getAuthHeaders = (): HeadersInit => {
-  const accessToken = Cookies.get("edvara_access_token");
-  const refreshToken = Cookies.get("edvara_refresh_token");
+const getAuthHeaders = () => {
+  const accessToken = Cookies.get("agentix_access_token");
+  const refreshToken = Cookies.get("agentix_refresh_token");
 
-  const headers: HeadersInit = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
   };
 

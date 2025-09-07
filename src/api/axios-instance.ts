@@ -8,8 +8,8 @@ export const axiosInstance = axios.create({
 
 // Add request interceptor to attach auth tokens
 axiosInstance.interceptors.request.use((config) => {
-  const accessToken = Cookies.get('edvara_access_token');
-  const refreshToken = Cookies.get('edvara_refresh_token');
+  const accessToken = Cookies.get('agentix_access_token');
+  const refreshToken = Cookies.get('agentix_refresh_token');
   
   // Always ensure headers object exists
   config.headers = config.headers || {};

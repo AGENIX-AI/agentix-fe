@@ -1,6 +1,6 @@
 const viTranslation = {
   // Common
-  app_name: "Edvara",
+  app_name: "AgentIX",
   loading: "Đang tải...",
   error: "Lỗi",
   success: "Thành công",
@@ -18,7 +18,7 @@ const viTranslation = {
   home_title: "Thay đổi trải nghiệm học tập của bạn",
   home_subtitle:
     "Tham gia cùng hàng nghìn người học trên khắp thế giới trên nền tảng hiện đại của chúng tôi.",
-  home_welcome: "Chào mừng đến với Edvara - Nền tảng học tập toàn diện của bạn",
+  home_welcome: "Chào mừng đến với AgentIX - Nền tảng học tập toàn diện của bạn",
 
   // Documents
 
@@ -74,7 +74,7 @@ const viTranslation = {
   },
 
   // Auth pages
-  login_title: "Đăng nhập vào Edvara",
+  login_title: "Đăng nhập vào AgentIX",
   signup_title: "Tạo tài khoản mới",
   email_label: "Email",
   email_placeholder: "Nhập email của bạn",
@@ -158,7 +158,7 @@ const viTranslation = {
 
   // Dashboard
   dashboard_welcome:
-    "Chào mừng đến với bảng điều khiển Edvara của bạn. Trang này được bảo vệ và chỉ có thể truy cập sau khi đăng nhập.",
+    "Chào mừng đến với bảng điều khiển AgentIX của bạn. Trang này được bảo vệ và chỉ có thể truy cập sau khi đăng nhập.",
   user_info: "Thông tin người dùng",
   user_name: "Tên",
   user_email: "Email",
@@ -435,9 +435,9 @@ const viTranslation = {
   student: {
     instructorFinder: {
       instructor: "Giảng viên",
-      edvaraName: "Edvara",
+      edvaraName: "AgentIX",
       edvaraDescription:
-        "Edvara là nền tảng giúp bạn tìm kiếm giảng viên phù hợp với nhu cầu của bạn.",
+        "AgentIX là nền tảng giúp bạn tìm kiếm giảng viên phù hợp với nhu cầu của bạn.",
       noDescriptionAvailable: "Không có mô tả",
       searchByName: "Tìm theo tên",
       search: "Tìm kiếm",
@@ -1153,7 +1153,7 @@ const viTranslation = {
   history: {
     // Common
     assistant: "Trợ lý",
-    edvaraAssistant: "Trợ lý Edvara",
+    edvaraAssistant: "Trợ lý AgentIX",
     collapseHistory: "Thu gọn lịch sử",
     expandHistory: "Mở rộng lịch sử",
 

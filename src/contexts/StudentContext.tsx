@@ -118,7 +118,7 @@ export function StudentContextProvider({
   // Fetch assistant data when assistantId changes
   useEffect(() => {
     if (assistantId) {
-      fetchAssistantData();
+      // fetchAssistantData();
     } else {
       setAssistantInfo(null);
     }

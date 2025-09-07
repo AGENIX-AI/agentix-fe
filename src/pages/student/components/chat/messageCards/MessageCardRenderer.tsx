@@ -43,7 +43,10 @@ export function MessageCardRenderer({
   // Default case - unknown card type
   return (
     <div className="text-sm text-muted-foreground p-2 border rounded-md">
-      <Small>{t("chat.messageCards.unknownType", "Unknown message card type")}: {card.type as string}</Small>
+      <Small>
+        {t("chat.messageCards.unknownType", "Unknown message card type")}:{" "}
+        {card.type as string}
+      </Small>
     </div>
   );
 }

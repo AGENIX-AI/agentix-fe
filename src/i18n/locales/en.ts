@@ -1,6 +1,6 @@
 const enTranslation: Record<string, any> = {
   // Common
-  app_name: "Edvara",
+  app_name: "AgentIX",
   loading: "Loading...",
   error: "Error",
   success: "Success",
@@ -18,7 +18,7 @@ const enTranslation: Record<string, any> = {
   home_title: "Transform Your Learning Experience",
   home_subtitle:
     "Join thousands of learners worldwide on our cutting-edge platform.",
-  home_welcome: "Welcome to Edvara - Your complete learning platform",
+  home_welcome: "Welcome to AgentIX - Your complete learning platform",
 
   // Documents
 
@@ -78,7 +78,7 @@ const enTranslation: Record<string, any> = {
   },
 
   // Auth pages
-  login_title: "Login to Edvara",
+  login_title: "Login to AgentIX",
   signup_title: "Create an Account",
   email_label: "Email",
   email_placeholder: "Enter your email",
@@ -162,7 +162,7 @@ const enTranslation: Record<string, any> = {
 
   // Dashboard
   dashboard_welcome:
-    "Welcome to your Edvara dashboard. This page is protected and only accessible after login.",
+    "Welcome to your AgentIX dashboard. This page is protected and only accessible after login.",
   user_info: "User Information",
   user_name: "Name",
   user_email: "Email",
@@ -437,9 +437,9 @@ const enTranslation: Record<string, any> = {
   student: {
     instructorFinder: {
       instructor: "Instructor",
-      edvaraName: "Edvara",
+      edvaraName: "AgentIX",
       edvaraDescription:
-        "Edvara is a platform that helps you find the best instructors for your needs.",
+        "AgentIX is a platform that helps you find the best instructors for your needs.",
       noDescriptionAvailable: "No description available",
       searchByName: "Search by name",
       search: "Search",
@@ -1155,7 +1155,7 @@ const enTranslation: Record<string, any> = {
   history: {
     // Common
     assistant: "Assistant",
-    edvaraAssistant: "Edvara Assistant",
+    edvaraAssistant: "AgentIX Assistant",
     collapseHistory: "Collapse history",
     expandHistory: "Expand history",
 

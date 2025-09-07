@@ -251,8 +251,8 @@ export const getCollectionChildrenDocuments = async (
 
 // Helper function to get auth headers
 const getAuthHeaders = (): HeadersInit => {
-  const accessToken = Cookies.get("edvara_access_token");
-  const refreshToken = Cookies.get("edvara_refresh_token");
+  const accessToken = Cookies.get("agentix_access_token");
+  const refreshToken = Cookies.get("agentix_refresh_token");
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",
@@ -361,8 +361,8 @@ export const uploadImageDocument = async (
   const formData = new FormData();
   formData.append("file", file);
 
-  const accessToken = Cookies.get("edvara_access_token");
-  const refreshToken = Cookies.get("edvara_refresh_token");
+  const accessToken = Cookies.get("agentix_access_token");
+  const refreshToken = Cookies.get("agentix_refresh_token");
   const headers: HeadersInit = {};
   if (accessToken) {
     headers["Authorization"] = `Bearer ${accessToken}`;
@@ -425,8 +425,8 @@ export const uploadVideoDocument = async (data: {
     formData.append("video", data.video);
   }
 
-  const accessToken = Cookies.get("edvara_access_token");
-  const refreshToken = Cookies.get("edvara_refresh_token");
+  const accessToken = Cookies.get("agentix_access_token");
+  const refreshToken = Cookies.get("agentix_refresh_token");
   const headers: HeadersInit = {};
 
   if (accessToken) {

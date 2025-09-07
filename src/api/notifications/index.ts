@@ -4,8 +4,8 @@ import type { Notification } from "@/components/custom/NotificationCenter";
 
 // Get auth headers for API calls
 const getAuthHeaders = (): HeadersInit => {
-  const accessToken = Cookies.get("edvara_access_token");
-  const refreshToken = Cookies.get("edvara_refresh_token");
+  const accessToken = Cookies.get("agentix_access_token");
+  const refreshToken = Cookies.get("agentix_refresh_token");
 
   const headers: HeadersInit = {
     "Content-Type": "application/json",

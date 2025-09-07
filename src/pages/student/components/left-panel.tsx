@@ -105,7 +105,7 @@ class WebSocketManager {
         .replace(/^https:\/\//, "wss://")
         .replace(/^http:\/\//, "ws://");
 
-      const accessToken = Cookies.get("edvara_access_token");
+      const accessToken = Cookies.get("agentix_access_token");
       if (!accessToken) {
         console.error("No access token found in cookies");
         this.connecting.delete(userId);
@@ -319,7 +319,7 @@ export default function LeftPanel({
                 initialLeftWidth={30}
                 minLeftWidth={30}
                 maxLeftWidth={40}
-                storageKey="edvara-history-width"
+                storageKey="agentix-history-width"
                 isHistoryVisible={isHistoryVisible}
               />
             </div>

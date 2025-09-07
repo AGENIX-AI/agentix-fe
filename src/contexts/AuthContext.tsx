@@ -170,12 +170,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     const expiryDate = new Date(session.expires_at * 1000); // Convert seconds to milliseconds
 
     // Only store access_token and refresh_token
-    Cookies.set("edvara_access_token", session.access_token, {
+    Cookies.set("agentix_access_token", session.access_token, {
       expires: expiryDate,
       secure: true,
       sameSite: "strict",
     });
-    Cookies.set("edvara_refresh_token", session.refresh_token, {
+    Cookies.set("agentix_refresh_token", session.refresh_token, {
       expires: 30,
       secure: true,
       sameSite: "strict",
@@ -183,15 +183,15 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
   };
 
   const getTokensFromCookies = () => {
-    const accessToken = Cookies.get("edvara_access_token");
-    const refreshToken = Cookies.get("edvara_refresh_token");
+    const accessToken = Cookies.get("agentix_access_token");
+    const refreshToken = Cookies.get("agentix_refresh_token");
     return { accessToken, refreshToken };
   };
 
   const clearTokenCookies = () => {
     console.log("Clearing cookies");
-    Cookies.remove("edvara_access_token");
-    Cookies.remove("edvara_refresh_token");
+    Cookies.remove("agentix_access_token");
+    Cookies.remove("agentix_refresh_token");
   };
 
   // Check authentication status on component mount, but only once
@@ -236,14 +236,19 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
 
     // Update API headers with the new token
     updateApiAuthHeader(session.access_token);
+
+    // Ensure default workspace after successful sign-in
+    authService.ensureDefaultWorkspace(user.id).catch(() => {
+      /* non-blocking */
+    });
   };
 
   const signOut = async () => {
     try {
       // Call logout endpoint to clear server-side session
       // await api.post("/auth/logout");
-      Cookies.remove("edvara_access_token");
-      Cookies.remove("edvara_refresh_token");
+      Cookies.remove("agentix_access_token");
+      Cookies.remove("agentix_refresh_token");
       api.defaults.headers.common["Authorization"] = "";
       api.defaults.headers.common["X-Refresh-Token"] = "";
       setAuthState({

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { authService } from "@/services/auth";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
@@ -34,10 +35,17 @@ const MagicLink = () => {
           throw new Error("Invalid magic link: missing required tokens");
         }
 
-        Cookies.set("edvara_access_token", accessToken);
-        Cookies.set("edvara_refresh_token", refreshToken);
+        Cookies.set("agentix_access_token", accessToken);
+        Cookies.set("agentix_refresh_token", refreshToken);
 
-        reloadAuth();
+        await reloadAuth();
+
+        try {
+          const me = await authService.getCurrentUser();
+          if (me?.user?.id) {
+            await authService.ensureDefaultWorkspace(me.user.id);
+          }
+        } catch {}
 
         // Redirect to dashboard
         navigate("/student", { replace: true });

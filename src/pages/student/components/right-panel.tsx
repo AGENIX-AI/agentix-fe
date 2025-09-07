@@ -1,12 +1,4 @@
-import { ProfileInfo } from "./instructorProfile/ProfileInfo";
-import { useStudent } from "@/contexts/StudentContext";
-import { FollowingPosts } from "./followingPosts/FollowingPosts";
-import { AssistantView } from "./assistantProfile/layout";
 import { useTranslation } from "react-i18next";
-import { InstructorFinder } from "./instructorFinder/instructor-finder";
-import { BuyCredits } from "../../../components/reused/buyCredits/BuyCredits";
-import { Helps } from "@/components/reused/helps/Helps";
-import { BlogsPanel } from "@/components/reused/blogs/BlogsPanel";
 import { Large } from "@/components/ui/typography";
 import { memo } from "react";
 import {
@@ -16,11 +8,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { AlignJustify } from "lucide-react";
-import {
-  fetchHelpMainTopics,
-  fetchHelpTopicsByMainId,
-  fetchHelpTopic,
-} from "@/api/admin/helpCenter";
+import { useStudent } from "@/contexts/StudentContext";
 
 const MiniappToggleButton = memo(
   ({
@@ -159,26 +147,6 @@ export default function RightPanel({
 
   const getCurrentTitle = () => {
     switch (rightPanel) {
-      case "profile_info":
-        return t("student.rightPanel.profileInfo");
-      case "following_posts":
-        return t("student.rightPanel.followingPosts");
-      case "assistantTopics":
-        return t("student.rightPanel.assistantTopics");
-      case "tasks":
-        return t("student.rightPanel.tasks");
-      case "agentCapabilityStatement":
-        return t("student.rightPanel.agentCapability");
-      case "findInstructor":
-        return t("student.rightPanel.findInstructor");
-      case "buyCredits":
-        return t("student.rightPanel.buyCredits");
-      case "helps":
-        return t("student.rightPanel.helpCenter");
-      case "blogs":
-        return t("student.rightPanel.blogs");
-      case "documents":
-        return "Documents";
       case "empty":
         return t("student.rightPanel.homePage");
       default:
@@ -200,100 +168,6 @@ export default function RightPanel({
 
   // Show expanded panel content
   switch (rightPanel) {
-    case "profile_info":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.profileInfo")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <ProfileInfo />
-        </div>
-      );
-    case "following_posts":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.followingPosts")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <FollowingPosts />
-        </div>
-      );
-    case "assistantTopics":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.assistantTopics")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <AssistantView defaultTab="tasks" />
-        </div>
-      );
-    case "tasks":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.tasks")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <AssistantView defaultTab="tasks" />
-        </div>
-      );
-    case "agentCapabilityStatement":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.agentCapability")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <AssistantView defaultTab="agentCapabilityStatement" />
-        </div>
-      );
-    case "findInstructor":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.findInstructor")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <InstructorFinder />
-        </div>
-      );
-    case "buyCredits":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.buyCredits")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <BuyCredits />
-        </div>
-      );
-    case "helps":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.helpCenter")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <Helps
-            fetchHelpMainTopics={fetchHelpMainTopics}
-            fetchHelpTopicsByMainId={fetchHelpTopicsByMainId}
-            fetchHelpTopic={fetchHelpTopic}
-          />
-        </div>
-      );
-    case "blogs":
-      return (
-        <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.blogs")}
-            toggleMiniapp={toggleMiniapp}
-          />
-          <BlogsPanel />
-        </div>
-      );
     case "empty":
       return (
         <div className="flex flex-col h-full">
@@ -312,7 +186,7 @@ export default function RightPanel({
             <div className="flex items-center justify-center">
               <img
                 src="https://api-app.edvara.net/static/Wavy_Tech-12_Single-01.jpg"
-                alt="Edvara"
+                alt="AgentIX"
                 className="w-240 h-240 object-contain"
               />
             </div>

@@ -1,27 +1,29 @@
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Pane } from "./Pane";
-import { Separator } from "./Separator";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Pane } from "../ResizableLayout/Pane";
+import { Separator } from "../ResizableLayout/Separator";
 
-export interface ResizableLayoutProps {
+export interface ModifiedResizableLayoutProps {
   leftPane: React.ReactNode;
   rightPane: React.ReactNode;
   initialLeftWidth?: number;
   minLeftWidth?: number;
   maxLeftWidth?: number;
   storageKey?: string;
-  disabled?: boolean;
+  isHistoryVisible?: boolean;
 }
 
-export function ResizableLayout({
+export function ModifiedResizableLayout({
   leftPane,
   rightPane,
-  initialLeftWidth = 50, // initial width percentage for left pane
-  minLeftWidth = 20, // minimum percentage width for left pane
-  maxLeftWidth = 80, // maximum percentage width for left pane
-  storageKey = "agentix-chat-layout-width", // localStorage key for persisting width
-  disabled = false,
-}: ResizableLayoutProps) {
+  initialLeftWidth = 50,
+  minLeftWidth = 20,
+  maxLeftWidth = 80,
+  storageKey = "agentix-chat-layout-width",
+  isHistoryVisible = true,
+}: ModifiedResizableLayoutProps) {
   const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
+  const [savedLeftWidth, setSavedLeftWidth] =
+    useState<number>(initialLeftWidth);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
@@ -42,39 +44,20 @@ export function ResizableLayout({
           parsed <= maxLeftWidth
         ) {
           setLeftWidth(parsed);
+          setSavedLeftWidth(parsed);
           lastWidthRef.current = parsed;
-          return;
         }
       }
     } catch (error) {
       console.error("Failed to read from localStorage:", error);
     }
 
-    // If no valid saved width, use initialLeftWidth
-    setLeftWidth(initialLeftWidth);
-    lastWidthRef.current = initialLeftWidth;
     initializedRef.current = true;
-  }, [storageKey, minLeftWidth, maxLeftWidth, initialLeftWidth]);
-
-  // Update width when constraints change (e.g., when toggling collapse state)
-  useEffect(() => {
-    if (!initializedRef.current) return;
-
-    // Ensure current width is within new constraints
-    const currentWidth = lastWidthRef.current;
-    if (currentWidth < minLeftWidth || currentWidth > maxLeftWidth) {
-      const newWidth = Math.max(
-        minLeftWidth,
-        Math.min(maxLeftWidth, initialLeftWidth)
-      );
-      setLeftWidth(newWidth);
-      lastWidthRef.current = newWidth;
-    }
-  }, [minLeftWidth, maxLeftWidth, initialLeftWidth]); // Using lastWidthRef.current instead of leftWidth to prevent infinite loop
+  }, [storageKey, minLeftWidth, maxLeftWidth]);
 
   // Save width to localStorage when it changes, but debounced
   useEffect(() => {
-    if (!initializedRef.current) return;
+    if (!initializedRef.current || !isHistoryVisible) return;
 
     const timeoutId = setTimeout(() => {
       try {
@@ -85,31 +68,35 @@ export function ResizableLayout({
     }, 100);
 
     return () => clearTimeout(timeoutId);
-  }, [leftWidth, storageKey]);
+  }, [leftWidth, storageKey, isHistoryVisible]);
 
-  const handleMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (disabled) return; // Don't start dragging if disabled
-      e.preventDefault();
-      setIsDragging(true);
-    },
-    [disabled]
-  );
+  // Toggle visibility effect
+  useEffect(() => {
+    if (isHistoryVisible) {
+      // Restore saved width when showing history
+      setLeftWidth(savedLeftWidth);
+    } else {
+      // Save current width before hiding
+      setSavedLeftWidth(leftWidth);
+    }
+  }, [isHistoryVisible]);
 
-  const handleTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (disabled) return; // Don't start dragging if disabled
-      e.preventDefault();
-      setIsDragging(true);
-    },
-    [disabled]
-  );
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  }, []);
 
   const updateWidth = useCallback((newWidth: number) => {
     // Only update if the change is significant (more than 0.5%)
     if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
 
     setLeftWidth(newWidth);
+    setSavedLeftWidth(newWidth);
     lastWidthRef.current = newWidth;
   }, []);
 
@@ -158,10 +145,8 @@ export function ResizableLayout({
 
   // Handle touch events for mobile support
   const handleTouchMove = useCallback(
-    (e: Event) => {
-      const touchEvent = e as TouchEvent;
-      if (!isDragging || !containerRef.current || !touchEvent.touches[0])
-        return;
+    (e: TouchEvent) => {
+      if (!isDragging || !containerRef.current || !e.touches[0]) return;
 
       // Cancel any existing animation frame
       if (rafRef.current) {
@@ -170,11 +155,11 @@ export function ResizableLayout({
 
       // Schedule a new animation frame
       rafRef.current = requestAnimationFrame(() => {
-        if (!containerRef.current || !touchEvent.touches[0]) return;
+        if (!containerRef.current || !e.touches[0]) return;
 
         const containerRect = containerRef.current.getBoundingClientRect();
         const containerWidth = containerRect.width;
-        const touchX = touchEvent.touches[0].clientX - containerRect.left;
+        const touchX = e.touches[0].clientX - containerRect.left;
 
         // Calculate percentage width
         let newLeftWidth = (touchX / containerWidth) * 100;
@@ -196,19 +181,19 @@ export function ResizableLayout({
     if (isDragging) {
       document.addEventListener("mousemove", handleMouseMove);
       document.addEventListener("mouseup", handleMouseUp);
-      document.addEventListener("touchmove", handleTouchMove);
+      document.addEventListener("touchmove", handleTouchMove as any);
       document.addEventListener("touchend", handleMouseUp);
     } else {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchmove", handleTouchMove as any);
       document.removeEventListener("touchend", handleMouseUp);
     }
 
     return () => {
       document.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("mouseup", handleMouseUp);
-      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("touchmove", handleTouchMove as any);
       document.removeEventListener("touchend", handleMouseUp);
 
       // Clean up any animation frame on unmount
@@ -221,26 +206,25 @@ export function ResizableLayout({
   return (
     <div
       ref={containerRef}
-      className="flex flex-col md:flex-row w-full h-full relative "
+      className="flex flex-col md:flex-row w-full h-full relative"
       style={{ cursor: isDragging ? "col-resize" : "auto" }}
     >
-      <Pane
-        width={disabled ? "" : `${leftWidth}%`}
-        style={disabled ? { flex: 1 } : undefined}
-      >
+      {/* Always show left pane, but with different widths */}
+      <Pane width={isHistoryVisible ? `${leftWidth}%` : "64px"}>
         {leftPane}
       </Pane>
 
-      <Separator
-        leftWidth={leftWidth}
-        onMouseDown={handleMouseDown}
-        onTouchStart={handleTouchStart}
-        disabled={disabled}
-      />
+      {/* Only show divider when history is visible and resizable */}
+      {isHistoryVisible && (
+        <Separator
+          leftWidth={leftWidth}
+          onMouseDown={handleMouseDown}
+          onTouchStart={handleTouchStart}
+        />
+      )}
 
       <Pane
-        width={disabled ? "" : `${100 - leftWidth}%`}
-        style={disabled ? { width: "48px", flexShrink: 0 } : undefined}
+        width={isHistoryVisible ? `${100 - leftWidth}%` : "calc(100% - 64px)"}
       >
         {rightPane}
       </Pane>

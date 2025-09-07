@@ -54,7 +54,7 @@ export function Logo({ className }: LogoProps) {
       )}
       onClick={() => navigate("/student")}
     >
-      <img src={logoSrc} alt="Edvara Logo" />
+      <img src={logoSrc} alt="AgentIX Logo" />
     </span>
   );
 }

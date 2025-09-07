@@ -18,7 +18,7 @@ export function ModifiedResizableLayout({
   initialLeftWidth = 50,
   minLeftWidth = 20,
   maxLeftWidth = 80,
-  storageKey = "edvara-chat-layout-width",
+  storageKey = "agentix-chat-layout-width",
   isHistoryVisible = true,
 }: ModifiedResizableLayoutProps) {
   const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);

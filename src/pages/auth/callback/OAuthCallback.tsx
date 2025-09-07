@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { authService } from "@/services/auth";
 import Cookies from "js-cookie";
 
 const OAuthCallback = () => {
@@ -39,9 +40,17 @@ const OAuthCallback = () => {
           return;
         }
 
-        Cookies.set("edvara_access_token", accessToken);
-        Cookies.set("edvara_refresh_token", refreshToken);
-        reloadAuth();
+        Cookies.set("agentix_access_token", accessToken);
+        Cookies.set("agentix_refresh_token", refreshToken);
+        await reloadAuth();
+
+        try {
+          // After OAuth login, ensure default workspace exists
+          const me = await authService.getCurrentUser();
+          if (me?.user?.id) {
+            await authService.ensureDefaultWorkspace(me.user.id);
+          }
+        } catch {}
 
         // Redirect to dashboard after successful authentication
         navigate("/student");

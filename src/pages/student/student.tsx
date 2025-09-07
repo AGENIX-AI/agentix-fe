@@ -1,8 +1,8 @@
 import { useState, useCallback } from "react";
-import { StudentContextProvider } from "@/contexts/StudentContext";
 import { ResizableLayout } from "@/components/custom/ResizableLayout/ResizableLayout";
 import LeftPanel from "./components/left-panel";
 import RightPanel from "./components/right-panel";
+import { StudentContextProvider } from "@/contexts/StudentContext";
 
 export default function AppStartPage() {
   const [isRightPanelCollapsed, setIsRightPanelCollapsed] = useState(false);
@@ -27,7 +27,7 @@ export default function AppStartPage() {
           initialLeftWidth={55}
           minLeftWidth={50}
           maxLeftWidth={65}
-          storageKey="edvara-mainpage-width"
+          storageKey="agentix-mainpage-width"
           disabled={isRightPanelCollapsed}
         />
       </div>

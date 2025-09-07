@@ -175,6 +175,26 @@ export const authService = {
   signup: async (credentials: SignupCredentials): Promise<AuthResponse> => {
     // Make a real API call that will set HttpOnly cookies on the response
     const response = await api.post<AuthResponse>("/auth/signup", credentials);
+    // After signup, ensure default workspace
+    try {
+      const accessToken = Cookies.get("agentix_access_token");
+      const refreshToken = Cookies.get("agentix_refresh_token");
+      const ensureUrl = `${
+        import.meta.env.VITE_API_URL
+      }/api/workspaces/ensure-default`;
+      await axios.post(
+        ensureUrl,
+        { user_id: response.data.user.id },
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+            "X-Refresh-Token": refreshToken,
+          },
+        }
+      );
+    } catch (e) {
+      console.warn("ensure-default workspace after signup failed", e);
+    }
     return response.data;
   },
 
@@ -186,8 +206,8 @@ export const authService = {
   isAuthenticated: async (): Promise<boolean> => {
     try {
       // Check auth status from server using the HttpOnly cookie
-      const accessToken = Cookies.get("edvara_access_token");
-      const refreshToken = Cookies.get("edvara_refresh_token");
+      const accessToken = Cookies.get("agentix_access_token");
+      const refreshToken = Cookies.get("agentix_refresh_token");
       const url = import.meta.env.VITE_API_URL + "/auth/me";
       await axios.get(url, {
         headers: {
@@ -205,8 +225,8 @@ export const authService = {
     try {
       // Use the configured API instance which should already have the right headers
       // from the AuthContext setup
-      const accessToken = Cookies.get("edvara_access_token");
-      const refreshToken = Cookies.get("edvara_refresh_token");
+      const accessToken = Cookies.get("agentix_access_token");
+      const refreshToken = Cookies.get("agentix_refresh_token");
       const url = import.meta.env.VITE_API_URL + "/auth/me";
       const response = await axios.get(url, {
         headers: {
@@ -219,6 +239,24 @@ export const authService = {
       console.error("Error fetching current user:", error);
       throw error;
     }
+  },
+
+  ensureDefaultWorkspace: async (userId: string): Promise<void> => {
+    const accessToken = Cookies.get("agentix_access_token");
+    const refreshToken = Cookies.get("agentix_refresh_token");
+    const ensureUrl = `${
+      import.meta.env.VITE_API_URL
+    }/api/workspaces/ensure-default`;
+    await axios.post(
+      ensureUrl,
+      { user_id: userId },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "X-Refresh-Token": refreshToken,
+        },
+      }
+    );
   },
 
   socialLogin: async (provider: OAuthProvider): Promise<void> => {
@@ -245,8 +283,8 @@ export const authService = {
 
   submitWaitlistForm: async (formData: WaitlistFormValues): Promise<void> => {
     try {
-      const accessToken = Cookies.get("edvara_access_token");
-      const refreshToken = Cookies.get("edvara_refresh_token");
+      const accessToken = Cookies.get("agentix_access_token");
+      const refreshToken = Cookies.get("agentix_refresh_token");
       const url = import.meta.env.VITE_API_URL + "/auth/submit_waitlist";
       const response = await axios.put(url, formData, {
         headers: {

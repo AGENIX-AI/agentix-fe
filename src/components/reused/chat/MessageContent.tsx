@@ -1,9 +1,9 @@
 import { processMessageContent } from "@/lib/utils/message-content-parse";
 import { useRef, useEffect, memo, useState, useCallback } from "react";
 import { ImageViewer } from "./ImageViewer";
-import { parseMessageCard } from "../../../pages/instructor/components/chat/messageCards/types";
 import { useTranslation } from "react-i18next";
 import { Small } from "@/components/ui/typography";
+import { parseMessageCard } from "@/pages/student/components/chat/messageCards/types";
 
 interface UserInfo {
   id: string;

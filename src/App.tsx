@@ -9,7 +9,6 @@ import MagicLink from "./pages/auth/magic-link/MagicLink";
 import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Waitlist from "./pages/auth/waitlist/Waitlist";
 import WaitlistForm from "./pages/auth/waitlist/WaitlistForm";
-import Instructor from "./pages/instructor/instructor";
 import AdminPortal from "./pages/admin/admin";
 
 // Components
@@ -35,7 +34,6 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
-            <Route path="/instructor" element={<Instructor />} />
             <Route path="/student" element={<Student />} />
             <Route path="/admin/*" element={<AdminPortal />} />
             {/* Add more protected routes here */}
