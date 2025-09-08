@@ -10,6 +10,8 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@copilotkit/react-core": "^1.10.3",
+    "@copilotkit/react-ui": "^1.10.3",
     "@ai-sdk/openai": "^1.3.23",
     "@ai-sdk/provider": "^1.1.3",
     "@ai-sdk/provider-utils": "^2.2.8",

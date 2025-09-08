@@ -181,7 +181,7 @@ export const authService = {
       const refreshToken = Cookies.get("agentix_refresh_token");
       const ensureUrl = `${
         import.meta.env.VITE_API_URL
-      }/api/workspaces/ensure-default`;
+      }/workspaces/ensure-default`;
       await axios.post(
         ensureUrl,
         { user_id: response.data.user.id },
@@ -246,7 +246,7 @@ export const authService = {
     const refreshToken = Cookies.get("agentix_refresh_token");
     const ensureUrl = `${
       import.meta.env.VITE_API_URL
-    }/api/workspaces/ensure-default`;
+    }/workspaces/ensure-default`;
     await axios.post(
       ensureUrl,
       { user_id: userId },

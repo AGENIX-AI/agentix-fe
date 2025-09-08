@@ -13,6 +13,7 @@ import AdminPortal from "./pages/admin/admin";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";
+import { CopilotIntegrator } from "./components/copilot/CopilotIntegrator";
 
 // Context
 import { AuthProvider } from "./contexts/AuthContext";
@@ -42,6 +43,8 @@ function App() {
           {/* Redirect any unknown routes to home */}
           <Route path="*" element={<Navigate to="/auth/login" replace />} />
         </Routes>
+        {/* Global Copilot popup so it can navigate and access router context */}
+        <CopilotIntegrator />
         <Toaster />
       </BrowserRouter>
     </AuthProvider>
