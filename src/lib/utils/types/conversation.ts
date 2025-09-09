@@ -15,12 +15,20 @@ export interface Goal {
   goal_description: string;
 }
 
+export interface ConversationParticipantBrief {
+  id: string;
+  kind: "user" | "assistant";
+  name?: string | null;
+  image?: string | null;
+}
+
 export interface ConversationListItem {
   id: string | null;
   conversation_name?: string | null;
   conversation_description?: string | null;
   last_message?: LastMessage;
-  assistants: Assistant;
+  assistants?: Assistant | null;
+  participants?: ConversationParticipantBrief[];
 }
 
 export interface ConversationsByCategory {

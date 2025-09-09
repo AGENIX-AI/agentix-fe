@@ -176,25 +176,8 @@ export const authService = {
     // Make a real API call that will set HttpOnly cookies on the response
     const response = await api.post<AuthResponse>("/auth/signup", credentials);
     // After signup, ensure default workspace
-    try {
-      const accessToken = Cookies.get("agentix_access_token");
-      const refreshToken = Cookies.get("agentix_refresh_token");
-      const ensureUrl = `${
-        import.meta.env.VITE_API_URL
-      }/workspaces/ensure-default`;
-      await axios.post(
-        ensureUrl,
-        { user_id: response.data.user.id },
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-            "X-Refresh-Token": refreshToken,
-          },
-        }
-      );
-    } catch (e) {
-      console.warn("ensure-default workspace after signup failed", e);
-    }
+    // After signup, redirect to onboarding to let user name the workspace (no auto-create)
+    window.location.href = "/onboarding/workspace";
     return response.data;
   },
 

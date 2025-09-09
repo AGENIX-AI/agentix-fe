@@ -5,6 +5,6 @@ export const config = {
     enableMagicLink: true,
     enablePasskeys: true,
     enableSignup: true,
-    enableSocialLogin: true
-  }
+    enableSocialLogin: true,
+  },
 };

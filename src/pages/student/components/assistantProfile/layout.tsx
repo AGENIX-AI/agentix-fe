@@ -31,7 +31,10 @@ function AssistantBanner({
   if (loading) {
     return (
       <div className="sticky top-0 bg-card h-48">
-        <LoadingState message={t('student.assistantProfile.loading')} size="medium" />
+        <LoadingState
+          message={t("student.assistantProfile.loading")}
+          size="medium"
+        />
       </div>
     );
   }
@@ -40,7 +43,7 @@ function AssistantBanner({
     return (
       <div className="sticky top-0 bg-card h-48 flex items-center justify-center">
         <p className="text-sm text-muted-foreground">
-          {t('student.assistantProfile.noInfo')}
+          {t("student.assistantProfile.noInfo")}
         </p>
       </div>
     );
@@ -61,7 +64,7 @@ function AssistantBanner({
       </div>
 
       {/* Profile Section with Assistant on the left and Instructor on the right */}
-      <div className="flex w-full bg-secondary/5 px-6 py-4">
+      <div className="flex w-full bg-muted px-6 py-4">
         {/* Left side - Assistant */}
         <div className="flex flex-col items-center">
           <Avatar className="h-32 w-32 rounded-full border-4 border-white -mt-24">
@@ -73,7 +76,7 @@ function AssistantBanner({
               alt={assistant.name}
             />
           </Avatar>
-          <h2 className="text-lg font-semibold text-center">
+          <h2 className="text-lg font-semibold text-center text-foreground">
             {assistant.name}
           </h2>
           <p className="text-xs text-center max-w-[150px]">
@@ -93,11 +96,12 @@ function AssistantBanner({
             />
           </Avatar>
           <div>
-            <h3 className="text-sm font-semibold">
+            <h3 className="text-sm font-semibold text-foreground">
               {instructor.instructor_name}
             </h3>
             <p className="text-xs">
-              {instructor.instructor_description || t('student.assistantProfile.generalAssistance')}
+              {instructor.instructor_description ||
+                t("student.assistantProfile.generalAssistance")}
             </p>
           </div>
         </div>
@@ -135,7 +139,7 @@ export function AssistantView({ defaultTab }: { defaultTab: string }) {
           }
         } catch (error) {
           console.error("Error fetching data:", error);
-          setError(t('student.assistantProfile.error'));
+          setError(t("student.assistantProfile.error"));
         } finally {
           setLoading(false);
         }
@@ -168,18 +172,18 @@ export function AssistantView({ defaultTab }: { defaultTab: string }) {
       <div className="overflow-y-auto flex-1 pb-1">
         {shouldShowTasksTab ? (
           <Tabs defaultValue={defaultTab} className="w-full mt-2">
-            <TabsList className="w-full bg-transparent border-none flex gap-2 p-5">
+            <TabsList className="w-full bg-transparent border-none flex gap-2 px-6 py-3">
               <TabsTrigger
                 value="tasks"
-                className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
+                className="py-2.5 px-4 data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/70 cursor-pointer transition-colors rounded-md"
               >
-                {t('student.rightPanel.tasks')}
+                {t("student.rightPanel.tasks")}
               </TabsTrigger>
               <TabsTrigger
                 value="agentCapabilityStatement"
-                className="py-4 px-6 data-[state=active]:bg-primary/8 data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/50 cursor-pointer transition-colors rounded-md"
+                className="py-2.5 px-4 data-[state=active]:bg-accent data-[state=active]:text-foreground data-[state=active]:shadow-none hover:bg-muted/70 cursor-pointer transition-colors rounded-md"
               >
-                {t('student.assistantProfile.profile')}
+                {t("student.assistantProfile.profile")}
               </TabsTrigger>
             </TabsList>
 

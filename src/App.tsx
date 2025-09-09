@@ -10,6 +10,7 @@ import OAuthCallback from "./pages/auth/callback/OAuthCallback";
 import Waitlist from "./pages/auth/waitlist/Waitlist";
 import WaitlistForm from "./pages/auth/waitlist/WaitlistForm";
 import AdminPortal from "./pages/admin/admin";
+import WorkspaceOnboarding from "./pages/workspaces/WorkspaceOnboarding";
 
 // Components
 import PrivateRoute from "./pages/PrivateRoute";
@@ -17,7 +18,7 @@ import { CopilotIntegrator } from "./components/copilot/CopilotIntegrator";
 
 // Context
 import { AuthProvider } from "./contexts/AuthContext";
-import Student from "./pages/student/student";
+import Home from "./pages/student/student";
 
 function App() {
   return (
@@ -32,10 +33,14 @@ function App() {
           <Route path="/auth/callback" element={<OAuthCallback />} />
           <Route path="/auth/waitlist" element={<Waitlist />} />
           <Route path="/auth/waitlist/form" element={<WaitlistForm />} />
+          <Route
+            path="/onboarding/workspace"
+            element={<WorkspaceOnboarding />}
+          />
 
           {/* Protected Routes */}
           <Route element={<PrivateRoute />}>
-            <Route path="/student" element={<Student />} />
+            <Route path="/home" element={<Home />} />
             <Route path="/admin/*" element={<AdminPortal />} />
             {/* Add more protected routes here */}
           </Route>

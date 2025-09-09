@@ -208,18 +208,32 @@ export function ChatComponent() {
     try {
       if (!conversationId) return;
       setIsChatLoading(true);
-      const response = await getConversationHistory(conversationId);
-      setMessages(response.history);
-      setConversationData({
-        studentInfo: response.student_info,
-        instructorInfo: response.instructor_info,
-        assistantInfo: response.assistant,
-      });
+      const response: any = await getConversationHistory(conversationId);
+      // Support new shape (messages[]) and legacy shape (history[])
+      if (Array.isArray(response?.messages)) {
+        const mapped: Message[] = response.messages.map((m: any) => ({
+          sender: m.sender_assistant_id ? "agent" : "student",
+          content: m.content,
+          time: Math.floor(Date.now() / 1000),
+          invocation_id: undefined,
+        }));
+        setMessages(mapped);
+        // No participant info in this response; keep conversationData as-is
+      } else if (Array.isArray(response?.history)) {
+        setMessages(response.history as Message[]);
+        setConversationData({
+          studentInfo: response.student_info,
+          instructorInfo: response.instructor_info,
+          assistantInfo: response.assistant,
+        });
+      } else {
+        setMessages([]);
+      }
       // Scroll to the bottom of the chat after messages are loaded
       setTimeout(() => {
         const chatContainer = document.querySelector(
           ".chat-messages-container"
-        );
+        ) as HTMLElement | null;
         if (chatContainer) {
           chatContainer.scrollTop = chatContainer.scrollHeight;
         }
@@ -242,8 +256,10 @@ export function ChatComponent() {
 
   // Effect to scroll to bottom when new messages are added
   useEffect(() => {
-    if (messages.length > 0) {
-      const chatContainer = document.querySelector(".chat-messages-container");
+    if (Array.isArray(messages) && messages.length > 0) {
+      const chatContainer = document.querySelector(
+        ".chat-messages-container"
+      ) as HTMLElement | null;
       if (chatContainer) {
         chatContainer.scrollTop = chatContainer.scrollHeight;
       }

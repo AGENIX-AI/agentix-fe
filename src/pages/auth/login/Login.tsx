@@ -60,7 +60,7 @@ const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
   const invitationId = searchParams.get("invitationId");
   const email = searchParams.get("email");
-  const redirectPath = searchParams.get("redirectPath") || "/student";
+  const redirectPath = searchParams.get("redirectPath") || "/home";
 
   const { signIn, userInfo } = useAuth();
 
@@ -70,7 +70,7 @@ const LoginForm = () => {
       return;
     }
     if (userInfo) {
-      navigate("/student", { replace: true });
+      navigate("/home", { replace: true });
     }
   }, [redirectPath, userInfo]);
 

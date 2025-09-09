@@ -38,7 +38,7 @@ export function Logo({ className }: LogoProps) {
           "flex items-center font-semibold text-foreground leading-none w-30",
           className
         )}
-        onClick={() => navigate("/student")}
+        onClick={() => navigate("/home")}
       >
         {/* Placeholder or loading state */}
         <div className="w-8 h-8" />
@@ -52,7 +52,7 @@ export function Logo({ className }: LogoProps) {
         "flex items-center font-semibold text-foreground leading-none w-30",
         className
       )}
-      onClick={() => navigate("/student")}
+      onClick={() => navigate("/home")}
     >
       <img src={logoSrc} alt="AgentIX Logo" />
     </span>

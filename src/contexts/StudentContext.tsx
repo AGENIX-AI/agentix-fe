@@ -46,6 +46,8 @@ interface AppPageContextType {
   setConversationId: (id: string | null) => void;
   rightPanel: string;
   setRightPanel: (panel: string) => void;
+  workspaceId: string | null;
+  setWorkspaceId: (id: string | null) => void;
   instructorId: string | null;
   setInstructorId: (id: string | null) => void;
 
@@ -76,6 +78,7 @@ export function StudentContextProvider({
       assistantId: null,
       conversationId: null,
       rightPanel: "findInstructor",
+      workspaceId: null,
     };
   };
   const initialState = getInitialState();
@@ -90,6 +93,9 @@ export function StudentContextProvider({
     initialState.conversationId
   );
   const [rightPanel, setRightPanel] = useState<string>(initialState.rightPanel);
+  const [workspaceId, setWorkspaceId] = useState<string | null>(
+    initialState.workspaceId
+  );
   const [instructorId, setInstructorId] = useState<string | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
 
@@ -129,10 +135,11 @@ export function StudentContextProvider({
       assistantId,
       conversationId,
       rightPanel,
+      workspaceId,
     };
     localStorage.setItem("student_state", JSON.stringify(state));
     console.log("student_state", state);
-  }, [rightPanel, conversationId, assistantId]);
+  }, [rightPanel, conversationId, assistantId, workspaceId]);
 
   return (
     <StudentContext.Provider
@@ -145,6 +152,8 @@ export function StudentContextProvider({
         setConversationId,
         rightPanel,
         setRightPanel,
+        workspaceId,
+        setWorkspaceId,
 
         instructorId,
         setInstructorId,

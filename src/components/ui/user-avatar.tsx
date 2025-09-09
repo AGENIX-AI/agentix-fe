@@ -8,8 +8,9 @@ export const UserAvatar = forwardRef<
     name: string;
     avatarUrl?: string | null;
     className?: string;
+    onClick?: () => void;
   }
->(({ name, avatarUrl, className }, ref) => {
+>(({ name, avatarUrl, className, onClick }, ref) => {
   const initials = useMemo(
     () =>
       name
@@ -31,7 +32,7 @@ export const UserAvatar = forwardRef<
   );
 
   return (
-    <Avatar ref={ref} className={cn(className, "w-5 h-5")}>
+    <Avatar ref={ref} className={cn(className, "w-5 h-5")} onClick={onClick}>
       <AvatarImage src={avatarSrc} />
       <AvatarFallback className="bg-secondary/10 text-secondary">
         {initials}

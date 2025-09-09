@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { getCredits, type Credits } from "@/api/payments";
+import { type Credits } from "@/api/payments";
 
 export const useCreditsPolling = (intervalMs: number = 5000) => {
   const [credits, setCredits] = useState<Credits | null>(null);
@@ -10,8 +10,8 @@ export const useCreditsPolling = (intervalMs: number = 5000) => {
   const fetchCredits = async () => {
     try {
       setError(null);
-      const data = await getCredits();
-      setCredits(data);
+      // const data = await getCredits();
+      setCredits(null);
       setIsLoading(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to fetch credits");

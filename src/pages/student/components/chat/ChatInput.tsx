@@ -494,7 +494,7 @@ export function ChatInput({
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}
 
-      <div className="relative flex items-center text-gray-500 hover:text-gray-700 rounded-xl border border-border">
+      <div className="relative flex items-center rounded-md border border-input bg-background shadow-xs">
         {showTaskMenu && (
           <TaskMenu
             onClose={() => setShowTaskMenu(false)}
@@ -560,13 +560,13 @@ export function ChatInput({
             conversationData?.instructorInfo && (
               <div
                 ref={mentionPopoverRef}
-                className="absolute bottom-full left-0 mb-1 w-64 bg-white dark:bg-gray-900 border border-border rounded-md shadow-lg z-20"
+                className="absolute bottom-full left-0 mb-1 w-64 bg-popover text-popover-foreground border border-border rounded-md shadow-md z-20"
               >
                 <div className="p-2 text-xs font-medium text-muted-foreground border-b border-border">
                   Mention user
                 </div>
                 <div
-                  className="flex items-center gap-2 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded cursor-pointer transition-colors"
+                  className="flex items-center gap-2 p-2 hover:bg-accent rounded cursor-pointer transition-colors"
                   onClick={handleSelectMention}
                 >
                   <Avatar className="h-6 w-6">

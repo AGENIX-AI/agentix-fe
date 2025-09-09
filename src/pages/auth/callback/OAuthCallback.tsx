@@ -53,7 +53,7 @@ const OAuthCallback = () => {
         } catch {}
 
         // Redirect to dashboard after successful authentication
-        navigate("/student");
+        navigate("/home");
       } catch (error) {
         console.error("OAuth callback error:", error);
         setError("Authentication failed. Please try again.");

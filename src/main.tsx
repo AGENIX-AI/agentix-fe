@@ -7,7 +7,6 @@ import "./i18n"; // Import i18n configuration
 import App from "./App";
 import * as Sentry from "@sentry/react";
 import { CopilotKit } from "@copilotkit/react-core";
-import Cookies from "js-cookie";
 import { getCopilotContext } from "./components/copilot/CopilotIntegrator";
 
 Sentry.init({
@@ -21,19 +20,10 @@ Sentry.init({
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <CopilotKit
-      publicLicenseKey="ck_pub_c45823d2382fbfe0cbf5e5d555145ee0"
+      publicLicenseKey={import.meta.env.VITE_COPILOT_PUBLIC_LICENSE_KEY}
       properties={getCopilotContext()}
       credentials="include"
-      headers={{
-        ...(Cookies.get("agentix_access_token")
-          ? { Authorization: `Bearer ${Cookies.get("agentix_access_token")}` }
-          : {}),
-        ...(Cookies.get("agentix_refresh_token")
-          ? {
-              "X-Refresh-Token": Cookies.get("agentix_refresh_token") as string,
-            }
-          : {}),
-      }}
+      showDevConsole={false}
     >
       <ThemeProvider>
         <Sentry.ErrorBoundary fallback={<p>An error has occurred</p>}>

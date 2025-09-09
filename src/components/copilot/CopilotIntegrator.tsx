@@ -62,7 +62,7 @@ export function CopilotIntegrator() {
       {
         name: "path",
         type: "string",
-        description: "Absolute route path, e.g. /student or /admin.",
+        description: "Absolute route path, e.g. /home or /admin.",
         required: true,
       },
     ],
@@ -72,7 +72,7 @@ export function CopilotIntegrator() {
     },
   });
 
-  // Action: open right panel mode in student page context
+  // Action: open right panel mode in home page context
   useCopilotAction({
     name: "openRightPanel",
     description: "Open a specific right panel mode in the student area.",
@@ -156,7 +156,7 @@ export function CopilotIntegrator() {
   // Optional: context-aware suggestions for first-time users
   useEffect(() => {
     if (!isAuthenticated) return;
-    if (location.pathname === "/student" && !studentState.rightPanel) {
+    if (location.pathname === "/home" && !studentState.rightPanel) {
       toast("Tip: Ask the copilot to 'open instructor finder'.");
     }
   }, [isAuthenticated, location.pathname, studentState.rightPanel]);

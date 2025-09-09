@@ -48,7 +48,7 @@ export const sidebarData: SidebarData = {
         // },
         {
           title: "Find Instructor",
-          url: "/student",
+          url: "/home",
           icon: UserSearch,
         },
         {

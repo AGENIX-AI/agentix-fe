@@ -237,10 +237,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({
     // Update API headers with the new token
     updateApiAuthHeader(session.access_token);
 
-    // Ensure default workspace after successful sign-in
-    authService.ensureDefaultWorkspace(user.id).catch(() => {
-      /* non-blocking */
-    });
+    // Do not auto-create default workspace; onboarding will handle creation
   };
 
   const signOut = async () => {

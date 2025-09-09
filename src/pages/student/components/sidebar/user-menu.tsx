@@ -30,11 +30,14 @@ import {
 import { useTranslation } from "react-i18next";
 import { useTheme } from "next-themes";
 import { Link, useNavigate, useLocation } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/contexts/AuthContext";
 import { useStudent } from "@/contexts/StudentContext";
 import { UserIcon } from "lucide-react";
+import { listWorkspaces, switchWorkspace } from "@/api/workspaces";
+import type { WorkspaceDTO } from "@/api/workspaces";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export function UserMenu({
   showUserName,
@@ -49,13 +52,15 @@ export function UserMenu({
   const [theme, setTheme] = useState<string>(currentTheme ?? "system");
   const [language, setLanguage] = useState<string>(i18n.language);
   const { signOut } = useAuth();
-  const { setRightPanel } = useStudent();
+  const { setRightPanel, setWorkspaceId } = useStudent();
   const navigate = useNavigate();
   const location = useLocation();
+  const [workspaces, setWorkspaces] = useState<WorkspaceDTO[]>([]);
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState<string>("");
 
   // Determine current mode based on URL path
   const [currentMode, setCurrentMode] = useState<string>(
-    location.pathname.includes("/instructor") ? "instructor" : "student"
+    location.pathname.includes("/instructor") ? "instructor" : "home"
   );
 
   const colorModeOptions = [
@@ -89,8 +94,8 @@ export function UserMenu({
 
   const modeOptions = [
     {
-      value: "student",
-      label: "Student",
+      value: "home",
+      label: "Home",
       icon: UserIcon,
     },
     {
@@ -107,6 +112,19 @@ export function UserMenu({
     localStorage.removeItem("chat-input");
     signOut();
   };
+
+  useEffect(() => {
+    listWorkspaces()
+      .then((res) => setWorkspaces(res.items))
+      .catch(() => setWorkspaces([]));
+  }, []);
+
+  useEffect(() => {
+    const current = workspaces.find((w) => w.is_default);
+    if (current) {
+      setSelectedWorkspaceId(current.id);
+    }
+  }, [workspaces]);
 
   if (!userInfo) {
     return null;
@@ -162,6 +180,88 @@ export function UserMenu({
 
         <DropdownMenuSeparator />
 
+        {/* Workspace switcher */}
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
+            <UserIcon className="mr-2 size-5" />
+            <span className="text-xs ml-2">Workspaces</span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuPortal>
+            <DropdownMenuSubContent className="w-[300px] ml-4">
+              <div className="max-h-64 overflow-y-auto overflow-x-hidden py-1 pr-1">
+                <DropdownMenuRadioGroup
+                  value={selectedWorkspaceId}
+                  onValueChange={async (value) => {
+                    setSelectedWorkspaceId(value);
+                    setWorkspaceId(value);
+                    await switchWorkspace({ workspace_id: value });
+                    const updated = await listWorkspaces();
+                    setWorkspaces(updated.items);
+                  }}
+                >
+                  {workspaces.map((ws) => (
+                    <DropdownMenuRadioItem
+                      key={ws.id}
+                      value={ws.id}
+                      className="text-xs py-2 pr-2 cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 w-full min-w-0">
+                        {ws.image_url ? (
+                          <Avatar className="w-4 h-4">
+                            <AvatarImage src={ws.image_url} />
+                            <AvatarFallback className="text-[10px]">
+                              WS
+                            </AvatarFallback>
+                          </Avatar>
+                        ) : (
+                          <span
+                            className="inline-flex w-2 h-2 rounded-full mt-0.5"
+                            style={{
+                              backgroundColor: ws.is_default
+                                ? "#22c55e"
+                                : "#9ca3af",
+                            }}
+                          />
+                        )}
+                        <span className="text-xs mr-2 truncate flex-1">
+                          {ws.name}
+                        </span>
+                        <span className="text-[10px] opacity-60 shrink-0 mr-2">
+                          {ws.role}
+                        </span>
+                        <button
+                          type="button"
+                          className="ml-auto text-[10px] text-primary underline"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setRightPanel("workspaceMembers");
+                            setWorkspaceId(ws.id);
+                          }}
+                        >
+                          Manage
+                        </button>
+                      </div>
+                    </DropdownMenuRadioItem>
+                  ))}
+                </DropdownMenuRadioGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  className="text-xs py-2 cursor-pointer"
+                  onClick={() => setRightPanel("createWorkspace")}
+                >
+                  Add new workspace
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="text-xs py-2 cursor-pointer"
+                  onClick={() => setRightPanel("workspaceInvites")}
+                >
+                  Confirm invites
+                </DropdownMenuItem>
+              </div>
+            </DropdownMenuSubContent>
+          </DropdownMenuPortal>
+        </DropdownMenuSub>
+
         <DropdownMenuSub>
           <DropdownMenuSubTrigger className="text-xs py-2 cursor-pointer">
             <UserIcon className="mr-2 size-5" />
@@ -170,13 +270,13 @@ export function UserMenu({
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="w-[280px] ml-2">
+            <DropdownMenuSubContent className="w-[280px] ml-4">
               <DropdownMenuRadioGroup
                 value={currentMode}
                 onValueChange={(value) => {
                   setCurrentMode(value);
-                  if (value === "student") {
-                    navigate("/student");
+                  if (value === "home") {
+                    navigate("/home");
                   } else {
                     navigate("/instructor");
                   }
@@ -206,7 +306,7 @@ export function UserMenu({
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="w-[280px] ml-2">
+            <DropdownMenuSubContent className="w-[280px] ml-4">
               <DropdownMenuRadioGroup
                 value={theme}
                 onValueChange={(value) => {
@@ -238,7 +338,7 @@ export function UserMenu({
             </span>
           </DropdownMenuSubTrigger>
           <DropdownMenuPortal>
-            <DropdownMenuSubContent className="w-[200px] ml-2">
+            <DropdownMenuSubContent className="w-[200px] ml-4">
               <DropdownMenuRadioGroup
                 value={language}
                 onValueChange={(value) => {

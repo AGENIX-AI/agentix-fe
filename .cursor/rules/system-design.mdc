@@ -1,0 +1,220 @@
+---
+alwaysApply: true
+---
+
+### System Design (Radix-inspired) for AgentIx FE
+
+This rule defines the canonical design tokens and usage guidance for the frontend. Tokens follow a Radix UI–inspired system and map to our current Tailwind v4 + CSS variable setup in `src/styles/theme.css`. Use these tokens for all new components and when refactoring legacy styles in `src/styles/`.
+
+- Prefer CSS variables and semantic tokens over hard-coded values
+- Use Tailwind utilities that resolve to our tokens (Tailwind v4 reads from `@theme` in `src/styles/theme.css`)
+- Component styles should consume semantic tokens (e.g., `--color-primary`) not raw hex values
+
+### Color
+
+- Foundation (defined in `src/styles/theme.css`):
+  - `--color-background`, `--color-foreground`
+  - `--color-card`, `--color-card-foreground`
+  - `--color-popover`, `--color-popover-foreground`
+  - `--color-primary`, `--color-primary-foreground`
+  - `--color-secondary`, `--color-secondary-foreground`
+  - `--color-muted`, `--color-muted-foreground`
+  - `--color-accent`, `--color-accent-foreground`
+  - `--color-success`, `--color-success-foreground`
+  - `--color-destructive`, `--color-destructive-foreground`
+  - `--color-border`, `--color-input`, `--color-ring`
+  - `--color-highlight`, `--color-highlight-foreground`
+- Light/Dark themes override values at `:root` and `.dark` in `src/styles/theme.css`.
+- Usage:
+  - Backgrounds: background uses `bg-background`, surfaces use `bg-card` or `bg-popover`.
+  - Text: `text-foreground` by default; on primary/secondary/… use the matching `*-foreground` tokens.
+  - Borders: `border-border`, inputs: `border-input`.
+  - Focus rings: `ring-ring`.
+
+### Typography
+
+- Font family: `--font-sans: "Inter", sans-serif` (already applied globally)
+- Font sizes/weights should use Tailwind utilities; keep semantic component styles:
+  - Headings: use component tokens (see Component tokens) and responsive utilities
+  - Body: default `text-sm`/`text-base` depending on context; do not inline pixel values
+- Line-height: prefer Tailwind leading utilities (`leading-6`, etc.)
+
+### Spacing
+
+- Use Tailwind spacing scale; do not hard-code px
+- Container: use `container` utility (defined in `src/styles/theme.css`)
+- For gaps/margins/padding, stick to Tailwind scale: `0`, `0.5`, `1`, `1.5`, `2`, … `96`
+
+### Sizing
+
+- Use Tailwind width/height utilities (`w-`, `h-`, `min-w-`, `max-w-`)
+- For interactive targets, minimum size `h-9` or `h-10` (touch-friendly)
+
+### Border radius
+
+- Tokens in `@theme` map to:
+  - `--radius-lg: var(--radius)`
+  - `--radius-md: calc(var(--radius) - 2px)`
+  - `--radius-sm: calc(var(--radius) - 4px)`
+- Default radius root: `--radius: 0.75rem`
+- Usage:
+  - Small controls (chips, badges): `rounded-sm`
+  - Inputs/buttons: `rounded-md`
+  - Cards/modals/surfaces: `rounded-lg`
+
+### Border width & style
+
+- Default border uses `border` with `--color-border`
+- Inputs specifically use `border-input`
+- Avoid custom border colors; prefer semantic tokens
+- Use `border`, `border-2` sparingly; dashed only for drag/drop or selection affordances
+
+### Shadow / Elevation
+
+- Tokenized in `src/styles/theme.css`:
+  - `--shadow-xs`, `--shadow-sm`, `--shadow-md`, `--shadow-lg`, `--shadow-xl`, `--shadow-2xl`
+- Usage:
+  - Inline elements / subtle pop: `shadow-xs|sm`
+  - Cards/popovers/menus: `shadow-md|lg`
+  - Modals/overlays: `shadow-xl|2xl`
+- Respect dark mode (shadows tuned in theme)
+
+### Opacity
+
+- Use Tailwind `opacity-*` scale; do not hard-code rgba unless creating tokens
+
+### Breakpoints
+
+- Use Tailwind default breakpoints; design for mobile-first
+- Ensure content scales across sm, md, lg, xl, 2xl; avoid fixed pixel widths except component tokens
+
+### Z-index
+
+- Default content: auto
+- Overlays/menus: 50–60
+- Modals/drawers: 100+
+- Editor floating UI (TipTap menus): already fixed to high `z-index` in `globals.css`
+
+### Motion / Animation
+
+- Use `src/styles/tailwind-animate.css` utilities:
+  - In: `animate-in`, `fade-in`, `zoom-in`, `slide-in-from-*`
+  - Out: `animate-out`, `fade-out`, `zoom-out`, `slide-out-to-*`
+  - Delay, repeat, direction via `delay-*`, `repeat-*`, `direction-*`
+- Keep durations short (150–300ms), easing cubic-bezier defaults
+- Avoid parallax/heavy animations; respect reduced motion preferences when applicable
+
+### Accessibility
+
+- Color contrast: ensure WCAG AA for text/background pairs
+- Focus visible: always show `ring-ring` on keyboard focus
+- Hit targets: min 40x40px where touchable
+- Semantics: use correct roles/labels; ARIA only to enhance native semantics
+- Motion: honor reduced motion preferences if implemented
+
+### Interaction states
+
+- Hover: increase contrast subtly (bg-muted → bg-accent, or text/opacity)
+- Focus: use `ring-2 ring-ring ring-offset-2` (or component token)
+- Active: compress via `translate-y-[1px]` or reduce shadow one step
+- Disabled: reduce opacity (`opacity-50`), disable pointer events, preserve layout
+- Selected: high-contrast background or border; ensure text contrast remains AA
+
+### Iconography
+
+- Sizes: `12, 14, 16, 18, 20, 24` (Tailwind `w-3`..`w-6`); default `16`/`w-4 h-4`
+- Stroke: 1.5px default; 2px for bold
+- Align with text via `inline-flex items-center` and `gap-1|2`
+
+### Component-level tokens
+
+Define per-component CSS vars that map to global tokens; override per-variant/size only via these vars. Example patterns:
+
+```css
+/* Button */
+:root {
+  --button-bg: var(--color-primary);
+  --button-fg: var(--color-primary-foreground);
+  --button-radius: var(--radius-md);
+  --button-border: var(--color-border);
+  --button-ring: var(--color-ring);
+  --button-shadow: var(--shadow-sm);
+  --button-height-sm: 2rem; /* 32px */
+  --button-height-md: 2.5rem; /* 40px */
+  --button-height-lg: 3rem; /* 48px */
+}
+
+/* Input */
+:root {
+  --input-bg: var(--color-background);
+  --input-fg: var(--color-foreground);
+  --input-placeholder: var(--muted-foreground);
+  --input-radius: var(--radius-md);
+  --input-border: var(--color-input);
+  --input-ring: var(--color-ring);
+  --input-shadow: var(--shadow-xs);
+}
+
+/* Card */
+:root {
+  --card-bg: var(--color-card);
+  --card-fg: var(--color-card-foreground);
+  --card-radius: var(--radius-lg);
+  --card-border: var(--color-border);
+  --card-shadow: var(--shadow-md);
+}
+
+/* Modal */
+:root {
+  --modal-bg: var(--color-card);
+  --modal-fg: var(--color-card-foreground);
+  --modal-radius: var(--radius-lg);
+  --modal-border: var(--color-border);
+  --modal-shadow: var(--shadow-xl);
+  --modal-backdrop: rgba(0, 0, 0, 0.4);
+}
+
+/* Table */
+:root {
+  --table-bg: var(--color-card);
+  --table-border: var(--color-border);
+  --table-header-bg: var(--muted);
+  --table-header-fg: var(--muted-foreground);
+  --table-row-hover: var(--accent);
+}
+
+/* Heading */
+:root {
+  --heading-fg: var(--color-foreground);
+}
+```
+
+Recommended Tailwind composition for core components:
+
+- Button
+  - Base: `inline-flex items-center justify-center font-medium rounded-md shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:opacity-50 disabled:pointer-events-none`
+  - Sizes: `h-8 px-3 text-sm` | `h-10 px-4 text-sm` | `h-12 px-6 text-base`
+  - Variants map tokens → primary, secondary, ghost, destructive, success
+- Input
+  - Base: `flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring`
+  - States: `disabled:opacity-50 disabled:pointer-events-none`
+- Card
+  - Base: `rounded-lg border border-border bg-card text-card-foreground shadow-md`
+- Modal/Dialog
+  - Surface: `rounded-lg bg-card text-card-foreground shadow-xl`
+  - Backdrop: `bg-black/40`
+- Table
+  - Base: `w-full text-sm`
+  - Head: `bg-muted text-muted-foreground`
+  - Row hover: `hover:bg-accent`
+- Heading
+  - `h1`: `text-2xl font-bold`
+  - `h2`: `text-xl font-semibold`
+  - `h3`: `text-lg font-semibold`
+
+### Implementation guidance
+
+- Only add new tokens if a semantic gap exists; avoid hard-coded colors/shadows
+- Co-locate component tokens with the component if they are specific; prefer global tokens when shared
+- For new features, define tokens first, then styles. Keep JSX free of arbitrary styles
+- Respect accessibility and interaction states consistently across all components

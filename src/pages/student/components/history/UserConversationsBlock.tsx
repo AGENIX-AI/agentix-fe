@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useStudent } from "@/contexts/StudentContext";
-import { getListConversations } from "@/api/conversations";
+import { listConversations, getConversationHistory } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { ConversationItem } from "./ConversationItem";
@@ -25,6 +25,7 @@ function UserConversationsBlockComponent({
     setRightPanel,
     conversationId,
     isChatLoading,
+    workspaceId,
   } = useStudent();
 
   const [conversations, setConversations] = useState<ConversationListItem[]>(
@@ -41,11 +42,22 @@ function UserConversationsBlockComponent({
   const fetchConversations = async () => {
     try {
       setIsLoading(true);
-      const response = await getListConversations();
-      if (response.success) {
-        setConversations(response.conversations);
-        conversationsRef.current = response.conversations;
-      }
+      const resp = await listConversations({
+        workspace_id: workspaceId || "",
+        page_number: 1,
+        page_size: 100,
+      });
+      const items: ConversationListItem[] = (resp.conversations || []).map(
+        (c: any) => ({
+          id: c.id ?? null,
+          assistants: c.assistants ?? null,
+          participants: c.participants ?? [],
+          conversation_name: c.title ?? null,
+          conversation_description: c.conversation_description ?? "",
+        })
+      );
+      setConversations(items);
+      conversationsRef.current = items;
     } catch (error) {
       console.error("Failed to fetch conversations:", error);
     } finally {
@@ -146,31 +158,51 @@ function UserConversationsBlockComponent({
     if (!searchQuery) return true;
 
     const query = searchQuery.toLowerCase();
+    const assistantName = (
+      (conversation as any).assistants?.name || ""
+    ).toLowerCase();
+    const participantsMatch = (conversation as any).participants?.some(
+      (p: any) => (p.name || "").toLowerCase().includes(query)
+    );
     return (
-      (conversation.assistants?.name?.toLowerCase() || "").includes(query) ||
-      (conversation.assistants?.tagline?.toLowerCase() || "").includes(query) ||
+      (conversation.conversation_name?.toLowerCase() || "").includes(query) ||
+      assistantName.includes(query) ||
+      !!participantsMatch ||
       (conversation.last_message?.content?.toLowerCase() || "").includes(query)
     );
   });
 
-  const handleConversationClick = (conversation: ConversationListItem) => {
+  const handleConversationClick = async (
+    conversation: ConversationListItem
+  ) => {
     // Prevent actions if messages are currently loading
     if (isChatLoading) {
       return;
     }
     setIsChatLoading(true);
-    // Set assistant ID from the conversation
-    setAssistantId(conversation.assistants?.id);
+
+    if (conversation.assistants && (conversation.assistants as any).id) {
+      setAssistantId((conversation.assistants as any).id);
+    }
 
     if (conversation) {
-      // If this is an existing conversation with details
       setConversationId(conversation.id);
     } else {
-      // Reset states for a new conversation
       setConversationId(null);
     }
 
-    // Change the right panel to assistantTopics
+    try {
+      if (conversation.id) {
+        const history = await getConversationHistory(conversation.id);
+        eventBus.emit("conversation-history", {
+          conversationId: conversation.id,
+          messages: history.messages || [],
+        });
+      }
+    } catch (e) {
+      console.error("Failed to load conversation history", e);
+    }
+
     setRightPanel("assistantTopics");
     setIsChatLoading(false);
   };

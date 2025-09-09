@@ -275,7 +275,7 @@ export default function LeftPanel({
 
   return (
     <div className="flex flex-col h-screen max-h-[100vh] overflow-auto">
-      <header className="flex h-18 items-center border border-r-0 border-t-0 bg-background z-30 px-6">
+      <header className="flex h-18 items-center border-b bg-background z-30 px-6">
         {/* Left section - Logo */}
         <div className="flex items-center cursor-pointer flex-shrink-0">
           <Logo className="w-30 h-15" />
