@@ -11,12 +11,6 @@ import { useTranslation } from "react-i18next";
 import { useState, useRef } from "react";
 import { getSpeech } from "@/api/conversations";
 
-interface UserInfo {
-  id: string;
-  name: string;
-  avatar_url: string;
-}
-
 interface MessageBubbleProps {
   message: any;
   index: number;
@@ -27,8 +21,8 @@ interface MessageBubbleProps {
   agentImage?: string;
   isSharing?: boolean;
   conversationData?: {
-    studentInfo?: UserInfo;
-    instructorInfo?: UserInfo;
+    studentInfo?: { id: string; name: string; avatar_url: string };
+    instructorInfo?: { id: string; name: string; avatar_url: string };
     assistantInfo?: {
       id: string;
       name: string;

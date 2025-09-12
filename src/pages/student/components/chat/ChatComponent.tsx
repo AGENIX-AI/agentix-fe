@@ -9,9 +9,9 @@ import { eventBus } from "@/lib/utils/event/eventBus";
 import {
   getConversationHistory,
   sendMessage,
-  type UserInfo,
   type AssistantInfo,
   uploadConversationImage,
+  listParticipantsBrief,
 } from "@/api/conversations";
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/ChatContext";
@@ -110,9 +110,10 @@ export function ChatComponent() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
+  type ChatUser = { id: string; name?: string; avatar_url?: string };
   const [conversationData, setConversationData] = useState<{
-    studentInfo?: UserInfo;
-    instructorInfo?: UserInfo;
+    studentInfo?: ChatUser;
+    instructorInfo?: ChatUser;
     assistantInfo?: AssistantInfo;
   }>({});
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -126,6 +127,10 @@ export function ChatComponent() {
       console.log("handleWebSocketMessage", event);
       // Only handle messages for the current conversation
       if (!conversationId || event.conversation_id !== conversationId) {
+        console.log("[Chat] Ignoring WS message due to conversation mismatch", {
+          currentConversationId: conversationId,
+          eventConversationId: event.conversation_id,
+        });
         return;
       }
 
@@ -136,7 +141,10 @@ export function ChatComponent() {
 
       // Skip messages that have already been processed (deduplication)
       if (processedMessageIds.current.has(messageKey)) {
-        console.log("Message already processed, skipping:", messageKey);
+        console.log("[Chat] Message already processed, skipping", {
+          messageKey,
+          event,
+        });
         return;
       }
 
@@ -145,8 +153,12 @@ export function ChatComponent() {
         event
       );
 
-      // Only render messages from instructor or agent
-      if (event.sender === "instructor" || event.sender === "agent") {
+      // Render messages from agent, instructor, or student (realtime)
+      if (
+        event.sender === "agent" ||
+        event.sender === "instructor" ||
+        event.sender === "student"
+      ) {
         // Add message key to processed set
         processedMessageIds.current.add(messageKey);
 
@@ -168,7 +180,15 @@ export function ChatComponent() {
           invocation_id: event.invocation_id,
         };
 
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessages((prevMessages) => {
+          console.log("[Chat] Appending WS message", {
+            conversationId,
+            event,
+            newMessage,
+            prevCount: prevMessages.length,
+          });
+          return [...prevMessages, newMessage];
+        });
 
         // Emit event to update history
         eventBus.emit("conversation-update", {
@@ -185,6 +205,11 @@ export function ChatComponent() {
         if (event.sender === "agent") {
           setIsAgentResponding(false);
         }
+      } else {
+        console.log("[Chat] Ignoring WS message due to sender not allowed", {
+          sender: event.sender,
+          event,
+        });
       }
     };
 
@@ -194,6 +219,31 @@ export function ChatComponent() {
     // Return cleanup function
     return cleanup;
   }, [conversationId, assistantId]);
+
+  // Listen to realtime typing events and reflect in UI
+  useEffect(() => {
+    const handleTypingEvent = (event: any) => {
+      try {
+        console.log("[Chat] handleTypingEvent", {
+          event,
+          conversationId,
+        });
+        const convId =
+          event?.message?.conversation_id || event?.conversation_id;
+        if (!conversationId || convId !== conversationId) return;
+        const typing = Boolean(
+          event?.message?.meta?.typing ?? event?.meta?.typing ?? event?.typing
+        );
+        console.log("[Chat] setIsAgentResponding", { typing, convId });
+        setIsAgentResponding(typing);
+      } catch (e) {
+        console.log("[Chat] typing event parse error", e);
+      }
+    };
+
+    const cleanup = eventBus.on("websocket-typing", handleTypingEvent);
+    return cleanup;
+  }, [conversationId]);
 
   // Add effect to focus input when isAgentResponding changes from true to false
   useEffect(() => {
@@ -246,11 +296,42 @@ export function ChatComponent() {
       setIsChatLoading(false);
     }
   };
+  const fetchParticipantsBrief = async () => {
+    try {
+      if (!conversationId) return;
+      const briefs = await listParticipantsBrief(conversationId);
+      const assistant = briefs.find((b: any) => b.kind === "assistant");
+      const user = briefs.find((b: any) => b.kind === "user");
+      const mappedAssistant: AssistantInfo | undefined = assistant
+        ? {
+            id: assistant.id,
+            name: assistant.name,
+            image: assistant.image,
+            tagline: undefined,
+          }
+        : undefined;
+      const mappedUser: ChatUser | undefined = user
+        ? {
+            id: user.id,
+            name: user.name ?? undefined,
+            avatar_url: user.image ?? undefined,
+          }
+        : undefined;
+      setConversationData((prev) => ({
+        ...prev,
+        assistantInfo: mappedAssistant ?? prev.assistantInfo,
+        studentInfo: mappedUser ?? prev.studentInfo,
+      }));
+    } catch (error) {
+      console.error("Error fetching participant briefs:", error);
+    }
+  };
   useEffect(() => {
     if (conversationId) {
       // Clear processed message IDs when conversation changes
       processedMessageIds.current.clear();
       fetchMessages();
+      fetchParticipantsBrief();
     }
   }, [conversationId]);
 
@@ -281,7 +362,14 @@ export function ChatComponent() {
         invocation_id: "",
       };
 
-      setMessages((prevMessages) => [...prevMessages, userMessage]);
+      setMessages((prevMessages) => {
+        console.log("[Chat] Appending local user message", {
+          conversationId,
+          userMessage,
+          prevCount: prevMessages.length,
+        });
+        return [...prevMessages, userMessage];
+      });
 
       // Emit event for user message
       eventBus.emit("conversation-update", {
@@ -301,16 +389,6 @@ export function ChatComponent() {
       );
       const response = await sendMessage(conversationId, content);
       console.log("Received response:", response);
-
-      // Handle special action message types
-      if (
-        response.message &&
-        response.message.startsWith("Action:SetConversationId:")
-      ) {
-        const id = response.message.replace("Action:SetConversationId:", "");
-        setConversationId(id);
-        return;
-      }
 
       // Agent response will come through WebSocket, no need to handle it here
     } catch (error) {
@@ -340,7 +418,14 @@ export function ChatComponent() {
       invocation_id: newMessage.invocation_id,
     };
 
-    setMessages((prevMessages) => [...prevMessages, agentMessage]);
+    setMessages((prevMessages) => {
+      console.log("[Chat] Appending local generated message", {
+        conversationId,
+        agentMessage,
+        prevCount: prevMessages.length,
+      });
+      return [...prevMessages, agentMessage];
+    });
 
     // Emit event to update history
     eventBus.emit("conversation-update", {
@@ -395,7 +480,14 @@ export function ChatComponent() {
           invocation_id: "",
         };
 
-        setMessages((prevMessages) => [...prevMessages, userMessage]);
+        setMessages((prevMessages) => {
+          console.log("[Chat] Appending local user file-upload message", {
+            conversationId,
+            userMessage,
+            prevCount: prevMessages.length,
+          });
+          return [...prevMessages, userMessage];
+        });
 
         // Emit event for user file upload
         eventBus.emit("conversation-update", {
@@ -416,15 +508,7 @@ export function ChatComponent() {
         const response = await sendMessage(conversationId, messageWithImage);
         console.log("handleFileUpload - sendMessage response:", response);
 
-        // Handle special action message types
-        if (
-          response.message &&
-          response.message.startsWith("Action:SetConversationId:")
-        ) {
-          const id = response.message.replace("Action:SetConversationId:", "");
-          setConversationId(id);
-          return;
-        }
+        // Agent response will come through WebSocket, no need to handle it here
       } else {
         console.error(
           "handleFileUpload - Upload failed or no image_path in response"
@@ -499,7 +583,14 @@ export function ChatComponent() {
           invocation_id: "",
         };
 
-        setMessages((prevMessages) => [...prevMessages, userMessage]);
+        setMessages((prevMessages) => {
+          console.log("[Chat] Appending local user image message", {
+            conversationId,
+            userMessage,
+            prevCount: prevMessages.length,
+          });
+          return [...prevMessages, userMessage];
+        });
 
         // Emit event for user message with image
         eventBus.emit("conversation-update", {
@@ -523,15 +614,7 @@ export function ChatComponent() {
           response
         );
 
-        // Handle special action message types
-        if (
-          response.message &&
-          response.message.startsWith("Action:SetConversationId:")
-        ) {
-          const id = response.message.replace("Action:SetConversationId:", "");
-          setConversationId(id);
-          return;
-        }
+        // Agent response will come through WebSocket, no need to handle it here
       } else {
         console.error(
           "handleSendMessageWithImage - Upload failed or no image_path in response"
@@ -579,23 +662,56 @@ export function ChatComponent() {
           <Separator />
         </div>
         <div className="flex flex-col rounded-lg h-[calc(100%-3rem)] chat-messages-container">
-          <ChatBox
-            messages={messages}
-            onSendMessageWithImage={handleSendMessageWithImage}
-            onFileUpload={handleFileUpload}
-            className="h-full border-0 rounded-none shadow-none bg-background"
-            name={
-              conversationData.assistantInfo?.name ?? assistantInfo?.name ?? ""
-            }
-            avatar_url={
-              conversationData.assistantInfo?.image ??
-              assistantInfo?.image ??
-              ""
-            }
-            inputRef={inputRef}
-            isAgentResponding={isAgentResponding}
-            conversationData={conversationData}
-          />
+          {(() => {
+            const safeStudent = conversationData.studentInfo
+              ? {
+                  id: conversationData.studentInfo.id,
+                  name: conversationData.studentInfo.name ?? "",
+                  avatar_url: conversationData.studentInfo.avatar_url ?? "",
+                }
+              : undefined;
+            const safeInstructor = conversationData.instructorInfo
+              ? {
+                  id: conversationData.instructorInfo.id,
+                  name: conversationData.instructorInfo.name ?? "",
+                  avatar_url: conversationData.instructorInfo.avatar_url ?? "",
+                }
+              : undefined;
+            const safeAssistant = conversationData.assistantInfo
+              ? {
+                  id: conversationData.assistantInfo.id,
+                  name: conversationData.assistantInfo.name ?? "",
+                  tagline: conversationData.assistantInfo.tagline ?? "",
+                  image: conversationData.assistantInfo.image ?? "",
+                }
+              : undefined;
+            const conversationDataForChatBox = {
+              studentInfo: safeStudent,
+              instructorInfo: safeInstructor,
+              assistantInfo: safeAssistant,
+            } as any;
+            return (
+              <ChatBox
+                messages={messages}
+                onSendMessageWithImage={handleSendMessageWithImage}
+                onFileUpload={handleFileUpload}
+                className="h-full border-0 rounded-none shadow-none bg-background"
+                name={
+                  conversationData.assistantInfo?.name ??
+                  assistantInfo?.name ??
+                  ""
+                }
+                avatar_url={
+                  conversationData.assistantInfo?.image ??
+                  assistantInfo?.image ??
+                  ""
+                }
+                inputRef={inputRef}
+                isAgentResponding={isAgentResponding}
+                conversationData={conversationDataForChatBox}
+              />
+            );
+          })()}
         </div>
       </div>
     </ChatProvider>

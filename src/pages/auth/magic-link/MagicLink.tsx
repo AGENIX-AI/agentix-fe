@@ -40,12 +40,7 @@ const MagicLink = () => {
 
         await reloadAuth();
 
-        try {
-          const me = await authService.getCurrentUser();
-          if (me?.user?.id) {
-            await authService.ensureDefaultWorkspace(me.user.id);
-          }
-        } catch {}
+        // Workspace selection is handled by PrivateRoute + StudentContext
 
         // Redirect to dashboard
         navigate("/home", { replace: true });

@@ -10,6 +10,7 @@ import { SummaryCard } from "./SummaryCard";
 import { Small } from "@/components/ui/typography";
 import { useChatContext } from "@/contexts/ChatContext";
 import { useTranslation } from "react-i18next";
+import { TaskListCardView } from "./TaskListCard";
 
 interface MessageCardRendererProps {
   card: MessageCard;
@@ -38,6 +39,8 @@ export function MessageCardRenderer({
     );
   } else if (isSummaryMessageCard(card)) {
     return <SummaryCard card={card} className={className} />;
+  } else if ((card as any)?.type === "task_list") {
+    return <TaskListCardView card={card as any} className={className} />;
   }
 
   // Default case - unknown card type

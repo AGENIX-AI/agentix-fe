@@ -56,6 +56,24 @@ export interface SummaryMessageCard extends BaseMessageCard {
 }
 
 /**
+ * Task list message card interface
+ */
+export interface TaskListCard extends BaseMessageCard {
+  type: "task_list";
+  title?: string;
+  tasks: Array<
+    | string
+    | {
+        id?: string;
+        title?: string;
+        description?: string;
+        done?: boolean;
+        [key: string]: any;
+      }
+  >;
+}
+
+/**
  * Type guard to check if a message card is a SummaryMessageCard
  */
 export function isSummaryMessageCard(
@@ -72,6 +90,7 @@ export type MessageCard =
   | TopicMessageCard
   | TutoringTopicMessageCard
   | SummaryMessageCard
+  | TaskListCard
   | (BaseMessageCard & { type: string });
 
 /**
@@ -148,6 +167,24 @@ export function parseMessageCard(content: string): {
   // Validate the card has a type
   if (!cardObject.type) {
     return { card: null, remainingContent: content };
+  }
+
+  // Special handling for task_list: parse JSON-ish tasks and title
+  if (cardObject.type === "task_list") {
+    const title = cardObject.title;
+    let tasks: TaskListCard["tasks"] = [];
+    const raw = cardObject.tasks || "[]";
+    try {
+      // Reverse safe encoding from backend (| -> %7C kept; \n -> newline)
+      const normalized = raw.replace(/\\n/g, "\n");
+      tasks = JSON.parse(normalized);
+    } catch (_) {
+      tasks = [];
+    }
+    return {
+      card: { type: "task_list", title, tasks } as unknown as MessageCard,
+      remainingContent: afterCard,
+    };
   }
 
   return {

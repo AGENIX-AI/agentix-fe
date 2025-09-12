@@ -18,11 +18,14 @@ import { CopilotIntegrator } from "./components/copilot/CopilotIntegrator";
 
 // Context
 import { AuthProvider } from "./contexts/AuthContext";
+import { StudentContextProvider } from "./contexts/StudentContext";
+import { GlobalRealtimeSubscriber } from "./components/realtime/GlobalRealtimeSubscriber";
 import Home from "./pages/student/student";
 
 function App() {
   return (
     <AuthProvider>
+      <StudentContextProvider>
       <BrowserRouter>
         <Routes>
           {/* Public Routes */}
@@ -50,8 +53,10 @@ function App() {
         </Routes>
         {/* Global Copilot popup so it can navigate and access router context */}
         <CopilotIntegrator />
+        <GlobalRealtimeSubscriber />
         <Toaster />
       </BrowserRouter>
+      </StudentContextProvider>
     </AuthProvider>
   );
 }

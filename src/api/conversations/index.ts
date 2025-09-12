@@ -51,6 +51,28 @@ export interface ParticipantResponseDTO {
   is_moderator: boolean;
 }
 
+// Brief participant profile for avatars/names
+export interface ParticipantBriefDTO {
+  id: string;
+  kind: "user" | "assistant";
+  name?: string | null;
+  image?: string | null;
+}
+
+// Minimal user and assistant info used by ChatComponent
+export interface UserInfo {
+  id: string;
+  name?: string | null;
+  image?: string | null;
+}
+
+export interface AssistantInfo {
+  id: string;
+  name?: string | null;
+  image?: string | null;
+  tagline?: string | null;
+}
+
 export interface AddParticipantRequest {
   conversation_id: string;
   user_id?: string;
@@ -178,15 +200,32 @@ export async function listParticipants(
   return res.json();
 }
 
+export async function listParticipantsBrief(
+  conversationId: string
+): Promise<ParticipantBriefDTO[]> {
+  const res = await fetch(
+    `${baseUrl}/conversations/participants/brief/${conversationId}`,
+    {
+      method: "GET",
+      credentials: "include",
+      headers: getAuthHeaders(),
+    }
+  );
+  if (!res.ok) throw new Error("Failed to list participant briefs");
+  return res.json();
+}
+
 // Messages
+// Legacy student chat send endpoint
 export async function sendMessage(
-  data: SendMessageRequestDTO
+  conversation_id: string,
+  content: string
 ): Promise<MessageResponseDTO> {
   const res = await fetch(`${baseUrl}/conversations/messages`, {
     method: "POST",
     credentials: "include",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ ...data, meta: data.meta ?? {} }),
+    body: JSON.stringify({ conversation_id, content, meta: {} }),
   });
   if (!res.ok) throw new Error("Failed to send message");
   return res.json();
@@ -219,6 +258,36 @@ export async function getConversationHistory(
   page_size: number = 50
 ): Promise<MessageListResponseDTO> {
   return listMessages(conversationId, page_number, page_size);
+}
+
+// Accept task list and create child conversations
+export async function acceptTasks(params: {
+  conversation_id: string;
+  message_id: string;
+  tasks: any[];
+}): Promise<{ updated_message_id: string; created_children: any[] }> {
+  const res = await fetch(`${baseUrl}/conversations/accept-tasks`, {
+    method: "POST",
+    credentials: "include",
+    headers: getAuthHeaders(),
+    body: JSON.stringify(params),
+  });
+  if (!res.ok) throw new Error("Failed to accept tasks");
+  return res.json();
+}
+
+// List child conversations for a parent
+export async function listChildren(
+  parentId: string
+): Promise<Array<{ id: string; title?: string | null }>> {
+  const res = await fetch(`${baseUrl}/conversations/children/${parentId}`, {
+    method: "GET",
+    credentials: "include",
+    headers: getAuthHeaders(),
+  });
+  if (!res.ok) throw new Error("Failed to list child conversations");
+  const data = await res.json();
+  return (data || []).map((d: any) => ({ id: d.id, title: d.title }));
 }
 
 export async function uploadConversationImage(data: any): Promise<any> {

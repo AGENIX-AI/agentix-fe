@@ -7,10 +7,12 @@ import { HistoryComponent } from "./history/history-component";
 import { ModifiedResizableLayout } from "./resizeable-layout";
 import { ResizableSidebar } from "./sidebar/resizable-sidebar";
 import { ChatComponent } from "./chat/ChatComponent";
+import { openWsTest } from "./chat/ws-test";
 import { useAuth } from "@/contexts/AuthContext";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import Cookies from "js-cookie";
 import { cn } from "@/lib/utils";
+import { listenPusherChannel } from "@/lib/realtime/listenPusherChannel";
 
 // WebSocket message interface for user-based subscription
 interface WebSocketMessage {
@@ -106,15 +108,16 @@ class WebSocketManager {
         .replace(/^http:\/\//, "ws://");
 
       const accessToken = Cookies.get("agentix_access_token");
-      if (!accessToken) {
-        console.error("No access token found in cookies");
+      const refreshToken = Cookies.get("agentix_refresh_token");
+      if (!accessToken || !refreshToken) {
+        console.error("No access/refresh token found in cookies");
         this.connecting.delete(userId);
         return null;
       }
 
       const websocketUrl = `${wsUrl}/conversations/ws/user/${userId}?token=${encodeURIComponent(
         accessToken
-      )}`;
+      )}&refresh_token=${encodeURIComponent(refreshToken)}`;
       const connectionId = Math.random().toString(36).substr(2, 9);
       console.log(
         "WebSocketManager: Creating connection for user:",
@@ -150,12 +153,70 @@ class WebSocketManager {
           return;
         }
         try {
-          const wsMessage: WebSocketMessage = JSON.parse(event.data);
+          const raw = JSON.parse(event.data);
           console.log(
             "WebSocketManager: Received message, connectionId:",
             connectionId
           );
-          onMessage(wsMessage);
+
+          // Normalize multiple possible payload shapes into WebSocketMessage
+          let normalized: WebSocketMessage | null = null;
+
+          // 1) Existing expected shape
+          if (
+            typeof raw?.conversation_id === "string" &&
+            typeof raw?.content === "string"
+          ) {
+            normalized = {
+              conversation_id: raw.conversation_id,
+              content: raw.content,
+              sender: raw.sender || "agent",
+              invocation_id: raw.invocation_id,
+              timestamp: raw.timestamp || new Date().toISOString(),
+            };
+          }
+
+          // 2) New shape from agent backend
+          // { convId, payload: { message: { conversation_id, sender_user_id, sender_assistant_id, content, meta: { role } } } }
+          if (
+            !normalized &&
+            raw &&
+            typeof raw === "object" &&
+            "convId" in raw
+          ) {
+            const msg = raw?.payload?.message;
+            if (msg) {
+              const role = msg?.meta?.role as string | undefined;
+              const senderFromAssistant = msg?.sender_assistant_id
+                ? "agent"
+                : undefined;
+              let contentStr: string | null = null;
+              if (typeof msg.content === "string") {
+                contentStr = msg.content;
+              } else if (msg.content && typeof msg.content === "object") {
+                contentStr =
+                  typeof msg.content.reply === "string"
+                    ? msg.content.reply
+                    : JSON.stringify(msg.content);
+              }
+              if (typeof contentStr === "string") {
+                normalized = {
+                  conversation_id:
+                    msg.conversation_id || (raw as any).convId || "",
+                  content: contentStr,
+                  sender: role || senderFromAssistant || "agent",
+                  invocation_id: msg.invocation_id,
+                  timestamp: new Date().toISOString(),
+                };
+              }
+            }
+          }
+
+          if (normalized) {
+            onMessage(normalized);
+          } else {
+            console.warn("WebSocketManager: Unknown message shape", raw);
+          }
         } catch (error) {
           console.error("WebSocketManager: Error parsing message:", error);
         }
@@ -226,48 +287,20 @@ export default function LeftPanel({
   // Extract user ID to prevent unnecessary re-renders
   const userId = user?.id;
 
-  // WebSocket connection effect - subscribe by user_id
+  // Realtime via Pusher is handled globally in GlobalRealtimeSubscriber
+  // Avoid creating a parallel manual WebSocket here to prevent duplicates
   useEffect(() => {
-    console.log("useEffect triggered for userId:", userId);
-
-    if (!userId) {
-      console.log("No userId, skipping WebSocket connection");
-      return;
-    }
-
-    // Check if we already have any WebSocket for this user
-    if (wsManager.hasAnyWebSocket(userId)) {
-      console.log("WebSocket already exists for user:", userId, "- SKIPPING");
-      return;
-    }
-
-    console.log("Creating WebSocket connection for user:", userId);
-
-    // Create connection using the manager
-    const ws = wsManager.createConnection(
-      userId,
-      (wsMessage: WebSocketMessage) => {
-        // Emit event for conversation message received (user_id already filtered by subscription)
-        eventBus.emit("websocket-message", {
-          user_id: userId,
-          conversation_id: wsMessage.conversation_id,
-          content: wsMessage.content,
-          sender: wsMessage.sender,
-          invocation_id: wsMessage.invocation_id,
-          timestamp: wsMessage.timestamp || new Date().toISOString(),
-        });
-      }
+    if (!userId) return;
+    console.log(
+      "[LeftPanel] Skipping manual WebSocket. Using Pusher via GlobalRealtimeSubscriber for user:",
+      userId
     );
-
-    // Store reference for cleanup
-    wsRef.current = ws;
-
-    // Cleanup function
+    // Optional: subscribe to pusher channel logs only
+    try {
+      listenPusherChannel(`private-user-${userId}`);
+    } catch {}
     return () => {
-      console.log("useEffect cleanup called for userId:", userId);
-      // Close the connection through the manager
-      wsManager.closeConnection(userId);
-      wsRef.current = null;
+      // No manual WS to cleanup
     };
   }, [userId]);
 

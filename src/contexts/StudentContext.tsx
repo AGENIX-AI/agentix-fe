@@ -7,6 +7,8 @@ import React, {
 } from "react";
 // import { getConversationById } from "@repo/api/src/external";
 import { getAssistantById } from "@/api/assistants";
+import { workspaceService } from "@/services/workspaces";
+import { useAuth } from "./AuthContext";
 
 interface Personality {
   id: string;
@@ -98,6 +100,30 @@ export function StudentContextProvider({
   );
   const [instructorId, setInstructorId] = useState<string | null>(null);
   const [isChatLoading, setIsChatLoading] = useState(false);
+
+  // Ensure workspace is initialized if missing
+  const { isAuthenticated, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    const ensureWorkspaceSelected = async () => {
+      if (!isAuthenticated || authLoading) return;
+      if (workspaceId) return;
+      try {
+        const res = await workspaceService.list();
+        const items = res.items || [];
+        if (items.length > 0) {
+          const current = items.find((w) => w.is_default) || items[0];
+          setWorkspaceId(current.id);
+        }
+        // If no workspaces, PrivateRoute will handle redirect to onboarding
+      } catch (err) {
+        // Silently ignore; PrivateRoute will handle absence/redirects
+        // console.error("Failed to load workspaces", err);
+      }
+    };
+
+    ensureWorkspaceSelected();
+  }, [isAuthenticated, authLoading, workspaceId, setWorkspaceId]);
 
   // Define fetchAssistantData outside useEffect and memoize it with useCallback
   const fetchAssistantData = useCallback(async () => {

@@ -1,7 +1,11 @@
 import { useState, useEffect, useRef, memo } from "react";
 import { LoadingState } from "@/components/ui/loading-state";
 import { useStudent } from "@/contexts/StudentContext";
-import { listConversations, getConversationHistory } from "@/api/conversations";
+import {
+  listConversations,
+  getConversationHistory,
+  listChildren,
+} from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
 import { eventBus } from "@/lib/utils/event/eventBus";
 import { ConversationItem } from "./ConversationItem";
@@ -35,6 +39,10 @@ function UserConversationsBlockComponent({
     conversationsData || []
   );
   const [isLoading, setIsLoading] = useState(!conversationsData);
+  const [expanded, setExpanded] = useState<Record<string, boolean>>({});
+  const [childrenMap, setChildrenMap] = useState<
+    Record<string, Array<{ id: string; title?: string | null }>>
+  >({});
 
   // Display loading state for the history component
   const showLoadingState = isLoading && conversations.length === 0;
@@ -207,6 +215,18 @@ function UserConversationsBlockComponent({
     setIsChatLoading(false);
   };
 
+  const toggleExpand = async (parentId: string) => {
+    setExpanded((prev) => ({ ...prev, [parentId]: !prev[parentId] }));
+    if (!childrenMap[parentId]) {
+      try {
+        const children = await listChildren(parentId);
+        setChildrenMap((prev) => ({ ...prev, [parentId]: children }));
+      } catch (e) {
+        console.error("Failed to fetch child conversations", e);
+      }
+    }
+  };
+
   if (showLoadingState) {
     return (
       <LoadingState
@@ -219,15 +239,54 @@ function UserConversationsBlockComponent({
 
   return (
     <div className="">
-      {filteredConversations.map((conversation: ConversationListItem) => (
-        <div key={conversation.id}>
-          <ConversationItem
-            conversation={conversation}
-            onClick={handleConversationClick}
-            conversationId={conversationId}
-          />
-        </div>
-      ))}
+      {filteredConversations.map((conversation: ConversationListItem) => {
+        const isExpanded = expanded[conversation.id || ""];
+        const children = childrenMap[conversation.id || ""] || [];
+        return (
+          <div key={conversation.id}>
+            <div className="flex items-center gap-2">
+              <div className="flex-1">
+                <ConversationItem
+                  conversation={conversation}
+                  onClick={handleConversationClick}
+                  conversationId={conversationId}
+                />
+              </div>
+              <button
+                className="ml-auto text-xs px-2 py-1 rounded border border-border hover:bg-accent/40"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (conversation.id) toggleExpand(conversation.id);
+                }}
+              >
+                {isExpanded ? "−" : "+"}
+              </button>
+            </div>
+            {isExpanded && children.length > 0 && (
+              <div className="ml-6 mt-1 mb-2 space-y-1">
+                {children.map((c) => (
+                  <div
+                    key={c.id}
+                    className="text-[11px] text-foreground hover:text-primary cursor-pointer px-2 py-1 rounded hover:bg-accent/40"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleConversationClick({
+                        id: c.id,
+                        assistants: null,
+                        participants: [],
+                        conversation_name: c.title || "Untitled",
+                        conversation_description: "",
+                      });
+                    }}
+                  >
+                    {c.title || "Untitled"}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })}
     </div>
   );
 }

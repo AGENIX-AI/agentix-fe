@@ -44,13 +44,7 @@ const OAuthCallback = () => {
         Cookies.set("agentix_refresh_token", refreshToken);
         await reloadAuth();
 
-        try {
-          // After OAuth login, ensure default workspace exists
-          const me = await authService.getCurrentUser();
-          if (me?.user?.id) {
-            await authService.ensureDefaultWorkspace(me.user.id);
-          }
-        } catch {}
+        // Workspace selection is handled by PrivateRoute + StudentContext
 
         // Redirect to dashboard after successful authentication
         navigate("/home");
