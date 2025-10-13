@@ -494,7 +494,7 @@ export function ChatInput({
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}
 
-      <div className="relative flex items-center rounded-md border border-input bg-background shadow-xs">
+      <div className="relative flex items-center rounded-[12px] border border-input bg-background shadow-xs focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2 px-6 py-3 gap-3">
         {showTaskMenu && (
           <TaskMenu
             onClose={() => setShowTaskMenu(false)}
@@ -516,7 +516,7 @@ export function ChatInput({
         <Button
           size="icon"
           variant="ghost"
-          className="hover:bg-transparent"
+          className="hover:bg-accent/40"
           type="button"
           onClick={handleTaskClick}
           disabled={inputDisabled}
@@ -549,7 +549,7 @@ export function ChatInput({
                   )
                 : placeholder || t("chat.input.placeholder")
             }
-            className="min-h-10 max-h-32 border-0 bg-transparent py-3 pl-4 pr-12 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-foreground"
+            className="h-10 max-h-32 border-0 bg-transparent py-0 pl-0 pr-10 text-xs resize-none focus-visible:ring-0 focus-visible:ring-offset-0 rounded-none text-foreground placeholder:text-muted-foreground leading-10"
             rows={1}
             disabled={inputDisabled}
           />
@@ -598,7 +598,7 @@ export function ChatInput({
         <Button
           size="icon"
           variant="ghost"
-          className="absolute right-2 hover:bg-transparent z-10"
+          className="absolute right-2 hover:bg-accent/40 z-10"
           type="button"
           onClick={handleSubmit}
           disabled={
@@ -611,7 +611,7 @@ export function ChatInput({
         </Button>
       </div>
 
-      <div className="text-[9px] text-center mt-2">
+      <div className="text-[9px] text-center mt-2 text-muted-foreground">
         {assistantInfo?.name || "The assistant"} may be wrong. Please verify.
       </div>
     </div>

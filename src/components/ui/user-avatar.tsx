@@ -32,7 +32,7 @@ export const UserAvatar = forwardRef<
   );
 
   return (
-    <Avatar ref={ref} className={cn(className, "w-5 h-5")} onClick={onClick}>
+    <Avatar ref={ref} className={cn(className, "w-6 h-6")} onClick={onClick}>
       <AvatarImage src={avatarSrc} />
       <AvatarFallback className="bg-secondary/10 text-secondary">
         {initials}

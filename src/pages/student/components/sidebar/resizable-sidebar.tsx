@@ -10,6 +10,11 @@ import {
   X,
   Gem,
   AlignJustify,
+  MessageSquare,
+  Bot,
+  Search,
+  Calendar,
+  Settings,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -25,6 +30,7 @@ import {
   TooltipContent,
 } from "@/components/ui/tooltip";
 import { Large } from "@/components/ui/typography";
+import { useStudentLayout } from "@/contexts/StudentLayoutContext";
 
 export interface ResizableSidebarProps {
   className?: string;
@@ -46,7 +52,9 @@ export function ResizableSidebar({
   const [expandedItems, setExpandedItems] = useState<Record<string, boolean>>(
     {}
   );
-  const [width, setWidth] = useState<number>(initialWidth);
+  const { sidebarWidth, setSidebarWidth, sidebarMin, sidebarMax } =
+    useStudentLayout();
+  const [width, setWidth] = useState<number>(sidebarWidth || initialWidth);
   const [isDragging, setIsDragging] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
@@ -87,6 +95,7 @@ export function ResizableSidebar({
         const parsed = Number.parseFloat(savedWidth);
         if (!isNaN(parsed) && parsed >= minWidth && parsed <= maxWidth) {
           setWidth(isCollapsed ? minWidth : parsed);
+          setSidebarWidth(parsed);
           lastWidthRef.current = parsed;
           lastExpandedWidthRef.current = parsed;
         }
@@ -96,7 +105,7 @@ export function ResizableSidebar({
     }
 
     initializedRef.current = true;
-  }, [storageKey, minWidth, maxWidth, isCollapsed]);
+  }, [storageKey, minWidth, maxWidth, isCollapsed, setSidebarWidth]);
 
   // Save width to localStorage when it changes, debounced
   useEffect(() => {
@@ -143,13 +152,18 @@ export function ResizableSidebar({
     [isCollapsed]
   );
 
-  const updateWidth = useCallback((newWidth: number) => {
-    // Only update if the change is significant (more than 0.5px)
-    if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
+  const updateWidth = useCallback(
+    (newWidth: number) => {
+      // Only update if the change is significant (more than 0.5px)
+      if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
 
-    setWidth(newWidth);
-    lastWidthRef.current = newWidth;
-  }, []);
+      const constrained = Math.max(sidebarMin, Math.min(sidebarMax, newWidth));
+      setWidth(constrained);
+      setSidebarWidth(constrained);
+      lastWidthRef.current = newWidth;
+    },
+    [setSidebarWidth, sidebarMin, sidebarMax]
+  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -273,8 +287,66 @@ export function ResizableSidebar({
           isCollapsed && "sidebar-collapsed",
           className
         )}
-        style={{ width: isCollapsed ? "64px" : `${width}px` }}
+        style={{ width: isCollapsed ? "88px" : `${width}px` }}
       >
+        {isCollapsed && (
+          <div className="flex h-full flex-col items-center justify-between py-4">
+            <div className="flex flex-col items-center gap-12">
+              <img
+                src="/logo/small-logo.png"
+                alt="AgenIx"
+                className="h-14 w-14 rounded-md object-contain"
+              />
+              <div className="flex flex-col items-center gap-8">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Messages">
+                      <MessageSquare className="h-8 w-8 text-primary" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Messages</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Bots">
+                      <Bot className="h-8 w-8" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Bots</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon" aria-label="Search">
+                      <Search className="h-8 w-8" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Search</TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      aria-label="Calendar"
+                      onClick={() => setRightPanel("taskPanel")}
+                    >
+                      <Calendar className="h-8 w-8" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent side="right">Calendar</TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="Settings">
+                  <Settings className="h-8 w-8" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent side="right">Settings</TooltipContent>
+            </Tooltip>
+          </div>
+        )}
         {/* Navigation groups */}
         <div
           className="overflow-y-auto no-scrollbar p-2"
@@ -390,6 +462,9 @@ export function ResizableSidebar({
                             if (navItem.title === "Find Instructor") {
                               setRightPanel("findInstructor");
                             }
+                            if (navItem.title === "Tasks") {
+                              setRightPanel("taskPanel");
+                            }
                             if (navItem.title === "Posts") {
                               setRightPanel("following_posts");
                             }
@@ -432,7 +507,7 @@ export function ResizableSidebar({
         {/* Footer with Notifications, Credits and UserMenu */}
         <div
           className={cn(
-            "absolute bottom-0 left-0 right-0 border-border p-2 space-y-3"
+            "absolute bottom-0 left-0 right-0 border-t border-border p-2 space-y-3 bg-background"
           )}
         >
           {/* Notification Center */}

@@ -21,41 +21,43 @@ import { AuthProvider } from "./contexts/AuthContext";
 import { StudentContextProvider } from "./contexts/StudentContext";
 import { GlobalRealtimeSubscriber } from "./components/realtime/GlobalRealtimeSubscriber";
 import Home from "./pages/student/student";
+import FourPanelLayout from "./pages/working/layout";
 
 function App() {
   return (
     <AuthProvider>
       <StudentContextProvider>
-      <BrowserRouter>
-        <Routes>
-          {/* Public Routes */}
-          {/* <Route path="/" element={<Home />} /> */}
-          <Route path="/auth/login" element={<Login />} />
-          <Route path="/auth/signup" element={<Signup />} />
-          <Route path="/auth/magic-link" element={<MagicLink />} />
-          <Route path="/auth/callback" element={<OAuthCallback />} />
-          <Route path="/auth/waitlist" element={<Waitlist />} />
-          <Route path="/auth/waitlist/form" element={<WaitlistForm />} />
-          <Route
-            path="/onboarding/workspace"
-            element={<WorkspaceOnboarding />}
-          />
+        <BrowserRouter>
+          <Routes>
+            {/* Public Routes */}
+            <Route path="/" element={<FourPanelLayout />} />
+            <Route path="/working" element={<FourPanelLayout />} />
+            <Route path="/auth/login" element={<Login />} />
+            <Route path="/auth/signup" element={<Signup />} />
+            <Route path="/auth/magic-link" element={<MagicLink />} />
+            <Route path="/auth/callback" element={<OAuthCallback />} />
+            <Route path="/auth/waitlist" element={<Waitlist />} />
+            <Route path="/auth/waitlist/form" element={<WaitlistForm />} />
+            <Route
+              path="/onboarding/workspace"
+              element={<WorkspaceOnboarding />}
+            />
 
-          {/* Protected Routes */}
-          <Route element={<PrivateRoute />}>
-            <Route path="/home" element={<Home />} />
-            <Route path="/admin/*" element={<AdminPortal />} />
-            {/* Add more protected routes here */}
-          </Route>
+            {/* Protected Routes */}
+            <Route element={<PrivateRoute />}>
+              <Route path="/home" element={<Home />} />
+              <Route path="/admin/*" element={<AdminPortal />} />
+              {/* Add more protected routes here */}
+            </Route>
 
-          {/* Redirect any unknown routes to home */}
-          <Route path="*" element={<Navigate to="/auth/login" replace />} />
-        </Routes>
-        {/* Global Copilot popup so it can navigate and access router context */}
-        <CopilotIntegrator />
-        <GlobalRealtimeSubscriber />
-        <Toaster />
-      </BrowserRouter>
+            {/* Redirect any unknown routes to the 4-panel layout */}
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+          {/* Global Copilot popup so it can navigate and access router context */}
+          <CopilotIntegrator />
+          <GlobalRealtimeSubscriber />
+          <Toaster />
+        </BrowserRouter>
       </StudentContextProvider>
     </AuthProvider>
   );

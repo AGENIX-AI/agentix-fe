@@ -2,7 +2,7 @@
 alwaysApply: true
 ---
 
-### System Design (Radix-inspired) for AgentIx FE
+### System Design (Radix-inspired) for AgenIx FE
 
 This rule defines the canonical design tokens and usage guidance for the frontend. Tokens follow a Radix UI–inspired system and map to our current Tailwind v4 + CSS variable setup in `src/styles/theme.css`. Use these tokens for all new components and when refactoring legacy styles in `src/styles/`.
 

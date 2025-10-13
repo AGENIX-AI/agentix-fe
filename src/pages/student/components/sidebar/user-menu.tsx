@@ -159,7 +159,6 @@ export function UserMenu({
                   </span>
                 </span>
               </span>
-              <MoreVerticalIcon className="size-4" />
             </>
           ) : (
             <UserAvatar

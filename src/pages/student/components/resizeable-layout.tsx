@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Pane } from "../../../components/custom/ResizableLayout/Pane";
 import { Separator } from "@/components/custom/ResizableLayout/Separator";
+import { useStudentLayout } from "@/contexts/StudentLayoutContext";
 
 export interface ModifiedResizableLayoutProps {
   leftPane: React.ReactNode;
@@ -21,7 +22,15 @@ export function ModifiedResizableLayout({
   storageKey = "agentix-chat-layout-width",
   isHistoryVisible = true,
 }: ModifiedResizableLayoutProps) {
-  const [leftWidth, setLeftWidth] = useState<number>(initialLeftWidth);
+  const {
+    historyWidthPercent,
+    setHistoryWidthPercent,
+    historyMinPercent,
+    historyMaxPercent,
+  } = useStudentLayout();
+  const [leftWidth, setLeftWidth] = useState<number>(
+    historyWidthPercent || initialLeftWidth
+  );
   const [savedLeftWidth, setSavedLeftWidth] =
     useState<number>(initialLeftWidth);
   const [isDragging, setIsDragging] = useState(false);
@@ -46,6 +55,7 @@ export function ModifiedResizableLayout({
           setLeftWidth(parsed);
           setSavedLeftWidth(parsed);
           lastWidthRef.current = parsed;
+          setHistoryWidthPercent(parsed);
         }
       }
     } catch (error) {
@@ -53,7 +63,7 @@ export function ModifiedResizableLayout({
     }
 
     initializedRef.current = true;
-  }, [storageKey, minLeftWidth, maxLeftWidth]);
+  }, [storageKey, minLeftWidth, maxLeftWidth, setHistoryWidthPercent]);
 
   // Save width to localStorage when it changes, but debounced
   useEffect(() => {
@@ -91,14 +101,18 @@ export function ModifiedResizableLayout({
     setIsDragging(true);
   }, []);
 
-  const updateWidth = useCallback((newWidth: number) => {
-    // Only update if the change is significant (more than 0.5%)
-    if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
+  const updateWidth = useCallback(
+    (newWidth: number) => {
+      // Only update if the change is significant (more than 0.5%)
+      if (Math.abs(newWidth - lastWidthRef.current) < 0.5) return;
 
-    setLeftWidth(newWidth);
-    setSavedLeftWidth(newWidth);
-    lastWidthRef.current = newWidth;
-  }, []);
+      setLeftWidth(newWidth);
+      setSavedLeftWidth(newWidth);
+      lastWidthRef.current = newWidth;
+      setHistoryWidthPercent(newWidth);
+    },
+    [setHistoryWidthPercent]
+  );
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -122,15 +136,22 @@ export function ModifiedResizableLayout({
 
         // Apply constraints
         newLeftWidth = Math.max(
-          minLeftWidth,
-          Math.min(maxLeftWidth, newLeftWidth)
+          Math.max(minLeftWidth, historyMinPercent),
+          Math.min(Math.min(maxLeftWidth, historyMaxPercent), newLeftWidth)
         );
 
         updateWidth(newLeftWidth);
         rafRef.current = null;
       });
     },
-    [isDragging, minLeftWidth, maxLeftWidth, updateWidth]
+    [
+      isDragging,
+      minLeftWidth,
+      maxLeftWidth,
+      updateWidth,
+      historyMinPercent,
+      historyMaxPercent,
+    ]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -166,15 +187,22 @@ export function ModifiedResizableLayout({
 
         // Apply constraints
         newLeftWidth = Math.max(
-          minLeftWidth,
-          Math.min(maxLeftWidth, newLeftWidth)
+          Math.max(minLeftWidth, historyMinPercent),
+          Math.min(Math.min(maxLeftWidth, historyMaxPercent), newLeftWidth)
         );
 
         updateWidth(newLeftWidth);
         rafRef.current = null;
       });
     },
-    [isDragging, minLeftWidth, maxLeftWidth, updateWidth]
+    [
+      isDragging,
+      minLeftWidth,
+      maxLeftWidth,
+      updateWidth,
+      historyMinPercent,
+      historyMaxPercent,
+    ]
   );
 
   useEffect(() => {

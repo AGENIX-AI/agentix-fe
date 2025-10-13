@@ -1,13 +1,9 @@
 import { useTranslation } from "react-i18next";
 import { Large } from "@/components/ui/typography";
 import { memo, useEffect, useState } from "react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import { Button } from "@/components/ui/button";
-import { AlignJustify } from "lucide-react";
+import { PanelRight } from "lucide-react";
 import { useStudent } from "@/contexts/StudentContext";
 import { Input } from "@/components/ui/input";
 import { workspaceService } from "@/services/workspaces";
@@ -19,53 +15,12 @@ import {
   listInvites,
   acceptInvite,
 } from "@/api/workspaces";
+import TaskPanel from "./task/TaskPanel";
+import { Calendar as UiCalendar } from "@/components/ui/calendar";
 
-const MiniappToggleButton = memo(
-  ({
-    isExpanded,
-    toggleMiniapp,
-    className,
-  }: {
-    isExpanded: boolean;
-    toggleMiniapp: () => void;
-    className?: string;
-  }) => {
-    const { t } = useTranslation();
-    return (
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={`transition-all duration-300 border-none ${className}`}
-            onClick={toggleMiniapp}
-            aria-label={isExpanded ? "Collapse miniapp" : "Expand miniapp"}
-          >
-            <AlignJustify className="h-4 w-4" />
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent side="bottom" className="text-xs">
-          {isExpanded
-            ? t("student.rightPanel.collapse")
-            : t("student.rightPanel.expand")}
-        </TooltipContent>
-      </Tooltip>
-    );
-  }
-);
-
-MiniappToggleButton.displayName = "MiniappToggleButton";
-
-const RightPanelHeader = ({
-  title,
-  toggleMiniapp,
-}: {
-  title: string;
-  toggleMiniapp: () => void;
-}) => {
+const RightPanelHeader = ({ title }: { title: string }) => {
   return (
-    <header className="sticky top-0 z-20 bg-background flex h-18 border-b p-4 items-center gap-3 w-full border-l">
-      <MiniappToggleButton isExpanded={true} toggleMiniapp={toggleMiniapp} />
+    <header className="bg-background flex h-20 border-b p-4 items-center gap-3 w-full">
       <Large className="font-bold">{title}</Large>
     </header>
   );
@@ -78,63 +33,34 @@ const CollapsedVerticalBar = ({
   title: string;
   toggleMiniapp: () => void;
 }) => {
-  const { t } = useTranslation();
-  const handleButtonClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    toggleMiniapp();
-  };
-
   return (
-    <Tooltip>
-      <TooltipTrigger asChild>
+    <div className="h-full bg-background flex flex-col duration-200 shadow-sm relative ">
+      {/* Expand button at top */}
+      <div className="p-2 border-b border-border flex justify-center h-20 items-center">
+        <PanelRight className="h-8 w-8" />
+      </div>
+
+      {/* Vertical title */}
+      <div className="flex-1 flex items-center justify-center py-6">
         <div
-          className="w-12 h-full bg-background border-l border-border flex flex-col cursor-pointer hover:bg-accent/30 transition-all duration-200 shadow-sm relative "
-          onClick={toggleMiniapp}
+          className="transform -rotate-90 whitespace-nowrap origin-center text-sm font-medium text-foreground/70 select-none"
+          style={{
+            writingMode: "vertical-rl",
+            textOrientation: "mixed",
+            transform: "rotate(90deg)",
+          }}
         >
-          {/* Expand button at top */}
-          <div className="p-2 border-b border-border flex justify-center h-18 items-center">
-            <Button
-              variant="ghost"
-              size="icon"
-              className={`transition-all duration-300 border-none`}
-              onClick={handleButtonClick}
-              aria-label="Expand miniapp"
-            >
-              <AlignJustify className="h-4 w-4" />
-            </Button>
-          </div>
-
-          {/* Vertical title */}
-          <div className="flex-1 flex items-center justify-center py-6">
-            <div
-              className="transform -rotate-90 whitespace-nowrap origin-center text-sm font-medium text-foreground/70 select-none"
-              style={{
-                writingMode: "vertical-rl",
-                textOrientation: "mixed",
-                transform: "rotate(90deg)",
-              }}
-            >
-              {title}
-            </div>
-          </div>
-
-          {/* Visual indicators */}
-          <div className="flex flex-col items-center gap-1 pb-4">
-            <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
-            <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
-            <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
-          </div>
-
-          {/* Subtle expand hint */}
-          <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 text-xs text-muted-foreground/50 select-none">
-            ◄
-          </div>
+          {title}
         </div>
-      </TooltipTrigger>
-      <TooltipContent side="left">
-        <p>{t("student.rightPanel.clickToExpand", { title })}</p>
-      </TooltipContent>
-    </Tooltip>
+      </div>
+
+      {/* Visual indicators */}
+      <div className="flex flex-col items-center gap-1 pb-4">
+        <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
+        <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
+        <div className="w-1.5 h-1.5 bg-muted-foreground/40 rounded-full"></div>
+      </div>
+    </div>
   );
 };
 
@@ -181,18 +107,8 @@ export default function RightPanel({
     case "empty":
       return (
         <div className="flex flex-col h-full">
-          <div className="sticky top-0 z-20 bg-background flex h-18 border-b w-full p-4">
-            <div className="flex items-center justify-between w-full">
-              <Large className="font-bold">
-                {t("student.rightPanel.homePage")}
-              </Large>
-              <MiniappToggleButton
-                isExpanded={true}
-                toggleMiniapp={toggleMiniapp}
-              />
-            </div>
-          </div>
-          <div className="flex-1 w-full flex items-center justify-center p-6 bg-background border-l border-border">
+          <RightPanelHeader title={t("student.rightPanel.homePage")} />
+          <div className="flex-1 w-full flex items-center justify-center p-6 bg-background border-border">
             <div className="flex items-center justify-center">
               <img
                 src="https://api-app.edvara.net/static/Wavy_Tech-12_Single-01.jpg"
@@ -203,13 +119,28 @@ export default function RightPanel({
           </div>
         </div>
       );
+    case "taskPanel":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader title={t("Tasks")} />
+        </div>
+      );
+    case "calendar":
+      return (
+        <div className="flex flex-col h-full">
+          <RightPanelHeader title={t("Calendar")} />
+          <div className="p-4">
+            <UiCalendar
+              mode="single"
+              className="rounded-lg border border-border"
+            />
+          </div>
+        </div>
+      );
     case "createWorkspace":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("Create workspace")}
-            toggleMiniapp={toggleMiniapp}
-          />
+          <RightPanelHeader title={t("Create workspace")} />
           <div className="px-6 py-3">
             <form
               className="space-y-3 max-w-md"
@@ -259,30 +190,21 @@ export default function RightPanel({
     case "workspaceMembers":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("Workspace members")}
-            toggleMiniapp={toggleMiniapp}
-          />
+          <RightPanelHeader title={t("Workspace members")} />
           <WorkspaceMembers />
         </div>
       );
     case "workspaceInvites":
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("Workspace invites")}
-            toggleMiniapp={toggleMiniapp}
-          />
+          <RightPanelHeader title={t("Workspace invites")} />
           <WorkspaceInvites />
         </div>
       );
     default:
       return (
         <div className="flex flex-col h-full">
-          <RightPanelHeader
-            title={t("student.rightPanel.rightPanel")}
-            toggleMiniapp={toggleMiniapp}
-          />
+          <RightPanelHeader title={t("student.rightPanel.rightPanel")} />
           <div>RightPanel</div>
         </div>
       );

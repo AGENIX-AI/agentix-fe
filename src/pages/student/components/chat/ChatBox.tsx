@@ -97,7 +97,7 @@ export function ChatBox({
     >
       <div
         ref={messagesContainerRef}
-        className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-6 mt-3"
+        className="flex flex-1 flex-col overflow-y-auto no-scrollbar chat-scroll-container px-4 pt-6"
       >
         <div className="space-y-3">
           {messages.map((message, index) => {
@@ -156,7 +156,7 @@ export function ChatBox({
         placeholder={placeholder}
         disabled={disabled}
         textareaRef={inputRef}
-        className="px-6 py-3"
+        className="px-4 py-3"
         conversation={conversation}
         onArchiveComplete={handleArchiveComplete}
         conversationData={conversationData}

@@ -16,7 +16,7 @@ import {
 import { format } from "date-fns";
 import { ChatProvider } from "@/contexts/ChatContext";
 import * as Sentry from "@sentry/react";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 
 // Subcomponents
 const LoadingState = memo(() => (
@@ -638,7 +638,7 @@ export function ChatComponent() {
           tagline={assistantInfo?.tagline}
           agentImage={assistantInfo?.image}
         />
-        <div className="h-[calc(100vh-70px-2rem)] flex flex-col rounded-lg ">
+        <div className="flex flex-col flex-1 rounded-lg">
           <div className="flex-1 overflow-y-auto p-6 chat-messages-container">
             <LoadingState />
           </div>
@@ -658,10 +658,8 @@ export function ChatComponent() {
           tagline={assistantInfo?.tagline}
           agentImage={assistantInfo?.image}
         />
-        <div className="flex items-center justify-between px-4">
-          <Separator />
-        </div>
-        <div className="flex flex-col rounded-lg h-[calc(100%-3rem)] chat-messages-container">
+        <div className="h-px w-full bg-border/30" />
+        <div className="flex flex-col rounded-lg flex-1 chat-messages-container">
           {(() => {
             const safeStudent = conversationData.studentInfo
               ? {

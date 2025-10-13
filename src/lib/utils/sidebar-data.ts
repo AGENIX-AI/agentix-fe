@@ -6,6 +6,7 @@ import {
   HelpCircle,
   LayoutDashboard,
   UserSearch,
+  CheckSquare,
 } from "lucide-react";
 import type { SidebarData } from "./types/sidebar";
 
@@ -41,11 +42,11 @@ export const sidebarData: SidebarData = {
           url: "/",
           icon: LayoutDashboard,
         },
-        // {
-        //   title: "AI Assistant",
-        //   url: "/",
-        //   icon: CheckSquare,
-        // },
+        {
+          title: "Tasks",
+          url: "/home",
+          icon: CheckSquare,
+        },
         {
           title: "Find Instructor",
           url: "/home",

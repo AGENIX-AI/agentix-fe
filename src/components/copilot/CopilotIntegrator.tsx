@@ -164,7 +164,7 @@ export function CopilotIntegrator() {
   return (
     <>
       <CopilotPopup
-        instructions="Help assistant for AgentIx. Ask 'how to…'"
+        instructions="Help assistant for AgenIx. Ask 'how to…'"
         suggestions="manual"
         imageUploadsEnabled={false}
         hideStopButton

@@ -238,14 +238,14 @@ function UserConversationsBlockComponent({
   }
 
   return (
-    <div className="">
+    <div className="w-full space-y-2">
       {filteredConversations.map((conversation: ConversationListItem) => {
         const isExpanded = expanded[conversation.id || ""];
         const children = childrenMap[conversation.id || ""] || [];
         return (
-          <div key={conversation.id}>
-            <div className="flex items-center gap-2">
-              <div className="flex-1">
+          <div key={conversation.id} className="w-full">
+            <div className="flex items-center gap-2 w-full min-w-0">
+              <div className="flex-1 min-w-0">
                 <ConversationItem
                   conversation={conversation}
                   onClick={handleConversationClick}
@@ -253,7 +253,7 @@ function UserConversationsBlockComponent({
                 />
               </div>
               <button
-                className="ml-auto text-xs px-2 py-1 rounded border border-border hover:bg-accent/40"
+                className="ml-auto text-xs px-2 py-1 rounded border border-border hover:bg-accent/40 shrink-0"
                 onClick={(e) => {
                   e.stopPropagation();
                   if (conversation.id) toggleExpand(conversation.id);
