@@ -28,6 +28,16 @@ export interface ConversationResponseDTO {
   type: string;
   title?: string | null;
   created_by_user?: string | null;
+  // New lightweight display info from backend for list UIs
+  display?: {
+    name?: string | null;
+    avatars?: Array<{
+      id: string;
+      kind: "user" | "assistant";
+      image?: string | null;
+      name?: string | null;
+    }>;
+  } | null;
 }
 
 export interface ConversationListResponseDTO {
@@ -102,10 +112,31 @@ export interface MessageResponseDTO {
   content: string;
   meta: Record<string, any>;
   created_at?: string; // ISO timestamp from backend
+  // New pre-resolved sender brief
+  sender?: {
+    id: string;
+    kind: "user" | "assistant";
+    name?: string | null;
+    image?: string | null;
+  } | null;
+  // Optional minimal replied message brief
+  reply_to_brief?: {
+    id: string;
+    content?: string;
+    sender_user_id?: string | null;
+    sender_assistant_id?: string | null;
+  } | null;
 }
 
 export interface MessageListResponseDTO {
   messages: MessageResponseDTO[];
+  conversation?: {
+    header?: {
+      title?: string | null;
+      avatars?: ParticipantBriefDTO[];
+      participants_brief?: ParticipantBriefDTO[];
+    };
+  };
   total_count: number;
   page_number: number;
   page_size: number;
@@ -243,7 +274,7 @@ export async function sendMessage(
 export async function listMessages(
   conversationId: string,
   page_number: number = 1,
-  page_size: number = 50
+  page_size: number = 20
 ): Promise<MessageListResponseDTO> {
   const qs = new URLSearchParams({
     page_number: String(page_number),
@@ -295,8 +326,8 @@ export async function listChildren(
     headers: getAuthHeaders(),
   });
   if (!res.ok) throw new Error("Failed to list child conversations");
-  const data = await res.json();
-  return (data || []).map((d: any) => ({ id: d.id, title: d.title }));
+  // Backend now returns minimal typed items already: [{ id, title }]
+  return res.json();
 }
 
 export async function uploadConversationImage(data: any): Promise<any> {

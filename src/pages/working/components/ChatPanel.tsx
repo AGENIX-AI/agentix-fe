@@ -24,7 +24,6 @@ import {
 import {
   listMessages as apiListMessages,
   sendMessage as apiSendMessage,
-  getConversationById,
 } from "@/api/conversations";
 import type { MessageResponseDTO } from "@/api/conversations";
 import type { ParticipantBriefDTO } from "@/api/conversations";
@@ -38,7 +37,7 @@ interface ChatPanelProps {
 
 interface Message {
   id: string;
-  sender: "student" | "instructor" | "agent";
+  sender: "student" | "instructor" | "agent" | "user";
   content: string;
   timestamp: Date;
   avatar?: string;
@@ -144,6 +143,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const messageIdSetRef = useRef<Set<string>>(new Set());
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize] = useState(20);
+  const [totalCount, setTotalCount] = useState(0);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [replyTo, setReplyTo] = useState<{
     id: string;
@@ -156,79 +159,53 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const [headerTitle, setHeaderTitle] = useState<string | null>(null);
   // typing indicator omitted for now
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  // Keep latest participants in a ref to avoid stale closures inside event handler
+  const headerParticipantsRef = useRef<ParticipantBriefDTO[]>([]);
 
-  // Load messages history from API
+  // Load messages history from API (first page)
   useEffect(() => {
     let isCancelled = false;
     async function load() {
       if (!conversationId) return;
       try {
         setIsLoading(true);
-        const res = await apiListMessages(conversationId, 1, 50);
+        const res = await apiListMessages(conversationId, 1, pageSize);
         if (isCancelled) return;
-        // Build participant lookup maps if provided by API
-        const participants: Array<{
-          id: string;
-          kind: "user" | "assistant";
-          name?: string | null;
-          image?: string | null;
-        }> = (res as any).participants || [];
-        setHeaderParticipants(participants as ParticipantBriefDTO[]);
-        // Fetch conversation metadata for title
-        try {
-          const conv = await getConversationById(conversationId);
-          setHeaderTitle((conv as any)?.title ?? null);
-        } catch {
-          // ignore title errors
-        }
-        const userMap = new Map<
-          string,
-          { name?: string | null; image?: string | null }
-        >();
-        const assistantMap = new Map<
-          string,
-          { name?: string | null; image?: string | null }
-        >();
-        for (const p of participants) {
-          if (p.kind === "user")
-            userMap.set(p.id, { name: p.name, image: p.image });
-          else if (p.kind === "assistant")
-            assistantMap.set(p.id, { name: p.name, image: p.image });
-        }
+        // Use header from backend as-is
+        const header = (res as any)?.conversation?.header || {};
+        const participants = (header.participants_brief ||
+          []) as ParticipantBriefDTO[];
+        console.log("participants", participants);
+        setHeaderParticipants(participants);
+        setHeaderTitle(header.title ?? null);
 
-        const mapped: Message[] = (res.messages || []).map(
-          (m: MessageResponseDTO) => {
-            const isAgent = Boolean(m.sender_assistant_id);
-            const senderAssistant = m.sender_assistant_id
-              ? assistantMap.get(m.sender_assistant_id)
-              : undefined;
-            const senderUser = m.sender_user_id
-              ? userMap.get(m.sender_user_id)
-              : undefined;
-
-            return {
-              id: m.id,
-              sender: isAgent ? "agent" : "student",
-              content: m.content,
-              timestamp:
-                m && (m as any).created_at
-                  ? new Date((m as any).created_at as string)
-                  : new Date(),
-              name: isAgent
-                ? senderAssistant?.name || "Assistant"
-                : senderUser?.name || "Member",
-              avatar: isAgent ? senderAssistant?.image : senderUser?.image,
-              sender_user_id: m.sender_user_id ?? null,
-              sender_assistant_id: m.sender_assistant_id ?? null,
-              reply_to_message_id: (m as any).reply_to_message_id || null,
-              reply_to_brief: (m as any).reply_to_brief || null,
-            } as Message;
-          }
+        let mapped: Message[] = (res.messages || []).map(
+          (m: MessageResponseDTO) => ({
+            id: m.id,
+            sender:
+              ((m as any).sender_role as "agent" | "student") ||
+              (m.sender_assistant_id ? "agent" : "student"),
+            content: m.content,
+            timestamp: (m as any).timestamp
+              ? new Date((m as any).timestamp)
+              : new Date(),
+            name: (m as any).sender_name ?? (m as any)?.sender?.name,
+            avatar: (m as any).sender_image ?? (m as any)?.sender?.image,
+            sender_user_id: (m as any).sender_user_id ?? null,
+            sender_assistant_id: (m as any).sender_assistant_id ?? null,
+            reply_to_message_id: (m as any).reply_to_message_id || null,
+            reply_to_brief: (m as any).reply_to_brief || null,
+          })
         );
         // Seed id set to avoid future duplicates from realtime
         messageIdSetRef.current = new Set(mapped.map((m) => m.id));
+        // Backend returns DESC; display newest at bottom (ASC)
+        mapped = mapped.reverse();
         setMessages(mapped);
+        setPageNumber(1);
+        setTotalCount((res as any)?.total_count ?? mapped.length);
       } catch (e) {
         // Silently ignore for now; could surface a toast
       } finally {
@@ -239,77 +216,111 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     return () => {
       isCancelled = true;
     };
-  }, [conversationId, assistantInfo]);
+  }, [conversationId, assistantInfo, pageSize]);
 
-  // Participant lookup maps for realtime usage as well
-  const participantUserMap = React.useMemo(() => {
-    const map = new Map<
-      string,
-      { name?: string | null; image?: string | null }
-    >();
-    for (const p of headerParticipants) {
-      if (p.kind === "user") map.set(p.id, { name: p.name, image: p.image });
-    }
-    return map;
-  }, [headerParticipants]);
+  // Participant lookup maps for realtime fallback when sender brief missing
 
-  const participantAssistantMap = React.useMemo(() => {
-    const map = new Map<
-      string,
-      { name?: string | null; image?: string | null }
-    >();
-    for (const p of headerParticipants) {
-      if (p.kind === "assistant")
-        map.set(p.id, { name: p.name, image: p.image });
-    }
-    return map;
+  // Sync participants to ref for realtime handler
+  useEffect(() => {
+    headerParticipantsRef.current = headerParticipants;
   }, [headerParticipants]);
 
   // Compute header avatars with same rules as MessagesPanel
-  function computeHeaderDisplay(
-    participants: ParticipantBriefDTO[] | undefined,
-    currentUserId?: string | null
-  ): { headerAvatars: ParticipantBriefDTO[]; singleHeaderName: string | null } {
-    const list = participants || [];
-    const assistant = list.find((p) => p.kind === "assistant") || null;
-    const users = list.filter((p) => p.kind === "user");
-    const others = users.filter((u) => u.id !== currentUserId);
-    const length = list.length;
-    if (length === 2) {
-      return {
-        headerAvatars: assistant ? [assistant] : others.slice(0, 1),
-        singleHeaderName:
-          (assistant?.name || others[0]?.name) ?? "Conversation",
-      };
-    }
-    if (length === 3) {
-      const target = others[0] || null;
-      return {
-        headerAvatars: target ? [target] : assistant ? [assistant] : [],
-        singleHeaderName: (target?.name || assistant?.name) ?? "Conversation",
-      };
-    }
-    if (length > 3) {
-      const filtered = list.filter(
-        (p) => p.kind === "user" && p.id !== currentUserId
-      );
-      return { headerAvatars: filtered.slice(0, 4), singleHeaderName: null };
-    }
-    return {
-      headerAvatars: assistant ? [assistant] : list.slice(0, 1),
-      singleHeaderName: (assistant?.name || list[0]?.name) ?? "Conversation",
-    };
-  }
+  // Header display now fully provided by backend header
 
-  const { headerAvatars, singleHeaderName } = React.useMemo(
-    () => computeHeaderDisplay(headerParticipants, user?.id ?? null),
-    [headerParticipants, user?.id]
-  );
+  const { headerAvatars, singleHeaderName } = React.useMemo(() => {
+    // Backend already computed; use participants only for minimal fallback
+    const participants = headerParticipants || [];
+    const single = headerTitle || null;
+    let avatars: ParticipantBriefDTO[] = [];
+    if (participants.length) {
+      const assistant =
+        participants.find((p) => p.kind === "assistant") || null;
+      avatars = assistant
+        ? [assistant]
+        : ([participants[0]].filter(Boolean) as ParticipantBriefDTO[]);
+    }
+    return { headerAvatars: avatars, singleHeaderName: single };
+  }, [headerParticipants, headerTitle]);
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  // Infinite scroll: load more when near top (older messages)
+  const hasMore = messages.length < totalCount;
+
+  const loadMore = useCallback(async () => {
+    if (!conversationId) return;
+    if (isLoadingMore) return;
+    if (!hasMore) return;
+    try {
+      setIsLoadingMore(true);
+      const nextPage = pageNumber + 1;
+      // Preserve scroll position before prepend
+      const container = scrollContainerRef.current;
+      const prevScrollHeight = container ? container.scrollHeight : 0;
+
+      const res = await apiListMessages(conversationId, nextPage, pageSize);
+      let mapped: Message[] = (res.messages || []).map(
+        (m: MessageResponseDTO) => ({
+          id: (m as any).id,
+          sender:
+            ((m as any).sender_role as "agent" | "student") ||
+            ((m as any).sender_assistant_id ? "agent" : "student"),
+          content: (m as any).content,
+          timestamp: (m as any).timestamp
+            ? new Date((m as any).timestamp)
+            : new Date(),
+          name: (m as any).sender_name ?? (m as any)?.sender?.name,
+          avatar: (m as any).sender_image ?? (m as any)?.sender?.image,
+          sender_user_id: (m as any).sender_user_id ?? null,
+          sender_assistant_id: (m as any).sender_assistant_id ?? null,
+          reply_to_message_id: (m as any).reply_to_message_id || null,
+          reply_to_brief: (m as any).reply_to_brief || null,
+        })
+      );
+      // Backend returns older page in DESC; convert to ASC for display
+      mapped = mapped.reverse();
+      const unique = mapped.filter((m) => !messageIdSetRef.current.has(m.id));
+      unique.forEach((m) => messageIdSetRef.current.add(m.id));
+      // Prepend older messages at the top of current list
+      setMessages((prev) => {
+        const combined = [...unique, ...prev];
+        return combined;
+      });
+      setPageNumber(nextPage);
+      setTotalCount((res as any)?.total_count ?? totalCount);
+
+      // Restore scroll offset so content doesn't jump
+      requestAnimationFrame(() => {
+        const newScrollHeight = container ? container.scrollHeight : 0;
+        if (container)
+          container.scrollTop =
+            newScrollHeight - prevScrollHeight + (container.scrollTop || 0);
+      });
+    } catch (e) {
+      // ignore
+    } finally {
+      setIsLoadingMore(false);
+    }
+  }, [
+    conversationId,
+    pageNumber,
+    pageSize,
+    hasMore,
+    isLoadingMore,
+    totalCount,
+  ]);
+
+  const onScroll = useCallback(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    // If near top (e.g., < 100px), load more older messages
+    if (el.scrollTop < 100) {
+      void loadMore();
+    }
+  }, [loadMore]);
 
   // Auto-resize textarea
   useEffect(() => {
@@ -324,63 +335,49 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     if (!conversationId) return;
     const off = eventBus.on("websocket-message", (payload: any) => {
       try {
-        if (!payload || payload.conversation_id !== conversationId) return;
-        const isAgent =
-          (payload.sender as string) === "agent" ||
-          !!payload.sender_assistant_id ||
-          !!payload.message?.sender_assistant_id;
-        const id: string =
-          (payload.message && payload.message.id) ||
-          (typeof crypto !== "undefined" && (crypto as any).randomUUID
-            ? (crypto as any).randomUUID()
-            : String(Date.now()));
-        if (id && messageIdSetRef.current.has(id)) return; // de-duplicate
-        const timestamp = payload.timestamp
-          ? new Date(payload.timestamp)
-          : new Date();
-        // Resolve sender profile
-        const senderAssistantId: string | undefined =
-          payload.sender_assistant_id || payload.message?.sender_assistant_id;
-        const senderUserId: string | undefined =
-          payload.user_id || payload.message?.sender_user_id;
+        console.log("payload::", payload);
+        if (!payload || !payload.message) return;
+        const m = payload.message;
+        if (m.conversation_id && m.conversation_id !== conversationId) return;
+        if (m.sender_user_id && m.sender_user_id === user?.id) return; // skip own echo
 
-        let resolvedName: string | undefined;
-        let resolvedAvatar: string | undefined;
-        if (isAgent) {
-          const prof = senderAssistantId
-            ? participantAssistantMap.get(senderAssistantId)
-            : undefined;
-          const anyAssistant = headerParticipants.find(
-            (p) => p.kind === "assistant"
-          );
-          resolvedName = prof?.name || anyAssistant?.name || "Assistant";
-          resolvedAvatar = prof?.image || anyAssistant?.image || undefined;
-        } else {
-          if (senderUserId) {
-            const prof = participantUserMap.get(senderUserId);
-            resolvedName = prof?.name || "Member";
-            resolvedAvatar = prof?.image || undefined;
-          } else {
-            resolvedName = "Member";
-            resolvedAvatar = undefined;
-          }
-        }
+        const senderRole: "agent" | "user" =
+          (m as any).sender_role || (m.sender_assistant_id ? "agent" : "user");
+        const tsRaw =
+          (m as any).created_at_iso || (m as any).timestamp || m.created_at;
+        const timestamp = tsRaw ? new Date(tsRaw) : new Date();
+        const parts = headerParticipantsRef.current || [];
+        const brief = parts.find(
+          (p) => p.id === m.sender_user_id || p.id === m.sender_assistant_id
+        );
+        const name =
+          brief?.name ||
+          (m as any).sender_name ||
+          (m as any).sender?.name ||
+          "";
+        const avatar =
+          brief?.image ||
+          (m as any).sender_image ||
+          (m as any).sender?.image ||
+          "";
 
         const mapped: Message = {
-          id,
-          sender: isAgent ? "agent" : "student",
-          content:
-            payload.content ?? payload.text ?? payload.message?.content ?? "",
+          id: m.id,
+          sender: senderRole,
+          content: m.content ?? "",
           timestamp,
-          name: resolvedName,
-          avatar: resolvedAvatar,
-          sender_user_id: senderUserId ?? null,
-          sender_assistant_id: senderAssistantId ?? null,
-          reply_to_message_id: payload.message?.reply_to_message_id ?? null,
-          reply_to_brief: payload.message?.reply_to_brief ?? null,
+          name,
+          avatar,
+          sender_user_id: m.sender_user_id ?? null,
+          sender_assistant_id: m.sender_assistant_id ?? null,
+          reply_to_message_id: (m as any).reply_to_message_id ?? null,
+          reply_to_brief: (m as any).reply_to_brief ?? null,
         };
-        if (mapped.id) messageIdSetRef.current.add(mapped.id);
-        setMessages((prev) => [...prev, mapped]);
+        console.log("mapped", mapped);
+        if (mapped.id && !messageIdSetRef.current.has(mapped.id)) {
+          messageIdSetRef.current.add(mapped.id);
+          setMessages((prev) => [...prev, mapped]);
+        }
       } catch (e) {
         // swallow to avoid UI break
       }
@@ -396,27 +393,18 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       const sent = await apiSendMessage(conversationId, content, {
         reply_to_message_id: replyTo?.id,
       });
-      // Resolve from participants only (no hard-coded fallbacks)
-      let nameResolved: string | undefined;
-      let avatarResolved: string | undefined;
-      if (sent.sender_assistant_id) {
-        const prof = participantAssistantMap.get(sent.sender_assistant_id);
-        nameResolved = prof?.name || "Assistant";
-        avatarResolved = prof?.image || undefined;
-      } else if (sent.sender_user_id) {
-        const prof = participantUserMap.get(sent.sender_user_id);
-        nameResolved = prof?.name || "Member";
-        avatarResolved = prof?.image || undefined;
-      }
+      // Use sender brief from backend directly
       const mapped: Message = {
         id: sent.id,
         sender: sent.sender_assistant_id ? "agent" : "student",
         content: sent.content,
-        timestamp: (sent as any).created_at
+        timestamp: (sent as any).created_at_iso
+          ? new Date((sent as any).created_at_iso as string)
+          : (sent as any).created_at
           ? new Date((sent as any).created_at as string)
           : new Date(),
-        name: nameResolved,
-        avatar: avatarResolved,
+        name: (sent as any)?.sender?.name,
+        avatar: (sent as any)?.sender?.image,
         sender_user_id: (sent as any).sender_user_id ?? null,
         sender_assistant_id: (sent as any).sender_assistant_id ?? null,
         reply_to_message_id: (sent as any).reply_to_message_id || null,
@@ -448,6 +436,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   if (!conversationId) {
     return (
       <div className={cn("flex flex-col h-full bg-background", className)}>
+        <div className="flex items-center justify-center p-4 border-b border-border h-20">
+          <Avatar className="w-11 h-11 rounded-md">
+            <AvatarImage src={assistantInfo?.image} />
+            <AvatarFallback>
+              {assistantInfo?.name?.charAt(0) || "AI"}
+            </AvatarFallback>
+          </Avatar>
+        </div>
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-muted flex items-center justify-center">
@@ -552,7 +548,11 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        ref={scrollContainerRef}
+        onScroll={onScroll}
+      >
         {isLoading ? (
           <div className="space-y-4 animate-pulse">
             {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -594,6 +594,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 onReply={(p) => setReplyTo(p)}
               />
             ))}
+
             <div ref={messagesEndRef} />
           </>
         )}

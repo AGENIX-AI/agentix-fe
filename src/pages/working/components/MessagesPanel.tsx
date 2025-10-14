@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import { Search, Plus, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { createConversation, listConversations } from "@/api/conversations";
+// Backend DTOs are used directly; no local mapping types required here
 import type {
   ConversationListItem,
   ConversationParticipantBrief,
@@ -57,59 +58,28 @@ interface ConversationItemProps {
   currentUserId?: string | null;
 }
 
-// Shared helper to compute avatar display set from participants list per rules
-function computeAvatarDisplay(
-  participants: ConversationParticipantBrief[] | undefined,
-  currentUserId?: string | null
-): {
-  avatarsToShow: ConversationParticipantBrief[];
-  singleAvatarName: string | null;
-} {
-  const list = participants || [];
-  const assistant = list.find((p) => p.kind === "assistant") || null;
-  const users = list.filter((p) => p.kind === "user");
-  const others = users.filter((u) => u.id !== currentUserId);
-  const length = list.length;
-  console.log("length", length);
-  console.log(assistant, list);
-  if (length === 2) {
-    return {
-      avatarsToShow: assistant ? [assistant] : others.slice(0, 1),
-      singleAvatarName: (assistant?.name || others[0]?.name) ?? "Chat",
-    };
-  }
-  if (length === 3) {
-    const target = others[0] || null;
-    return {
-      avatarsToShow: target ? [target] : assistant ? [assistant] : [],
-      singleAvatarName: (target?.name || assistant?.name) ?? "Chat",
-    };
-  }
-  if (length > 3) {
-    const filtered = list.filter(
-      (p) => p.kind === "user" && p.id !== currentUserId
-    );
-    return { avatarsToShow: filtered.slice(0, 4), singleAvatarName: null };
-  }
-
-  return {
-    avatarsToShow: assistant ? [assistant] : list.slice(0, 1),
-    singleAvatarName: (assistant?.name || list[0]?.name) ?? "Chat",
-  };
-}
+// Backend now provides precomputed display info; no FE computation needed
+type ConversationDisplay = {
+  name?: string | null;
+  avatars_to_show?: ConversationParticipantBrief[];
+  single_avatar_name?: string | null;
+  avatars?: ConversationParticipantBrief[]; // backward-compat
+};
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   isSelected,
   onClick,
-  currentUserId,
 }) => {
-  const { avatarsToShow, singleAvatarName } = useMemo(
-    () => computeAvatarDisplay(conversation.participants, currentUserId),
-    [conversation.participants, currentUserId]
-  );
-
-  console.log(avatarsToShow, singleAvatarName);
+  const display = (conversation as any).display as
+    | ConversationDisplay
+    | undefined;
+  const avatarsToShow = display?.avatars_to_show || display?.avatars || [];
+  const singleAvatarName =
+    display?.single_avatar_name ||
+    display?.name ||
+    conversation.conversation_name ||
+    null;
   return (
     <div
       className={cn(
@@ -154,11 +124,9 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-medium text-foreground truncate">
-            {conversation.type === "dm"
-              ? singleAvatarName ||
-                conversation.conversation_name ||
-                "Untitled Conversation"
-              : conversation.conversation_name || "Untitled Conversation"}
+            {singleAvatarName ||
+              conversation.conversation_name ||
+              "Untitled Conversation"}
           </h3>
           <span className="shrink-0 text-[11px] text-muted-foreground ml-2">
             {formatShortRelativeTime(conversation.last_message?.time)}
@@ -167,7 +135,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
 
         <div className="flex items-center justify-between gap-2">
           <p className="flex-1 text-sm text-muted-foreground truncate">
-            {conversation.last_message?.content || "No messages yet"}
+            {(conversation as any)?.last_message?.content || "No messages yet"}
           </p>
         </div>
       </div>
@@ -219,58 +187,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
         });
 
         if (response && Array.isArray(response.conversations)) {
+          // Use backend DTO directly; FE will rely on c.display and c.last_message
           setConversations(
-            response.conversations.map(
-              (c: any): ConversationListItem => ({
-                id: c.id ?? null,
-                type: c.type ?? undefined,
-                assistants: c.assistants ?? null,
-                // original participants
-                participants: c.participants ?? [],
-                conversation_name: c.title ?? null,
-                conversation_description: c.conversation_description ?? "",
-                last_message: c.last_message
-                  ? {
-                      time: c.last_message.created_at || c.last_message.time,
-                      content: c.last_message.content,
-                      sender:
-                        c.last_message.sender_user_id ||
-                        c.last_message.sender_assistant_id ||
-                        "",
-                    }
-                  : undefined,
-                // derived fields as requested
-                ...(Array.isArray(c.participants)
-                  ? (() => {
-                      const parts = c.participants as Array<{
-                        id: string;
-                        kind: "user" | "assistant";
-                        name?: string | null;
-                        image?: string | null;
-                      }>;
-                      const my_profile = parts.find(
-                        (p) => p.kind === "user" && p.id === (user?.id ?? null)
-                      );
-                      const assistant = parts.find(
-                        (p) => p.kind === "assistant"
-                      );
-                      const list_participants = parts.filter(
-                        (p) =>
-                          !(
-                            (p.kind === "user" &&
-                              p.id === (user?.id ?? null)) ||
-                            p.kind === "assistant"
-                          )
-                      );
-                      return {
-                        my_profile,
-                        assistant,
-                        list_participants,
-                      } as any;
-                    })()
-                  : {}),
-              })
-            )
+            response.conversations as unknown as ConversationListItem[]
           );
         }
       } catch (error) {
@@ -340,49 +259,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
       page_size: 100,
     });
     if (response && Array.isArray(response.conversations)) {
+      // Use backend DTO directly; no mapping
       setConversations(
-        response.conversations.map(
-          (c: any): ConversationListItem => ({
-            id: c.id ?? null,
-            type: c.type ?? undefined,
-            assistants: c.assistants ?? null,
-            participants: c.participants ?? [],
-            conversation_name: c.title ?? null,
-            conversation_description: c.conversation_description ?? "",
-            last_message: c.last_message
-              ? {
-                  time: c.last_message.created_at || c.last_message.time,
-                  content: c.last_message.content,
-                  sender:
-                    c.last_message.sender_user_id ||
-                    c.last_message.sender_assistant_id ||
-                    "",
-                }
-              : undefined,
-            ...(Array.isArray(c.participants)
-              ? (() => {
-                  const parts = c.participants as Array<{
-                    id: string;
-                    kind: "user" | "assistant";
-                    name?: string | null;
-                    image?: string | null;
-                  }>;
-                  const my_profile = parts.find(
-                    (p) => p.kind === "user" && p.id === (user?.id ?? null)
-                  );
-                  const assistant = parts.find((p) => p.kind === "assistant");
-                  const list_participants = parts.filter(
-                    (p) =>
-                      !(
-                        (p.kind === "user" && p.id === (user?.id ?? null)) ||
-                        p.kind === "assistant"
-                      )
-                  );
-                  return { my_profile, assistant, list_participants } as any;
-                })()
-              : {}),
-          })
-        )
+        response.conversations as unknown as ConversationListItem[]
       );
     }
   }, [workspaceId]);
@@ -478,11 +357,16 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
         {isCollapsed ? (
           <div className="flex flex-col gap-1 p-2">
             {conversations.slice(0, 8).map((conversation) => {
-              const { avatarsToShow, singleAvatarName } = computeAvatarDisplay(
-                conversation.participants || [],
-                user?.id ?? null
-              );
-              console.log(avatarsToShow, singleAvatarName);
+              const display = (conversation as any).display as
+                | ConversationDisplay
+                | undefined;
+              const avatarsToShow =
+                display?.avatars_to_show || display?.avatars || [];
+              const singleAvatarName =
+                display?.single_avatar_name ||
+                display?.name ||
+                conversation.conversation_name ||
+                null;
               return (
                 <div
                   key={conversation.id}
@@ -496,7 +380,9 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                     conversation.id && handleConversationClick(conversation.id)
                   }
                   title={
-                    conversation.conversation_name || "Untitled Conversation"
+                    singleAvatarName ||
+                    conversation.conversation_name ||
+                    "Untitled Conversation"
                   }
                 >
                   {avatarsToShow.length > 0 ? (
@@ -576,7 +462,6 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                 onClick={() =>
                   conversation.id && handleConversationClick(conversation.id)
                 }
-                currentUserId={user?.id ?? null}
               />
             ))}
           </div>

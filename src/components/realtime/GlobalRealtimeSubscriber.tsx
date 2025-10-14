@@ -39,37 +39,7 @@ export function GlobalRealtimeSubscriber() {
     const userCh = pusher.subscribe(userChannelName);
     userCh.bind("message:new", (payload: any) => {
       try {
-        // Support both nested { message } and flat payloads
-        const msg = (payload && (payload.message ?? payload)) as any;
-        if (!msg) {
-          console.warn("[Realtime] user message:new -> empty payload", payload);
-          return;
-        }
-        // Skip echo of current user's own messages
-        if (msg?.sender_user_id && msg.sender_user_id === user.id) {
-          console.log("[Realtime] Skipping self-sent message (user channel)", {
-            messageId: msg?.id,
-            userId: user.id,
-          });
-          return;
-        }
-        const role = msg?.meta?.role as string | undefined;
-        const content: string =
-          typeof msg?.content === "string"
-            ? msg.content
-            : typeof msg?.content?.reply === "string"
-            ? msg.content.reply
-            : payload?.text ?? "";
-        const sender: "agent" | "student" =
-          role === "agent" || !!msg?.sender_assistant_id ? "agent" : "student";
-        eventBus.emit("websocket-message", {
-          user_id: user.id,
-          conversation_id: msg?.conversation_id,
-          content,
-          sender,
-          invocation_id: msg?.invocation_id || "",
-          timestamp: msg?.created_at || new Date().toISOString(),
-        });
+        eventBus.emit("websocket-message", payload);
       } catch (e) {
         console.error("[Realtime] user message:new handler error", e, payload);
       }
@@ -105,42 +75,8 @@ export function GlobalRealtimeSubscriber() {
           privCh.bind("message:new", (payload: any) => {
             try {
               log("message:new")(payload);
-              // Support both nested { message } and flat payloads
-              const msg = (payload && (payload.message ?? payload)) as any;
-              if (!msg) {
-                console.warn(
-                  "[Realtime] conv message:new -> empty payload",
-                  payload
-                );
-                return;
-              }
-              // Skip echo of current user's own messages
-              if (msg?.sender_user_id && msg.sender_user_id === user.id) {
-                console.log(
-                  "[Realtime] Skipping self-sent message (conversation channel)",
-                  { messageId: msg?.id, userId: user.id }
-                );
-                return;
-              }
-              const content: string =
-                typeof msg?.content === "string"
-                  ? msg.content
-                  : typeof msg?.content?.reply === "string"
-                  ? msg.content.reply
-                  : payload?.text ?? "";
-              const role = msg?.meta?.role as string | undefined;
-              const sender: "agent" | "student" =
-                role === "agent" || !!msg?.sender_assistant_id
-                  ? "agent"
-                  : "student";
-              eventBus.emit("websocket-message", {
-                user_id: user.id,
-                conversation_id: msg?.conversation_id ?? conv.id,
-                content,
-                sender,
-                invocation_id: msg?.invocation_id || "",
-                timestamp: msg?.created_at || new Date().toISOString(),
-              });
+
+              eventBus.emit("websocket-message", payload);
             } catch (e) {
               console.error(
                 "[Realtime] conv message:new handler error",
