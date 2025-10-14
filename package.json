@@ -15,6 +15,8 @@
     "@ai-sdk/provider-utils": "^2.2.8",
     "@ai-sdk/react": "^1.2.12",
     "@ariakit/react": "^0.4.18",
+    "@cometchat/calls-sdk-javascript": "^4.1.1",
+    "@cometchat/chat-uikit-react": "^6.3.1",
     "@copilotkit/react-core": "^1.10.3",
     "@copilotkit/react-ui": "^1.10.3",
     "@editorjs/editorjs": "^2.30.8",

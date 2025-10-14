@@ -22,6 +22,7 @@ import { StudentContextProvider } from "./contexts/StudentContext";
 import { GlobalRealtimeSubscriber } from "./components/realtime/GlobalRealtimeSubscriber";
 import Home from "./pages/student/student";
 import FourPanelLayout from "./pages/working/layout";
+import CometChatClone from "./pages/cometchat/CometChatClone";
 
 function App() {
   return (
@@ -47,6 +48,7 @@ function App() {
             <Route element={<PrivateRoute />}>
               <Route path="/home" element={<Home />} />
               <Route path="/admin/*" element={<AdminPortal />} />
+              <Route path="/cometchat" element={<CometChatClone />} />
               {/* Add more protected routes here */}
             </Route>
 

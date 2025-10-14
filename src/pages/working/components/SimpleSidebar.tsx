@@ -93,7 +93,7 @@ export const SimpleSidebar: React.FC<SimpleSidebarProps> = ({
           alt="AgenIx"
           className="h-8 w-8 rounded-md object-contain"
         />
-        <h2 className="text-lg font-semibold text-foreground">AgentIx</h2>
+        <h2 className="text-lg font-semibold text-foreground">AgeniX</h2>
       </div>
 
       {/* Navigation */}
