@@ -9,7 +9,10 @@ import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import { useAuth } from "@/contexts/AuthContext";
 import { createConversation, listConversations } from "@/api/conversations";
-import type { ConversationListItem } from "@/lib/utils/types/conversation";
+import type {
+  ConversationListItem,
+  ConversationParticipantBrief,
+} from "@/lib/utils/types/conversation";
 // import { formatDistanceToNow } from "date-fns";
 import { UserAvatar } from "@/components/ui/user-avatar";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -54,24 +57,59 @@ interface ConversationItemProps {
   currentUserId?: string | null;
 }
 
+// Shared helper to compute avatar display set from participants list per rules
+function computeAvatarDisplay(
+  participants: ConversationParticipantBrief[] | undefined,
+  currentUserId?: string | null
+): {
+  avatarsToShow: ConversationParticipantBrief[];
+  singleAvatarName: string | null;
+} {
+  const list = participants || [];
+  const assistant = list.find((p) => p.kind === "assistant") || null;
+  const users = list.filter((p) => p.kind === "user");
+  const others = users.filter((u) => u.id !== currentUserId);
+  const length = list.length;
+  console.log("length", length);
+  console.log(assistant, list);
+  if (length === 2) {
+    return {
+      avatarsToShow: assistant ? [assistant] : others.slice(0, 1),
+      singleAvatarName: (assistant?.name || others[0]?.name) ?? "Chat",
+    };
+  }
+  if (length === 3) {
+    const target = others[0] || null;
+    return {
+      avatarsToShow: target ? [target] : assistant ? [assistant] : [],
+      singleAvatarName: (target?.name || assistant?.name) ?? "Chat",
+    };
+  }
+  if (length > 3) {
+    const filtered = list.filter(
+      (p) => p.kind === "user" && p.id !== currentUserId
+    );
+    return { avatarsToShow: filtered.slice(0, 4), singleAvatarName: null };
+  }
+
+  return {
+    avatarsToShow: assistant ? [assistant] : list.slice(0, 1),
+    singleAvatarName: (assistant?.name || list[0]?.name) ?? "Chat",
+  };
+}
+
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   isSelected,
   onClick,
   currentUserId,
 }) => {
-  const dmOther = useMemo(() => {
-    if (conversation.type !== "dm") return null;
-    const list = conversation.participants || [];
-    // pick assistant if present, else the user that's not me
-    const assistant = list.find((p) => p.kind === "assistant");
-    if (assistant) return assistant;
-    const otherUser = list.find(
-      (p) => p.kind === "user" && p.id !== currentUserId
-    );
-    return otherUser || null;
-  }, [conversation, currentUserId]);
+  const { avatarsToShow, singleAvatarName } = useMemo(
+    () => computeAvatarDisplay(conversation.participants, currentUserId),
+    [conversation.participants, currentUserId]
+  );
 
+  console.log(avatarsToShow, singleAvatarName);
   return (
     <div
       className={cn(
@@ -82,17 +120,19 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
       onClick={onClick}
     >
       <div className="">
-        {conversation.type === "dm" && dmOther ? (
+        {avatarsToShow.length === 1 ? (
           <UserAvatar
-            name={dmOther.name || "Chat"}
-            avatarUrl={dmOther.image}
+            name={singleAvatarName || avatarsToShow[0]?.name || "Chat"}
+            avatarUrl={avatarsToShow[0]?.image || undefined}
             className="aspect-square rounded-md h-11 w-11"
           />
-        ) : conversation.type === "group" &&
-          conversation.participants?.length ? (
+        ) : avatarsToShow.length > 1 ? (
           <div className="h-11 w-11 grid grid-cols-2 grid-rows-2 gap-0.5">
-            {(conversation.participants || []).slice(0, 4).map((p, idx) => (
-              <Avatar key={p.id + idx} className="h-full w-full rounded-sm">
+            {avatarsToShow.map((p, idx) => (
+              <Avatar
+                key={p.id + String(idx)}
+                className="h-full w-full rounded-sm"
+              >
                 <AvatarImage src={p.image || undefined} />
                 <AvatarFallback className="text-[10px]">
                   {(p.name || "?")
@@ -115,7 +155,7 @@ const ConversationItem: React.FC<ConversationItemProps> = ({
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-medium text-foreground truncate">
             {conversation.type === "dm"
-              ? dmOther?.name ||
+              ? singleAvatarName ||
                 conversation.conversation_name ||
                 "Untitled Conversation"
               : conversation.conversation_name || "Untitled Conversation"}
@@ -163,21 +203,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
   );
   const [creatingGroup, setCreatingGroup] = useState(false);
 
-  const getDmTarget = (
-    conversation: ConversationListItem
-  ): {
-    id: string;
-    kind: "user" | "assistant";
-    name?: string | null;
-    image?: string | null;
-  } | null => {
-    if (conversation.type !== "dm") return null;
-    const list = conversation.participants || [];
-    const me = list.find(
-      (p) => p.kind === "user" && p.id === (user?.id ?? null)
-    );
-    return me || null;
-  };
+  // removed old dm target helper in favor of computeAvatarDisplay
 
   // Fetch conversations
   useEffect(() => {
@@ -199,6 +225,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                 id: c.id ?? null,
                 type: c.type ?? undefined,
                 assistants: c.assistants ?? null,
+                // original participants
                 participants: c.participants ?? [],
                 conversation_name: c.title ?? null,
                 conversation_description: c.conversation_description ?? "",
@@ -212,6 +239,36 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                         "",
                     }
                   : undefined,
+                // derived fields as requested
+                ...(Array.isArray(c.participants)
+                  ? (() => {
+                      const parts = c.participants as Array<{
+                        id: string;
+                        kind: "user" | "assistant";
+                        name?: string | null;
+                        image?: string | null;
+                      }>;
+                      const my_profile = parts.find(
+                        (p) => p.kind === "user" && p.id === (user?.id ?? null)
+                      );
+                      const assistant = parts.find(
+                        (p) => p.kind === "assistant"
+                      );
+                      const list_participants = parts.filter(
+                        (p) =>
+                          !(
+                            (p.kind === "user" &&
+                              p.id === (user?.id ?? null)) ||
+                            p.kind === "assistant"
+                          )
+                      );
+                      return {
+                        my_profile,
+                        assistant,
+                        list_participants,
+                      } as any;
+                    })()
+                  : {}),
               })
             )
           );
@@ -302,6 +359,28 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                     "",
                 }
               : undefined,
+            ...(Array.isArray(c.participants)
+              ? (() => {
+                  const parts = c.participants as Array<{
+                    id: string;
+                    kind: "user" | "assistant";
+                    name?: string | null;
+                    image?: string | null;
+                  }>;
+                  const my_profile = parts.find(
+                    (p) => p.kind === "user" && p.id === (user?.id ?? null)
+                  );
+                  const assistant = parts.find((p) => p.kind === "assistant");
+                  const list_participants = parts.filter(
+                    (p) =>
+                      !(
+                        (p.kind === "user" && p.id === (user?.id ?? null)) ||
+                        p.kind === "assistant"
+                      )
+                  );
+                  return { my_profile, assistant, list_participants } as any;
+                })()
+              : {}),
           })
         )
       );
@@ -335,9 +414,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
     }
   };
 
-  // const handleToggleCollapse = () => {
-  //   onToggleCollapse?.();
-  // };
+  console.log(conversations);
 
   return (
     <div className={cn("flex flex-col h-full bg-background", className)}>
@@ -400,35 +477,64 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
       <div className={cn("flex-1 overflow-y-auto", !isCollapsed && "p-4")}>
         {isCollapsed ? (
           <div className="flex flex-col gap-1 p-2">
-            {conversations.slice(0, 8).map((conversation) => (
-              <div
-                key={conversation.id}
-                className={cn(
-                  "flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors",
-                  "hover:bg-accent/50",
-                  conversation.id === selectedConversationId &&
-                    "bg-accent border border-border"
-                )}
-                onClick={() =>
-                  conversation.id && handleConversationClick(conversation.id)
-                }
-                title={
-                  conversation.conversation_name || "Untitled Conversation"
-                }
-              >
-                {getDmTarget(conversation) ? (
-                  <UserAvatar
-                    name={getDmTarget(conversation)?.name || "Chat"}
-                    avatarUrl={getDmTarget(conversation)?.image}
-                    className="w-8 h-8"
-                  />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <MessageSquare className="w-4 h-4 text-primary" />
-                  </div>
-                )}
-              </div>
-            ))}
+            {conversations.slice(0, 8).map((conversation) => {
+              const { avatarsToShow, singleAvatarName } = computeAvatarDisplay(
+                conversation.participants || [],
+                user?.id ?? null
+              );
+              console.log(avatarsToShow, singleAvatarName);
+              return (
+                <div
+                  key={conversation.id}
+                  className={cn(
+                    "flex items-center justify-center p-2 rounded-md cursor-pointer transition-colors",
+                    "hover:bg-accent/50",
+                    conversation.id === selectedConversationId &&
+                      "bg-accent border border-border"
+                  )}
+                  onClick={() =>
+                    conversation.id && handleConversationClick(conversation.id)
+                  }
+                  title={
+                    conversation.conversation_name || "Untitled Conversation"
+                  }
+                >
+                  {avatarsToShow.length > 0 ? (
+                    avatarsToShow.length === 1 ? (
+                      <UserAvatar
+                        name={
+                          singleAvatarName || avatarsToShow[0]?.name || "Chat"
+                        }
+                        avatarUrl={avatarsToShow[0]?.image || undefined}
+                        className="w-8 h-8"
+                      />
+                    ) : (
+                      <div className="w-8 h-8 grid grid-cols-2 grid-rows-2 gap-0.5">
+                        {avatarsToShow.slice(0, 4).map((p, idx) => (
+                          <Avatar
+                            key={p.id + String(idx)}
+                            className="h-full w-full rounded-sm"
+                          >
+                            <AvatarImage src={p.image || undefined} />
+                            <AvatarFallback className="text-[9px]">
+                              {(p.name || "?")
+                                .split(" ")
+                                .slice(0, 2)
+                                .map((n) => n[0])
+                                .join("")}
+                            </AvatarFallback>
+                          </Avatar>
+                        ))}
+                      </div>
+                    )
+                  ) : (
+                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                      <MessageSquare className="w-4 h-4 text-primary" />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
             {conversations.length > 8 && (
               <div className="flex items-center justify-center p-2">
                 <span className="text-xs text-muted-foreground">

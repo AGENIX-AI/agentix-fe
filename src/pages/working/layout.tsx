@@ -127,22 +127,6 @@ export default function FourPanelLayout() {
       rightPanel: finalRightPanelW,
     };
 
-    // Debug: verify total width
-    const totalUsed =
-      result.sidebar + result.messages + result.chat + result.rightPanel;
-    console.log(
-      "Panel widths:",
-      result,
-      "Total used:",
-      totalUsed,
-      "Container width:",
-      totalWidth,
-      "Chat calculated as:",
-      totalWidth - sidebarW - finalMessagesW - finalRightPanelW,
-      "localStorage loaded:",
-      isLocalStorageLoaded
-    );
-
     return result;
   };
 

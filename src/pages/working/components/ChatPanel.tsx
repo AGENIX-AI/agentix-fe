@@ -28,6 +28,7 @@ import {
 } from "@/api/conversations";
 import type { MessageResponseDTO } from "@/api/conversations";
 import type { ParticipantBriefDTO } from "@/api/conversations";
+import { eventBus } from "@/lib/utils/event/eventBus";
 
 interface ChatPanelProps {
   className?: string;
@@ -42,6 +43,8 @@ interface Message {
   timestamp: Date;
   avatar?: string;
   name?: string;
+  sender_user_id?: string | null;
+  sender_assistant_id?: string | null;
   reply_to_message_id?: string | null;
   reply_to_brief?: {
     id: string;
@@ -58,7 +61,7 @@ const MessageBubble: React.FC<{
 }> = ({ message, isOwn, onReply }) => {
   return (
     <div className={cn("flex gap-3", isOwn && "flex-row-reverse")}>
-      <Avatar className="w-8 h-8 flex-shrink-0">
+      <Avatar className="w-11 h-11 rounded-md flex-shrink-0">
         <AvatarImage src={message.avatar} />
         <AvatarFallback className="text-xs">
           {message.name?.charAt(0) || message.sender.charAt(0).toUpperCase()}
@@ -140,6 +143,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   const { assistantInfo } = useStudent();
   const { user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
+  const messageIdSetRef = useRef<Set<string>>(new Set());
   const [inputValue, setInputValue] = useState("");
   const [replyTo, setReplyTo] = useState<{
     id: string;
@@ -197,36 +201,33 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
           (m: MessageResponseDTO) => {
             const isAgent = Boolean(m.sender_assistant_id);
             const senderAssistant = m.sender_assistant_id
-              ? assistantMap.get(m.sender_assistant_id) || {
-                  name: assistantInfo?.name || "AI Assistant",
-                  image: assistantInfo?.image,
-                }
+              ? assistantMap.get(m.sender_assistant_id)
               : undefined;
             const senderUser = m.sender_user_id
-              ? userMap.get(m.sender_user_id) || {
-                  name: "You",
-                  image: undefined,
-                }
-              : { name: "You", image: undefined };
+              ? userMap.get(m.sender_user_id)
+              : undefined;
 
             return {
               id: m.id,
               sender: isAgent ? "agent" : "student",
               content: m.content,
-              // Prefer backend timestamp; fallback to now for display
               timestamp:
                 m && (m as any).created_at
                   ? new Date((m as any).created_at as string)
                   : new Date(),
               name: isAgent
-                ? senderAssistant?.name || "AI Assistant"
-                : senderUser?.name || "You",
+                ? senderAssistant?.name || "Assistant"
+                : senderUser?.name || "Member",
               avatar: isAgent ? senderAssistant?.image : senderUser?.image,
+              sender_user_id: m.sender_user_id ?? null,
+              sender_assistant_id: m.sender_assistant_id ?? null,
               reply_to_message_id: (m as any).reply_to_message_id || null,
               reply_to_brief: (m as any).reply_to_brief || null,
             } as Message;
           }
         );
+        // Seed id set to avoid future duplicates from realtime
+        messageIdSetRef.current = new Set(mapped.map((m) => m.id));
         setMessages(mapped);
       } catch (e) {
         // Silently ignore for now; could surface a toast
@@ -240,15 +241,70 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     };
   }, [conversationId, assistantInfo]);
 
-  const dmOther = React.useMemo(() => {
-    const list = headerParticipants || [];
-    const assistant = list.find((p) => p.kind === "assistant");
-    if (assistant) return assistant;
-    const otherUser = list.find(
-      (p) => p.kind === "user" && p.id !== (user?.id ?? null)
-    );
-    return otherUser || null;
-  }, [headerParticipants, user?.id]);
+  // Participant lookup maps for realtime usage as well
+  const participantUserMap = React.useMemo(() => {
+    const map = new Map<
+      string,
+      { name?: string | null; image?: string | null }
+    >();
+    for (const p of headerParticipants) {
+      if (p.kind === "user") map.set(p.id, { name: p.name, image: p.image });
+    }
+    return map;
+  }, [headerParticipants]);
+
+  const participantAssistantMap = React.useMemo(() => {
+    const map = new Map<
+      string,
+      { name?: string | null; image?: string | null }
+    >();
+    for (const p of headerParticipants) {
+      if (p.kind === "assistant")
+        map.set(p.id, { name: p.name, image: p.image });
+    }
+    return map;
+  }, [headerParticipants]);
+
+  // Compute header avatars with same rules as MessagesPanel
+  function computeHeaderDisplay(
+    participants: ParticipantBriefDTO[] | undefined,
+    currentUserId?: string | null
+  ): { headerAvatars: ParticipantBriefDTO[]; singleHeaderName: string | null } {
+    const list = participants || [];
+    const assistant = list.find((p) => p.kind === "assistant") || null;
+    const users = list.filter((p) => p.kind === "user");
+    const others = users.filter((u) => u.id !== currentUserId);
+    const length = list.length;
+    if (length === 2) {
+      return {
+        headerAvatars: assistant ? [assistant] : others.slice(0, 1),
+        singleHeaderName:
+          (assistant?.name || others[0]?.name) ?? "Conversation",
+      };
+    }
+    if (length === 3) {
+      const target = others[0] || null;
+      return {
+        headerAvatars: target ? [target] : assistant ? [assistant] : [],
+        singleHeaderName: (target?.name || assistant?.name) ?? "Conversation",
+      };
+    }
+    if (length > 3) {
+      const filtered = list.filter(
+        (p) => p.kind === "user" && p.id !== currentUserId
+      );
+      return { headerAvatars: filtered.slice(0, 4), singleHeaderName: null };
+    }
+    return {
+      headerAvatars: assistant ? [assistant] : list.slice(0, 1),
+      singleHeaderName: (assistant?.name || list[0]?.name) ?? "Conversation",
+    };
+  }
+
+  const { headerAvatars, singleHeaderName } = React.useMemo(
+    () => computeHeaderDisplay(headerParticipants, user?.id ?? null),
+    [headerParticipants, user?.id]
+  );
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -263,6 +319,75 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
     }
   }, [inputValue]);
 
+  // Listen to global realtime events and append to this chat if conversation matches
+  useEffect(() => {
+    if (!conversationId) return;
+    const off = eventBus.on("websocket-message", (payload: any) => {
+      try {
+        if (!payload || payload.conversation_id !== conversationId) return;
+        const isAgent =
+          (payload.sender as string) === "agent" ||
+          !!payload.sender_assistant_id ||
+          !!payload.message?.sender_assistant_id;
+        const id: string =
+          (payload.message && payload.message.id) ||
+          (typeof crypto !== "undefined" && (crypto as any).randomUUID
+            ? (crypto as any).randomUUID()
+            : String(Date.now()));
+        if (id && messageIdSetRef.current.has(id)) return; // de-duplicate
+        const timestamp = payload.timestamp
+          ? new Date(payload.timestamp)
+          : new Date();
+        // Resolve sender profile
+        const senderAssistantId: string | undefined =
+          payload.sender_assistant_id || payload.message?.sender_assistant_id;
+        const senderUserId: string | undefined =
+          payload.user_id || payload.message?.sender_user_id;
+
+        let resolvedName: string | undefined;
+        let resolvedAvatar: string | undefined;
+        if (isAgent) {
+          const prof = senderAssistantId
+            ? participantAssistantMap.get(senderAssistantId)
+            : undefined;
+          const anyAssistant = headerParticipants.find(
+            (p) => p.kind === "assistant"
+          );
+          resolvedName = prof?.name || anyAssistant?.name || "Assistant";
+          resolvedAvatar = prof?.image || anyAssistant?.image || undefined;
+        } else {
+          if (senderUserId) {
+            const prof = participantUserMap.get(senderUserId);
+            resolvedName = prof?.name || "Member";
+            resolvedAvatar = prof?.image || undefined;
+          } else {
+            resolvedName = "Member";
+            resolvedAvatar = undefined;
+          }
+        }
+
+        const mapped: Message = {
+          id,
+          sender: isAgent ? "agent" : "student",
+          content:
+            payload.content ?? payload.text ?? payload.message?.content ?? "",
+          timestamp,
+          name: resolvedName,
+          avatar: resolvedAvatar,
+          sender_user_id: senderUserId ?? null,
+          sender_assistant_id: senderAssistantId ?? null,
+          reply_to_message_id: payload.message?.reply_to_message_id ?? null,
+          reply_to_brief: payload.message?.reply_to_brief ?? null,
+        };
+        if (mapped.id) messageIdSetRef.current.add(mapped.id);
+        setMessages((prev) => [...prev, mapped]);
+      } catch (e) {
+        // swallow to avoid UI break
+      }
+    });
+    return () => off();
+  }, [conversationId, assistantInfo, user?.id]);
+
   const handleSendMessage = useCallback(async () => {
     if (!inputValue.trim() || !conversationId) return;
     const content = inputValue.trim();
@@ -271,6 +396,18 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       const sent = await apiSendMessage(conversationId, content, {
         reply_to_message_id: replyTo?.id,
       });
+      // Resolve from participants only (no hard-coded fallbacks)
+      let nameResolved: string | undefined;
+      let avatarResolved: string | undefined;
+      if (sent.sender_assistant_id) {
+        const prof = participantAssistantMap.get(sent.sender_assistant_id);
+        nameResolved = prof?.name || "Assistant";
+        avatarResolved = prof?.image || undefined;
+      } else if (sent.sender_user_id) {
+        const prof = participantUserMap.get(sent.sender_user_id);
+        nameResolved = prof?.name || "Member";
+        avatarResolved = prof?.image || undefined;
+      }
       const mapped: Message = {
         id: sent.id,
         sender: sent.sender_assistant_id ? "agent" : "student",
@@ -278,13 +415,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         timestamp: (sent as any).created_at
           ? new Date((sent as any).created_at as string)
           : new Date(),
-        name: sent.sender_assistant_id
-          ? assistantInfo?.name || "AI Assistant"
-          : "You",
-        avatar: sent.sender_assistant_id ? assistantInfo?.image : undefined,
+        name: nameResolved,
+        avatar: avatarResolved,
+        sender_user_id: (sent as any).sender_user_id ?? null,
+        sender_assistant_id: (sent as any).sender_assistant_id ?? null,
         reply_to_message_id: (sent as any).reply_to_message_id || null,
         reply_to_brief: (sent as any).reply_to_brief || null,
       };
+      if (mapped.id) messageIdSetRef.current.add(mapped.id);
       setMessages((prev) => [...prev, mapped]);
       setReplyTo(null);
     } catch (e) {
@@ -334,7 +472,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         {isMessagesCollapsed ? (
           // Collapsed header - only show icon
           <div className="flex items-center justify-center w-full">
-            <Avatar className="w-10 h-10">
+            <Avatar className="w-11 h-11 rounded-md">
               <AvatarImage src={assistantInfo?.image} />
               <AvatarFallback>
                 {assistantInfo?.name?.charAt(0) || "AI"}
@@ -344,12 +482,26 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
         ) : (
           // Full header (mirror MessagesPanel: Users + Assistant + Group Name)
           <div className="flex items-center gap-3">
-            {headerParticipants?.length > 1 ? (
+            {headerAvatars.length === 1 ? (
+              <Avatar className="w-11 h-11 rounded-md">
+                <AvatarImage
+                  src={headerAvatars[0]?.image || assistantInfo?.image}
+                />
+                <AvatarFallback>
+                  {(
+                    singleHeaderName ||
+                    headerAvatars[0]?.name ||
+                    assistantInfo?.name ||
+                    "AI"
+                  )?.charAt(0) || "AI"}
+                </AvatarFallback>
+              </Avatar>
+            ) : headerAvatars.length > 1 ? (
               <div className="h-11 w-11 grid grid-cols-2 grid-rows-2 gap-0.5">
-                {(headerParticipants || []).slice(0, 4).map((p, idx) => (
+                {headerAvatars.map((p, idx) => (
                   <Avatar
                     key={p.id + String(idx)}
-                    className="h-full w-full rounded-sm"
+                    className="h-11 w-11 rounded-md"
                   >
                     <AvatarImage src={p.image || undefined} />
                     <AvatarFallback className="text-[10px]">
@@ -363,18 +515,17 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
                 ))}
               </div>
             ) : (
-              <Avatar className="w-10 h-10">
-                <AvatarImage src={dmOther?.image || assistantInfo?.image} />
+              <Avatar className="w-11 h-11 rounded-md">
+                <AvatarImage src={assistantInfo?.image} />
                 <AvatarFallback>
-                  {(dmOther?.name || assistantInfo?.name || "AI")?.charAt(0) ||
-                    "AI"}
+                  {(assistantInfo?.name || "AI")?.charAt(0) || "AI"}
                 </AvatarFallback>
               </Avatar>
             )}
             <div>
               <h3 className="font-semibold text-foreground">
                 {headerTitle ||
-                  dmOther?.name ||
+                  singleHeaderName ||
                   assistantInfo?.name ||
                   "Conversation"}
               </h3>
@@ -439,7 +590,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
               <MessageBubble
                 key={message.id}
                 message={message}
-                isOwn={message.sender === "student"}
+                isOwn={message.sender_user_id === (user?.id ?? null)}
                 onReply={(p) => setReplyTo(p)}
               />
             ))}
