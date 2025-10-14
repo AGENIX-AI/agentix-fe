@@ -29,6 +29,7 @@ interface MessageBubbleProps {
       image: string;
     };
   };
+  onReply?: (payload: { id: string; preview: string }) => void;
 }
 
 export function MessageBubble({
@@ -43,6 +44,7 @@ export function MessageBubble({
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   isSharing,
   conversationData,
+  onReply,
 }: MessageBubbleProps) {
   const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
@@ -173,6 +175,14 @@ export function MessageBubble({
           )}
           aria-label={bubbleAriaLabel}
         >
+          {/* Reply preview inline if present */}
+          {message.reply_to_brief && (
+            <div className="mb-2 pl-2 border-l-2 border-border/60 text-muted-foreground">
+              <div className="text-[10px] truncate">
+                {message.reply_to_brief.content}
+              </div>
+            </div>
+          )}
           <StudentMessageContent
             content={message.content}
             messageIndex={index}
@@ -216,6 +226,21 @@ export function MessageBubble({
             )}
           </Button>
         )}
+        {/* Reply action on hover */}
+        <Button
+          onClick={() =>
+            onReply?.({
+              id: String(message.id || message.invocation_id || ""),
+              preview: message.content,
+            })
+          }
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 rounded-full hover:bg-accent/40 flex-shrink-0"
+          aria-label={t("chat.message.reply", "Reply")}
+        >
+          ↩
+        </Button>
       </div>
     </div>
   );

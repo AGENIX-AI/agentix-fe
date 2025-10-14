@@ -34,6 +34,9 @@ export interface ChatBoxProps {
       image: string;
     };
   };
+  onReply?: (payload: { id: string; preview: string }) => void;
+  replyTo?: { id: string; preview: string } | null;
+  onClearReply?: () => void;
 }
 
 export function ChatBox({
@@ -46,6 +49,9 @@ export function ChatBox({
   inputRef,
   isAgentResponding,
   conversationData,
+  onReply,
+  replyTo,
+  onClearReply,
 }: ChatBoxProps) {
   const { t } = useTranslation();
   const { user } = useAuth();
@@ -140,6 +146,7 @@ export function ChatBox({
                 agentImage={displayImage}
                 conversationData={conversationData}
                 isSharing={conversation?.is_sharing}
+                onReply={onReply}
               />
             );
           })}
@@ -160,6 +167,8 @@ export function ChatBox({
         conversation={conversation}
         onArchiveComplete={handleArchiveComplete}
         conversationData={conversationData}
+        replyTo={replyTo}
+        onClearReply={onClearReply}
       />
     </div>
   );

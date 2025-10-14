@@ -1,20 +1,9 @@
 import React from "react";
-import {
-  MessageSquare,
-  Bot,
-  Search,
-  Calendar,
-  Settings,
-  Gem,
-  AlignJustify,
-} from "lucide-react";
+import { MessageSquare, Bot, Search, Calendar, Gem } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
-import { NotificationCenter } from "@/components/custom/NotificationCenter";
 import { UserMenu } from "@/pages/student/components/sidebar/user-menu";
 import { useTranslation } from "react-i18next";
 
@@ -93,7 +82,7 @@ export const SimpleSidebar: React.FC<SimpleSidebarProps> = ({
           alt="AgenIx"
           className="h-8 w-8 rounded-md object-contain"
         />
-        <h2 className="text-lg font-semibold text-foreground">AgentIx</h2>
+        <h2 className="text-lg font-semibold text-foreground">AgeniX</h2>
       </div>
 
       {/* Navigation */}

@@ -34,6 +34,8 @@ interface ChatInputProps {
       image: string;
     };
   };
+  replyTo?: { id: string; preview: string } | null;
+  onClearReply?: () => void;
 }
 
 export function ChatInput({
@@ -47,6 +49,8 @@ export function ChatInput({
   conversation,
   onArchiveComplete,
   conversationData,
+  replyTo,
+  onClearReply,
 }: ChatInputProps) {
   const { t } = useTranslation();
   const [pastedImage, setPastedImage] = useState<string | null>(null);
@@ -490,6 +494,22 @@ export function ChatInput({
 
   return (
     <div className={className}>
+      {replyTo && (
+        <div className="mb-2 mx-1 px-3 py-2 rounded-md bg-accent/30 border border-border text-xs flex items-center justify-between">
+          <div className="truncate mr-2">
+            Replying to:{" "}
+            <span className="text-muted-foreground">{replyTo.preview}</span>
+          </div>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => onClearReply?.()}
+            className="h-6 px-2"
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
       {pastedImage && (
         <ImagePreview imageUrl={pastedImage} onRemove={handleRemoveImage} />
       )}

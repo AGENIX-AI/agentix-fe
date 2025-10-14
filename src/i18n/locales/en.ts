@@ -78,7 +78,7 @@ const enTranslation: Record<string, any> = {
   },
 
   // Auth pages
-  login_title: "Login to AgentIX",
+  login_title: "Login to AgeniX",
   signup_title: "Create an Account",
   email_label: "Email",
   email_placeholder: "Enter your email",
@@ -101,7 +101,7 @@ const enTranslation: Record<string, any> = {
   // New auth structure
   auth: {
     login: {
-      title: "Login to Edvara",
+      title: "Login to AgeniX",
       subtitle: "Sign in to your account to continue",
       submit: "Login",
       sendMagicLink: "Send Magic Link",

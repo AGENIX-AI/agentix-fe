@@ -24,6 +24,7 @@ export interface ConversationParticipantBrief {
 
 export interface ConversationListItem {
   id: string | null;
+  type?: string;
   conversation_name?: string | null;
   conversation_description?: string | null;
   last_message?: LastMessage;

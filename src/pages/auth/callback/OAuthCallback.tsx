@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { authService } from "@/services/auth";
 import Cookies from "js-cookie";
 
 const OAuthCallback = () => {
@@ -46,8 +45,8 @@ const OAuthCallback = () => {
 
         // Workspace selection is handled by PrivateRoute + StudentContext
 
-        // Redirect to dashboard after successful authentication
-        navigate("/home");
+        // Redirect to working after successful authentication
+        navigate("/working");
       } catch (error) {
         console.error("OAuth callback error:", error);
         setError("Authentication failed. Please try again.");

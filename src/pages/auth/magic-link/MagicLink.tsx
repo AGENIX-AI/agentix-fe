@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { authService } from "@/services/auth";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { useTranslation } from "react-i18next";
 import Cookies from "js-cookie";
@@ -42,8 +41,8 @@ const MagicLink = () => {
 
         // Workspace selection is handled by PrivateRoute + StudentContext
 
-        // Redirect to dashboard
-        navigate("/home", { replace: true });
+        // Redirect to working
+        navigate("/working", { replace: true });
       } catch (err) {
         console.error("Magic link authentication error:", err);
         setError(

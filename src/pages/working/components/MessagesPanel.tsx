@@ -1,22 +1,43 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useCallback } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  Search,
-  Plus,
-  MessageSquare,
-  Clock,
-  Star,
-  ChevronLeft,
-} from "lucide-react";
+import { Search, Plus, MessageSquare } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+// import { Separator } from "@/components/ui/separator";
 import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
-import { listConversations } from "@/api/conversations";
+import { useAuth } from "@/contexts/AuthContext";
+import { createConversation, listConversations } from "@/api/conversations";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
-import { formatDistanceToNow } from "date-fns";
+// import { formatDistanceToNow } from "date-fns";
+import { UserAvatar } from "@/components/ui/user-avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { listMembers, type WorkspaceMember } from "@/api/workspaces";
+
+// Short relative time formatter: 33m, 1h, 2d, etc.
+function formatShortRelativeTime(input?: string | Date | null): string {
+  if (!input) return "";
+  const target = typeof input === "string" ? new Date(input) : input;
+  const now = new Date();
+  const diffMs = now.getTime() - target.getTime();
+  const sec = Math.max(1, Math.floor(diffMs / 1000));
+  const min = Math.floor(sec / 60);
+  const hr = Math.floor(min / 60);
+  const day = Math.floor(hr / 24);
+  if (sec < 60) return "1m"; // treat <1m as 1m
+  if (min < 60) return `${min}m`;
+  if (hr < 24) return `${hr}h`;
+  return `${day}d`;
+}
 
 interface MessagesPanelProps {
   className?: string;
@@ -30,62 +51,84 @@ interface ConversationItemProps {
   conversation: ConversationListItem;
   isSelected: boolean;
   onClick: () => void;
+  currentUserId?: string | null;
 }
 
 const ConversationItem: React.FC<ConversationItemProps> = ({
   conversation,
   isSelected,
   onClick,
+  currentUserId,
 }) => {
+  const dmOther = useMemo(() => {
+    if (conversation.type !== "dm") return null;
+    const list = conversation.participants || [];
+    // pick assistant if present, else the user that's not me
+    const assistant = list.find((p) => p.kind === "assistant");
+    if (assistant) return assistant;
+    const otherUser = list.find(
+      (p) => p.kind === "user" && p.id !== currentUserId
+    );
+    return otherUser || null;
+  }, [conversation, currentUserId]);
+
   return (
     <div
       className={cn(
-        "flex items-start gap-3 p-3 rounded-lg cursor-pointer transition-colors",
+        "flex items-stretch gap-2 rounded-lg cursor-pointer transition-colors p-2 ",
         "hover:bg-accent/50",
         isSelected && "bg-accent border border-border"
       )}
       onClick={onClick}
     >
-      <div className="flex-shrink-0">
-        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-          <MessageSquare className="w-5 h-5 text-primary" />
-        </div>
+      <div className="">
+        {conversation.type === "dm" && dmOther ? (
+          <UserAvatar
+            name={dmOther.name || "Chat"}
+            avatarUrl={dmOther.image}
+            className="aspect-square rounded-md h-11 w-11"
+          />
+        ) : conversation.type === "group" &&
+          conversation.participants?.length ? (
+          <div className="h-11 w-11 grid grid-cols-2 grid-rows-2 gap-0.5">
+            {(conversation.participants || []).slice(0, 4).map((p, idx) => (
+              <Avatar key={p.id + idx} className="h-full w-full rounded-sm">
+                <AvatarImage src={p.image || undefined} />
+                <AvatarFallback className="text-[10px]">
+                  {(p.name || "?")
+                    .split(" ")
+                    .slice(0, 2)
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+            ))}
+          </div>
+        ) : (
+          <div className="h-10 w-10 aspect-square rounded-md bg-primary/10 flex items-center justify-center">
+            <MessageSquare className="w-5 h-5 text-primary" />
+          </div>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
         <div className="flex items-center justify-between mb-1">
           <h3 className="text-sm font-medium text-foreground truncate">
-            {conversation.conversation_name || "Untitled Conversation"}
+            {conversation.type === "dm"
+              ? dmOther?.name ||
+                conversation.conversation_name ||
+                "Untitled Conversation"
+              : conversation.conversation_name || "Untitled Conversation"}
           </h3>
-          <div className="flex items-center gap-1">
-            <Star className="w-3 h-3 text-muted-foreground" />
-            <Clock className="w-3 h-3 text-muted-foreground" />
-          </div>
+          <span className="shrink-0 text-[11px] text-muted-foreground ml-2">
+            {formatShortRelativeTime(conversation.last_message?.time)}
+          </span>
         </div>
 
-        <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
-          {conversation.conversation_description || "No description"}
-        </p>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            {conversation.assistants && (
-              <Badge variant="secondary" className="text-xs px-2 py-0.5">
-                Assistant
-              </Badge>
-            )}
-            {conversation.participants &&
-              conversation.participants.length > 0 && (
-                <Badge variant="outline" className="text-xs px-2 py-0.5">
-                  {conversation.participants.length} participant
-                  {conversation.participants.length > 1 ? "s" : ""}
-                </Badge>
-              )}
-          </div>
-
-          <span className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(), { addSuffix: true })}
-          </span>
+        <div className="flex items-center justify-between gap-2">
+          <p className="flex-1 text-sm text-muted-foreground truncate">
+            {conversation.last_message?.content || "No messages yet"}
+          </p>
         </div>
       </div>
     </div>
@@ -97,15 +140,44 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
   onConversationSelect,
   selectedConversationId,
   isCollapsed = false,
-  onToggleCollapse,
+  onToggleCollapse: _onToggleCollapse, // kept for API compatibility
 }) => {
   const { t } = useTranslation();
-  const { workspaceId, setConversationId } = useStudent();
+  const { workspaceId, setConversationId, assistantId } = useStudent();
+  const { user } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
   const [conversations, setConversations] = useState<ConversationListItem[]>(
     []
   );
   const [isLoading, setIsLoading] = useState(true);
+
+  // New group dialog state
+  const [isGroupDialogOpen, setIsGroupDialogOpen] = useState(false);
+  const [groupName, setGroupName] = useState("");
+  const [membersLoading, setMembersLoading] = useState(false);
+  const [workspaceMembers, setWorkspaceMembers] = useState<WorkspaceMember[]>(
+    []
+  );
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(
+    new Set()
+  );
+  const [creatingGroup, setCreatingGroup] = useState(false);
+
+  const getDmTarget = (
+    conversation: ConversationListItem
+  ): {
+    id: string;
+    kind: "user" | "assistant";
+    name?: string | null;
+    image?: string | null;
+  } | null => {
+    if (conversation.type !== "dm") return null;
+    const list = conversation.participants || [];
+    const me = list.find(
+      (p) => p.kind === "user" && p.id === (user?.id ?? null)
+    );
+    return me || null;
+  };
 
   // Fetch conversations
   useEffect(() => {
@@ -125,10 +197,21 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
             response.conversations.map(
               (c: any): ConversationListItem => ({
                 id: c.id ?? null,
+                type: c.type ?? undefined,
                 assistants: c.assistants ?? null,
                 participants: c.participants ?? [],
                 conversation_name: c.title ?? null,
                 conversation_description: c.conversation_description ?? "",
+                last_message: c.last_message
+                  ? {
+                      time: c.last_message.created_at || c.last_message.time,
+                      content: c.last_message.content,
+                      sender:
+                        c.last_message.sender_user_id ||
+                        c.last_message.sender_assistant_id ||
+                        "",
+                    }
+                  : undefined,
               })
             )
           );
@@ -136,62 +219,6 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
       } catch (error) {
         console.error("Failed to fetch conversations:", error);
         // Fallback mock data
-        setConversations([
-          {
-            id: "mock-1",
-            assistants: {
-              id: "assistant-1",
-              name: "AI Assistant",
-              image: "",
-              tagline: "Your AI helper",
-            },
-            participants: [
-              {
-                id: "user-1",
-                kind: "user" as const,
-                name: "John Doe",
-              },
-            ],
-            conversation_name: "Design sync with team",
-            conversation_description: "Catch up and next steps",
-          },
-          {
-            id: "mock-2",
-            assistants: {
-              id: "assistant-2",
-              name: "Code Helper",
-              image: "",
-              tagline: "Code assistance",
-            },
-            participants: [
-              {
-                id: "user-2",
-                kind: "user" as const,
-                name: "Jane Smith",
-              },
-            ],
-            conversation_name: "Onboarding questions",
-            conversation_description: "HR and access setup",
-          },
-          {
-            id: "mock-3",
-            assistants: {
-              id: "assistant-3",
-              name: "Project Manager",
-              image: "",
-              tagline: "Project guidance",
-            },
-            participants: [
-              {
-                id: "user-3",
-                kind: "user" as const,
-                name: "Bob Wilson",
-              },
-            ],
-            conversation_name: "Sprint planning",
-            conversation_description: "Backlog and priorities",
-          },
-        ]);
       } finally {
         setIsLoading(false);
       }
@@ -216,14 +243,101 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
     onConversationSelect?.(conversationId);
   };
 
+  const loadMembers = useCallback(async () => {
+    if (!workspaceId) return;
+    try {
+      setMembersLoading(true);
+      const res = await listMembers(workspaceId);
+      setWorkspaceMembers(res.items || []);
+      // Preselect current user for convenience
+      if (user?.id) setSelectedUserIds(new Set([user.id]));
+    } catch (e) {
+      // swallow error, UI will show empty list
+      setWorkspaceMembers([]);
+    } finally {
+      setMembersLoading(false);
+    }
+  }, [workspaceId, user?.id]);
+
   const handleNewConversation = () => {
-    // Create new conversation logic here
-    console.log("Creating new conversation");
+    setGroupName("");
+    setSelectedUserIds(new Set(user?.id ? [user.id] : []));
+    setIsGroupDialogOpen(true);
+    void loadMembers();
   };
 
-  const handleToggleCollapse = () => {
-    onToggleCollapse?.();
+  const toggleMember = (id: string) => {
+    setSelectedUserIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
   };
+
+  const refreshConversations = useCallback(async () => {
+    if (!workspaceId) return;
+    const response = await listConversations({
+      workspace_id: workspaceId,
+      page_number: 1,
+      page_size: 100,
+    });
+    if (response && Array.isArray(response.conversations)) {
+      setConversations(
+        response.conversations.map(
+          (c: any): ConversationListItem => ({
+            id: c.id ?? null,
+            type: c.type ?? undefined,
+            assistants: c.assistants ?? null,
+            participants: c.participants ?? [],
+            conversation_name: c.title ?? null,
+            conversation_description: c.conversation_description ?? "",
+            last_message: c.last_message
+              ? {
+                  time: c.last_message.created_at || c.last_message.time,
+                  content: c.last_message.content,
+                  sender:
+                    c.last_message.sender_user_id ||
+                    c.last_message.sender_assistant_id ||
+                    "",
+                }
+              : undefined,
+          })
+        )
+      );
+    }
+  }, [workspaceId]);
+
+  const handleCreateGroup = async () => {
+    if (!workspaceId || !user?.id) return;
+    const participant_user_ids = Array.from(selectedUserIds);
+    if (participant_user_ids.length === 0) return;
+    try {
+      setCreatingGroup(true);
+      const resp = await createConversation({
+        workspace_id: workspaceId,
+        type: "group",
+        title: groupName || "New group",
+        created_by_user: user.id,
+        participant_user_ids,
+        participant_assistant_ids: assistantId ? [assistantId] : [],
+      });
+      await refreshConversations();
+      if (resp?.id) {
+        handleConversationClick(resp.id);
+      }
+      setIsGroupDialogOpen(false);
+    } catch (e) {
+      // TODO: surface toast
+      // console.error(e);
+    } finally {
+      setCreatingGroup(false);
+    }
+  };
+
+  // const handleToggleCollapse = () => {
+  //   onToggleCollapse?.();
+  // };
 
   return (
     <div className={cn("flex flex-col h-full bg-background", className)}>
@@ -302,9 +416,17 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                   conversation.conversation_name || "Untitled Conversation"
                 }
               >
-                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                  <MessageSquare className="w-4 h-4 text-primary" />
-                </div>
+                {getDmTarget(conversation) ? (
+                  <UserAvatar
+                    name={getDmTarget(conversation)?.name || "Chat"}
+                    avatarUrl={getDmTarget(conversation)?.image}
+                    className="w-8 h-8"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                    <MessageSquare className="w-4 h-4 text-primary" />
+                  </div>
+                )}
               </div>
             ))}
             {conversations.length > 8 && (
@@ -339,7 +461,7 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
             )}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {filteredConversations.map((conversation) => (
               <ConversationItem
                 key={conversation.id}
@@ -348,11 +470,93 @@ export const MessagesPanel: React.FC<MessagesPanelProps> = ({
                 onClick={() =>
                   conversation.id && handleConversationClick(conversation.id)
                 }
+                currentUserId={user?.id ?? null}
               />
             ))}
           </div>
         )}
       </div>
+      {/* Create Group Dialog */}
+      <Dialog open={isGroupDialogOpen} onOpenChange={setIsGroupDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create group</DialogTitle>
+          </DialogHeader>
+          <div className="flex flex-col gap-3">
+            <div>
+              <Input
+                placeholder="Group name"
+                value={groupName}
+                onChange={(e) => setGroupName(e.target.value)}
+              />
+            </div>
+            <div className="max-h-60 overflow-y-auto rounded-md border border-border p-2">
+              {membersLoading ? (
+                <div className="text-sm text-muted-foreground p-2">
+                  Loading members...
+                </div>
+              ) : workspaceMembers.length === 0 ? (
+                <div className="text-sm text-muted-foreground p-2">
+                  No members
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {workspaceMembers.map((m) => {
+                    const checked = selectedUserIds.has(m.user_id);
+                    return (
+                      <button
+                        type="button"
+                        key={m.user_id}
+                        onClick={() => toggleMember(m.user_id)}
+                        className={cn(
+                          "w-full flex items-center gap-3 rounded-md p-2 text-left hover:bg-accent/50",
+                          checked && "bg-accent/30"
+                        )}
+                      >
+                        <Checkbox
+                          checked={checked}
+                          onCheckedChange={() => toggleMember(m.user_id)}
+                        />
+                        <UserAvatar
+                          name={m.full_name || m.email}
+                          avatarUrl={m.avatar_url || undefined}
+                          className="h-7 w-7 rounded-md"
+                        />
+                        <div className="min-w-0">
+                          <div className="text-sm font-medium truncate">
+                            {m.full_name || m.email}
+                          </div>
+                          <div className="text-xs text-muted-foreground truncate">
+                            {m.email}
+                          </div>
+                        </div>
+                        <div className="ml-auto text-xs text-muted-foreground capitalize">
+                          {m.role}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setIsGroupDialogOpen(false)}
+              disabled={creatingGroup}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={handleCreateGroup}
+              disabled={creatingGroup || selectedUserIds.size === 0}
+            >
+              {creatingGroup ? "Creating..." : "Create"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

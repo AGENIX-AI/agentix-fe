@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,25 +9,62 @@ import { workspaceService } from "@/services/workspaces";
 import type { CreateWorkspaceRequest } from "@/services/workspaces/types";
 
 export default function WorkspaceOnboarding() {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [error, setError] = useState<string>("");
   const [loading, setLoading] = useState(false);
 
+  // If user already has a workspace, redirect to working page
+  useEffect(() => {
+    let isMounted = true;
+    workspaceService
+      .list()
+      .then((res) => {
+        if (!isMounted) return;
+        const count = res.items?.length || 0;
+        if (count > 0) {
+          navigate("/working", { replace: true });
+        }
+      })
+      .catch(() => {})
+      .finally(() => {});
+    return () => {
+      isMounted = false;
+    };
+  }, [navigate]);
+
+  const isValidHttpUrl = (value: string): boolean => {
+    try {
+      const url = new URL(value);
+      return url.protocol === "http:" || url.protocol === "https:";
+    } catch (_) {
+      return false;
+    }
+  };
+
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    const trimmedImageUrl = imageUrl.trim();
+
+    // Validate optional image URL: must be a valid http(s) URL if provided
+    if (trimmedImageUrl && !isValidHttpUrl(trimmedImageUrl)) {
+      setError("Image URL must be a valid http(s) URL");
+      return;
+    }
+
     setLoading(true);
     const payload: CreateWorkspaceRequest = {
       name,
       description: description || undefined,
-      image_url: imageUrl || undefined,
+      image_url: trimmedImageUrl || undefined,
       is_default: true,
     };
     try {
       await workspaceService.create(payload);
-      window.location.href = "/home";
+      navigate("/working", { replace: true });
     } catch (e: any) {
       setError(e?.response?.data?.detail || "Failed to create workspace");
     } finally {

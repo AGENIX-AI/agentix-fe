@@ -80,10 +80,17 @@ const TypingIndicator = memo(
 TypingIndicator.displayName = "TypingIndicator";
 
 interface Message {
+  id?: string;
   sender: "student" | "instructor" | "agent";
   content: string;
   time: number;
   invocation_id?: string;
+  reply_to_brief?: {
+    id: string;
+    content?: string;
+    sender_user_id?: string | null;
+    sender_assistant_id?: string | null;
+  };
 }
 
 // WebSocket event interface
@@ -108,6 +115,10 @@ export function ChatComponent() {
   } = useStudent();
 
   const [messages, setMessages] = useState<Message[]>([]);
+  const [replyTo, setReplyTo] = useState<{
+    id: string;
+    preview: string;
+  } | null>(null);
   const [isAgentResponding, setIsAgentResponding] = useState<boolean>(false);
   const [isUploadingFile, setIsUploadingFile] = useState(false);
   type ChatUser = { id: string; name?: string; avatar_url?: string };
@@ -262,10 +273,15 @@ export function ChatComponent() {
       // Support new shape (messages[]) and legacy shape (history[])
       if (Array.isArray(response?.messages)) {
         const mapped: Message[] = response.messages.map((m: any) => ({
+          id: m.id,
           sender: m.sender_assistant_id ? "agent" : "student",
           content: m.content,
-          time: Math.floor(Date.now() / 1000),
+          time:
+            Math.floor(
+              Date.parse(m.created_at || new Date().toISOString()) / 1000
+            ) || Math.floor(Date.now() / 1000),
           invocation_id: undefined,
+          reply_to_brief: m.reply_to_brief,
         }));
         setMessages(mapped);
         // No participant info in this response; keep conversationData as-is
@@ -387,8 +403,11 @@ export function ChatComponent() {
         "Sending message to API with conversationId:",
         conversationId
       );
-      const response = await sendMessage(conversationId, content);
+      const response = await sendMessage(conversationId, content, {
+        reply_to_message_id: replyTo?.id,
+      });
       console.log("Received response:", response);
+      setReplyTo(null);
 
       // Agent response will come through WebSocket, no need to handle it here
     } catch (error) {
@@ -707,6 +726,9 @@ export function ChatComponent() {
                 inputRef={inputRef}
                 isAgentResponding={isAgentResponding}
                 conversationData={conversationDataForChatBox}
+                onReply={(p) => setReplyTo(p)}
+                replyTo={replyTo}
+                onClearReply={() => setReplyTo(null)}
               />
             );
           })()}

@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useAuth } from "./contexts/AuthContext";
 import { Toaster } from "sonner";
 
 // Pages
@@ -30,8 +31,8 @@ function App() {
         <BrowserRouter>
           <Routes>
             {/* Public Routes */}
-            <Route path="/" element={<FourPanelLayout />} />
-            <Route path="/working" element={<FourPanelLayout />} />
+            <Route path="/" element={<RootGate />} />
+
             <Route path="/auth/login" element={<Login />} />
             <Route path="/auth/signup" element={<Signup />} />
             <Route path="/auth/magic-link" element={<MagicLink />} />
@@ -46,11 +47,12 @@ function App() {
             {/* Protected Routes */}
             <Route element={<PrivateRoute />}>
               <Route path="/home" element={<Home />} />
+              <Route path="/working" element={<FourPanelLayout />} />
               <Route path="/admin/*" element={<AdminPortal />} />
               {/* Add more protected routes here */}
             </Route>
 
-            {/* Redirect any unknown routes to the 4-panel layout */}
+            {/* Redirect any unknown routes to root gate */}
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           {/* Global Copilot popup so it can navigate and access router context */}
@@ -64,3 +66,19 @@ function App() {
 }
 
 export default App;
+
+function RootGate() {
+  const { isAuthenticated, loading } = useAuth();
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        Loading...
+      </div>
+    );
+  }
+  return isAuthenticated ? (
+    <Navigate to="/working" replace />
+  ) : (
+    <Navigate to="/auth/login" replace />
+  );
+}

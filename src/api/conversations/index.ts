@@ -101,6 +101,7 @@ export interface MessageResponseDTO {
   sender_assistant_id?: string | null;
   content: string;
   meta: Record<string, any>;
+  created_at?: string; // ISO timestamp from backend
 }
 
 export interface MessageListResponseDTO {
@@ -219,13 +220,21 @@ export async function listParticipantsBrief(
 // Legacy student chat send endpoint
 export async function sendMessage(
   conversation_id: string,
-  content: string
+  content: string,
+  options?: { reply_to_message_id?: string }
 ): Promise<MessageResponseDTO> {
   const res = await fetch(`${baseUrl}/conversations/messages`, {
     method: "POST",
     credentials: "include",
     headers: getAuthHeaders(),
-    body: JSON.stringify({ conversation_id, content, meta: {} }),
+    body: JSON.stringify({
+      conversation_id,
+      content,
+      meta: {},
+      ...(options?.reply_to_message_id
+        ? { reply_to_message_id: options.reply_to_message_id }
+        : {}),
+    }),
   });
   if (!res.ok) throw new Error("Failed to send message");
   return res.json();
