@@ -4,10 +4,7 @@ import { useTranslation } from "react-i18next";
 import { useStudent } from "@/contexts/StudentContext";
 import { UserConversationsBlock } from "./UserConversationsBlock";
 import type { ConversationListItem } from "@/lib/utils/types/conversation";
-import {
-  BaseHistoryComponent,
-  HistorySection,
-} from "@/components/reused/history";
+import { BaseHistoryComponent } from "@/components/reused/history";
 import { listConversations } from "@/api/conversations";
 import { Input } from "@/components/ui/input";
 import { Play, Search } from "lucide-react";
@@ -35,7 +32,6 @@ export function HistoryComponent({
     []
   );
   const [dataFetched, setDataFetched] = useState(false);
-  const [isChatsExpanded, setIsChatsExpanded] = useState(true);
 
   // Fetch data once when component mounts - NOT on every visibility change
   useEffect(() => {

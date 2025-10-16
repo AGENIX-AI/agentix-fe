@@ -27,3 +27,4 @@ nginx/
 
 # Authentication tokens
 .npmrc
+.env.*

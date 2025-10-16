@@ -9,12 +9,10 @@ import type { Assistant } from "@/api/assistants";
 import type { InstructorProfile } from "@/api/instructor";
 import { getInstructorById } from "@/api/instructor";
 import { getConversationById } from "@/api/conversations";
+import type { ConversationResponseDTO } from "@/api/conversations";
 import { LoadingState } from "@/components/ui/loading-state";
 
-interface ConversationData {
-  type?: string;
-  [key: string]: unknown;
-}
+type ConversationData = ConversationResponseDTO;
 
 interface AssistantBannerProps {
   assistant: Assistant | null;
@@ -135,6 +133,7 @@ export function AssistantView({ defaultTab }: { defaultTab: string }) {
           // Fetch conversation data if conversationId is available
           if (conversationId) {
             const convData = await getConversationById(conversationId);
+
             setConversationData(convData);
           }
         } catch (error) {

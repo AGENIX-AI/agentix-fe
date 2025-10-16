@@ -325,7 +325,7 @@ export const ConversationTasks = memo(
           <div className="flex flex-col items-center gap-6">
             <Loader2Icon className="h-10 w-10 text-primary animate-spin" />
             <P className="text-muted-foreground text-center">
-              {t('student.assistantProfile.loadingCanvas')}
+              {t("student.assistantProfile.loadingCanvas")}
             </P>
           </div>
         </div>
@@ -349,10 +349,10 @@ export const ConversationTasks = memo(
             <div className="flex flex-col items-center justify-center py-6 text-center">
               <ListTodo size={48} className="text-muted-foreground mb-3" />
               <H4 className="font-medium mb-3">
-                {t('student.assistantProfile.noTasksAvailable')}
+                {t("student.assistantProfile.noTasksAvailable")}
               </H4>
               <P className="text-muted-foreground max-w-md">
-                {t('student.assistantProfile.noTasksDescription')}
+                {t("student.assistantProfile.noTasksDescription")}
               </P>
             </div>
           </div>
@@ -370,11 +370,14 @@ export const ConversationTasks = memo(
         <div className="px-6 py-3">
           <div className="space-y-3">
             <Large className="p-0">
-              {tasks.conversation_name || t('student.assistantProfile.conversationTasks')}
+              {tasks.conversation_name ||
+                t("student.assistantProfile.conversationTasks")}
             </Large>
             {tasks.goal_description && (
               <div className="flex flex-col gap-1 mb-3">
-                <ExtraSmall className="font-semibold">{t('student.assistantProfile.goal')}:</ExtraSmall>
+                <ExtraSmall className="font-semibold">
+                  {t("student.assistantProfile.goal")}:
+                </ExtraSmall>
                 <ExtraSmall className="">{tasks.goal_description}</ExtraSmall>
               </div>
             )}
@@ -384,11 +387,17 @@ export const ConversationTasks = memo(
           <Table className="w-full max-w-full table-fixed overflow-hidden">
             <TableHeader className="text-xs">
               <TableRow>
-                <TableHead style={{ width: "5%" }}>{t('student.assistantProfile.step')}</TableHead>
-                <TableHead style={{ width: "70%" }}>
-                  <ExtraSmall className="ml-4">{t('student.assistantProfile.taskDetails')}</ExtraSmall>
+                <TableHead style={{ width: "5%" }}>
+                  {t("student.assistantProfile.step")}
                 </TableHead>
-                <TableHead style={{ width: "25%" }}>{t('student.assistantProfile.status')}</TableHead>
+                <TableHead style={{ width: "70%" }}>
+                  <ExtraSmall className="ml-4">
+                    {t("student.assistantProfile.taskDetails")}
+                  </ExtraSmall>
+                </TableHead>
+                <TableHead style={{ width: "25%" }}>
+                  {t("student.assistantProfile.status")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>

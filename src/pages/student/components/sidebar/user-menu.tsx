@@ -22,7 +22,6 @@ import {
   HomeIcon,
   LogOutIcon,
   MoonIcon,
-  MoreVerticalIcon,
   Notebook,
   SettingsIcon,
   SunIcon,

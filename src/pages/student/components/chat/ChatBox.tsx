@@ -65,7 +65,7 @@ export function ChatBox({
     if (conversationId) {
       getConversationById(conversationId).then((res) => {
         console.log("Conversation data:", res);
-        setConversation(res);
+        setConversation(res as unknown as Conversation);
       });
     }
   }, [conversationId]);

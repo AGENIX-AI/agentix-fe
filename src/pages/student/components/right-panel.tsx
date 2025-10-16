@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Large } from "@/components/ui/typography";
-import { memo, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { PanelRight } from "lucide-react";
@@ -15,7 +15,7 @@ import {
   listInvites,
   acceptInvite,
 } from "@/api/workspaces";
-import TaskPanel from "./task/TaskPanel";
+
 import { Calendar as UiCalendar } from "@/components/ui/calendar";
 
 const RightPanelHeader = ({ title }: { title: string }) => {
@@ -26,13 +26,7 @@ const RightPanelHeader = ({ title }: { title: string }) => {
   );
 };
 
-const CollapsedVerticalBar = ({
-  title,
-  toggleMiniapp,
-}: {
-  title: string;
-  toggleMiniapp: () => void;
-}) => {
+const CollapsedVerticalBar = ({ title }: { title: string }) => {
   return (
     <div className="h-full bg-background flex flex-col duration-200 shadow-sm relative ">
       {/* Expand button at top */}
@@ -74,13 +68,6 @@ export default function RightPanel({
   const { t } = useTranslation();
   const { rightPanel } = useStudent();
 
-  const toggleMiniapp = () => {
-    // Notify parent to toggle the state
-    if (onToggle) {
-      onToggle(!isCollapsed); // Toggle the collapsed state
-    }
-  };
-
   const getCurrentTitle = () => {
     switch (rightPanel) {
       case "empty":
@@ -94,12 +81,7 @@ export default function RightPanel({
 
   // Show collapsed vertical bar when collapsed
   if (isCollapsed) {
-    return (
-      <CollapsedVerticalBar
-        title={currentTitle}
-        toggleMiniapp={toggleMiniapp}
-      />
-    );
+    return <CollapsedVerticalBar title={currentTitle} />;
   }
 
   // Show expanded panel content

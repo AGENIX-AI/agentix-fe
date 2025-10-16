@@ -5,20 +5,16 @@ import { cn } from "@/lib/utils";
 import { useStudent } from "@/contexts/StudentContext";
 import { useCreditsPolling } from "@/hooks/useCreditsPolling";
 import { UserMenu } from "@/pages/student/components/sidebar/user-menu";
-import { useTranslation } from "react-i18next";
 
 interface SimpleSidebarProps {
   className?: string;
   isCollapsed?: boolean;
-  onToggle?: () => void;
 }
 
 export const SimpleSidebar: React.FC<SimpleSidebarProps> = ({
   className,
   isCollapsed = false,
-  onToggle,
 }) => {
-  const { t } = useTranslation();
   const { setRightPanel } = useStudent();
   const { credits, error: creditsError } = useCreditsPolling(5000);
 

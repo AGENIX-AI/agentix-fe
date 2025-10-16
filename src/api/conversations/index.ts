@@ -361,3 +361,22 @@ export async function getSpeech(data: any): Promise<any> {
 export async function instructorCreateLearningDiscuss(data: any): Promise<any> {
   return data;
 }
+
+export async function getConversations(conversationId: string): Promise<any> {
+  console.log("getConversations", conversationId);
+  return {};
+}
+
+export async function getConversationTasks(
+  conversationId: string
+): Promise<any> {
+  console.log("getConversationTasks", conversationId);
+  return {};
+}
+
+export async function createFirstConversation(
+  assistantId: string
+): Promise<any> {
+  console.log("createFirstConversation", assistantId);
+  return {};
+}

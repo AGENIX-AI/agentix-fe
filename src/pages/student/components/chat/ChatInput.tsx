@@ -591,7 +591,7 @@ export function ChatInput({
                 >
                   <Avatar className="h-6 w-6">
                     <AvatarImage
-                      src={conversationData.instructorInfo?.avatar_url}
+                      src={conversationData.instructorInfo?.image || ""}
                       alt={
                         conversationData.instructorInfo?.name ||
                         t("common.instructor", "Instructor")
